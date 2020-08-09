@@ -30,6 +30,3 @@ Collate:
     'zzz.R'
     'generics.R'
     'assay.R'
-    'dimreduc.R'
-    'graph.R'
-    'seurat.R'
