@@ -24,7 +24,11 @@ RoxygenNote: 7.1.1
 Depends:
   R (>= 3.5.0)
 Imports:
-  methods
+  Matrix (>= 1.2.18),
+  methods,
+  rlang (>= 0.4.7),
+  stats,
+  utils
 Collate: 
     'utils.R'
     'zzz.R'
