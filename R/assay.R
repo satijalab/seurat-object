@@ -1,5 +1,6 @@
 #' @include zzz.R
 #' @include generics.R
+#' @importFrom methods new
 #'
 NULL
 
@@ -1055,6 +1056,8 @@ setMethod(
   }
 )
 
+#' @importFrom utils head
+#'
 setMethod(
   f = 'show',
   signature = 'Assay',

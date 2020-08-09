@@ -1,3 +1,48 @@
+#' Set a default value depending on if an object is \code{NULL}
+#'
+#' @param x An object to test
+#' @param y A default value
+#'
+#' @return For \code{\%||\%}: \code{y} if \code{x} is \code{NULL} otherwise
+#' \code{x}
+#'
+#' @importFrom rlang %||%
+#'
+#' @name set-if-null
+#' @rdname set-if-null
+#'
+#' @keywords internal
+#'
+#' @concept infix
+#'
+#' @examples
+#' 1 %||% 2
+#' NULL %||% 2
+#'
+rlang::`%||%`
+
+#' @rdname set-if-null
+#'
+#' @return For \code{\%iff\%}: \code{y} if \code{x} is \strong{not} \code{NULL};
+#' otherwise \code{x}
+#'
+#' @importFrom rlang is_null
+#'
+#' @keywords internal
+#'
+#' @concept infix
+#'
+#' @examples
+#' 1 %iff% 2
+#' NULL %iff% 2
+#'
+`%iff%` <- function(x, y) {
+  if (!is_null(x = x)) {
+    return(y)
+  }
+  return(x)
+}
+
 #' Check the use of ...
 #'
 #' @param ... Arguments passed to a function that fall under ...
@@ -120,18 +165,34 @@ CheckDots <- function(..., fxns = NULL) {
         "silent" = NULL,
         stop("Invalid Seurat.checkdots option. Please choose one of warn, stop, silent")
       )
-      unused.hints <- sapply(X = unused, FUN = OldParamHints)
-      names(x = unused.hints) <- unused
-      unused.hints <- na.omit(object = unused.hints)
-      if (length(x = unused.hints) > 0) {
-        message(
-          "Suggested parameter: ",
-          paste(unused.hints, "instead of", names(x = unused.hints), collapse = '; '),
-          "\n"
-        )
-      }
+      # unused.hints <- sapply(X = unused, FUN = OldParamHints)
+      # names(x = unused.hints) <- unused
+      # unused.hints <- na.omit(object = unused.hints)
+      # if (length(x = unused.hints) > 0) {
+      #   message(
+      #     "Suggested parameter: ",
+      #     paste(unused.hints, "instead of", names(x = unused.hints), collapse = '; '),
+      #     "\n"
+      #   )
+      # }
     }
   }
+}
+
+#' Check if a matrix is empty
+#'
+#' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
+#'
+#' @param x A matrix
+#'
+#' @return Whether or not \code{x} is empty
+#'
+#' @keywords internal
+#'
+IsMatrixEmpty <- function(x) {
+  matrix.dims <- dim(x = x)
+  matrix.na <- all(matrix.dims == 1) && all(is.na(x = x))
+  return(all(matrix.dims == 0) || matrix.na)
 }
 
 #' Update slots in an object
@@ -139,6 +200,8 @@ CheckDots <- function(..., fxns = NULL) {
 #' @param object An object to update
 #'
 #' @return \code{object} with the latest slot definitions
+#'
+#' @importFrom methods slotNames
 #'
 #' @keywords internal
 #'
