@@ -138,6 +138,7 @@ as.logical.JackStrawData <- function(x, ...) {
 #' invisibly returns \code{NULL}
 #'
 #' @importFrom utils head
+#' @importFrom methods show
 #'
 #' @export
 #'

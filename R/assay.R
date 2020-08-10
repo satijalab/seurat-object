@@ -1100,6 +1100,7 @@ setMethod(
 #' invisibly returns \code{NULL}
 #'
 #' @importFrom utils head
+#' @importFrom methods show
 #'
 #' @export
 #'

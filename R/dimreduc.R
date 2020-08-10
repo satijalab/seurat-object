@@ -746,6 +746,8 @@ subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
 #' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
 #' invisibly returns \code{NULL}
 #'
+#' @importFrom methods show
+#'
 #' @export
 #'
 setMethod(
