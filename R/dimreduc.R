@@ -465,6 +465,28 @@ Stdev.DimReduc <- function(object, ...) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' \code{DimReduc} Methods
+#'
+#' Methods for \code{\link{DimReduc}} objects for generics defined in
+#' other packages
+#'
+#' @inheritParams Assay-methods
+#' @param x,object A \code{\link{DimReduc}} object
+#' @param i For \code{[}: feature names or indices; for \code{[[}: cell names
+#' or indices
+#' @param j Dimensions to pull for
+#' @param ... Arguments passed to other methods
+#'
+#' @name DimReduc-methods
+#' @rdname DimReduc-methods
+#'
+NULL
+
+#' @describeIn DimReduc-methods Pull feature loadings
+#'
+#' @return \code{[}: Feature loadings for features \code{i} and dimensions
+#' \code{j}
+#'
 #' @export
 #' @method [ DimReduc
 #'
@@ -492,6 +514,10 @@ Stdev.DimReduc <- function(object, ...) {
   return(Loadings(object = x)[i, j, drop = drop, ...])
 }
 
+#' @describeIn DimReduc-methods Pull cell embeddings
+#'
+#' @return \code{[[}: Cell mebeddings for cells \code{i} and dimensions \code{j}
+#'
 #' @export
 #' @method [[ DimReduc
 #'
@@ -519,6 +545,12 @@ Stdev.DimReduc <- function(object, ...) {
   return(embeddings[i, j, drop = drop, ...])
 }
 
+#' @describeIn DimReduc-methods The number of cells and dimensions for a
+#' \code{DimReduc}
+#'
+#' @return \code{dim}: The number of cells (\code{nrow}) and dimensions
+#' (\code{ncol})
+#'
 #' @export
 #' @method dim DimReduc
 #'
@@ -526,6 +558,11 @@ dim.DimReduc <- function(x) {
   return(dim(x = Embeddings(object = x)))
 }
 
+#' @describeIn DimReduc-methods The cell and dimension names for a
+#' \code{DimReduc} object
+#'
+#' @return \code{dimnames}: The cell (row) and dimension (column) names
+#'
 #' @export
 #' @method dimnames DimReduc
 #'
@@ -533,6 +570,11 @@ dimnames.DimReduc <- function(x) {
   return(dimnames(x = Embeddings(object = x)))
 }
 
+#' @describeIn DimReduc-methods The number of dimensions for a \code{DimReduc}
+#' object
+#'
+#' @return \code{length}: The number of dimensions
+#'
 #' @export
 #' @method length DimReduc
 #'
@@ -540,6 +582,10 @@ length.DimReduc <- function(x) {
   return(ncol(x = Embeddings(object = x)))
 }
 
+#' @describeIn DimReduc-methods The dimension names for a \code{DimReduc} object
+#'
+#' @return \code{names}: The names for the dimensions (eg. \dQuote{PC_1})
+#'
 #' @export
 #' @method names DimReduc
 #'
@@ -547,17 +593,17 @@ names.DimReduc <- function(x) {
   return(colnames(x = Embeddings(object = x)))
 }
 
-#' Print the results of a dimensional reduction analysis
+#' @describeIn DimReduc-methods Prints a set of features that most strongly
+#' define a set of components; \strong{note}: requires feature loadings to be
+#' present in order to work
 #'
-#' Prints a set of features that most strongly define a set of components
-#'
-#' @param x An object
 #' @param dims Number of dimensions to display
 #' @param nfeatures Number of genes to display
 #' @param projected Use projected slot
 #' @param ... Arguments passed to other methods
 #'
-#' @return Set of features defining the components
+#' @return \code{print}: Displays set of features defining the components and
+#' invisibly returns \code{x}
 #'
 #' @aliases print
 #' @seealso \code{\link[base]{cat}}
@@ -574,48 +620,63 @@ print.DimReduc <- function(
 ) {
   CheckDots(...)
   loadings <- Loadings(object = x, projected = projected)
-  nfeatures <- min(nfeatures, nrow(x = loadings))
-  if (ncol(x = loadings) == 0) {
-    warning("Dimensions have not been projected. Setting projected = FALSE")
-    projected <- FALSE
-    loadings <- Loadings(object = x, projected = projected)
-  }
-  if (min(dims) > ncol(x = loadings)) {
-    stop("Cannot print dimensions greater than computed")
-  }
-  if (max(dims) > ncol(x = loadings)) {
-    warning(paste0("Only ", ncol(x = loadings), " dimensions have been computed."))
-    # dims <- min(dims):ncol(x = loadings)
-    dims <- intersect(x = dims, y = seq_len(length.out = ncol(x = loadings)))
-  }
-  for (dim in dims) {
-    features <- TopFeatures(
-      object = x,
-      dim = dim,
-      nfeatures = nfeatures * 2,
-      projected = projected,
-      balanced = TRUE
-    )
-    cat(Key(object = x), dim, '\n')
-    pos.features <- split(x = features$positive, f = ceiling(x = seq_along(along.with = features$positive) / 10))
-    cat("Positive: ", paste(pos.features[[1]], collapse = ", "), '\n')
-    pos.features[[1]] <- NULL
-    if (length(x = pos.features) > 0) {
-      for (i in pos.features) {
-        cat("\t  ", paste(i, collapse = ", "), '\n')
+  if (!IsMatrixEmpty(x = loadings)) {
+    nfeatures <- min(nfeatures, nrow(x = loadings))
+    if (ncol(x = loadings) == 0) {
+      warning("Dimensions have not been projected. Setting projected = FALSE")
+      projected <- FALSE
+      loadings <- Loadings(object = x, projected = projected)
+    }
+    if (min(dims) > ncol(x = loadings)) {
+      stop("Cannot print dimensions greater than computed")
+    }
+    if (max(dims) > ncol(x = loadings)) {
+      warning("Only ", ncol(x = loadings), " dimensions have been computed.")
+      # dims <- min(dims):ncol(x = loadings)
+      dims <- intersect(x = dims, y = seq_len(length.out = ncol(x = loadings)))
+    }
+    for (dim in dims) {
+      features <- TopFeatures(
+        object = x,
+        dim = dim,
+        nfeatures = nfeatures * 2,
+        projected = projected,
+        balanced = TRUE
+      )
+      cat(Key(object = x), dim, '\n')
+      pos.features <- split(
+        x = features$positive,
+        f = ceiling(x = seq_along(along.with = features$positive) / 10)
+      )
+      cat("Positive: ", paste(pos.features[[1]], collapse = ", "), '\n')
+      pos.features[[1]] <- NULL
+      if (length(x = pos.features) > 0) {
+        for (i in pos.features) {
+          cat("\t  ", paste(i, collapse = ", "), '\n')
+        }
+      }
+      neg.features <- split(
+        x = features$negative,
+        f = ceiling(x = seq_along(along.with = features$negative) / 10)
+      )
+      cat("Negative: ", paste(neg.features[[1]], collapse = ", "), '\n')
+      neg.features[[1]] <- NULL
+      if (length(x = neg.features) > 0) {
+        for (i in neg.features) {
+          cat("\t  ", paste(i, collapse = ", "), '\n')
+        }
       }
     }
-    neg.features <- split(x = features$negative, f = ceiling(x = seq_along(along.with = features$negative) / 10))
-    cat("Negative: ", paste(neg.features[[1]], collapse = ", "), '\n')
-    neg.features[[1]] <- NULL
-    if (length(x = neg.features) > 0) {
-      for (i in neg.features) {
-        cat("\t  ", paste(i, collapse = ", "), '\n')
-      }
-    }
   }
+  return(invisible(x = x))
 }
 
+#' @describeIn DimReduc-methods Subset a \code{DimReduc} object
+#'
+#' @param cells,features Cells and features to keep during the subset
+#'
+#' @return \code{subset}: \code{x} for cells \code{cells} and features \code{features}
+#'
 #' @export
 #' @method subset DimReduc
 #'
@@ -680,6 +741,13 @@ subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @describeIn DimReduc-methods Show basic summary of a \code{DimReduc} object
+#'
+#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
+#' invisibly returns \code{NULL}
+#'
+#' @export
+#'
 setMethod(
   f = 'show',
   signature = 'DimReduc',
@@ -691,6 +759,7 @@ setMethod(
       'Jackstraw run:', as.logical(x = JS(object = object)), '\n',
       'Computed using assay:', DefaultAssay(object = object), '\n'
     )
+    return(invisible(x = NULL))
   }
 )
 

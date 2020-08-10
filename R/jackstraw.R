@@ -74,6 +74,23 @@ JS.JackStrawData <- function(object, slot, ...) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' \code{JackStrawData} Methods
+#'
+#' Methods for \code{\link{JackStrawData}} objects for generics defined in
+#' other packages
+#'
+#' @param x,object A \code{\link{JackStrawData}} object
+#'
+#' @name JackStrawData-methods
+#' @rdname JackStrawData-methods
+#'
+NULL
+
+#' @describeIn JackStrawData-methods Autocompletion for \code{$} access on a
+#' \code{JackStrawData} object
+#'
+#' @inheritParams utils::.DollarNames
+#'
 #' @importFrom utils .DollarNames
 #' @export
 #' @method .DollarNames JackStrawData
@@ -84,23 +101,51 @@ JS.JackStrawData <- function(object, slot, ...) {
   return(.DollarNames(x = slotnames, pattern = pattern))
 }
 
+#' @describeIn JackStrawData-methods Access data from a \code{JackStrawData}
+#' object
+#'
+#' @param i A \code{JackStrawData} slot name
+#'
+#' @return \code{$}: Slot \code{i} from \code{x}
 #' @export
 #'
 "$.JackStrawData" <- function(x, i, ...) {
   return(slot(object = x, name = i))
 }
 
+#' @describeIn JackStrawData-methods Have empirical p-values for a
+#' \code{JackStrawData} object been calculated
+#'
+#' @return \code{as.logical}: \code{TRUE} if empirical p-values have been
+#' calculated otherwise \code{FALSE}
+#'
+#' @export
+#' @method as.logical JackStrawData
+#'
+as.logical.JackStrawData <- function(x, ...) {
+  CheckDots(...)
+  empP <- JS(object = x, slot = 'empirical')
+  return(!(all(dim(x = empP) == 0) || all(is.na(x = empP))))
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @describeIn JackStrawData-methods Overview of an \code{JackStrawData} object
+#'
+#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
+#' invisibly returns \code{NULL}
+#'
+#' @importFrom utils head
+#'
+#' @export
+#'
 setMethod(
   f = 'show',
   signature = 'JackStrawData',
   definition = function(object) {
-    # empp <- GetJS(object = object, slot = "empirical.p.values")
     empp <- object$empirical.p.values
-    # scored <- GetJS(object = object, slot = "overall.p.values")
     scored <- object$overall.p.values
     cat(
       "A JackStrawData object simulated on",
@@ -112,5 +157,6 @@ setMethod(
       nrow(x = scored),
       "dimensions.\n"
     )
+    return(invisible(x = NULL))
   }
 )
