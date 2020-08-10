@@ -4,25 +4,22 @@
 \alias{AddMetaData}
 \alias{SeuratAccess}
 \alias{AddMetaData.Assay}
-\alias{[[<-,Assay-method}
 \title{Add in metadata associated with either cells or features.}
 \usage{
 AddMetaData(object, metadata, col.name = NULL)
 
 \method{AddMetaData}{Assay}(object, metadata, col.name = NULL)
-
-\S4method{[[}{Assay}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x, object}{An object}
 
 \item{i, col.name}{Name to store metadata or object as}
 
+\item{value, metadata}{Metadata or object to add}
+
 \item{j}{Ignored}
 
 \item{...}{Arguments passed to other methods}
-
-\item{value, metadata}{Metadata or object to add}
 }
 \value{
 An object with metadata or and object added

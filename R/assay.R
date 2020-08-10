@@ -681,9 +681,10 @@ WhichCells.Assay <- function(
 
 #' \code{Assay} Methods
 #'
-#' Methods for \code{\link{Assay}} for generics defined in other packages
+#' Methods for \code{\link{Assay}} objects for generics defined in
+#' other packages
 #'
-#' @param object,x An \code{\link{Assay}} object
+#' @param x,object An \code{\link{Assay}} object
 #' @param i,features For \code{[[}: metadata names; for all other methods,
 #' feature names or indices
 #' @param j,cells Cell names or indices
@@ -694,7 +695,7 @@ WhichCells.Assay <- function(
 #'
 NULL
 
-#' @describeIn Assay-methods Data accessor
+#' @describeIn Assay-methods Get expression data from an \code{Assay}
 #'
 #' @return \code{[}: The \code{data} slot for features \code{i} and cells
 #' \code{j}
@@ -712,7 +713,7 @@ NULL
   return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
 }
 
-#' @describeIn Assay-methods Metadata accessor
+#' @describeIn Assay-methods Get feature-level metadata
 #'
 #' @param drop See \code{\link[base]{drop}}
 #'
@@ -733,7 +734,7 @@ NULL
   return(data.return)
 }
 
-#' @describeIn Assay-methods Number of cells and features
+#' @describeIn Assay-methods Number of cells and features for an \code{Assay}
 #'
 #' @return \code{dim}: The number of features (\code{nrow}) and cells
 #' \code{ncol}
@@ -745,7 +746,7 @@ dim.Assay <- function(x) {
   return(dim(x = GetAssayData(object = x)))
 }
 
-#' @describeIn Assay-methods Cell- and feature-names
+#' @describeIn Assay-methods Cell- and feature-names for an \code{Assay}
 #'
 #' @return \code{dimnames}: Feature (row) and cell (column) names
 #'
@@ -756,7 +757,7 @@ dimnames.Assay <- function(x) {
   return(dimnames(x = GetAssayData(object = x)))
 }
 
-#' @describeIn Assay-methods Merge objects
+#' @describeIn Assay-methods Merge \code{Assay} objects
 #'
 #' @param y A vector or list of one or more objects to merge
 #' @param add.cell.ids A character vector of \code{length(x = c(x, y))}; appends
@@ -855,9 +856,9 @@ merge.Assay <- function(
   return(combined.assay)
 }
 
-#' @describeIn Assay-methods Subset object
+#' @describeIn Assay-methods Subset an \code{Assay}
 #'
-#' @return \code{subset}: A subsetted object
+#' @return \code{subset}: A subsetted \code{Assay}
 #'
 #' @importFrom stats na.omit
 #'
@@ -948,7 +949,13 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @rdname AddMetaData
+#' @describeIn Assay-methods Add feature-level metadata
+#'
+#' @param value Additional metadata to add
+#'
+#' @return \code{[[<-}: \code{x} with metadata \code{value} added as \code{i}
+#'
+#' @export
 #'
 setMethod(
   f = '[[<-',
@@ -996,7 +1003,17 @@ setMethod(
   }
 )
 
+#' @describeIn Assay-methods Calculate \code{\link[base]{colMeans}} on an
+#' \code{Assay}
+#'
+#' @inheritParams GetAssayData
+#' @inheritParams Matrix::colMeans
+#'
+#' @return \code{colMeans}: The column (cell-wise) means of \code{slot}
+#'
 #' @importFrom Matrix colMeans
+#'
+#' @export
 #'
 setMethod(
   f = 'colMeans',
@@ -1011,7 +1028,14 @@ setMethod(
   }
 )
 
+#' @describeIn Assay-methods Calculate \code{\link[base]{colSums}} on an
+#' \code{Assay}
+#'
+#' @return \code{colSums}: The column (cell-wise) sums of \code{slot}
+#'
 #' @importFrom Matrix colSums
+#'
+#' @export
 #'
 setMethod(
   f = 'colSums',
@@ -1026,7 +1050,14 @@ setMethod(
   }
 )
 
+#' @describeIn Assay-methods Calculate \code{\link[base]{rowMeans}} on an
+#' \code{Assay}
+#'
+#' @return \code{rowMeans}: The row (feature-wise) means of \code{slot}
+#'
 #' @importFrom Matrix rowMeans
+#'
+#' @export
 #'
 setMethod(
   f = 'rowMeans',
@@ -1041,7 +1072,14 @@ setMethod(
   }
 )
 
+#' @describeIn Assay-methods Calculate \code{\link[base]{rowSums}} on an
+#' \code{Assay}
+#'
+#' @return \code{rowSums}: The row (feature-wise) sums of \code{slot}
+#'
 #' @importFrom Matrix rowSums
+#'
+#' @export
 #'
 setMethod(
   f = 'rowSums',
@@ -1056,13 +1094,25 @@ setMethod(
   }
 )
 
+#' @describeIn Assay-methods Overview of an \code{Assay} object
+#'
+#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
+#' invisibly returns \code{NULL}
+#'
 #' @importFrom utils head
+#'
+#' @export
 #'
 setMethod(
   f = 'show',
   signature = 'Assay',
   definition = function(object) {
-    cat('Assay data with', nrow(x = object), 'features for', ncol(x = object), 'cells\n')
+    cat(
+      'Assay data with',
+      nrow(x = object),
+      'features for',
+      ncol(x = object), 'cells\n'
+    )
     if (length(x = VariableFeatures(object = object)) > 0) {
       top.ten <- head(x = VariableFeatures(object = object), n = 10L)
       top <- 'Top'
@@ -1075,7 +1125,10 @@ setMethod(
     features <- paste0(
       variable,
       ' feature',
-      if (length(x = top.ten) != 1) {'s'}, ":\n"
+      if (length(x = top.ten) != 1) {
+        's'
+      },
+      ":\n"
     )
     features <- gsub(pattern = '^\\s+', replacement = '', x = features)
     cat(
@@ -1085,6 +1138,7 @@ setMethod(
       paste(strwrap(x = paste(top.ten, collapse = ', ')), collapse = '\n'),
       '\n'
     )
+    return(invisible(x = NULL))
   }
 )
 
