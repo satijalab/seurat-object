@@ -43,24 +43,6 @@ setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
   return(object)
 }
 
-#' Check whether an assay has been processed by sctransform
-#'
-#' @param assay assay to check
-#'
-#' @return Boolean
-#'
-#' @keywords internal
-#'
-IsSCT <- function(assay) {
-  if (is.list(x = assay)) {
-    sct.check <- lapply(X = assay, FUN = function(x) {
-      return(!is.null(x = Misc(object = x, slot = 'vst.out')) | !is.null(x = Misc(object = x, slot = 'vst.set')))
-    })
-    return(unlist(x = sct.check))
-  }
-  return(!is.null(x = Misc(object = assay, slot = 'vst.out')) | !is.null(x = Misc(object = assay, slot = 'vst.set')))
-}
-
 #' Miscellaneous Data
 #'
 #' Internal functions for getting and setting miscellaneous data
@@ -105,44 +87,4 @@ IsSCT <- function(assay) {
     slot(object = object, name = 'misc')[[slot]] <- value
   }
   return(object)
-}
-
-#' Validate Assay Data for Merge
-#'
-#' Pulls the proper data matrix for merging assay data. If the slot is empty, will return an empty
-#' matrix with the proper dimensions from one of the remaining data slots.
-#'
-#' @param assay Assay to pull data from
-#' @param slot Slot to pull from
-#'
-#' @return Returns the data matrix if present (i.e.) not 0x0. Otherwise, returns an
-#' appropriately sized empty sparse matrix
-#'
-#' @importFrom Matrix Matrix
-#'
-#' @keywords internal
-#'
-ValidateDataForMerge <- function(assay, slot) {
-  mat <- GetAssayData(object = assay, slot = slot)
-  if (any(dim(x = mat) == c(0, 0))) {
-    slots.to.check <- setdiff(x = c("counts", "data", "scale.data"), y = slot)
-    for (ss in slots.to.check) {
-      data.dims <- dim(x = GetAssayData(object = assay, slot = ss))
-      data.slot <- ss
-      if (!any(data.dims == c(0, 0))) {
-        break
-      }
-    }
-    if (any(data.dims == c(0, 0))) {
-      stop("The counts, data, and scale.data slots are all empty for the provided assay.")
-    }
-    mat <- Matrix(
-      data = 0,
-      nrow = data.dims[1],
-      ncol = data.dims[2],
-      dimnames = dimnames(x = GetAssayData(object = assay, slot = data.slot))
-    )
-    mat <- as(object = mat, Class = "dgCMatrix")
-  }
-  return(mat)
 }

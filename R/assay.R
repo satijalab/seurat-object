@@ -1,6 +1,6 @@
 #' @include zzz.R
 #' @include generics.R
-#' @importFrom methods new
+#' @importFrom methods new slot slot<-
 #'
 NULL
 
@@ -10,10 +10,10 @@ NULL
 
 #' The Assay Class
 #'
-#' The Assay object is the basic unit of Seurat; each Assay stores raw, normalized, and scaled data
-#' as well as cluster information, variable features, and any other assay-specific metadata.
-#' Assays should contain single cell expression data such as RNA-seq, protein, or imputed expression
-#' data.
+#' The Assay object is the basic unit of Seurat; each Assay stores raw,
+#' normalized, and scaled data as well as cluster information, variable
+#' features, and any other assay-specific metadata. Assays should contain single
+#' cell expression data such as RNA-seq, protein, or imputed expression data.
 #'
 #' @slot counts Unnormalized data such as raw counts or TPMs
 #' @slot data Normalized expression data
@@ -704,10 +704,10 @@ NULL
 #'
 "[.Assay" <- function(x, i, j, ...) {
   if (missing(x = i)) {
-    i <- 1:nrow(x = x)
+    i <- seq_len(length.out = nrow(x = x))
   }
   if (missing(x = j)) {
-    j <- 1:ncol(x = x)
+    j <- seq_len(length.out = ncol(x = x))
   }
   return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
 }
@@ -844,7 +844,7 @@ merge.Assay <- function(
     Misc(object = combined.assay, slot = "umi.assay") <- umi.assay.new
     scale.data <- do.call(
       what = cbind,
-      args = lapply(X = assays, FUN = function(x) GetAssayData(object = x, slot = "scale.data"))
+      args = lapply(X = assays, FUN = GetAssayData, slot = "scale.data")
     )
     combined.assay <- SetAssayData(
       object = combined.assay,
@@ -1112,6 +1112,24 @@ CalcN <- function(object) {
   ))
 }
 
+#' Check whether an assay has been processed by sctransform
+#'
+#' @param assay assay to check
+#'
+#' @return Boolean
+#'
+#' @keywords internal
+#'
+IsSCT <- function(assay) {
+  if (is.list(x = assay)) {
+    sct.check <- lapply(X = assay, FUN = function(x) {
+      return(!is.null(x = Misc(object = x, slot = 'vst.out')) | !is.null(x = Misc(object = x, slot = 'vst.set')))
+    })
+    return(unlist(x = sct.check))
+  }
+  return(!is.null(x = Misc(object = assay, slot = 'vst.out')) | !is.null(x = Misc(object = assay, slot = 'vst.set')))
+}
+
 #' Subset cells in vst data
 #'
 #' @param sct.info A vst.out list
@@ -1126,4 +1144,46 @@ SubsetVST <- function(sct.info, cells, features) {
   feat.keep <- intersect(x = features, y = rownames(x = sct.info$gene_attr))
   sct.info$gene_attr <- sct.info$gene_attr[feat.keep, ]
   return(sct.info)
+}
+
+#' Validate Assay Data for Merge
+#'
+#' Pulls the proper data matrix for merging assay data. If the slot is empty,
+#' will return an empty matrix with the proper dimensions from one of the
+#' remaining data slots.
+#'
+#' @param assay Assay to pull data from
+#' @param slot Slot to pull from
+#'
+#' @return Returns the data matrix if present (i.e.) not 0x0. Otherwise, returns an
+#' appropriately sized empty sparse matrix
+#'
+#' @importFrom methods as
+#' @importFrom Matrix Matrix
+#'
+#' @keywords internal
+#'
+ValidateDataForMerge <- function(assay, slot) {
+  mat <- GetAssayData(object = assay, slot = slot)
+  if (any(dim(x = mat) == c(0, 0))) {
+    slots.to.check <- setdiff(x = c("counts", "data", "scale.data"), y = slot)
+    for (ss in slots.to.check) {
+      data.dims <- dim(x = GetAssayData(object = assay, slot = ss))
+      data.slot <- ss
+      if (!any(data.dims == c(0, 0))) {
+        break
+      }
+    }
+    if (any(data.dims == c(0, 0))) {
+      stop("The counts, data, and scale.data slots are all empty for the provided assay.")
+    }
+    mat <- Matrix(
+      data = 0,
+      nrow = data.dims[1],
+      ncol = data.dims[2],
+      dimnames = dimnames(x = GetAssayData(object = assay, slot = data.slot))
+    )
+    mat <- as(object = mat, Class = "dgCMatrix")
+  }
+  return(mat)
 }
