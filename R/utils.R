@@ -7,46 +7,14 @@
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @importFrom methods as
-#' @importClassesFrom Matrix dgCMatrix
-#'
 #' @rdname as.sparse
 #' @export
 #' @method as.sparse data.frame
 #'
 as.sparse.data.frame <- function(x, ...) {
   CheckDots(...)
-  return(as(object = as.matrix(x = x), Class = 'dgCMatrix'))
-}
-
-#' @importFrom methods is
-#' @importFrom Matrix sparseMatrix
-#'
-#' @rdname as.sparse
-#' @export
-#' @method as.sparse H5Group
-#'
-as.sparse.H5Group <- function(x, ...) {
-  CheckDots(...)
-  .Deprecated(msg = "Please use the SeuratDisk H5Group for as.sparse")
-  for (i in c('data', 'indices', 'indptr')) {
-    if (!x$exists(name = i) || !is(object = x[[i]], class2 = 'H5D')) {
-      stop("Invalid H5Group specification for a sparse matrix, missing dataset ", i)
-    }
-  }
-  if ('h5sparse_shape' %in% hdf5r::h5attr_names(x = x)) {
-    return(sparseMatrix(
-      i = x[['indices']][] + 1,
-      p = x[['indptr']][],
-      x = x[['data']][],
-      dims = rev(x = hdf5r::h5attr(x = x, which = 'h5sparse_shape'))
-    ))
-  }
-  return(sparseMatrix(
-    i = x[['indices']][] + 1,
-    p = x[['indptr']][],
-    x = x[['data']][]
-  ))
+  return(as.sparse(x = as.matrix(x = x)))
+  # return(as(object = as.matrix(x = x), Class = 'dgCMatrix'))
 }
 
 #' @importFrom methods as
@@ -89,8 +57,10 @@ as.sparse.matrix <- as.sparse.Matrix
 #' @concept infix
 #'
 #' @examples
+#' \donttest{
 #' 1 %||% 2
 #' NULL %||% 2
+#' }
 #'
 rlang::`%||%`
 
@@ -106,8 +76,10 @@ rlang::`%||%`
 #' @concept infix
 #'
 #' @examples
+#' \donttest{
 #' 1 %iff% 2
 #' NULL %iff% 2
+#' }
 #'
 `%iff%` <- function(x, y) {
   if (!is_null(x = x)) {
@@ -174,9 +146,13 @@ CheckDots <- function(..., fxns = NULL) {
     USE.NAMES = TRUE
   ))
   fxn.args <- unlist(x = fxn.args, recursive = FALSE)
-  fxn.null <- vapply(X = fxn.args, FUN = is.null, FUN.VALUE = logical(length = 1L))
+  fxn.null <- vapply(
+    X = fxn.args,
+    FUN = is.null,
+    FUN.VALUE = logical(length = 1L)
+  )
   if (all(fxn.null) && !is.null(x = fxns)) {
-    stop("None of the functions passed could be found")
+    stop("None of the functions passed could be found", call. = FALSE)
   } else if (any(fxn.null)) {
     warning(
       "The following functions passed could not be found: ",
@@ -262,10 +238,72 @@ CheckDots <- function(..., fxns = NULL) {
 #'
 #' @keywords internal
 #'
+#' @examples
+#' \donttest{
+#' IsMatrixEmpty(new("matrix"))
+#' IsMatrixEmpty(matrix())
+#' IsMatrixEmpty(matrix(1:3))
+#' }
+#'
 IsMatrixEmpty <- function(x) {
   matrix.dims <- dim(x = x)
   matrix.na <- all(matrix.dims == 1) && all(is.na(x = x))
   return(all(matrix.dims == 0) || matrix.na)
+}
+
+#' Generate a random name
+#'
+#' Make a name from randomly sampled lowercase letters, pasted together with no
+#' spaces or other characters
+#'
+#' @param length How long should the name be
+#' @param ... Extra parameters passed to \code{\link[base]{sample}}
+#'
+#' @return A character with \code{nchar == length} of randomly sampled letters
+#'
+#' @seealso \code{\link[base]{sample}}
+#'
+#' @keywords internal
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(42L)
+#' RandomName()
+#' RandomName(7L, replace = TRUE)
+#' }
+#'
+RandomName <- function(length = 5L, ...) {
+  CheckDots(..., fxns = 'sample')
+  return(paste(sample(x = letters, size = length, ...), collapse = ''))
+}
+
+#' Get the top
+#'
+#' @param data Data to pull the top from
+#' @param num Pull top \code{num}
+#' @param balanced Pull even amounts of from positive and negative values
+#'
+#' @return The top \code{num}
+#'
+#' @importFrom utils head tail
+#'
+#' @seealso \code{\link{TopCells}} \code{\link{TopFeatures}}
+#'
+#' @keywords internal
+#'
+Top <- function(data, num, balanced) {
+  top <- if (balanced) {
+    num <- round(x = num / 2)
+    data <- data[order(data, decreasing = TRUE), , drop = FALSE]
+    positive <- head(x = rownames(x = data), n = num)
+    negative <- rev(x = tail(x = rownames(x = data), n = num))
+    list(positive = positive, negative = negative)
+  } else {
+    data <- data[rev(x = order(abs(x = data))), , drop = FALSE]
+    top <- head(x = rownames(x = data), n = num)
+    top[order(data[top, ])]
+  }
+  return(top)
 }
 
 #' Update slots in an object
@@ -274,7 +312,7 @@ IsMatrixEmpty <- function(x) {
 #'
 #' @return \code{object} with the latest slot definitions
 #'
-#' @importFrom methods slotNames
+#' @importFrom methods slotNames slot
 #'
 #' @keywords internal
 #'
@@ -302,4 +340,36 @@ UpdateSlots <- function(object) {
     }
   }
   return(object)
+}
+
+#' Update a Key
+#'
+#' @param key A character to become a Seurat Key
+#'
+#' @return An updated Key that's valid for Seurat
+#'
+#' @keywords internal
+#'
+UpdateKey <- function(key) {
+  if (grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
+    return(key)
+  } else {
+    new.key <- regmatches(
+      x = key,
+      m = gregexpr(pattern = '[[:alnum:]]+', text = key)
+    )
+    new.key <- paste0(paste(unlist(x = new.key), collapse = ''), '_')
+    if (new.key == '_') {
+      new.key <- paste0(RandomName(length = 3), '_')
+    }
+    warning(
+      "Keys should be one or more alphanumeric characters followed by an underscore, setting key from ",
+      key,
+      " to ",
+      new.key,
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    return(new.key)
+  }
 }
