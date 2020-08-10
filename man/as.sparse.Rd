@@ -2,15 +2,12 @@
 % Please edit documentation in R/utils.R, R/generics.R
 \name{as.sparse.data.frame}
 \alias{as.sparse.data.frame}
-\alias{as.sparse.H5Group}
 \alias{as.sparse.Matrix}
 \alias{as.sparse.matrix}
 \alias{as.sparse}
 \title{Cast to Sparse}
 \usage{
 \method{as.sparse}{data.frame}(x, ...)
-
-\method{as.sparse}{H5Group}(x, ...)
 
 \method{as.sparse}{Matrix}(x, ...)
 
