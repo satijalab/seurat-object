@@ -8,6 +8,12 @@
 \alias{dimnames.Assay}
 \alias{merge.Assay}
 \alias{subset.Assay}
+\alias{[[<-,Assay-method}
+\alias{colMeans,Assay-method}
+\alias{colSums,Assay-method}
+\alias{rowMeans,Assay-method}
+\alias{rowSums,Assay-method}
+\alias{show,Assay-method}
 \title{\code{Assay} Methods}
 \usage{
 \method{[}{Assay}(x, i, j, ...)
@@ -21,8 +27,22 @@
 \method{merge}{Assay}(x = NULL, y = NULL, add.cell.ids = NULL, merge.data = TRUE, ...)
 
 \method{subset}{Assay}(x, cells = NULL, features = NULL, ...)
+
+\S4method{[[}{Assay}(x, i, j, ...) <- value
+
+\S4method{colMeans}{Assay}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
+
+\S4method{colSums}{Assay}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
+
+\S4method{rowMeans}{Assay}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
+
+\S4method{rowSums}{Assay}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
+
+\S4method{show}{Assay}(object)
 }
 \arguments{
+\item{x, object}{An \code{\link{Assay}} object}
+
 \item{i, features}{For \code{[[}: metadata names; for all other methods,
 feature names or indices}
 
@@ -41,7 +61,14 @@ the corresponding values to the start of each objects' cell names}
 (which requires renormalization); this is recommended if the same normalization
 approach was applied to all objects}
 
-\item{object, x}{An \code{\link{Assay}} object}
+\item{value}{Additional metadata to add}
+
+\item{na.rm}{logical.  Should missing values (including \code{NaN})
+    be omitted from the calculations?}
+
+\item{dims}{completely ignored by the \code{Matrix} methods.}
+
+\item{slot}{Specific information to pull (i.e. counts, data, scale.data, ...)}
 }
 \value{
 \code{[}: The \code{data} slot for features \code{i} and cells
@@ -50,29 +77,59 @@ approach was applied to all objects}
 \code{[[}: The feature-level metadata for \code{i}
 
 \code{dim}: The number of features (\code{nrow}) and cells
-\code{ncol}
+(\code{ncol})
 
 \code{dimnames}: Feature (row) and cell (column) names
 
 \code{merge}: Merged object
 
-\code{subset}: A subsetted object
+\code{subset}: A subsetted \code{Assay}
+
+\code{[[<-}: \code{x} with metadata \code{value} added as \code{i}
+
+\code{colMeans}: The column (cell-wise) means of \code{slot}
+
+\code{colSums}: The column (cell-wise) sums of \code{slot}
+
+\code{rowMeans}: The row (feature-wise) means of \code{slot}
+
+\code{rowSums}: The row (feature-wise) sums of \code{slot}
+
+\code{show}: Prints summary to \code{\link[base]{stdout}} and
+invisibly returns \code{NULL}
 }
 \description{
-Methods for \code{\link{Assay}} for generics defined in other packages
+Methods for \code{\link{Assay}} objects for generics defined in
+other packages
 }
 \section{Functions}{
 \itemize{
-\item \code{[.Assay}: Data accessor
+\item \code{[.Assay}: Get expression data from an \code{Assay}
 
-\item \code{[[.Assay}: Metadata accessor
+\item \code{[[.Assay}: Get feature-level metadata
 
-\item \code{dim.Assay}: Number of cells and features
+\item \code{dim.Assay}: Number of cells and features for an \code{Assay}
 
-\item \code{dimnames.Assay}: Cell- and feature-names
+\item \code{dimnames.Assay}: Cell- and feature-names for an \code{Assay}
 
-\item \code{merge.Assay}: Merge objects
+\item \code{merge.Assay}: Merge \code{Assay} objects
 
-\item \code{subset.Assay}: Subset object
+\item \code{subset.Assay}: Subset an \code{Assay}
+
+\item \code{[[<-,Assay-method}: Add feature-level metadata
+
+\item \code{colMeans,Assay-method}: Calculate \code{\link[base]{colMeans}} on an
+\code{Assay}
+
+\item \code{colSums,Assay-method}: Calculate \code{\link[base]{colSums}} on an
+\code{Assay}
+
+\item \code{rowMeans,Assay-method}: Calculate \code{\link[base]{rowMeans}} on an
+\code{Assay}
+
+\item \code{rowSums,Assay-method}: Calculate \code{\link[base]{rowSums}} on an
+\code{Assay}
+
+\item \code{show,Assay-method}: Overview of an \code{Assay} object
 }}
 
