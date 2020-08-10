@@ -6,14 +6,17 @@
 \alias{SeuratObject-package}
 \title{SeuratObject: Data Structures for Single Cell Data}
 \description{
-...
+Defines S4 classes for single-cell genomic data and associated
+  information, such as dimensionality reduction embeddings, nearest-neighbor
+  graphs, and spatially-resolved coordinates. Provides data access methods and
+  R-native hooks to ensure the Seurat object is familiar to other R users.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{http://www.satijalab.org/seurat}
-  \item \url{https://github.com/satijalab/seurat-object}
-  \item Report bugs at \url{https://github.com/satijalab/seurat-object/issues}
+  \item \url{https://github.com/mojaveazure/seurat-object}
+  \item Report bugs at \url{https://github.com/mojaveazure/seurat-object/issues}
 }
 
 }
