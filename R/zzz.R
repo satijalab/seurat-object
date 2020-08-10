@@ -28,6 +28,8 @@ setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
 #'
 #' @return object with metadata added
 #'
+#' @keywords internal
+#'
 .AddMetaData <- function(object, metadata, col.name = NULL) {
   if (is.null(x = col.name) && is.atomic(x = metadata)) {
     stop("'col.name' must be provided for atomic metadata types (eg. vectors)")
