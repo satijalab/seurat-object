@@ -37,10 +37,15 @@ AddMetaData <- function(object, metadata, col.name = NULL) {
   UseMethod(generic = 'AddMetaData', object = object)
 }
 
-#' Convert a matrix (or Matrix) to the Graph class.
+#' Graph Converter
+#'
+#' Convert a \code{\link[base]{matrix}} (or \code{\link[Matrix]{Matrix}}) to the
+#' \code{\link{Graph}} class
 #'
 #' @param x The matrix to convert
 #' @param ... Arguments passed to other methods (ignored for now)
+#'
+#' @return A \code{\link{Graph}} object
 #'
 #' @rdname as.Graph
 #' @export as.Graph
@@ -61,12 +66,14 @@ as.Seurat <- function(x, ...) {
   UseMethod(generic = 'as.Seurat', object = x)
 }
 
-#' Convert between data frames and sparse matrices
+#' Cast to Sparse
+#'
+#' Convert dense objects to sparse representations
 #'
 #' @param x An object
 #' @param ... Arguments passed to other methods
 #'
-#' @return \code{as.sparse}: A sparse representation of the input data
+#' @return A sparse representation of the input data
 #'
 #' @rdname as.sparse
 #' @export as.sparse
@@ -107,12 +114,14 @@ Command <- function(object, ...) {
   UseMethod(generic = 'Command', object = object)
 }
 
+#' Default Assay
+#'
 #' Get and set the default assay
 #'
 #' @param object An object
 #' @param ... Arguments passed to other methods
 #'
-#' @return The name of the default assay
+#' @return \code{DefaultAssay}: The name of the default assay
 #'
 #' @rdname DefaultAssay
 #' @export DefaultAssay
@@ -123,7 +132,7 @@ DefaultAssay <- function(object, ...) {
 
 #' @param value Name of assay to set as default
 #'
-#' @return An object with the new default assay
+#' @return \code{DefaultAssay<-}: An object with the default assay updated
 #'
 #' @rdname DefaultAssay
 #' @export DefaultAssay<-

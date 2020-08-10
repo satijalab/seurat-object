@@ -1,3 +1,76 @@
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Functions
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Methods for Seurat-defined generics
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @importFrom methods as
+#' @importClassesFrom Matrix dgCMatrix
+#'
+#' @rdname as.sparse
+#' @export
+#' @method as.sparse data.frame
+#'
+as.sparse.data.frame <- function(x, ...) {
+  CheckDots(...)
+  return(as(object = as.matrix(x = x), Class = 'dgCMatrix'))
+}
+
+#' @importFrom methods is
+#' @importFrom Matrix sparseMatrix
+#'
+#' @rdname as.sparse
+#' @export
+#' @method as.sparse H5Group
+#'
+as.sparse.H5Group <- function(x, ...) {
+  CheckDots(...)
+  .Deprecated(msg = "Please use the SeuratDisk H5Group for as.sparse")
+  for (i in c('data', 'indices', 'indptr')) {
+    if (!x$exists(name = i) || !is(object = x[[i]], class2 = 'H5D')) {
+      stop("Invalid H5Group specification for a sparse matrix, missing dataset ", i)
+    }
+  }
+  if ('h5sparse_shape' %in% hdf5r::h5attr_names(x = x)) {
+    return(sparseMatrix(
+      i = x[['indices']][] + 1,
+      p = x[['indptr']][],
+      x = x[['data']][],
+      dims = rev(x = hdf5r::h5attr(x = x, which = 'h5sparse_shape'))
+    ))
+  }
+  return(sparseMatrix(
+    i = x[['indices']][] + 1,
+    p = x[['indptr']][],
+    x = x[['data']][]
+  ))
+}
+
+#' @importFrom methods as
+#' @importClassesFrom Matrix dgCMatrix
+#'
+#' @rdname as.sparse
+#' @export
+#' @method as.sparse Matrix
+#'
+as.sparse.Matrix <- function(x, ...) {
+  CheckDots(...)
+  return(as(object = x, Class = 'dgCMatrix'))
+}
+
+#' @rdname as.sparse
+#' @export
+#' @method as.sparse matrix
+#'
+as.sparse.matrix <- as.sparse.Matrix
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Internal
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 #' Set a default value depending on if an object is \code{NULL}
 #'
 #' @param x An object to test

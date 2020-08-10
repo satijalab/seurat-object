@@ -34,3 +34,4 @@ Collate:
     'zzz.R'
     'generics.R'
     'assay.R'
+    'graph.R'
