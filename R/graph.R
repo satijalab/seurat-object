@@ -32,6 +32,8 @@ Graph <- setClass(
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @importFrom methods as
+#'
 #' @rdname as.Graph
 #' @export
 #' @method as.Graph Matrix
