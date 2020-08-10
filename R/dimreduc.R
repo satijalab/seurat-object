@@ -1,0 +1,721 @@
+#' @include zzz.R
+#' @include generics.R
+#' @include jackstraw.R
+#' @importFrom methods new slot slot<- slotNames
+#'
+NULL
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Class definitions
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' The Dimmensional Reduction Class
+#'
+#' The DimReduc object stores a dimensionality reduction taken out in Seurat;
+#' each DimReduc consists of a cell embeddings matrix, a feature loadings
+#' matrix, and a projected feature loadings matrix.
+#'
+#' @slot cell.embeddings Cell embeddings matrix (required)
+#' @slot feature.loadings Feature loadings matrix (optional)
+#' @slot feature.loadings.projected Projected feature loadings matrix (optional)
+#' @slot assay.used Name of assay used to generate \code{DimReduc} object
+#' @slot global Is this \code{DimReduc} global/persistent? If so, it will not be
+#' removed when removing its associated assay
+#' @slot stdev A vector of standard deviations
+#' @slot key Key for the \code{DimReduc}, must be alphanumerics followed by an underscore
+#' @slot jackstraw A \code{\link{JackStrawData-class}} object associated with
+#' this \code{DimReduc}
+#' @slot misc Utility slot for storing additional data associated with the
+#' \code{DimReduc} (e.g. the total variance of the PCA)
+#'
+#' @name DimReduc-class
+#' @rdname DimReduc-class
+#' @exportClass DimReduc
+#'
+DimReduc <- setClass(
+  Class = 'DimReduc',
+  slots = c(
+    cell.embeddings = 'matrix',
+    feature.loadings = 'matrix',
+    feature.loadings.projected = 'matrix',
+    assay.used = 'character',
+    global = 'logical',
+    stdev = 'numeric',
+    key = 'character',
+    jackstraw = 'JackStrawData',
+    misc = 'list'
+  )
+)
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Functions
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Create a DimReduc object
+#'
+#' @param embeddings A matrix with the cell embeddings
+#' @param loadings A matrix with the feature loadings
+#' @param projected A matrix with the projected feature loadings
+#' @param assay Assay used to calculate this dimensional reduction
+#' @param stdev Standard deviation (if applicable) for the dimensional reduction
+#' @param key A character string to facilitate looking up features from a
+#' specific DimReduc
+#' @param global Specify this as a global reduction (useful for visualizations)
+#' @param jackstraw Results from the JackStraw function
+#' @param misc list for the user to store any additional information associated
+#' with the dimensional reduction
+#'
+#' @aliases SetDimReduction
+#'
+#' @export
+#'
+#' @examples
+#' data <- GetAssayData(pbmc_small[["RNA"]], slot = "scale.data")
+#' pcs <- prcomp(x = data)
+#' pca.dr <- CreateDimReducObject(
+#'   embeddings = pcs$rotation,
+#'   loadings = pcs$x,
+#'   stdev = pcs$sdev,
+#'   key = "PC",
+#'   assay = "RNA"
+#' )
+#'
+CreateDimReducObject <- function(
+  embeddings = new(Class = 'matrix'),
+  loadings = new(Class = 'matrix'),
+  projected = new(Class = 'matrix'),
+  assay = NULL,
+  stdev = numeric(),
+  key = NULL,
+  global = FALSE,
+  jackstraw = NULL,
+  misc = list()
+) {
+  if (is.null(x = assay)) {
+    warning(
+      "No assay specified, setting assay as RNA by default.",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    assay <- "RNA"
+  }
+  # Try to infer key from column names
+  if (is.null(x = key) && is.null(x = colnames(x = embeddings))) {
+    stop("Please specify a key for the DimReduc object")
+  } else if (is.null(x = key)) {
+    key <- regmatches(
+      x = colnames(x = embeddings),
+      m = regexec(pattern = '^[[:alnum:]]+_', text = colnames(x = embeddings))
+    )
+    key <- unique(x = unlist(x = key, use.names = FALSE))
+  }
+  if (length(x = key) != 1) {
+    stop("Please specify a key for the DimReduc object")
+  } else if (!grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
+    old.key  <- key
+    key <- UpdateKey(key = old.key)
+    colnames(x = embeddings) <- gsub(
+      x = colnames(x = embeddings),
+      pattern = old.key,
+      replacement = key
+    )
+    warning(
+      "All keys should be one or more alphanumeric characters followed by an underscore '_', setting key to ",
+      key,
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  # ensure colnames of the embeddings are the key followed by a numeric
+  if (is.null(x = colnames(x = embeddings))) {
+    warning(
+      "No columnames present in cell embeddings, setting to '",
+      key,
+      "1:",
+      ncol(x = embeddings),
+      "'",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    colnames(x = embeddings) <- paste0(key, 1:ncol(x = embeddings))
+  } else if (!all(grepl(pattern = paste0('^', key, "[[:digit:]]+$"), x = colnames(x = embeddings)))) {
+    digits <- unlist(x = regmatches(
+      x = colnames(x = embeddings),
+      m = regexec(pattern = '[[:digit:]]+$', text = colnames(x = embeddings))
+    ))
+    if (length(x = digits) != ncol(x = embeddings)) {
+      stop("Please ensure all column names in the embeddings matrix are the key plus a digit representing a dimension number")
+    }
+    colnames(x = embeddings) <- paste0(key, digits)
+  }
+  if (!IsMatrixEmpty(x = loadings)) {
+    if (any(rownames(x = loadings) == '')) {
+      stop("Feature names of loadings matrix cannot be empty", call. = FALSE)
+    }
+    colnames(x = loadings) <- colnames(x = embeddings)
+  }
+  if (!IsMatrixEmpty(x = projected)) {
+    if (any(rownames(x = loadings) == '')) {
+      stop("Feature names of projected loadings matrix cannot be empty", call. = FALSE)
+    }
+    colnames(x = projected) <- colnames(x = embeddings)
+  }
+  jackstraw <- jackstraw %||% new(Class = 'JackStrawData')
+  dim.reduc <- new(
+    Class = 'DimReduc',
+    cell.embeddings = embeddings,
+    feature.loadings = loadings,
+    feature.loadings.projected = projected,
+    assay.used = assay,
+    global = global,
+    stdev = stdev,
+    key = key,
+    jackstraw = jackstraw,
+    misc = misc
+  )
+  return(dim.reduc)
+}
+
+#' Find cells with highest scores for a given dimensional reduction technique
+#'
+#' Return a list of genes with the strongest contribution to a set of components
+#'
+#' @param object DimReduc object
+#' @param dim Dimension to use
+#' @param ncells Number of cells to return
+#' @param balanced Return an equal number of cells with both + and - scores.
+#' @param ... Extra parameters passed to \code{\link{Embeddings}}
+#'
+#' @return Returns a vector of cells
+#'
+#' @export
+#'
+#' @examples
+#' pbmc_small
+#' head(TopCells(object = pbmc_small[["pca"]]))
+#' # Can specify which dimension and how many cells to return
+#' TopCells(object = pbmc_small[["pca"]], dim = 2, ncells = 5)
+#'
+TopCells <- function(object, dim = 1, ncells = 20, balanced = FALSE, ...) {
+  embeddings <- Embeddings(object = object, ...)[, dim, drop = FALSE]
+  return(Top(
+    data = embeddings,
+    num = ncells,
+    balanced = balanced
+  ))
+}
+
+#' Find features with highest scores for a given dimensional reduction technique
+#'
+#' Return a list of features with the strongest contribution to a set of components
+#'
+#' @param object DimReduc object
+#' @param dim Dimension to use
+#' @param nfeatures Number of features to return
+#' @param projected Use the projected feature loadings
+#' @param balanced Return an equal number of features with both + and - scores.
+#' @param ... Extra parameters passed to \code{\link{Loadings}}
+#'
+#' @return Returns a vector of features
+#'
+#' @export
+#'
+#' @examples
+#' pbmc_small
+#' TopFeatures(object = pbmc_small[["pca"]], dim = 1)
+#' # After projection:
+#' TopFeatures(object = pbmc_small[["pca"]], dim = 1,  projected = TRUE)
+#'
+TopFeatures <- function(
+  object,
+  dim = 1,
+  nfeatures = 20,
+  projected = FALSE,
+  balanced = FALSE,
+  ...
+) {
+  loadings <- Loadings(object = object, projected = projected, ...)[, dim, drop = FALSE]
+  return(Top(
+    data = loadings,
+    num = nfeatures,
+    balanced = balanced
+  ))
+}
+
+#' @rdname Cells
+#' @export
+#' @method Cells DimReduc
+#'
+Cells.DimReduc <- function(x) {
+  return(rownames(x = x))
+}
+
+#' @rdname DefaultAssay
+#' @export
+#' @method DefaultAssay DimReduc
+#'
+DefaultAssay.DimReduc <- function(object, ...) {
+  CheckDots(...)
+  return(slot(object = object, name = 'assay.used'))
+}
+
+#' @rdname DefaultAssay
+#' @export
+#' @method DefaultAssay<- DimReduc
+#'
+"DefaultAssay<-.DimReduc" <- function(object, ..., value) {
+  CheckDots(...)
+  slot(object = object, name = 'assay.used') <- value
+  return(object)
+}
+
+#' @rdname Embeddings
+#' @export
+#' @method Embeddings DimReduc
+#'
+#' @examples
+#' # Get the embeddings directly from a DimReduc object
+#' Embeddings(object = pbmc_small[["pca"]])[1:5, 1:5]
+#'
+Embeddings.DimReduc <- function(object, ...) {
+  CheckDots(...)
+  return(slot(object = object, name = 'cell.embeddings'))
+}
+
+#' @rdname IsGlobal
+#' @export
+#' @method IsGlobal DimReduc
+#'
+IsGlobal.DimReduc <- function(object, ...) {
+  object <- UpdateSlots(object = object)
+  return(slot(object = object, name = 'global'))
+}
+
+#' @param slot Name of slot to store JackStraw scores to
+#' Can shorten to 'empirical', 'fake', 'full', or 'overall'
+#'
+#' @rdname JS
+#' @export
+#' @method JS DimReduc
+#'
+JS.DimReduc <- function(object, slot = NULL, ...) {
+  CheckDots(...)
+  jackstraw <- slot(object = object, name = 'jackstraw')
+  if (!is.null(x = slot)) {
+    jackstraw <- JS(object = jackstraw, slot = slot)
+  }
+  return(jackstraw)
+}
+
+#' @rdname JS
+#' @export
+#' @method JS<- DimReduc
+#'
+"JS<-.DimReduc" <- function(object, slot = NULL, ..., value) {
+  CheckDots(...)
+  if (inherits(x = value, what = 'JackStrawData')) {
+    slot(object = object, name = 'jackstraw') <- value
+  } else if (is.null(x = NULL)) {
+    stop("A slot must be specified")
+  } else {
+    JS(object = JS(object = object), slot = slot) <- value
+  }
+  return(object)
+}
+
+#' @rdname Key
+#' @export
+#' @method Key DimReduc
+#'
+#' @examples
+#' # Get a DimReduc key
+#' Key(object = pbmc_small[["pca"]])
+#'
+Key.DimReduc <- function(object, ...) {
+  CheckDots(...)
+  return(slot(object = object, name = 'key'))
+}
+
+#' @rdname Key
+#' @export
+#' @method Key<- DimReduc
+#'
+#' @examples
+#' # Set the key for DimReduc
+#' Key(object = pbmc_small[["pca"]]) <- "newkey2_"
+#' Key(object = pbmc_small[["pca"]])
+#'
+"Key<-.DimReduc" <- function(object, ..., value) {
+  CheckDots(...)
+  object <- UpdateSlots(object = object)
+  old.key <- Key(object = object)
+  slots <- Filter(
+    f = function(x) {
+      return(class(x = slot(object = object, name = x)) == 'matrix')
+    },
+    x = slotNames(x = object)
+  )
+  for (s in slots) {
+    mat <- slot(object = object, name = s)
+    if (!IsMatrixEmpty(x = mat)) {
+      colnames(x = mat) <- sub(
+        pattern = paste0('^', old.key),
+        replacement = value,
+        x = colnames(x = mat)
+      )
+    }
+    slot(object = object, name = s) <- mat
+  }
+  slot(object = object, name = 'key') <- value
+  return(object)
+}
+
+#' @param projected Pull the projected feature loadings?
+#'
+#' @rdname Loadings
+#' @export
+#' @method Loadings DimReduc
+#'
+#' @examples
+#' # Get the feature loadings for a given DimReduc
+#' Loadings(object = pbmc_small[["pca"]])[1:5,1:5]
+#'
+Loadings.DimReduc <- function(object, projected = FALSE, ...) {
+  CheckDots(...)
+  projected <- projected %||% Projected(object = object)
+  slot <- ifelse(
+    test = projected,
+    yes = 'feature.loadings.projected',
+    no = 'feature.loadings'
+  )
+  return(slot(object = object, name = slot))
+}
+
+#' @rdname Loadings
+#' @export
+#' @method Loadings<- DimReduc
+#'
+#' @examples
+#' # Set the feature loadings for a given DimReduc
+#' new.loadings <- Loadings(object = pbmc_small[["pca"]])
+#' new.loadings <- new.loadings + 0.01
+#' Loadings(object = pbmc_small[["pca"]]) <- new.loadings
+#'
+"Loadings<-.DimReduc" <- function(object, projected = TRUE, ..., value) {
+  CheckDots(...)
+  slot.use <- ifelse(
+    test = projected,
+    yes = 'feature.loadings.projected',
+    no = 'feature.loadings'
+  )
+  if (ncol(x = value) != length(x = object)) {
+    stop("New feature loadings must have the dimensions as currently calculated")
+  }
+  slot(object = object, name = slot.use) <- value
+  return(object)
+}
+
+#' @rdname Misc
+#' @export
+#' @method Misc DimReduc
+#'
+Misc.DimReduc <- .Misc
+
+#' @rdname Misc
+#' @export
+#' @method Misc<- DimReduc
+#'
+"Misc<-.DimReduc" <- `.Misc<-`
+
+#' @rdname RenameCells
+#' @export
+#' @method RenameCells DimReduc
+#'
+#' @examples
+#' # Rename cells in a DimReduc
+#' head(x = Cells(x = pbmc_small[["pca"]]))
+#' renamed.dimreduc <- RenameCells(
+#'     object = pbmc_small[["pca"]],
+#'     new.names = paste0("A_", Cells(x = pbmc_small[["pca"]]))
+#' )
+#' head(x = Cells(x = renamed.dimreduc))
+#'
+RenameCells.DimReduc <- function(object, new.names = NULL, ...) {
+  CheckDots(...)
+  old.data <- Embeddings(object = object)
+  rownames(x = old.data) <- new.names
+  slot(object = object, name = "cell.embeddings") <- old.data
+  return(object)
+}
+
+#' @rdname Stdev
+#' @export
+#' @method Stdev DimReduc
+#'
+#' @examples
+#' # Get the standard deviations for each PC from the DimReduc object
+#' Stdev(object = pbmc_small[["pca"]])
+#'
+Stdev.DimReduc <- function(object, ...) {
+  CheckDots(...)
+  return(slot(object = object, name = 'stdev'))
+}
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Methods for R-defined generics
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @export
+#' @method [ DimReduc
+#'
+"[.DimReduc" <- function(x, i, j, drop = FALSE, ...) {
+  loadings <- Loadings(object = x)
+  if (missing(x = i)) {
+    i <- 1:nrow(x = loadings)
+  }
+  if (missing(x = j)) {
+    j <- names(x = x)
+  } else if (is.numeric(x = j)) {
+    j <- names(x = x)[j]
+  }
+  bad.j <- j[!j %in% colnames(x = loadings)]
+  j <- j[!j %in% bad.j]
+  if (length(x = j) == 0) {
+    stop("None of the requested loadings are present.")
+  }
+  if (length(x = bad.j) > 0) {
+    warning(
+      "The following loadings are not present: ",
+      paste(bad.j, collapse = ", ")
+    )
+  }
+  return(Loadings(object = x)[i, j, drop = drop, ...])
+}
+
+#' @export
+#' @method [[ DimReduc
+#'
+"[[.DimReduc" <- function(x, i, j, drop = FALSE, ...) {
+  if (missing(x = i)) {
+    i <- 1:nrow(x = x)
+  }
+  if (missing(x = j)) {
+    j <- names(x = x)
+  } else if (is.numeric(x = j)) {
+    j <- names(x = x)[j]
+  }
+  embeddings <- Embeddings(object = x)
+  bad.j <- j[!j %in% colnames(x = embeddings)]
+  j <- j[!j %in% bad.j]
+  if (length(x = j) == 0) {
+    stop("None of the requested embeddings are present.")
+  }
+  if (length(x = bad.j) > 0) {
+    warning(
+      "The following embeddings are not present: ",
+      paste(bad.j, collapse = ", ")
+    )
+  }
+  return(embeddings[i, j, drop = drop, ...])
+}
+
+#' @export
+#' @method dim DimReduc
+#'
+dim.DimReduc <- function(x) {
+  return(dim(x = Embeddings(object = x)))
+}
+
+#' @export
+#' @method dimnames DimReduc
+#'
+dimnames.DimReduc <- function(x) {
+  return(dimnames(x = Embeddings(object = x)))
+}
+
+#' @export
+#' @method length DimReduc
+#'
+length.DimReduc <- function(x) {
+  return(ncol(x = Embeddings(object = x)))
+}
+
+#' @export
+#' @method names DimReduc
+#'
+names.DimReduc <- function(x) {
+  return(colnames(x = Embeddings(object = x)))
+}
+
+#' Print the results of a dimensional reduction analysis
+#'
+#' Prints a set of features that most strongly define a set of components
+#'
+#' @param x An object
+#' @param dims Number of dimensions to display
+#' @param nfeatures Number of genes to display
+#' @param projected Use projected slot
+#' @param ... Arguments passed to other methods
+#'
+#' @return Set of features defining the components
+#'
+#' @aliases print
+#' @seealso \code{\link[base]{cat}}
+#'
+#' @export
+#' @method print DimReduc
+#'
+print.DimReduc <- function(
+  x,
+  dims = 1:5,
+  nfeatures = 20,
+  projected = FALSE,
+  ...
+) {
+  CheckDots(...)
+  loadings <- Loadings(object = x, projected = projected)
+  nfeatures <- min(nfeatures, nrow(x = loadings))
+  if (ncol(x = loadings) == 0) {
+    warning("Dimensions have not been projected. Setting projected = FALSE")
+    projected <- FALSE
+    loadings <- Loadings(object = x, projected = projected)
+  }
+  if (min(dims) > ncol(x = loadings)) {
+    stop("Cannot print dimensions greater than computed")
+  }
+  if (max(dims) > ncol(x = loadings)) {
+    warning(paste0("Only ", ncol(x = loadings), " dimensions have been computed."))
+    # dims <- min(dims):ncol(x = loadings)
+    dims <- intersect(x = dims, y = seq_len(length.out = ncol(x = loadings)))
+  }
+  for (dim in dims) {
+    features <- TopFeatures(
+      object = x,
+      dim = dim,
+      nfeatures = nfeatures * 2,
+      projected = projected,
+      balanced = TRUE
+    )
+    cat(Key(object = x), dim, '\n')
+    pos.features <- split(x = features$positive, f = ceiling(x = seq_along(along.with = features$positive) / 10))
+    cat("Positive: ", paste(pos.features[[1]], collapse = ", "), '\n')
+    pos.features[[1]] <- NULL
+    if (length(x = pos.features) > 0) {
+      for (i in pos.features) {
+        cat("\t  ", paste(i, collapse = ", "), '\n')
+      }
+    }
+    neg.features <- split(x = features$negative, f = ceiling(x = seq_along(along.with = features$negative) / 10))
+    cat("Negative: ", paste(neg.features[[1]], collapse = ", "), '\n')
+    neg.features[[1]] <- NULL
+    if (length(x = neg.features) > 0) {
+      for (i in neg.features) {
+        cat("\t  ", paste(i, collapse = ", "), '\n')
+      }
+    }
+  }
+}
+
+#' @export
+#' @method subset DimReduc
+#'
+subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
+  CheckDots(...)
+  cells <- Cells(x = x) %iff% cells %||% Cells(x = x)
+  if (all(is.na(x = cells))) {
+    cells <- Cells(x = x)
+  } else if (any(is.na(x = cells))) {
+    warning("NAs passed in cells vector, removing NAs")
+    cells <- na.omit(object = cells)
+  }
+  # features <- rownames(x = x) %iff% features %||% rownames(x = x)
+  features <- rownames(x = Loadings(object = x)) %iff% features %||% rownames(x = Loadings(object = x))
+  if (all(sapply(X = list(features, cells), FUN = length) == dim(x = x))) {
+    return(x)
+  }
+  slot(object = x, name = 'cell.embeddings') <- if (is.null(x = cells)) {
+    new(Class = 'matrix')
+  } else {
+    if (is.numeric(x = cells)) {
+      cells <- Cells(x = x)[cells]
+    }
+    cells <- intersect(x = cells, y = Cells(x = x))
+    if (length(x = cells) == 0) {
+      stop("Cannot find cell provided", call. = FALSE)
+    }
+    x[[cells, , drop = FALSE]]
+  }
+  slot(object = x, name = 'feature.loadings') <- if (is.null(x = features)) {
+    new(Class = 'matrix')
+  } else {
+    if (is.numeric(x = features)) {
+      features <- rownames(x = x)[features]
+    }
+    features.loadings <- intersect(
+      x = rownames(x = Loadings(object = x, projected = FALSE)),
+      y = features
+    )
+    if (length(x = features.loadings) == 0) {
+      stop("Cannot find features provided", call. = FALSE)
+    }
+    Loadings(object = x, projected = FALSE)[features.loadings, , drop = FALSE]
+  }
+  slot(object = x, name = 'feature.loadings.projected') <- if (is.null(x = features) || !Projected(object = x)) {
+    new(Class = 'matrix')
+  } else {
+    features.projected <- intersect(
+      x = rownames(x = Loadings(object = x, projected = TRUE)),
+      y = features
+    )
+    if (length(x = features.projected) == 0) {
+      stop("Cannot find features provided", call. = FALSE)
+    }
+    Loadings(object = x, projected = TRUE)[features.projected, , drop = FALSE]
+  }
+  slot(object = x, name = 'jackstraw') <- new(Class = 'JackStrawData')
+  return(x)
+}
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# S4 methods
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+setMethod(
+  f = 'show',
+  signature = 'DimReduc',
+  definition = function(object) {
+    cat(
+      "A dimensional reduction object with key", Key(object = object), '\n',
+      'Number of dimensions:', length(x = object), '\n',
+      'Projected dimensional reduction calculated: ', Projected(object = object), '\n',
+      'Jackstraw run:', as.logical(x = JS(object = object)), '\n',
+      'Computed using assay:', DefaultAssay(object = object), '\n'
+    )
+  }
+)
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Internal
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Check to see if projected loadings have been set
+#'
+#' @param object a DimReduc object
+#'
+#' @return TRUE if proejcted loadings have been set, else FALSE
+#'
+#' @keywords internal
+#'
+Projected <- function(object) {
+  projected.dims <- dim(x = slot(
+    object = object,
+    name = 'feature.loadings.projected'
+  ))
+  if (all(projected.dims == 1)) {
+    return(!all(is.na(x = slot(
+      object = object,
+      name = 'feature.loadings.projected'
+    ))))
+  }
+  return(!all(projected.dims == 0))
+}
