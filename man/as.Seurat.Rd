@@ -14,3 +14,4 @@ as.Seurat(x, ...)
 \description{
 Convert objects to Seurat objects
 }
+\concept{conversion}

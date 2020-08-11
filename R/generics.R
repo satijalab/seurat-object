@@ -66,6 +66,8 @@ as.Graph <- function(x, ...) {
 #' @rdname as.Seurat
 #' @export as.Seurat
 #'
+#' @concept conversion
+#'
 as.Seurat <- function(x, ...) {
   UseMethod(generic = 'as.Seurat', object = x)
 }
