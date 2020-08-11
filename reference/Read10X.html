@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get image data — GetImage • SeuratObject</title>
+<title>Load in data from 10X — Read10X • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Get image data — GetImage" />
-<meta property="og:description" content="Get image data" />
+<meta property="og:title" content="Load in data from 10X — Read10X" />
+<meta property="og:description" content="Enables easy loading of sparse data matrices provided by 10X genomics." />
 
 
 
@@ -108,54 +108,67 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get image data</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/spatial.R'><code>R/spatial.R</code></a></small>
-    <div class="hidden name"><code>GetImage.Rd</code></div>
+    <h1>Load in data from 10X</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/load.R'><code>R/load.R</code></a></small>
+    <div class="hidden name"><code>Read10X.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get image data</p>
+    <p>Enables easy loading of sparse data matrices provided by 10X genomics.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>GetImage</span>(<span class='no'>object</span>, <span class='kw'>mode</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"grob"</span>, <span class='st'>"raster"</span>, <span class='st'>"plotly"</span>, <span class='st'>"raw"</span>), <span class='no'>...</span>)
-
-<span class='co'># S3 method for VisiumV1</span>
-<span class='fu'>GetImage</span>(<span class='no'>object</span>, <span class='kw'>mode</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"grob"</span>, <span class='st'>"raster"</span>, <span class='st'>"plotly"</span>, <span class='st'>"raw"</span>), <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>Read10X</span>(
+  <span class='kw'>data.dir</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>gene.column</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>unique.features</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>strip.suffix</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>An object</p></td>
+      <th>data.dir</th>
+      <td><p>Directory containing the matrix.mtx, genes.tsv (or features.tsv), and barcodes.tsv
+files provided by 10X. A vector or named vector can be given in order to load
+several data directories. If a named vector is given, the cell barcode names
+will be prefixed with the name.</p></td>
     </tr>
     <tr>
-      <th>mode</th>
-      <td><p>How to return the image; should accept one of 'grob', 'raster',
-'plotly', or 'raw'</p></td>
+      <th>gene.column</th>
+      <td><p>Specify which column of genes.tsv or features.tsv to use for gene names; default is 2</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Arguments passed to other methods</p></td>
+      <th>unique.features</th>
+      <td><p>Make feature names unique (default TRUE)</p></td>
+    </tr>
+    <tr>
+      <th>strip.suffix</th>
+      <td><p>Remove trailing "-1" if present in all cell barcodes.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Image data, varying depending on the value of <code>mode</code>:</p><dl'>
- <dt>'grob'</dt><dd><p>An object representing image data inheriting from <code>grob</code> objects
-  (eg. <code>rastergrob</code>)</p></dd>
- <dt>'raster'</dt><dd><p>An object of class <code>raster</code></p></dd>
- <dt>'plotly'</dt><dd><p>A list with image data suitable for Plotly rendering, see
-  <code><a href='https://rdrr.io/pkg/plotly/man/layout.html'>layout</a></code> for more details</p></dd>
- <dt>'raw'</dt><dd><p>The raw image data as stored in the object</p></dd>
+    <p>If features.csv indicates the data has multiple data types, a list
+  containing a sparse matrix of the data from each type will be returned.
+  Otherwise a sparse matrix containing the expression data will be returned.</p>
 
-</dl>
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'># For output from CellRanger &lt; 3.0</span>
+<span class='no'>data_dir</span> <span class='kw'>&lt;-</span> <span class='st'>'path/to/data/directory'</span>
+<span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>list.files</a></span>(<span class='no'>data_dir</span>) <span class='co'># Should show barcodes.tsv, genes.tsv, and matrix.mtx</span>
+<span class='no'>expression_matrix</span> <span class='kw'>&lt;-</span> <span class='fu'>Read10X</span>(<span class='kw'>data.dir</span> <span class='kw'>=</span> <span class='no'>data_dir</span>)
+<span class='no'>seurat_object</span> <span class='kw'>=</span> <span class='fu'>CreateSeuratObject</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>expression_matrix</span>)
 
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/plotly/man/layout.html'>layout</a></code></p></div>
-
+<span class='co'># For output from CellRanger &gt;= 3.0 with multiple data types</span>
+<span class='no'>data_dir</span> <span class='kw'>&lt;-</span> <span class='st'>'path/to/data/directory'</span>
+<span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>list.files</a></span>(<span class='no'>data_dir</span>) <span class='co'># Should show barcodes.tsv.gz, features.tsv.gz, and matrix.mtx.gz</span>
+<span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'>Read10X</span>(<span class='kw'>data.dir</span> <span class='kw'>=</span> <span class='no'>data_dir</span>)
+<span class='no'>seurat_object</span> <span class='kw'>=</span> <span class='fu'>CreateSeuratObject</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>data</span>$<span class='no'>`Gene Expression`</span>)
+<span class='no'>seurat_object</span><span class='kw'>[[</span><span class='st'>'Protein'</span>]] <span class='kw'>=</span> <span class='fu'><a href='CreateAssayObject.html'>CreateAssayObject</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>data</span>$<span class='no'>`Antibody Capture`</span>)
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
