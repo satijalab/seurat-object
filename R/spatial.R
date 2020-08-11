@@ -42,9 +42,124 @@ setOldClass(Classes = c('scalefactors'))
 #' in a \code{Seurat} object
 #' @slot key Key for the image
 #'
+#' @name SpatialImage-class
+#' @rdname SpatialImage-class
+#' @exportClass SpatialImage
+#'
+#' @seealso \code{\link{SpatialImage-methods}} for a list of required and
+#' provided methods
+#'
+SpatialImage <- setClass(
+  Class = 'SpatialImage',
+  contains = 'VIRTUAL',
+  slots = list(
+    'assay' = 'character',
+    'key' = 'character'
+  )
+)
+
+#' The SlideSeq class
+#'
+#' The SlideSeq class represents spatial information from the Slide-seq platform
+#'
+#' @slot coordinates ...
+#' @slot ...
+#'
+#' @name SlideSeq-class
+#' @rdname SlideSeq-class
+#'
+#' @concept spatial-class
+#'
+#' @seealso For slots defined by the \code{SpatialImage} class, see
+#' \code{\link{SpatialImage-class}}
+#'
+SlideSeq <- setClass(
+  Class = 'SlideSeq',
+  contains = 'SpatialImage',
+  slots = list(
+    'coordinates' = 'data.frame'
+  )
+)
+
+#' The STARmap class
+#'
+#' The STARmap class represents spatial information from the STARmap platform
+#'
+#' @slot ... ...
+#'
+#' @name STARmap-class
+#' @rdname STARmap-class
+#'
+#' @concept spatial-class
+#'
+#' @seealso For slots defined by the \code{SpatialImage} class, see
+#' \code{\link{SpatialImage-class}}
+#'
+STARmap <- setClass(
+  Class = 'STARmap',
+  contains = 'SpatialImage',
+  slots = list(
+    'coordinates' = 'data.frame',
+    'qhulls' = 'data.frame'
+  )
+)
+
+#' The VisiumV1 class
+#'
+#' The VisiumV1 class represents spatial information from the 10X Genomics
+#' Visium platform
+#'
+#' @slot image A three-dimensional array with PNG image data, see
+#' \code{\link[png]{readPNG}} for more details
+#' @slot scale.factors An object of class \code{\link{scalefactors}}; see
+#' \code{\link{scalefactors}} for more information
+#' @slot coordinates A data frame with tissue coordinate information
+#' @slot spot.radius Single numeric value giving the radius of the spots
+#'
+#' @name VisiumV1-class
+#' @rdname VisiumV1-class
+#' @exportClass VisiumV1
+#'
+#' @concept spatial-class
+#'
+#' @seealso For slots defined by the \code{SpatialImage} class, see
+#' \code{\link{SpatialImage-class}}
+#'
+VisiumV1 <- setClass(
+  Class = 'VisiumV1',
+  contains = 'SpatialImage',
+  slots = list(
+    'image' = 'array',
+    'scale.factors' = 'scalefactors',
+    'coordinates' = 'data.frame',
+    'spot.radius' = 'numeric'
+  )
+)
+
+setClass(Class = 'SliceImage', contains = 'VisiumV1')
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Functions
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Methods for Seurat-defined generics
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' \code{SpatialImage} methods
+#'
+#' Methods defined on the \code{\link{SpatialImage}} class. Some of these
+#' methods must be overridden in order to ensure proper functionality of the
+#' derived classes (see \strong{Required methods} below). Other methods are
+#' designed to work across all \code{SpatialImage}-derived subclasses, and
+#' should only be overridden if necessary
+#'
+#' @param x,object A \code{SpatialImage}-derived object
+#' @param ... Arguments passed to other methods
+#'
 #' @section Provided methods:
 #' These methods are defined on the \code{SpatialImage} object and should not be
-#' overwritten without careful thought
+#' overridden without careful thought
 #' \itemize{
 #'   \item \code{\link{DefaultAssay}} and \code{\link{DefaultAssay<-}}
 #'   \item \code{\link{Key}} and \code{\link{Key<-}}
@@ -88,111 +203,24 @@ setOldClass(Classes = c('scalefactors'))
 #' proper defaults will allow subclasses of \code{SpatialImage} to work
 #' seamlessly
 #'
-#' @name SpatialImage-class
-#' @rdname SpatialImage-class
+#' @name SpatialImage-methods
+#' @rdname SpatialImage-methods
 #'
-#' @exportClass SpatialImage
-#'
-SpatialImage <- setClass(
-  Class = 'SpatialImage',
-  contains = 'VIRTUAL',
-  slots = list(
-    'assay' = 'character',
-    'key' = 'character'
-  )
-)
+NULL
 
-#' The SlideSeq class
-#'
-#' The SlideSeq class represents spatial information from the Slide-seq platform
-#'
-#' @slot coordinates ...
-#' @slot ...
-#'
-#' @name SlideSeq-class
-#' @rdname SlideSeq-class
-#'
-#' @seealso For slots defined by the \code{SpatialImage} class, see
-#' \code{\link{SpatialImage-class}}
-#'
-SlideSeq <- setClass(
-  Class = 'SlideSeq',
-  contains = 'SpatialImage',
-  slots = list(
-    'coordinates' = 'data.frame'
-  )
-)
-
-#' The STARmap class
-#'
-#' The STARmap class represents spatial information from the STARmap platform
-#'
-#' @slot ... ...
-#'
-#' @seealso For slots defined by the \code{SpatialImage} class, see
-#' \code{\link{SpatialImage-class}}
-#'
-STARmap <- setClass(
-  Class = 'STARmap',
-  contains = 'SpatialImage',
-  slots = list(
-    'coordinates' = 'data.frame',
-    'qhulls' = 'data.frame'
-  )
-)
-
-#' The VisiumV1 class
-#'
-#' The VisiumV1 class represents spatial information from the 10X Genomics
-#' Visium platform
-#'
-#' @slot image A three-dimensional array with PNG image data, see
-#' \code{\link[png]{readPNG}} for more details
-#' @slot scale.factors An object of class \code{\link{scalefactors}}; see
-#' \code{\link{scalefactors}} for more information
-#' @slot coordinates A data frame with tissue coordinate information
-#' @slot spot.radius Single numeric value giving the radius of the spots
-#'
-#' @name VisiumV1-class
-#' @rdname VisiumV1-class
-#' @exportClass VisiumV1
-#'
-#' @seealso For slots defined by the \code{SpatialImage} class, see
-#' \code{\link{SpatialImage-class}}
-#'
-VisiumV1 <- setClass(
-  Class = 'VisiumV1',
-  contains = 'SpatialImage',
-  slots = list(
-    'image' = 'array',
-    'scale.factors' = 'scalefactors',
-    'coordinates' = 'data.frame',
-    'spot.radius' = 'numeric'
-  )
-)
-
-setClass(Class = 'SliceImage', contains = 'VisiumV1')
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Functions
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Methods for Seurat-defined generics
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @rdname Cells
-#' @method Cells SlideSeq
 #' @export
+#' @method Cells SlideSeq
 #'
 Cells.SlideSeq <- function(x) {
   return(rownames(x = GetTissueCoordinates(object = x)))
 }
 
-#' @param x,object An object inheriting from \code{SpatialImage}
+#' @describeIn SpatialImage-methods Get the cell names from an image
+#' (\strong{[Override]})
 #'
-#' @name SpatialImage-class
-#' @rdname SpatialImage-class
+#' @return \strong{[Override]} \code{Cells}: should return cell names
 #'
 #' @method Cells SpatialImage
 #' @export
@@ -220,16 +248,28 @@ Cells.VisiumV1 <- function(x) {
   return(rownames(x = GetTissueCoordinates(object = x, scale = NULL)))
 }
 
-#' @rdname DefaultAssay
+#' @describeIn SpatialImage-methods Get the associated assay of a
+#' \code{SpatialImage}-derived object
+#'
+#' @return \code{DefaultAssay}: The associated assay of a
+#' \code{SpatialImage}-derived object
+#'
 #' @method DefaultAssay SpatialImage
 #' @export
+#'
+#' @seealso \code{\link{DefaultAssay}}
 #'
 DefaultAssay.SpatialImage <- function(object, ...) {
   CheckDots(...)
   return(slot(object = object, name = 'assay'))
 }
 
-#' @rdname DefaultAssay
+#' @describeIn SpatialImage-methods Set the associated assay of a
+#' \code{SpatialImage}-derived object
+#'
+#' @return \code{DefaultAssay<-}: \code{object} with the associated assay
+#' updated
+#'
 #' @method DefaultAssay<- SpatialImage
 #' @export
 #'
@@ -251,13 +291,18 @@ GetImage.SlideSeq <- function(
   return(NullImage(mode = mode))
 }
 
+#' @describeIn SpatialImage-methods Get the image data from a
+#' \code{SpatialImage}-derived object (\strong{[Override]})
+#'
 #' @inheritParams GetImage
 #'
-#' @rdname SpatialImage-class
-#' @name SpatialImage-class
+#' @return \strong{[Override]} \code{GetImage}: The image data from a
+#' \code{SpatialImage}-derived object
 #'
 #' @method GetImage SpatialImage
 #' @export
+#'
+#' @seealso \code{\link{GetImage}}
 #'
 GetImage.SpatialImage <- function(
   object,
@@ -337,13 +382,15 @@ GetTissueCoordinates.SlideSeq <- function(object, ...) {
   return(coords)
 }
 
-#' @inheritParams GetTissueCoordinates
+#' @describeIn SpatialImage-methods Get tissue coordinates for a
+#' \code{SpatialImage}-derived object (\strong{[Override]})
 #'
-#' @rdname SpatialImage-class
-#' @name SpatialImage-class
+#' @return \strong{[Override]} \code{GetTissueCoordinates}: ...
 #'
 #' @method GetTissueCoordinates SpatialImage
 #' @export
+#'
+#' @seealso \code{\link{GetTissueCoordinates}}
 #'
 GetTissueCoordinates.SpatialImage <- function(object, ...) {
   stop(
@@ -391,17 +438,30 @@ GetTissueCoordinates.VisiumV1 <- function(
   return(coordinates)
 }
 
-#' @rdname IsGlobal
+#' @describeIn SpatialImage-methods Globality test for
+#' \code{SpatialImage}-derived object
+#'
+#' @return \code{IsGlobal}: returns \code{TRUE} as images are, by default,
+#' global
+#'
 #' @method IsGlobal SpatialImage
 #' @export
+#'
+#' @seealso \code{\link{IsGlobal}}
 #'
 IsGlobal.SpatialImage <- function(object) {
   return(TRUE)
 }
 
-#' @rdname Key
+#' @describeIn SpatialImage-methods Get the key for a
+#' \code{SpatialImage}-derived object
+#'
+#' @return \code{Key}: The key for a \code{SpatialImage}-derived object
+#'
 #' @method Key SpatialImage
 #' @export
+#'
+#' @seealso \code{\link{Key}}
 #'
 Key.SpatialImage <- function(object, ...) {
   CheckDots(...)
@@ -409,7 +469,11 @@ Key.SpatialImage <- function(object, ...) {
   return(slot(object = object, name = 'key'))
 }
 
-#' @rdname Key
+#' @describeIn SpatialImage-methods Set the key for a
+#' \code{SpatialImage}-derived object
+#'
+#' @return \code{Key<-}: \code{object} with the key set to \code{value}
+#'
 #' @method Key<- SpatialImage
 #' @export
 #'
@@ -429,11 +493,18 @@ Radius.SlideSeq <- function(object) {
   return(0.005)
 }
 
-#' @rdname SpatialImage-class
-#' @name SpatialImage-class
+#' @describeIn SpatialImage-methods Get the radius of spots for a
+#' \code{SpatialImage}-derived object. \strong{Note}: this method should be
+#' overridden for spot-based technologies. For non-spot technologies, this
+#' method does \emph{not} need to be overridden
+#'
+#' @return \code{Radius}: by default, returns \code{NULL}; for overridden
+#' methods, returns the radius of the spot
 #'
 #' @method Radius SpatialImage
 #' @export
+#'
+#' @seealso \code{\link{Radius}}
 #'
 Radius.SpatialImage <- function(object) {
   return(NULL)
@@ -454,13 +525,16 @@ RenameCells.SlideSeq <- function(object, new.names = NULL, ...) {
   return(RenameCells.VisiumV1(object = object, new.names = new.names))
 }
 
-#' @inheritParams  RenameCells
+#' @describeIn SpatialImage-methods Rename cells in a
+#' \code{SpatialImage}-derived object (\strong{[Override]})
 #'
-#' @rdname SpatialImage-class
-#' @name SpatialImage-class
+#' @return \strong{[Override]} \code{RenameCells}: \code{object} with the new
+#' cell names
 #'
 #' @method RenameCells SpatialImage
 #' @export
+#'
+#' @seealso \code{\link{RenameCells}}
 #'
 RenameCells.SpatialImage <- function(object, new.names = NULL, ...) {
   stop(
@@ -517,10 +591,13 @@ ScaleFactors.VisiumV1 <- function(object, ...) {
   return(subset(x = x, cells = i, ...))
 }
 
+#' @describeIn SpatialImage-methods Subset a \code{SpatialImage}-derived object
+#' (\strong{[Override]})
+#'
 #' @param i,cells A vector of cells to keep
 #'
-#' @rdname SpatialImage-class
-#' @name SpatialImage-class
+#' @return \strong{[Override]} \code{[}, \code{subset}: \code{x}/\code{object}
+#' for only the cells requested
 #'
 #' @method [ SpatialImage
 #' @export
@@ -547,8 +624,11 @@ dim.SlideSeq <- function(x) {
   return(c(599, 600))
 }
 
-#' @rdname SpatialImage-class
-#' @name SpatialImage-class
+#' @describeIn SpatialImage-methods Get the plotting dimensions of an image
+#' (\strong{[Override]})
+#'
+#' @return \strong{[Override]} \code{dim}: The dimensions of the image data in
+#' (Y, X) format
 #'
 #' @method dim SpatialImage
 #' @export
@@ -586,8 +666,8 @@ subset.SlideSeq <- function(x, cells, ...) {
   return(x)
 }
 
-#' @rdname SpatialImage-class
-#' @name SpatialImage-class
+#' @describeIn SpatialImage-methods Subset a \code{SpatialImage}-derived object
+#' (\strong{[Override]})
 #'
 #' @method subset SpatialImage
 #' @export
@@ -622,6 +702,16 @@ subset.VisiumV1 <- function(x, cells, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @describeIn SpatialImage-methods Overview of a \code{SpatialImage}-derived
+#' object
+#'
+#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
+#' invisibly returns \code{NULL}
+#'
+#' @importFrom methods show
+#'
+#' @export
+#'
 setMethod(
   f = 'show',
   signature = 'SpatialImage',

@@ -136,7 +136,7 @@ as.logical.JackStrawData <- function(x, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @describeIn JackStrawData-methods Overview of an \code{JackStrawData} object
+#' @describeIn JackStrawData-methods Overview of a \code{JackStrawData} object
 #'
 #' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
 #' invisibly returns \code{NULL}

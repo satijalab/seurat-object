@@ -24,6 +24,8 @@ NULL
 #' @rdname SeuratCommand-class
 #' @exportClass SeuratCommand
 #'
+#' @concept command
+#'
 SeuratCommand <- setClass(
   Class = 'SeuratCommand',
   slots = c(
@@ -51,6 +53,8 @@ SeuratCommand <- setClass(
 #' returns the Seurat object with command stored
 #'
 #' @export
+#'
+#' @concept command
 #'
 #' @seealso \code{\link{Command}}
 #'
@@ -167,6 +171,26 @@ DefaultAssay.SeuratCommand <- function(object, ...) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' \code{SeuratCommand} Methods
+#'
+#' Methods for \code{\link{SeuratCommand}} objects for generics defined in
+#' other packages
+#'
+#' @param x,object A \code{\link{SeuratCommand}} object
+#' @param ... Arguments passed to other methods
+#'
+#' @name SeuratCommand-methods
+#' @rdname SeuratCommand-methods
+#'
+#' @concept command
+#'
+NULL
+
+#' @describeIn SeuratCommand-methods Autocompletion for \code{$} access on a
+#' \code{SeuratCommand} object
+#'
+#' @inheritParams utils::.DollarNames
+#'
 #' @importFrom utils .DollarNames
 #' @export
 #' @method .DollarNames SeuratCommand
@@ -175,6 +199,14 @@ DefaultAssay.SeuratCommand <- function(object, ...) {
   return(.DollarNames(x = slot(object = x, name = "params"), pattern = pattern))
 }
 
+#' @describeIn SeuratCommand-methods Access a parameter from a
+#' \code{SeuratCommand} object
+#'
+#' @param i For a \code{$}, a parameter name; for \code{[}, a
+#' \code{SeuratCommand} slot name
+#'
+#' @return \code{$}: The value for parameter \code{i}
+#'
 #' @export
 #'
 "$.SeuratCommand" <- function(x, i, ...) {
@@ -182,6 +214,11 @@ DefaultAssay.SeuratCommand <- function(object, ...) {
   return(params[[i]])
 }
 
+#' @describeIn SeuratCommand-methods Access data from a \code{SeuratCommand}
+#' object
+#'
+#' @return \code{[}: Slot \code{i} from \code{x}
+#'
 #' @export
 #' @method [ SeuratCommand
 #'
@@ -238,6 +275,15 @@ as.list.SeuratCommand <- function(x, complete = FALSE, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @describeIn SeuratCommand-methods Overview of a \code{SeuratCommand} object
+#'
+#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
+#' invisibly returns \code{NULL}
+#'
+#' @importFrom methods show
+#'
+#' @export
+#'
 setMethod(
   f = 'show',
   signature = 'SeuratCommand',
@@ -249,7 +295,7 @@ setMethod(
       "Time: ", as.character(slot(object = object, name = "time.stamp")), '\n',
       sep = ""
     )
-    for (p in 1:length(params)) {
+    for (p in seq_len(length.out = length(x = params))) {
       cat(
         names(params[p]), ":", params[[p]], "\n"
       )

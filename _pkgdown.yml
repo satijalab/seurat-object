@@ -25,7 +25,13 @@ reference:
       - has_concept("graph")
   - title: Spatial Datasets
     contents:
+      - SpatialImage-class
+      - has_concept("spatial-class")
+      - SpatialImage-methods
       - has_concept("spatial")
+  - title: Command Logs
+    contents:
+      - has_concept("command")
   - title: Data Access
     contents:
       - has_concept("data-access")

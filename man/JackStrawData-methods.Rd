@@ -49,7 +49,7 @@ object
 \item \code{as.logical.JackStrawData}: Have empirical p-values for a
 \code{JackStrawData} object been calculated
 
-\item \code{show,JackStrawData-method}: Overview of an \code{JackStrawData} object
+\item \code{show,JackStrawData-method}: Overview of a \code{JackStrawData} object
 }}
 
 \concept{dimreduc}

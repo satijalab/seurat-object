@@ -20,3 +20,4 @@ The SlideSeq class represents spatial information from the Slide-seq platform
 For slots defined by the \code{SpatialImage} class, see
 \code{\link{SpatialImage-class}}
 }
+\concept{spatial-class}

@@ -27,3 +27,4 @@ Visium platform
 For slots defined by the \code{SpatialImage} class, see
 \code{\link{SpatialImage-class}}
 }
+\concept{spatial-class}
