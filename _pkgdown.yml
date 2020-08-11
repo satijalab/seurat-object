@@ -1,0 +1,19 @@
+destination: docs
+
+template:
+  params:
+    bootswatch: united
+
+development:
+  mode: auto
+
+reference:
+  - title: Package Information
+    contents:
+      - SeuratObject
+  - title: Assay Expression Data
+    contents:
+      - has_concept("assay")
+  - title: Dimensional Reduction Information
+    contents:
+      - has_concept("dimreduc")
