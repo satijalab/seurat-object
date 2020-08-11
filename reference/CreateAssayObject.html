@@ -12,8 +12,8 @@
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/united/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
@@ -73,7 +73,7 @@ expected format of the input matrix is features x cells." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="Unreleased version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
 
@@ -154,12 +154,7 @@ calling this function.</p>
     <pre class="examples"><div class='input'><span class='no'>pbmc_raw</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.table</a></span>(
   <span class='kw'>file</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>'extdata'</span>, <span class='st'>'pbmc_raw.txt'</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>'Seurat'</span>),
   <span class='kw'>as.is</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)
-<span class='no'>pbmc_rna</span> <span class='kw'>&lt;-</span> <span class='fu'>CreateAssayObject</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>pbmc_raw</span>)
-<span class='no'>pbmc_rna</span></div><div class='output co'>#&gt; Assay data with 230 features for 80 cells
-#&gt; First 10 features:
-#&gt;  MS4A1, CD79B, CD79A, HLA-DRA, TCL1A, HLA-DQB1, HVCN1, HLA-DMB, LTB,
-#&gt; LINC00926 </div><div class='input'>
+)</div><div class='output co'>#&gt; <span class='warning'>Warning: file("") only supports open = "w+" and open = "w+b": using the former</span></div><div class='output co'>#&gt; <span class='error'>Error in read.table(file = system.file("extdata", "pbmc_raw.txt", package = "Seurat"),     as.is = TRUE): no lines available in input</span></div><div class='input'><span class='no'>pbmc_rna</span> <span class='kw'>&lt;-</span> <span class='fu'>CreateAssayObject</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>pbmc_raw</span>)</div><div class='output co'>#&gt; <span class='error'>Error in rownames(x = counts): object 'pbmc_raw' not found</span></div><div class='input'><span class='no'>pbmc_rna</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'pbmc_rna' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

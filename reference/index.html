@@ -12,8 +12,8 @@
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/united/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="Unreleased version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
 
@@ -121,7 +121,7 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-package-information" class="hasAnchor"><a href="#section-package-information" class="anchor"></a>Package Information</h2>
+          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
@@ -133,23 +133,10 @@
       <tr>
         
         <td>
-          <p><code><a href="SeuratObject-package.html">SeuratObject-package</a></code> </p>
+          <p><code><a href="AddMetaData.html">AddMetaData()</a></code> </p>
         </td>
-        <td><p>SeuratObject: Data Structures for Single Cell Data</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-assay-expression-data" class="hasAnchor"><a href="#section-assay-expression-data" class="anchor"></a>Assay Expression Data</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
+        <td><p>Add in metadata associated with either cells or features.</p></td>
+      </tr><tr>
         
         <td>
           <p><code><a href="Assay-class.html">Assay-class</a></code> </p>
@@ -164,28 +151,33 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="Cells.html">Cells()</a></code> </p>
+        </td>
+        <td><p>Get cells present in an object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Command.html">Command()</a></code> </p>
+        </td>
+        <td><p>Get SeuratCommands</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="CreateAssayObject.html">CreateAssayObject()</a></code> </p>
         </td>
         <td><p>Create an Assay object</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-dimensional-reduction-information" class="hasAnchor"><a href="#section-dimensional-reduction-information" class="anchor"></a>Dimensional Reduction Information</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
+      </tr><tr>
         
         <td>
           <p><code><a href="CreateDimReducObject.html">CreateDimReducObject()</a></code> </p>
         </td>
         <td><p>Create a DimReduc object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="DefaultAssay.html">DefaultAssay()</a></code> <code><a href="DefaultAssay.html">`DefaultAssay&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Default Assay</p></td>
       </tr><tr>
         
         <td>
@@ -201,6 +193,66 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="Embeddings.html">Embeddings()</a></code> </p>
+        </td>
+        <td><p>Get cell embeddings</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="GetAssay.html">GetAssay()</a></code> </p>
+        </td>
+        <td><p>Get an Assay object from a given Seurat object.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="GetAssayData.html">GetAssayData()</a></code> </p>
+        </td>
+        <td><p>General accessor function for the Assay class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="GetImage.html">GetImage()</a></code> </p>
+        </td>
+        <td><p>Get image data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="GetTissueCoordinates.html">GetTissueCoordinates()</a></code> </p>
+        </td>
+        <td><p>Get tissue coordinates</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Graph-class.html">Graph-class</a></code> </p>
+        </td>
+        <td><p>The Graph Class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="HVFInfo.html">HVFInfo()</a></code> </p>
+        </td>
+        <td><p>Get highly variable feature information</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Idents.html">Idents()</a></code> <code><a href="Idents.html">`Idents&lt;-`()</a></code> <code><a href="Idents.html">RenameIdents()</a></code> <code><a href="Idents.html">ReorderIdent()</a></code> <code><a href="Idents.html">SetIdent()</a></code> <code><a href="Idents.html">StashIdent()</a></code> </p>
+        </td>
+        <td><p>Get, set, and manipulate an object's identity classes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="IsGlobal.html">IsGlobal()</a></code> </p>
+        </td>
+        <td><p>Is an object global/persistent?</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="JS.html">JS()</a></code> <code><a href="JS.html">`JS&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Get and set JackStraw information</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="JackStrawData-class.html">JackStrawData-class</a></code> </p>
         </td>
         <td><p>The JackStrawData Class</p></td>
@@ -210,6 +262,168 @@
           <p><code><a href="JackStrawData-methods.html">.DollarNames(<i>&lt;JackStrawData&gt;</i>)</a></code> <code><a href="JackStrawData-methods.html">`$`(<i>&lt;JackStrawData&gt;</i>)</a></code> <code><a href="JackStrawData-methods.html">as.logical(<i>&lt;JackStrawData&gt;</i>)</a></code> <code><a href="JackStrawData-methods.html">show(<i>&lt;JackStrawData&gt;</i>)</a></code> </p>
         </td>
         <td><p><code>JackStrawData</code> Methods</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Key.html">Key()</a></code> <code><a href="Key.html">`Key&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Get and set object keys</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Loadings.html">Loadings()</a></code> <code><a href="Loadings.html">`Loadings&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Get and set feature loadings</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="LogSeuratCommand.html">LogSeuratCommand()</a></code> </p>
+        </td>
+        <td><p>Log a command</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Misc.html">Misc()</a></code> <code><a href="Misc.html">`Misc&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Get and set miscellaneous data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Project.html">Project()</a></code> <code><a href="Project.html">`Project&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Get and set project information</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Radius.html">Radius()</a></code> </p>
+        </td>
+        <td><p>Get the spot radius from an image</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="RenameCells.html">RenameCells()</a></code> </p>
+        </td>
+        <td><p>Rename cells</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="STARmap-class.html">STARmap-class</a></code> </p>
+        </td>
+        <td><p>The STARmap class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="SVFInfo.html">SVFInfo()</a></code> </p>
+        </td>
+        <td><p>Get spatially variable feature information</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="ScaleFactors.html">ScaleFactors()</a></code> <code><a href="ScaleFactors.html">scalefactors()</a></code> </p>
+        </td>
+        <td><p>Get image scale factors</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="SetAssayData.html">SetAssayData()</a></code> </p>
+        </td>
+        <td><p>Setter for multimodal data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="SeuratCommand-class.html">SeuratCommand-class</a></code> </p>
+        </td>
+        <td><p>The SeuratCommand Class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="SeuratObject-package.html">SeuratObject-package</a></code> </p>
+        </td>
+        <td><p>SeuratObject: Data Structures for Single Cell Data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="SlideSeq-class.html">SlideSeq-class</a></code> </p>
+        </td>
+        <td><p>The SlideSeq class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="SpatialImage-class.html">Cells(<i>&lt;SpatialImage&gt;</i>)</a></code> <code><a href="SpatialImage-class.html">GetImage(<i>&lt;SpatialImage&gt;</i>)</a></code> <code><a href="SpatialImage-class.html">GetTissueCoordinates(<i>&lt;SpatialImage&gt;</i>)</a></code> <code><a href="SpatialImage-class.html">Radius(<i>&lt;SpatialImage&gt;</i>)</a></code> <code><a href="SpatialImage-class.html">RenameCells(<i>&lt;SpatialImage&gt;</i>)</a></code> <code><a href="SpatialImage-class.html">`[`(<i>&lt;SpatialImage&gt;</i>)</a></code> <code><a href="SpatialImage-class.html">dim(<i>&lt;SpatialImage&gt;</i>)</a></code> <code><a href="SpatialImage-class.html">subset(<i>&lt;SpatialImage&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>The SpatialImage class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="SpatiallyVariableFeatures.html">SpatiallyVariableFeatures()</a></code> </p>
+        </td>
+        <td><p>Get spatially variable feature information</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Stdev.html">Stdev()</a></code> </p>
+        </td>
+        <td><p>Get the standard deviations for an object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="Tool.html">Tool()</a></code> <code><a href="Tool.html">`Tool&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Get and set additional tool data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="TopCells.html">TopCells()</a></code> </p>
+        </td>
+        <td><p>Find cells with highest scores for a given dimensional reduction technique</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="TopFeatures.html">TopFeatures()</a></code> </p>
+        </td>
+        <td><p>Find features with highest scores for a given dimensional reduction technique</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VariableFeatures.html">VariableFeatures()</a></code> <code><a href="VariableFeatures.html">`VariableFeatures&lt;-`()</a></code> </p>
+        </td>
+        <td><p>Get and set variable feature information</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="VisiumV1-class.html">VisiumV1-class</a></code> </p>
+        </td>
+        <td><p>The VisiumV1 class</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="WhichCells.html">WhichCells()</a></code> </p>
+        </td>
+        <td><p>Identify cells matching certain criteria</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="as.Graph.html">as.Graph()</a></code> </p>
+        </td>
+        <td><p>Graph Converter</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="as.Seurat.html">as.Seurat()</a></code> </p>
+        </td>
+        <td><p>Convert objects to Seurat objects</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="as.list.SeuratCommand.html">as.list(<i>&lt;SeuratCommand&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Coerce a SeuratCommand to a list</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="as.sparse.html">as.sparse()</a></code> </p>
+        </td>
+        <td><p>Cast to Sparse</p></td>
       </tr>
     </tbody>
     </table>
