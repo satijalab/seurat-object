@@ -18,6 +18,8 @@ NULL
 #' @rdname Graph-class
 #' @exportClass Graph
 #'
+#' @concept graph
+#'
 #' @seealso \code{\link[Matrix]{dgCMatrix-class}}
 #'
 Graph <- setClass(

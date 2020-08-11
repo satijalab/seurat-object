@@ -48,3 +48,4 @@ renamed.dimreduc <- RenameCells(
 head(x = Cells(x = renamed.dimreduc))
 
 }
+\concept{seurat}

@@ -20,9 +20,15 @@ GetImage(object, mode = c("grob", "raster", "plotly", "raw"), ...)
 \value{
 Image data, varying depending on the value of \code{mode}:
 \describe{
- \item{'grob'}{An object representing image data inheriting from \code{grob} objects (eg. \code{rastergrob})}
+ \item{'grob'}{
+  An object representing image data inheriting from \code{grob} objects
+  (eg. \code{rastergrob})
+ }
  \item{'raster'}{An object of class \code{raster}}
- \item{'plotly'}{A list with image data suitable for Plotly rendering, see \code{\link[plotly]{layout}} for more details}
+ \item{'plotly'}{
+  A list with image data suitable for Plotly rendering, see
+  \code{\link[plotly]{layout}} for more details
+ }
  \item{'raw'}{The raw image data as stored in the object}
 }
 }
@@ -32,3 +38,4 @@ Get image data
 \seealso{
 \code{\link[plotly]{layout}}
 }
+\concept{data-access}

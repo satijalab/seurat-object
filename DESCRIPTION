@@ -42,4 +42,5 @@ Collate:
     'jackstraw.R'
     'dimreduc.R'
     'graph.R'
+    'load.R'
     'spatial.R'

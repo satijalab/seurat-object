@@ -37,3 +37,4 @@ new.loadings <- new.loadings + 0.01
 Loadings(object = pbmc_small[["pca"]]) <- new.loadings
 
 }
+\concept{data-access}

@@ -29,3 +29,4 @@ Assay class. For example, pull one of the data matrices("counts", "data", or
 GetAssayData(object = pbmc_small[["RNA"]], slot = "data")[1:5,1:5]
 
 }
+\concept{data-access}

@@ -52,3 +52,4 @@ DefaultAssay(object, ...) <- value
 \description{
 Get and set the default assay
 }
+\concept{data-access}

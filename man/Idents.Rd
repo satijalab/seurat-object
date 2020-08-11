@@ -84,3 +84,4 @@ pbmc_small <- StashIdent(object = pbmc_small, save.name = 'idents')
 head(x = pbmc_small[[]])
 
 }
+\concept{data-access}

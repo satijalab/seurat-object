@@ -31,3 +31,4 @@ Get cells present in an object
 Cells(x = pbmc_small)
 
 }
+\concept{data-access}

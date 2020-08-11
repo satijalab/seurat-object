@@ -17,3 +17,4 @@ Returns an Assay object
 \description{
 Get an Assay object from a given Seurat object.
 }
+\concept{data-access}

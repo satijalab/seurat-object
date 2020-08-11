@@ -22,3 +22,4 @@ Get the standard deviations for an object
 Stdev(object = pbmc_small[["pca"]])
 
 }
+\concept{dimreduc}

@@ -32,3 +32,4 @@ so each function gets one entry in the tools list and cannot overwrite another
 function's entry. The automatic naming will also remove any method identifiers
 (eg. RunPCA.Seurat will become RunPCA); please plan accordingly.
 }
+\concept{data-access}

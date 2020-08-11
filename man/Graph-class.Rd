@@ -18,3 +18,4 @@ We do this to enable future expandability of graphs.
 \seealso{
 \code{\link[Matrix]{dgCMatrix-class}}
 }
+\concept{graph}

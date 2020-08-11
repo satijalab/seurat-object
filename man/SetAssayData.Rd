@@ -31,3 +31,4 @@ count.data <- as.matrix(x = count.data + 1)
 new.assay <- SetAssayData(object = pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
 
 }
+\concept{data-access}

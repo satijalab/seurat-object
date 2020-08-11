@@ -34,3 +34,4 @@ Can shorten to 'empirical', 'fake', 'full', or 'overall'}
 \description{
 Get and set JackStraw information
 }
+\concept{dimreduc}

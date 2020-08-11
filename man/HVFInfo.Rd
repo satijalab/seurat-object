@@ -31,3 +31,4 @@ Get highly variable feature information
 HVFInfo(object = pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
 
 }
+\concept{data-access}

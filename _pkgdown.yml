@@ -11,9 +11,27 @@ reference:
   - title: Package Information
     contents:
       - SeuratObject
+  - title: The Seurat Object
+    contents:
+      - has_concept("seurat")
   - title: Assay Expression Data
     contents:
       - has_concept("assay")
   - title: Dimensional Reduction Information
     contents:
       - has_concept("dimreduc")
+  - title: Nearest Neighbor Graphs
+    contents:
+      - has_concept("graph")
+  - title: Spatial Datasets
+    contents:
+      - has_concept("spatial")
+  - title: Data Access
+    contents:
+      - has_concept("data-access")
+  - title: Reading and Loading Data
+    contents:
+      - has_concept("data-load")
+  - title: Conversion Utilities
+    contents:
+      - has_concept("conversion")

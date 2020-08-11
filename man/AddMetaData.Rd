@@ -42,3 +42,4 @@ pbmc_small <- AddMetaData(
 head(x = pbmc_small[[]])
 
 }
+\concept{data-access}

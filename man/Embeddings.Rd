@@ -22,3 +22,4 @@ Get cell embeddings
 Embeddings(object = pbmc_small[["pca"]])[1:5, 1:5]
 
 }
+\concept{data-access}

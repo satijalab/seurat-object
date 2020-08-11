@@ -23,6 +23,8 @@ NULL
 #'
 #' @aliases SeuratAccess
 #'
+#' @concept data-access
+#'
 #' @examples
 #' cluster_letters <- LETTERS[Idents(object = pbmc_small)]
 #' names(cluster_letters) <- colnames(x = pbmc_small)
@@ -49,6 +51,8 @@ AddMetaData <- function(object, metadata, col.name = NULL) {
 #'
 #' @rdname as.Graph
 #' @export as.Graph
+#'
+#' @concept graph
 #'
 as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
@@ -78,6 +82,8 @@ as.Seurat <- function(x, ...) {
 #' @rdname as.sparse
 #' @export as.sparse
 #'
+#' @concept conversion
+#'
 as.sparse <- function(x, ...) {
   UseMethod(generic = 'as.sparse', object = x)
 }
@@ -90,6 +96,8 @@ as.sparse <- function(x, ...) {
 #'
 #' @rdname Cells
 #' @export Cells
+#'
+#' @concept data-access
 #'
 #' @examples
 #' Cells(x = pbmc_small)
@@ -110,6 +118,8 @@ Cells <- function(x) {
 #' @rdname Command
 #' @export Command
 #'
+#' @concept data-access
+#'
 Command <- function(object, ...) {
   UseMethod(generic = 'Command', object = object)
 }
@@ -125,6 +135,8 @@ Command <- function(object, ...) {
 #'
 #' @rdname DefaultAssay
 #' @export DefaultAssay
+#'
+#' @concept data-access
 #'
 DefaultAssay <- function(object, ...) {
   UseMethod(generic = 'DefaultAssay', object = object)
@@ -149,6 +161,8 @@ DefaultAssay <- function(object, ...) {
 #' @rdname Embeddings
 #' @export Embeddings
 #'
+#' @concept data-access
+#'
 Embeddings <- function(object, ...) {
   UseMethod(generic = 'Embeddings', object = object)
 }
@@ -162,6 +176,8 @@ Embeddings <- function(object, ...) {
 #'
 #' @rdname GetAssay
 #' @export GetAssay
+#'
+#' @concept data-access
 #'
 GetAssay <- function(object, ...) {
   UseMethod(generic = 'GetAssay', object = object)
@@ -181,6 +197,8 @@ GetAssay <- function(object, ...) {
 #' @rdname GetAssayData
 #' @export GetAssayData
 #'
+#' @concept data-access
+#'
 GetAssayData <- function(object, ...) {
   UseMethod(generic = 'GetAssayData', object = object)
 }
@@ -194,9 +212,15 @@ GetAssayData <- function(object, ...) {
 #'
 #' @return Image data, varying depending on the value of \code{mode}:
 #' \describe{
-#'  \item{'grob'}{An object representing image data inheriting from \code{grob} objects (eg. \code{rastergrob})}
+#'  \item{'grob'}{
+#'   An object representing image data inheriting from \code{grob} objects
+#'   (eg. \code{rastergrob})
+#'  }
 #'  \item{'raster'}{An object of class \code{raster}}
-#'  \item{'plotly'}{A list with image data suitable for Plotly rendering, see \code{\link[plotly]{layout}} for more details}
+#'  \item{'plotly'}{
+#'   A list with image data suitable for Plotly rendering, see
+#'   \code{\link[plotly]{layout}} for more details
+#'  }
 #'  \item{'raw'}{The raw image data as stored in the object}
 #' }
 #'
@@ -204,6 +228,8 @@ GetAssayData <- function(object, ...) {
 #'
 #' @rdname GetImage
 #' @export GetImage
+#'
+#' @concept data-access
 #'
 GetImage <- function(object, mode = c('grob', 'raster', 'plotly', 'raw'), ...) {
   mode <- match.arg(arg = mode)
@@ -222,6 +248,8 @@ GetImage <- function(object, mode = c('grob', 'raster', 'plotly', 'raw'), ...) {
 #' @rdname GetTissueCoordinates
 #' @export GetTissueCoordinates
 #'
+#' @concept data-access
+#'
 GetTissueCoordinates <- function(object, ...) {
   UseMethod(generic = 'GetTissueCoordinates', object = object)
 }
@@ -235,6 +263,8 @@ GetTissueCoordinates <- function(object, ...) {
 #'
 #' @rdname HVFInfo
 #' @export HVFInfo
+#'
+#' @concept data-access
 #'
 HVFInfo <- function(object, ...) {
   UseMethod(generic = 'HVFInfo', object = object)
@@ -251,6 +281,8 @@ HVFInfo <- function(object, ...) {
 #'
 #' @rdname Idents
 #' @export Idents
+#'
+#' @concept data-access
 #'
 #' @examples
 #' # Get cell identity classes
@@ -298,6 +330,8 @@ Idents <- function(object, ... ) {
 #' @rdname IsGlobal
 #' @export IsGlobal
 #'
+#' @concept data-access
+#'
 #' @examples
 #' IsGlobal(pbmc_small[['pca']])
 #'
@@ -312,6 +346,8 @@ IsGlobal <- function(object, ...) {
 #'
 #' @rdname JS
 #' @export JS
+#'
+#' @concept dimreduc
 #'
 JS <- function(object, ...) {
   UseMethod(generic = 'JS', object = object)
@@ -334,6 +370,8 @@ JS <- function(object, ...) {
 #' @rdname Key
 #' @export Key
 #'
+#' @concept data-access
+#'
 Key <- function(object, ...) {
   UseMethod(generic = 'Key', object = object)
 }
@@ -342,6 +380,8 @@ Key <- function(object, ...) {
 #'
 #' @rdname Key
 #' @export Key<-
+#'
+#' @concept data-access
 #'
 "Key<-" <- function(object, ..., value) {
   UseMethod(generic = 'Key<-', object = object)
@@ -354,6 +394,8 @@ Key <- function(object, ...) {
 #'
 #' @rdname Loadings
 #' @export Loadings
+#'
+#' @concept data-access
 #'
 Loadings <- function(object, ...) {
   UseMethod(generic = 'Loadings', object = object)
@@ -377,6 +419,8 @@ Loadings <- function(object, ...) {
 #'
 #' @rdname Misc
 #' @export Misc
+#'
+#' @concept data-access
 #'
 Misc <- function(object, ...) {
   UseMethod(generic = 'Misc', object = object)
@@ -403,6 +447,8 @@ Misc <- function(object, ...) {
 #' @rdname Project
 #' @export Project
 #'
+#' @concept seurat
+#'
 Project <- function(object, ...) {
   UseMethod(generic = 'Project', object = object)
 }
@@ -427,6 +473,8 @@ Project <- function(object, ...) {
 #' @rdname Radius
 #' @export Radius
 #'
+#' @concept spatial
+#'
 Radius <- function(object) {
   UseMethod(generic = 'Radius', object = object)
 }
@@ -443,6 +491,8 @@ Radius <- function(object) {
 #'
 #' @rdname RenameCells
 #' @export RenameCells
+#'
+#' @concept seurat
 #'
 RenameCells <- function(object, ...) {
   UseMethod(generic = 'RenameCells', object = object)
@@ -494,6 +544,8 @@ ReorderIdent <- function(object, var, ...) {
 #' @rdname ScaleFactors
 #' @export ScaleFactors
 #'
+#' @concept spatial
+#'
 ScaleFactors <- function(object, ...) {
   UseMethod(generic = 'ScaleFactors', object = object)
 }
@@ -507,6 +559,8 @@ ScaleFactors <- function(object, ...) {
 #'
 #' @rdname SetAssayData
 #' @export SetAssayData
+#'
+#' @concept data-access
 #'
 SetAssayData <- function(object, ...) {
   UseMethod(generic = 'SetAssayData', object = object)
@@ -530,6 +584,8 @@ SetIdent <- function(object, ...) {
 #'
 #' @rdname SpatiallyVariableFeatures
 #' @export SpatiallyVariableFeatures
+#'
+#' @concept data-access
 #'
 SpatiallyVariableFeatures <- function(object, ...){
   UseMethod(generic = 'SpatiallyVariableFeatures', object = object)
@@ -557,6 +613,8 @@ StashIdent <- function(object, save.name, ...) {
 #' @rdname Stdev
 #' @export Stdev
 #'
+#' @concept dimreduc
+#'
 Stdev <- function(object, ...) {
   UseMethod(generic = 'Stdev', object = object)
 }
@@ -568,6 +626,8 @@ Stdev <- function(object, ...) {
 #'
 #' @rdname SVFInfo
 #' @export SVFInfo
+#'
+#' @concept data-access
 #'
 SVFInfo <- function(object, ...) {
   UseMethod(generic = 'SVFInfo', object = object)
@@ -592,7 +652,10 @@ SVFInfo <- function(object, ...) {
 #'
 #' @rdname Tool
 #' @export Tool
+#'
 #' @aliases Tools
+#'
+#' @concept data-access
 #'
 Tool <- function(object, ...) {
   UseMethod(generic = 'Tool', object = object)
@@ -615,6 +678,8 @@ Tool <- function(object, ...) {
 #'
 #' @rdname VariableFeatures
 #' @export VariableFeatures
+#'
+#' @concept data-access
 #'
 VariableFeatures <- function(object, ...) {
   UseMethod(generic = 'VariableFeatures', object = object)
@@ -639,9 +704,12 @@ VariableFeatures <- function(object, ...) {
 #'
 #' @return A vector of cell names
 #'
-#' @seealso \code{\link{FetchData}}
 #' @rdname WhichCells
 #' @export WhichCells
+#'
+#' @concept data-access
+#'
+#' @seealso \code{\link{FetchData}}
 #'
 #' @examples
 #' WhichCells(object = pbmc_small, idents = 2)

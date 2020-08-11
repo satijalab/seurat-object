@@ -38,3 +38,4 @@ A data.frame with tissue coordinates
 \description{
 Get tissue coordinates
 }
+\concept{data-access}

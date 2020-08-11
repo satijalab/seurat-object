@@ -26,3 +26,4 @@ SVFInfo(object, ...)
 \description{
 Get spatially variable feature information
 }
+\concept{data-access}
