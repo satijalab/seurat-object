@@ -185,6 +185,47 @@ GetAssayData <- function(object, ...) {
   UseMethod(generic = 'GetAssayData', object = object)
 }
 
+#' Get image data
+#'
+#' @param object An object
+#' @param mode How to return the image; should accept one of 'grob', 'raster',
+#' 'plotly', or 'raw'
+#' @param ... Arguments passed to other methods
+#'
+#' @return Image data, varying depending on the value of \code{mode}:
+#' \describe{
+#'  \item{'grob'}{An object representing image data inheriting from \code{grob} objects (eg. \code{rastergrob})}
+#'  \item{'raster'}{An object of class \code{raster}}
+#'  \item{'plotly'}{A list with image data suitable for Plotly rendering, see \code{\link[plotly]{layout}} for more details}
+#'  \item{'raw'}{The raw image data as stored in the object}
+#' }
+#'
+#' @seealso \code{\link[plotly]{layout}}
+#'
+#' @rdname GetImage
+#' @export GetImage
+#'
+GetImage <- function(object, mode = c('grob', 'raster', 'plotly', 'raw'), ...) {
+  mode <- match.arg(arg = mode)
+  UseMethod(generic = 'GetImage', object = object)
+}
+
+#' Get tissue coordinates
+#'
+#' Get tissue coordinates
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @return A data.frame with tissue coordinates
+#'
+#' @rdname GetTissueCoordinates
+#' @export GetTissueCoordinates
+#'
+GetTissueCoordinates <- function(object, ...) {
+  UseMethod(generic = 'GetTissueCoordinates', object = object)
+}
+
 #' Get highly variable feature information
 #'
 #' @param object An object
@@ -377,6 +418,19 @@ Project <- function(object, ...) {
   UseMethod(generic = 'Project<-', object = object)
 }
 
+#' Get the spot radius from an image
+#'
+#' @param object An image object
+#'
+#' @return The radius size
+#'
+#' @rdname Radius
+#' @export Radius
+#'
+Radius <- function(object) {
+  UseMethod(generic = 'Radius', object = object)
+}
+
 #' Rename cells
 #'
 #' Change the cell names in all the different parts of an object. Can be useful
@@ -430,6 +484,20 @@ ReorderIdent <- function(object, var, ...) {
   UseMethod(generic = 'ReorderIdent', object = object)
 }
 
+#' Get image scale factors
+#'
+#' @param object An object to get scale factors from
+#' @param ... Arguments passed to other methods
+#'
+#' @return An object of class \code{scalefactors}
+#'
+#' @rdname ScaleFactors
+#' @export ScaleFactors
+#'
+ScaleFactors <- function(object, ...) {
+  UseMethod(generic = 'ScaleFactors', object = object)
+}
+
 #' Setter for multimodal data
 #'
 #' @param object An object
@@ -456,6 +524,15 @@ SetAssayData <- function(object, ...) {
 #'
 SetIdent <- function(object, ...) {
   UseMethod(generic = 'SetIdent', object = object)
+}
+
+#' Get spatially variable feature information
+#'
+#' @rdname SpatiallyVariableFeatures
+#' @export SpatiallyVariableFeatures
+#'
+SpatiallyVariableFeatures <- function(object, ...){
+  UseMethod(generic = 'SpatiallyVariableFeatures', object = object)
 }
 
 #' @return \code{StashIdent}: An object with the identities stashed

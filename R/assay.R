@@ -29,6 +29,8 @@ NULL
 #' @rdname Assay-class
 #' @exportClass Assay
 #'
+#' @concept assay
+#'
 #' @seealso \code{\link{Assay-methods}}
 #'
 Assay <- setClass(
@@ -69,6 +71,8 @@ Assay <- setClass(
 #' @importFrom Matrix colSums rowSums
 #'
 #' @export
+#'
+#' @concept assay
 #'
 #' @examples
 #' pbmc_raw <- read.table(
@@ -507,6 +511,28 @@ SetAssayData.Assay <- function(
   return(object)
 }
 
+# @inheritParams FindSpatiallyVariableFeatures
+#' @param decreasing Return features in decreasing order (most spatially
+#' variable first).
+#' @rdname SpatiallyVariableFeatures
+#' @export
+#' @method SpatiallyVariableFeatures Assay
+#'
+SpatiallyVariableFeatures.Assay <- function(
+  object,
+  selection.method = "markvariogram",
+  decreasing = TRUE,
+  ...
+) {
+  CheckDots(...)
+  vf <- SVFInfo(object = object, selection.method = selection.method, status = TRUE)
+  vf <- vf[rownames(x = vf)[which(x = vf[, "variable"][, 1])], ]
+  if (!is.null(x = decreasing)) {
+    vf <- vf[order(x = vf[, "rank"], decreasing = !decreasing), ]
+  }
+  return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
+}
+
 #' @param selection.method Which method to pull. Options: markvariogram, moransi
 #' @param status Add variable status to the resulting data.frame
 #'
@@ -692,6 +718,8 @@ WhichCells.Assay <- function(
 #'
 #' @name Assay-methods
 #' @rdname Assay-methods
+#'
+#' @concept assay
 #'
 NULL
 

@@ -52,3 +52,4 @@ object
 \item \code{show,JackStrawData-method}: Overview of an \code{JackStrawData} object
 }}
 
+\concept{dimreduc}

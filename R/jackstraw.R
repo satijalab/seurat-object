@@ -21,6 +21,8 @@ NULL
 #' @rdname JackStrawData-class
 #' @exportClass JackStrawData
 #'
+#' @concept dimreduc
+#'
 JackStrawData <- setClass(
   Class = "JackStrawData",
   slots = list(
@@ -83,6 +85,8 @@ JS.JackStrawData <- function(object, slot, ...) {
 #'
 #' @name JackStrawData-methods
 #' @rdname JackStrawData-methods
+#'
+#' @concept dimreduc
 #'
 NULL
 

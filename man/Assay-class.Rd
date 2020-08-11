@@ -35,3 +35,4 @@ assay provenance}
 \seealso{
 \code{\link{Assay-methods}}
 }
+\concept{assay}

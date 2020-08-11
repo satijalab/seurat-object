@@ -133,3 +133,4 @@ other packages
 \item \code{show,Assay-method}: Overview of an \code{Assay} object
 }}
 
+\concept{assay}

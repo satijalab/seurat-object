@@ -108,3 +108,4 @@ present in order to work
 \seealso{
 \code{\link[base]{cat}}
 }
+\concept{dimreduc}

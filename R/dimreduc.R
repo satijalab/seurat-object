@@ -32,6 +32,8 @@ NULL
 #' @rdname DimReduc-class
 #' @exportClass DimReduc
 #'
+#' @concept dimreduc
+#'
 DimReduc <- setClass(
   Class = 'DimReduc',
   slots = c(
@@ -68,6 +70,8 @@ DimReduc <- setClass(
 #' @aliases SetDimReduction
 #'
 #' @export
+#'
+#' @concept dimreduc
 #'
 #' @examples
 #' data <- GetAssayData(pbmc_small[["RNA"]], slot = "scale.data")
@@ -241,6 +245,10 @@ TopFeatures <- function(
     balanced = balanced
   ))
 }
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Methods for Seurat-defined generics
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @rdname Cells
 #' @export
@@ -479,6 +487,8 @@ Stdev.DimReduc <- function(object, ...) {
 #'
 #' @name DimReduc-methods
 #' @rdname DimReduc-methods
+#'
+#' @concept dimreduc
 #'
 NULL
 

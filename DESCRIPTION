@@ -29,6 +29,7 @@ Depends:
 Imports:
   Matrix (>= 1.2.18),
   methods,
+  plotly (>= 4.9.2),
   rlang (>= 0.4.7),
   stats,
   utils
@@ -40,3 +41,4 @@ Collate:
     'jackstraw.R'
     'dimreduc.R'
     'graph.R'
+    'spatial.R'
