@@ -1,6 +1,6 @@
 #' @include zzz.R
 #' @include generics.R
-#' @importFrom methods setOldClass setClass new slot slot<-
+#' @importFrom methods setOldClass setClass slot slot<- new
 #'
 NULL
 
@@ -440,14 +440,6 @@ Radius.SpatialImage <- function(object) {
 }
 
 #' @rdname Radius
-#' @method Radius STARmap
-#' @export
-#'
-Radius.STARmap <- function(object) {
-  return(NULL)
-}
-
-#' @rdname Radius
 #' @method Radius VisiumV1
 #' @export
 #'
@@ -586,6 +578,16 @@ subset.SlideSeq <- function(x, cells, ...) {
   return(x)
 }
 
+#' @rdname SpatialImage-class
+#' @name SpatialImage-class
+#'
+#' @method subset SpatialImage
+#' @export
+#'
+subset.SpatialImage <- function(x, cells, ...) {
+  stop("'subset' must be implemented for all subclasses of 'SpatialImage'")
+}
+
 #' @method subset STARmap
 #' @export
 #'
@@ -595,16 +597,6 @@ subset.STARmap <- function(x, cells, ...) {
   qhulls <- qhulls[qhulls$cell %in% cells, ]
   slot(object = x, name = 'qhulls') <- qhulls
   return(x)
-}
-
-#' @rdname SpatialImage-class
-#' @name SpatialImage-class
-#'
-#' @method subset SpatialImage
-#' @export
-#'
-subset.SpatialImage <- function(x, cells, ...) {
-  stop("'subset' must be implemented for all subclasses of 'SpatialImage'")
 }
 
 #' @method subset VisiumV1
@@ -636,6 +628,7 @@ setMethod(
     )
     cat("Associated assay:", DefaultAssay(object = object), "\n")
     cat("Image key:", Key(object = object), "\n")
+    return(invisible(x = NULL))
   }
 )
 

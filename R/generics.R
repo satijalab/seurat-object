@@ -572,6 +572,7 @@ Stdev <- function(object, ...) {
 SVFInfo <- function(object, ...) {
   UseMethod(generic = 'SVFInfo', object = object)
 }
+
 #' Get and set additional tool data
 #'
 #' Use \code{Tool} to get tool data. If no additional arguments are provided,
