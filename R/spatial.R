@@ -449,7 +449,7 @@ GetTissueCoordinates.VisiumV1 <- function(
 #'
 #' @seealso \code{\link{IsGlobal}}
 #'
-IsGlobal.SpatialImage <- function(object) {
+IsGlobal.SpatialImage <- function(object, ...) {
   return(TRUE)
 }
 

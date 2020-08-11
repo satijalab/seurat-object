@@ -28,7 +28,7 @@
 
 \method{GetTissueCoordinates}{SpatialImage}(object, ...)
 
-\method{IsGlobal}{SpatialImage}(object)
+\method{IsGlobal}{SpatialImage}(object, ...)
 
 \method{Key}{SpatialImage}(object, ...)
 
