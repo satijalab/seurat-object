@@ -5,6 +5,7 @@
 \alias{.DollarNames.SeuratCommand}
 \alias{$.SeuratCommand}
 \alias{[.SeuratCommand}
+\alias{as.list.SeuratCommand}
 \alias{show,SeuratCommand-method}
 \title{\code{SeuratCommand} Methods}
 \usage{
@@ -13,6 +14,8 @@
 \method{$}{SeuratCommand}(x, i, ...)
 
 \method{[}{SeuratCommand}(x, i, ...)
+
+\method{as.list}{SeuratCommand}(x, complete = FALSE, ...)
 
 \S4method{show}{SeuratCommand}(object)
 }
@@ -27,11 +30,17 @@
 \code{SeuratCommand} slot name}
 
 \item{...}{Arguments passed to other methods}
+
+\item{complete}{Include slots besides just parameters
+(eg. call string, name, timestamp)}
 }
 \value{
 \code{$}: The value for parameter \code{i}
 
 \code{[}: Slot \code{i} from \code{x}
+
+\code{as.list}: A list with the parameters and, if
+\code{complete = TRUE}, the call string, name, and timestamp
 
 \code{show}: Prints summary to \code{\link[base]{stdout}} and
 invisibly returns \code{NULL}
@@ -50,6 +59,8 @@ other packages
 
 \item \code{[.SeuratCommand}: Access data from a \code{SeuratCommand}
 object
+
+\item \code{as.list.SeuratCommand}: Coerce a SeuratCommand to a list
 
 \item \code{show,SeuratCommand-method}: Overview of a \code{SeuratCommand} object
 }}

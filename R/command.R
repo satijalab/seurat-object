@@ -230,14 +230,13 @@ NULL
   return(slot(object = x, name = i))
 }
 
-#' Coerce a SeuratCommand to a list
+#' @describeIn SeuratCommand-methods Coerce a SeuratCommand to a list
 #'
-#' @inheritParams base::as.list
 #' @param complete Include slots besides just parameters
 #' (eg. call string, name, timestamp)
 #'
-#' @return A list with the parameters and, if \code{complete = TRUE}, the call
-#' string, name, and timestamp
+#' @return \code{as.list}: A list with the parameters and, if
+#' \code{complete = TRUE}, the call string, name, and timestamp
 #'
 #' @export
 #' @method as.list SeuratCommand
