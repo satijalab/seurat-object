@@ -16,7 +16,7 @@ jobs:
         uses: r-lib/actions/setup-pandoc@master
       - name: Configure RPSM
         run: |
-          echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' | tee -a /etc/R/Rprofile.site
+          echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' | sudo tee -a /etc/R/Rprofile.site
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "pkgdown"))
