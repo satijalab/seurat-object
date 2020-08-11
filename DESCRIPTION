@@ -38,6 +38,7 @@ Collate:
     'zzz.R'
     'generics.R'
     'assay.R'
+    'command.R'
     'jackstraw.R'
     'dimreduc.R'
     'graph.R'
