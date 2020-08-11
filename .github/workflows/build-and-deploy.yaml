@@ -11,9 +11,9 @@ jobs:
       RSPM: https://demo.rstudiopm.com/all/__linux__/focal/latest
     steps:
       - name: Setup R
-        uses: r-lib/actions/setup-r@latest
+        uses: r-lib/actions/setup-r@master
       - name: Setup Pandoc
-        uses: r-lib/actions/setup-pandoc@latest
+        uses: r-lib/actions/setup-pandoc@master
       - name: Configure RPSM
         run: |
           echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' | tee -a /etc/R/Rprofile.site
