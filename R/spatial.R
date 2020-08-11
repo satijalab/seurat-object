@@ -498,6 +498,14 @@ RenameCells.VisiumV1 <- function(object, new.names = NULL, ...) {
   return(object)
 }
 
+#' @rdname ScaleFactors
+#' @method ScaleFactors VisiumV1
+#' @export
+#'
+ScaleFactors.VisiumV1 <- function(object, ...) {
+  return(slot(object = object, name = 'scale.factors'))
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
