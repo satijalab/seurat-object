@@ -1,0 +1,26 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      RSPM: https://demo.rstudiopm.com/all/__linux__/focal/latest
+    steps:
+      - name: Setup R
+        uses: r-lib/actions/setup-r@latest
+      - name: Setup Pandoc
+        uses: r-lib/actions/setup-pandoc@latest
+      - name: Configure RPSM
+        run: |
+          echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' | tee -a /etc/R/Rprofile.site
+      - name: Install dependencies
+        run: |
+          install.packages(c("remotes", "pkgdown"))
+          remotes::install_deps()
+        shell: Rscript {0}
+      - name: Install package
+        run: R CMD INSTALL .
