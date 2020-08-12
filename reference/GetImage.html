@@ -109,7 +109,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get image data</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/spatial.R'><code>R/spatial.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/spatial.R'><code>R/spatial.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>GetImage.Rd</code></div>
     </div>
 
@@ -120,7 +120,15 @@
     <pre class="usage"><span class='fu'>GetImage</span>(<span class='no'>object</span>, <span class='kw'>mode</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"grob"</span>, <span class='st'>"raster"</span>, <span class='st'>"plotly"</span>, <span class='st'>"raw"</span>), <span class='no'>...</span>)
 
 <span class='co'># S3 method for VisiumV1</span>
-<span class='fu'>GetImage</span>(<span class='no'>object</span>, <span class='kw'>mode</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"grob"</span>, <span class='st'>"raster"</span>, <span class='st'>"plotly"</span>, <span class='st'>"raw"</span>), <span class='no'>...</span>)</pre>
+<span class='fu'>GetImage</span>(<span class='no'>object</span>, <span class='kw'>mode</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"grob"</span>, <span class='st'>"raster"</span>, <span class='st'>"plotly"</span>, <span class='st'>"raw"</span>), <span class='no'>...</span>)
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>GetImage</span>(
+  <span class='no'>object</span>,
+  <span class='kw'>mode</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"grob"</span>, <span class='st'>"raster"</span>, <span class='st'>"plotly"</span>, <span class='st'>"raw"</span>),
+  <span class='kw'>image</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -137,6 +145,11 @@
     <tr>
       <th>...</th>
       <td><p>Arguments passed to other methods</p></td>
+    </tr>
+    <tr>
+      <th>image</th>
+      <td><p>Name of <code>SpatialImage</code> object to pull image data for; if
+<code>NULL</code>, will attempt to select an image automatically</p></td>
     </tr>
     </table>
 

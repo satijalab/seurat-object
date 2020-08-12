@@ -109,7 +109,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get spatially variable feature information</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>SVFInfo.Rd</code></div>
     </div>
 
@@ -123,6 +123,15 @@
 <span class='fu'>SVFInfo</span>(
   <span class='no'>object</span>,
   <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"markvariogram"</span>, <span class='st'>"moransi"</span>),
+  <span class='kw'>status</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>
+)
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>SVFInfo</span>(
+  <span class='no'>object</span>,
+  <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"markvariogram"</span>, <span class='st'>"moransi"</span>),
+  <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>status</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='no'>...</span>
 )</pre>
@@ -145,6 +154,10 @@
     <tr>
       <th>status</th>
       <td><p>Add variable status to the resulting data.frame</p></td>
+    </tr>
+    <tr>
+      <th>assay</th>
+      <td><p>Name of assay to pull highly variable feature information for</p></td>
     </tr>
     </table>
 

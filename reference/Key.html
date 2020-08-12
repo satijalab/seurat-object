@@ -109,7 +109,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get and set object keys</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a>, and 1 more</small>
     <div class="hidden name"><code>Key.Rd</code></div>
     </div>
 
@@ -131,7 +131,10 @@
 <span class='fu'>Key</span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for DimReduc</span>
-<span class='fu'>Key</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+<span class='fu'>Key</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>Key</span>(<span class='no'>object</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -160,6 +163,8 @@
 <span class='fu'>Key</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"pca"</span>]])</div><div class='output co'>#&gt; <span class='error'>Error in Key(object = pbmc_small[["pca"]]): object 'pbmc_small' not found</span></div><div class='input'>
 <span class='co'># Set the key for DimReduc</span>
 <span class='fu'>Key</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"pca"</span>]]) <span class='kw'>&lt;-</span> <span class='st'>"newkey2_"</span></div><div class='output co'>#&gt; <span class='error'>Error in Key(object = pbmc_small[["pca"]]) &lt;- "newkey2_": object 'pbmc_small' not found</span></div><div class='input'><span class='fu'>Key</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"pca"</span>]])</div><div class='output co'>#&gt; <span class='error'>Error in Key(object = pbmc_small[["pca"]]): object 'pbmc_small' not found</span></div><div class='input'>
+<span class='co'># Show all keys associated with a Seurat object</span>
+<span class='fu'>Key</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>)</div><div class='output co'>#&gt; <span class='error'>Error in Key(object = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get and set variable feature information — VariableFeatures • SeuratObject</title>
+<title>Object Collections — Collections • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Get and set variable feature information — VariableFeatures" />
-<meta property="og:description" content="Get and set variable feature information" />
+<meta property="og:title" content="Object Collections — Collections" />
+<meta property="og:description" content="Find the names of collections in an object" />
 
 
 
@@ -108,30 +108,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get and set variable feature information</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
-    <div class="hidden name"><code>VariableFeatures.Rd</code></div>
+    <h1>Object Collections</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
+    <div class="hidden name"><code>Collections.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get and set variable feature information</p>
+    <p>Find the names of collections in an object</p>
     </div>
 
-    <pre class="usage"><span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>)
-
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
-
-<span class='co'># S3 method for Assay</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for Assay</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
-
-<span class='co'># S3 method for Seurat</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for Seurat</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+    <pre class="usage"><span class='fu'>Collections</span>(<span class='no'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -140,24 +126,11 @@
       <th>object</th>
       <td><p>An object</p></td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed to other methods</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>A character vector of variable features</p></td>
-    </tr>
-    <tr>
-      <th>selection.method</th>
-      <td><p>Method used to set variable features</p></td>
-    </tr>
-    <tr>
-      <th>assay</th>
-      <td><p>Name of assay to pull variable features for</p></td>
-    </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A vector with the names of slots that are a list</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

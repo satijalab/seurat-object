@@ -109,7 +109,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get and set miscellaneous data</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a>, and 1 more</small>
     <div class="hidden name"><code>Misc.Rd</code></div>
     </div>
 
@@ -131,6 +131,12 @@
 <span class='fu'>Misc</span>(<span class='no'>object</span>, <span class='kw'>slot</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for DimReduc</span>
+<span class='fu'>Misc</span>(<span class='no'>object</span>, <span class='no'>slot</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>Misc</span>(<span class='no'>object</span>, <span class='kw'>slot</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for Seurat</span>
 <span class='fu'>Misc</span>(<span class='no'>object</span>, <span class='no'>slot</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -159,6 +165,12 @@
     <p>Miscellaneous data</p>
 <p>An object with miscellaneous data added</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Get the misc info</span>
+<span class='fu'>Misc</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>, <span class='kw'>slot</span> <span class='kw'>=</span> <span class='st'>"example"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in Misc(object = pbmc_small, slot = "example"): object 'pbmc_small' not found</span></div><div class='input'>
+<span class='co'># Add misc info</span>
+<span class='fu'>Misc</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>, <span class='kw'>slot</span> <span class='kw'>=</span> <span class='st'>"example"</span>) <span class='kw'>&lt;-</span> <span class='st'>"testing_misc"</span></div><div class='output co'>#&gt; <span class='error'>Error in Misc(object = pbmc_small, slot = "example") &lt;- "testing_misc": object 'pbmc_small' not found</span></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -110,7 +110,7 @@ before combining multiple objects." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Rename cells</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a>, and 1 more</small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a>, and 2 more</small>
     <div class="hidden name"><code>RenameCells.Rd</code></div>
     </div>
 
@@ -128,7 +128,16 @@ before combining multiple objects.</p>
 <span class='fu'>RenameCells</span>(<span class='no'>object</span>, <span class='kw'>new.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for VisiumV1</span>
-<span class='fu'>RenameCells</span>(<span class='no'>object</span>, <span class='kw'>new.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>RenameCells</span>(<span class='no'>object</span>, <span class='kw'>new.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>RenameCells</span>(
+  <span class='no'>object</span>,
+  <span class='kw'>add.cell.id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>new.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>for.merge</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,11 +154,24 @@ before combining multiple objects.</p>
       <th>new.names</th>
       <td><p>vector of new cell names</p></td>
     </tr>
+    <tr>
+      <th>add.cell.id</th>
+      <td><p>prefix to add cell names</p></td>
+    </tr>
+    <tr>
+      <th>for.merge</th>
+      <td><p>Only rename slots needed for merging Seurat objects.
+Currently only renames the raw.data and meta.data slots.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An object with new cell names</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>If <code>add.cell.id</code> is set a prefix is added to existing cell names. If
+<code>new.names</code> is set these will be used to replace existing names.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Rename cells in an Assay</span>
@@ -162,6 +184,8 @@ before combining multiple objects.</p>
     <span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"pca"</span>]],
     <span class='kw'>new.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"A_"</span>, <span class='fu'><a href='Cells.html'>Cells</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"pca"</span>]]))
 )</div><div class='output co'>#&gt; <span class='error'>Error in RenameCells(object = pbmc_small[["pca"]], new.names = paste0("A_",     Cells(x = pbmc_small[["pca"]]))): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='Cells.html'>Cells</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>renamed.dimreduc</span>))</div><div class='output co'>#&gt; <span class='error'>Error in Cells(x = renamed.dimreduc): object 'renamed.dimreduc' not found</span></div><div class='input'>
+<span class='co'># Rename cells in a Seurat object</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>))</div><div class='output co'>#&gt; <span class='error'>Error in is.data.frame(x): object 'pbmc_small' not found</span></div><div class='input'><span class='no'>pbmc_small</span> <span class='kw'>&lt;-</span> <span class='fu'>RenameCells</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>, <span class='kw'>add.cell.id</span> <span class='kw'>=</span> <span class='st'>"A"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in RenameCells(object = pbmc_small, add.cell.id = "A"): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>))</div><div class='output co'>#&gt; <span class='error'>Error in is.data.frame(x): object 'pbmc_small' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

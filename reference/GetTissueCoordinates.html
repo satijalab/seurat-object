@@ -109,7 +109,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get tissue coordinates</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/spatial.R'><code>R/spatial.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/spatial.R'><code>R/spatial.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>GetTissueCoordinates.Rd</code></div>
     </div>
 
@@ -131,7 +131,10 @@
   <span class='kw'>scale</span> <span class='kw'>=</span> <span class='st'>"lowres"</span>,
   <span class='kw'>cols</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"imagerow"</span>, <span class='st'>"imagecol"</span>),
   <span class='no'>...</span>
-)</pre>
+)
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>GetTissueCoordinates</span>(<span class='no'>object</span>, <span class='kw'>image</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -156,6 +159,11 @@
     <tr>
       <th>cols</th>
       <td><p>Columns of tissue coordinates data.frame to pull</p></td>
+    </tr>
+    <tr>
+      <th>image</th>
+      <td><p>Name of <code>SpatialImage</code> object to get coordinates for; if
+<code>NULL</code>, will attempt to select an image automatically</p></td>
     </tr>
     </table>
 

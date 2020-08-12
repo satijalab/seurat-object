@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get and set variable feature information — VariableFeatures • SeuratObject</title>
+<title>Merge Seurat Objects — merge.Seurat • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Get and set variable feature information — VariableFeatures" />
-<meta property="og:description" content="Get and set variable feature information" />
+<meta property="og:title" content="Merge Seurat Objects — merge.Seurat" />
+<meta property="og:description" content="Merge two or more objects." />
 
 
 
@@ -108,57 +108,77 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get and set variable feature information</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
-    <div class="hidden name"><code>VariableFeatures.Rd</code></div>
+    <h1>Merge Seurat Objects</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
+    <div class="hidden name"><code>merge.Seurat.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get and set variable feature information</p>
+    <p>Merge two or more objects.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>)
-
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
-
-<span class='co'># S3 method for Assay</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for Assay</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
-
-<span class='co'># S3 method for Seurat</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for Seurat</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+    <pre class="usage"><span class='co'># S3 method for Seurat</span>
+<span class='fu'>merge</span>(
+  <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>add.cell.ids</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>merge.data</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>project</span> <span class='kw'>=</span> <span class='st'>"SeuratProject"</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>An object</p></td>
+      <th>x</th>
+      <td><p>Object</p></td>
+    </tr>
+    <tr>
+      <th>y</th>
+      <td><p>Object (or a list of multiple objects)</p></td>
+    </tr>
+    <tr>
+      <th>add.cell.ids</th>
+      <td><p>A character vector of length(x = c(x, y)). Appends the
+corresponding values to the start of each objects' cell names.</p></td>
+    </tr>
+    <tr>
+      <th>merge.data</th>
+      <td><p>Merge the data slots instead of just merging the counts
+(which requires renormalization). This is recommended if the same
+normalization approach was applied to all objects.</p></td>
+    </tr>
+    <tr>
+      <th>project</th>
+      <td><p><a href='Project.html'>Project</a> name for the <code>Seurat</code> object</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Arguments passed to other methods</p></td>
     </tr>
-    <tr>
-      <th>value</th>
-      <td><p>A character vector of variable features</p></td>
-    </tr>
-    <tr>
-      <th>selection.method</th>
-      <td><p>Method used to set variable features</p></td>
-    </tr>
-    <tr>
-      <th>assay</th>
-      <td><p>Name of assay to pull variable features for</p></td>
-    </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p>Merged object</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>When merging Seurat objects, the merge procedure will merge the Assay level
+counts and potentially the data slots (depending on the merge.data
+parameter). It will also merge the cell-level meta data that was stored with
+each object and preserve the cell identities that were active in the objects
+pre-merge. The merge will not preserve reductions, graphs, logged commands,
+or  feature-level metadata that were present in the original objects. If
+add.cell.ids isn't specified and any cell names are duplicated, cell names
+will be appended with _X, where X is the numeric index of the object in
+c(x, y).</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># merge two objects</span>
+<span class='fu'>merge</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>)</div><div class='output co'>#&gt; <span class='error'>Error in merge(x = pbmc_small, y = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'><span class='co'># to merge more than two objects, pass one to x and a list of objects to y</span>
+<span class='fu'>merge</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>pbmc_small</span>, <span class='no'>pbmc_small</span>))</div><div class='output co'>#&gt; <span class='error'>Error in merge(x = pbmc_small, y = c(pbmc_small, pbmc_small)): object 'pbmc_small' not found</span></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

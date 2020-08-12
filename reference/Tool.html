@@ -110,7 +110,7 @@ will return a vector with the names of tools in the object." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get and set additional tool data</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>Tool.Rd</code></div>
     </div>
 
@@ -121,6 +121,12 @@ will return a vector with the names of tools in the object.</p>
 
     <pre class="usage"><span class='fu'>Tool</span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
+<span class='fu'>Tool</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>Tool</span>(<span class='no'>object</span>, <span class='kw'>slot</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for Seurat</span>
 <span class='fu'>Tool</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -138,6 +144,10 @@ will return a vector with the names of tools in the object.</p>
       <th>value</th>
       <td><p>Information to be added to tool list</p></td>
     </tr>
+    <tr>
+      <th>slot</th>
+      <td><p>Name of tool to pull</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -152,6 +162,13 @@ so each function gets one entry in the tools list and cannot overwrite another
 function's entry. The automatic naming will also remove any method identifiers
 (eg. RunPCA.Seurat will become RunPCA); please plan accordingly.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>Tool</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>)</div><div class='output co'>#&gt; <span class='error'>Error in Tool(object = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='no'>sample.tool.output</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>16</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>4</span>)
+<span class='co'># must be run from within a function</span>
+<span class='fu'>Tool</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>) <span class='kw'>&lt;-</span> <span class='no'>sample.tool.output</span>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get and set variable feature information — VariableFeatures • SeuratObject</title>
+<title>The Seurat Class — seurat-class • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,12 @@
 
 
 
-<meta property="og:title" content="Get and set variable feature information — VariableFeatures" />
-<meta property="og:description" content="Get and set variable feature information" />
+<meta property="og:title" content="The Seurat Class — seurat-class" />
+<meta property="og:description" content="The Seurat object is the center of each single cell analysis. It stores all
+information associated with the dataset, including data, annotations,
+analyes, etc. All that is needed to construct a Seurat object is an
+expression matrix (rows are genes, columns are cells), which should
+be log-scale" />
 
 
 
@@ -108,56 +112,82 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get and set variable feature information</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
-    <div class="hidden name"><code>VariableFeatures.Rd</code></div>
+    <h1>The Seurat Class</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
+    <div class="hidden name"><code>oldseurat-class.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get and set variable feature information</p>
+    <p>The Seurat object is the center of each single cell analysis. It stores all
+information associated with the dataset, including data, annotations,
+analyes, etc. All that is needed to construct a Seurat object is an
+expression matrix (rows are genes, columns are cells), which should
+be log-scale</p>
     </div>
 
-    <pre class="usage"><span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
 
-<span class='co'># S3 method for Assay</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-<span class='co'># S3 method for Assay</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+    <p>Each Seurat object has a number of slots which store information. Key slots
+to access are listed below.</p>
+    <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
 
-<span class='co'># S3 method for Seurat</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+    
 
-<span class='co'># S3 method for Seurat</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+<dl'>
+<dt><code>raw.data</code></dt><dd><p>The raw project data</p></dd>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>object</th>
-      <td><p>An object</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed to other methods</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>A character vector of variable features</p></td>
-    </tr>
-    <tr>
-      <th>selection.method</th>
-      <td><p>Method used to set variable features</p></td>
-    </tr>
-    <tr>
-      <th>assay</th>
-      <td><p>Name of assay to pull variable features for</p></td>
-    </tr>
-    </table>
+<dt><code>data</code></dt><dd><p>The normalized expression matrix (log-scale)</p></dd>
 
+<dt><code>scale.data</code></dt><dd><p>scaled (default is z-scoring each gene) expression matrix;
+used for dimmensional reduction and heatmap visualization</p></dd>
+
+<dt><code>var.genes</code></dt><dd><p>Vector of genes exhibiting high variance across single cells</p></dd>
+
+<dt><code>is.expr</code></dt><dd><p>Expression threshold to determine if a gene is expressed
+(0 by default)</p></dd>
+
+<dt><code>ident</code></dt><dd><p>THe 'identity class' for each cell</p></dd>
+
+<dt><code>meta.data</code></dt><dd><p>Contains meta-information about each cell, starting with
+number of genes detected (nGene)
+and the original identity class (orig.ident); more information is added using
+<code>AddMetaData</code></p></dd>
+
+<dt><code>project.name</code></dt><dd><p>Name of the project (for record keeping)</p></dd>
+
+<dt><code>dr</code></dt><dd><p>List of stored dimmensional reductions; named by technique</p></dd>
+
+<dt><code>assay</code></dt><dd><p>List of additional assays for multimodal analysis; named by
+technique</p></dd>
+
+<dt><code>hvg.info</code></dt><dd><p>The output of the mean/variability analysis for all genes</p></dd>
+
+<dt><code>imputed</code></dt><dd><p>Matrix of imputed gene scores</p></dd>
+
+<dt><code>cell.names</code></dt><dd><p>Names of all single cells
+(column names of the expression matrix)</p></dd>
+
+<dt><code>cluster.tree</code></dt><dd><p>List where the first element is a phylo object containing
+the phylogenetic tree relating different identity classes</p></dd>
+
+<dt><code>snn</code></dt><dd><p>Spare matrix object representation of the SNN graph</p></dd>
+
+<dt><code>calc.params</code></dt><dd><p>Named list to store all calculation-related
+parameter choices</p></dd>
+
+<dt><code>kmeans</code></dt><dd><p>Stores output of gene-based clustering from <code>DoKMeans</code></p></dd>
+
+<dt><code>spatial</code></dt><dd><p>Stores internal data and calculations for spatial mapping of
+single cells</p></dd>
+
+<dt><code>misc</code></dt><dd><p>Miscellaneous spot to store any data alongisde the object
+(for example, gene lists)</p></dd>
+
+<dt><code>version</code></dt><dd><p>Version of package used in object creation</p></dd>
+
+</dl>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

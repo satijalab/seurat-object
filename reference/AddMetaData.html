@@ -113,7 +113,7 @@ feature-level metadata, add to the Assay object (e.g. object[[&quot;RNA&quot;]])
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Add in metadata associated with either cells or features.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>AddMetaData.Rd</code></div>
     </div>
 
@@ -128,26 +128,25 @@ feature-level metadata, add to the Assay object (e.g. object[["RNA"]]))</p>
     <pre class="usage"><span class='fu'>AddMetaData</span>(<span class='no'>object</span>, <span class='no'>metadata</span>, <span class='kw'>col.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='co'># S3 method for Assay</span>
+<span class='fu'>AddMetaData</span>(<span class='no'>object</span>, <span class='no'>metadata</span>, <span class='kw'>col.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+
+<span class='co'># S3 method for Seurat</span>
 <span class='fu'>AddMetaData</span>(<span class='no'>object</span>, <span class='no'>metadata</span>, <span class='kw'>col.name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x, object</th>
+      <th>object</th>
       <td><p>An object</p></td>
     </tr>
     <tr>
-      <th>i, col.name</th>
-      <td><p>Name to store metadata or object as</p></td>
+      <th>metadata</th>
+      <td><p>A vector, list, or data.frame with metadata to add</p></td>
     </tr>
     <tr>
-      <th>value, metadata</th>
-      <td><p>Metadata or object to add</p></td>
-    </tr>
-    <tr>
-      <th>j</th>
-      <td><p>Ignored</p></td>
+      <th>col.name</th>
+      <td><p>A name for meta data if not a named list or data.frame</p></td>
     </tr>
     <tr>
       <th>...</th>

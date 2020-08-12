@@ -109,7 +109,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get and set feature loadings</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>Loadings.Rd</code></div>
     </div>
 
@@ -125,7 +125,10 @@
 <span class='fu'>Loadings</span>(<span class='no'>object</span>, <span class='kw'>projected</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for DimReduc</span>
-<span class='fu'>Loadings</span>(<span class='no'>object</span>, <span class='kw'>projected</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+<span class='fu'>Loadings</span>(<span class='no'>object</span>, <span class='kw'>projected</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>Loadings</span>(<span class='no'>object</span>, <span class='kw'>reduction</span> <span class='kw'>=</span> <span class='st'>"pca"</span>, <span class='kw'>projected</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,6 +149,10 @@
       <th>projected</th>
       <td><p>Pull the projected feature loadings?</p></td>
     </tr>
+    <tr>
+      <th>reduction</th>
+      <td><p>Name of reduction to pull feature loadings for</p></td>
+    </tr>
     </table>
 
 
@@ -154,6 +161,8 @@
 <span class='fu'>Loadings</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"pca"</span>]])[<span class='fl'>1</span>:<span class='fl'>5</span>,<span class='fl'>1</span>:<span class='fl'>5</span>]</div><div class='output co'>#&gt; <span class='error'>Error in Loadings(object = pbmc_small[["pca"]]): object 'pbmc_small' not found</span></div><div class='input'>
 <span class='co'># Set the feature loadings for a given DimReduc</span>
 <span class='no'>new.loadings</span> <span class='kw'>&lt;-</span> <span class='fu'>Loadings</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"pca"</span>]])</div><div class='output co'>#&gt; <span class='error'>Error in Loadings(object = pbmc_small[["pca"]]): object 'pbmc_small' not found</span></div><div class='input'><span class='no'>new.loadings</span> <span class='kw'>&lt;-</span> <span class='no'>new.loadings</span> + <span class='fl'>0.01</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'new.loadings' not found</span></div><div class='input'><span class='fu'>Loadings</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"pca"</span>]]) <span class='kw'>&lt;-</span> <span class='no'>new.loadings</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'new.loadings' not found</span></div><div class='input'>
+<span class='co'># Get the feature loadings for a specified DimReduc in a Seurat object</span>
+<span class='fu'>Loadings</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>, <span class='kw'>reduction</span> <span class='kw'>=</span> <span class='st'>"pca"</span>)[<span class='fl'>1</span>:<span class='fl'>5</span>,<span class='fl'>1</span>:<span class='fl'>5</span>]</div><div class='output co'>#&gt; <span class='error'>Error in Loadings(object = pbmc_small, reduction = "pca"): object 'pbmc_small' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

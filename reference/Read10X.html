@@ -160,13 +160,13 @@ will be prefixed with the name.</p></td>
 <span class='no'>data_dir</span> <span class='kw'>&lt;-</span> <span class='st'>'path/to/data/directory'</span>
 <span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>list.files</a></span>(<span class='no'>data_dir</span>) <span class='co'># Should show barcodes.tsv, genes.tsv, and matrix.mtx</span>
 <span class='no'>expression_matrix</span> <span class='kw'>&lt;-</span> <span class='fu'>Read10X</span>(<span class='kw'>data.dir</span> <span class='kw'>=</span> <span class='no'>data_dir</span>)
-<span class='no'>seurat_object</span> <span class='kw'>=</span> <span class='fu'>CreateSeuratObject</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>expression_matrix</span>)
+<span class='no'>seurat_object</span> <span class='kw'>=</span> <span class='fu'><a href='CreateSeuratObject.html'>CreateSeuratObject</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>expression_matrix</span>)
 
 <span class='co'># For output from CellRanger &gt;= 3.0 with multiple data types</span>
 <span class='no'>data_dir</span> <span class='kw'>&lt;-</span> <span class='st'>'path/to/data/directory'</span>
 <span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>list.files</a></span>(<span class='no'>data_dir</span>) <span class='co'># Should show barcodes.tsv.gz, features.tsv.gz, and matrix.mtx.gz</span>
 <span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'>Read10X</span>(<span class='kw'>data.dir</span> <span class='kw'>=</span> <span class='no'>data_dir</span>)
-<span class='no'>seurat_object</span> <span class='kw'>=</span> <span class='fu'>CreateSeuratObject</span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>data</span>$<span class='no'>`Gene Expression`</span>)
+<span class='no'>seurat_object</span> <span class='kw'>=</span> <span class='fu'><a href='CreateSeuratObject.html'>CreateSeuratObject</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>data</span>$<span class='no'>`Gene Expression`</span>)
 <span class='no'>seurat_object</span><span class='kw'>[[</span><span class='st'>'Protein'</span>]] <span class='kw'>=</span> <span class='fu'><a href='CreateAssayObject.html'>CreateAssayObject</a></span>(<span class='kw'>counts</span> <span class='kw'>=</span> <span class='no'>data</span>$<span class='no'>`Antibody Capture`</span>)
 }</div></pre>
   </div>

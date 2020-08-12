@@ -109,7 +109,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Default Assay</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/command.R'><code>R/command.R</code></a>, and 2 more</small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/command.R'><code>R/command.R</code></a>, and 3 more</small>
     <div class="hidden name"><code>DefaultAssay.Rd</code></div>
     </div>
 
@@ -140,6 +140,12 @@
 <span class='fu'>DefaultAssay</span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for Graph</span>
+<span class='fu'>DefaultAssay</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>DefaultAssay</span>(<span class='no'>object</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for Seurat</span>
 <span class='fu'>DefaultAssay</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -164,6 +170,13 @@
     <p><code>DefaultAssay</code>: The name of the default assay</p>
 <p><code>DefaultAssay&lt;-</code>: An object with the default assay updated</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Get current default assay</span>
+<span class='fu'>DefaultAssay</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>)</div><div class='output co'>#&gt; <span class='error'>Error in DefaultAssay(object = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+<span class='co'># Create dummy new assay to demo switching default assays</span>
+<span class='no'>new.assay</span> <span class='kw'>&lt;-</span> <span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"RNA"</span>]]</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='Key.html'>Key</a></span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>new.assay</span>) <span class='kw'>&lt;-</span> <span class='st'>"RNA2_"</span></div><div class='output co'>#&gt; <span class='error'>Error in Key(object = new.assay) &lt;- "RNA2_": object 'new.assay' not found</span></div><div class='input'><span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>"RNA2"</span>]] <span class='kw'>&lt;-</span> <span class='no'>new.assay</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'new.assay' not found</span></div><div class='input'><span class='co'># switch default assay to RNA2</span>
+<span class='fu'>DefaultAssay</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>) <span class='kw'>&lt;-</span> <span class='st'>"RNA2"</span></div><div class='output co'>#&gt; <span class='error'>Error in DefaultAssay(object = pbmc_small) &lt;- "RNA2": object 'pbmc_small' not found</span></div><div class='input'><span class='fu'>DefaultAssay</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>)</div><div class='output co'>#&gt; <span class='error'>Error in DefaultAssay(object = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

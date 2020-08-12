@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get and set variable feature information — VariableFeatures • SeuratObject</title>
+<title>The Seurat Class — Seurat-class • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,16 @@
 
 
 
-<meta property="og:title" content="Get and set variable feature information — VariableFeatures" />
-<meta property="og:description" content="Get and set variable feature information" />
+<meta property="og:title" content="The Seurat Class — Seurat-class" />
+<meta property="og:description" content="The Seurat object is a representation of single-cell expression data for R;
+each Seurat object revolves around a set of cells and consists of one or more
+Assay objects, or individual representations of
+expression data (eg. RNA-seq, ATAC-seq, etc). These assays can be reduced
+from their high-dimensional state to a lower-dimension state and stored as
+DimReduc objects. Seurat objects also
+store additional metadata, both at the cell and feature level (contained
+within individual assays). The object was designed to be as self-contained as
+ possible, and easily extendable to new methods." />
 
 
 
@@ -108,56 +116,60 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get and set variable feature information</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/assay.R'><code>R/assay.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
-    <div class="hidden name"><code>VariableFeatures.Rd</code></div>
+    <h1>The Seurat Class</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
+    <div class="hidden name"><code>Seurat-class.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get and set variable feature information</p>
+    <p>The Seurat object is a representation of single-cell expression data for R;
+each Seurat object revolves around a set of cells and consists of one or more
+<code><a href='Assay-class.html'>Assay</a></code> objects, or individual representations of
+expression data (eg. RNA-seq, ATAC-seq, etc). These assays can be reduced
+from their high-dimensional state to a lower-dimension state and stored as
+<code><a href='DimReduc-class.html'>DimReduc</a></code> objects. Seurat objects also
+store additional metadata, both at the cell and feature level (contained
+within individual assays). The object was designed to be as self-contained as
+ possible, and easily extendable to new methods.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>)
 
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
 
-<span class='co'># S3 method for Assay</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+    <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
 
-<span class='co'># S3 method for Assay</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+    
 
-<span class='co'># S3 method for Seurat</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>selection.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+<dl'>
+<dt><code>assays</code></dt><dd><p>A list of assays for this project</p></dd>
 
-<span class='co'># S3 method for Seurat</span>
-<span class='fu'>VariableFeatures</span>(<span class='no'>object</span>, <span class='kw'>assay</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span></pre>
+<dt><code>meta.data</code></dt><dd><p>Contains meta-information about each cell, starting with
+number of features detected (nFeature) and the original identity class
+(orig.ident); more information is added using <code><a href='AddMetaData.html'>AddMetaData</a></code></p></dd>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>object</th>
-      <td><p>An object</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed to other methods</p></td>
-    </tr>
-    <tr>
-      <th>value</th>
-      <td><p>A character vector of variable features</p></td>
-    </tr>
-    <tr>
-      <th>selection.method</th>
-      <td><p>Method used to set variable features</p></td>
-    </tr>
-    <tr>
-      <th>assay</th>
-      <td><p>Name of assay to pull variable features for</p></td>
-    </tr>
-    </table>
+<dt><code>active.assay</code></dt><dd><p>Name of the active, or default, assay; settable using
+<code><a href='DefaultAssay.html'>DefaultAssay</a></code></p></dd>
 
+<dt><code>active.ident</code></dt><dd><p>The active cluster identity for this Seurat object;
+settable using <code><a href='Idents.html'>Idents</a></code></p></dd>
+
+<dt><code>graphs</code></dt><dd><p>A list of <code><a href='Graph-class.html'>Graph</a></code> objects</p></dd>
+
+<dt><code>neighbors</code></dt><dd><p>...</p></dd>
+
+<dt><code>reductions</code></dt><dd><p>A list of dimmensional reduction objects for this object</p></dd>
+
+<dt><code>project.name</code></dt><dd><p>Name of the project</p></dd>
+
+<dt><code>misc</code></dt><dd><p>A list of miscellaneous information</p></dd>
+
+<dt><code>version</code></dt><dd><p>Version of Seurat this object was built under</p></dd>
+
+<dt><code>commands</code></dt><dd><p>A list of logged commands run on this <code>Seurat</code> object</p></dd>
+
+<dt><code>tools</code></dt><dd><p>A list of miscellaneous data generated by other tools, should be
+filled by developers only using <code><a href='Tool.html'>Tool</a>&lt;-</code></p></dd>
+
+</dl>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
