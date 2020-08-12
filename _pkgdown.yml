@@ -13,13 +13,17 @@ reference:
       - SeuratObject
   - title: The Seurat Object
     contents:
+      - Seurat-class
       - has_concept("seurat")
   - title: Assay Expression Data
     contents:
       - has_concept("assay")
   - title: Dimensional Reduction Information
     contents:
+      - DimReduc-class
       - has_concept("dimreduc")
+      - JackStrawData-class
+      - has_concept("jackstraw")
   - title: Nearest Neighbor Graphs
     contents:
       - has_concept("graph")
@@ -41,3 +45,9 @@ reference:
   - title: Conversion Utilities
     contents:
       - has_concept("conversion")
+  - title: Unsorted
+    contents:
+      - has_concept("unsorted")
+  - title: Internal
+    contents:
+      - has_keyword("internal")

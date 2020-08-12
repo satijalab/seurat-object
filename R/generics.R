@@ -10,10 +10,7 @@ NULL
 #' variance). To add cell level information, add to the Seurat object. If adding
 #' feature-level metadata, add to the Assay object (e.g. object[["RNA"]]))
 #'
-#' @param x,object An object
-#' @param i,col.name Name to store metadata or object as
-#' @param value,metadata Metadata or object to add
-#' @param j Ignored
+#' @inheritParams .AddMetaData
 #' @param ... Arguments passed to other methods
 #'
 #' @return An object with metadata or and object added
@@ -23,7 +20,7 @@ NULL
 #'
 #' @aliases SeuratAccess
 #'
-#' @concept data-access
+#' @concept unsorted
 #'
 #' @examples
 #' cluster_letters <- LETTERS[Idents(object = pbmc_small)]
@@ -124,6 +121,62 @@ Cells <- function(x) {
 #'
 Command <- function(object, ...) {
   UseMethod(generic = 'Command', object = object)
+}
+
+#' Create a \code{Seurat} object
+#'
+#' Create a \code{Seurat} object from raw data
+#'
+#' @param counts Either a \code{\link[base]{matrix}}-like object with
+#' unnormalized data with cells as columns and features as rows or an
+#' \code{\link{Assay}}-derived object
+#' @param project \link{Project} name for the \code{Seurat} object
+#' @param assay Name of the initial assay
+#' @param names.field For the initial identity class for each cell, choose this
+#' field from the cell's name. E.g. If your cells are named as
+#' BARCODE_CLUSTER_CELLTYPE in the input matrix, set \code{names.field} to 3 to
+#' set the initial identities to CELLTYPE.
+#' @param names.delim For the initial identity class for each cell, choose this
+#' delimiter from the cell's column name. E.g. If your cells are named as
+#' BARCODE-CLUSTER-CELLTYPE, set this to \dQuote{-} to separate the cell name
+#' into its component parts for picking the relevant field.
+#' @param meta.data Additional cell-level metadata to add to the Seurat object.
+#' Should be a \code{\link[base]{data.frame}} where the rows are cell names and
+#' the columns are additional metadata fields.
+#' @param ... Arguments passed to other methods
+#'
+#' @note In previous versions (<3.0), this function also accepted a parameter to
+#' set the expression threshold for a \sQuote{detected} feature (gene). This
+#' functionality has been removed to simplify the initialization
+#' process/assumptions. If you would still like to impose this threshold for
+#' your particular dataset, simply filter the input expression matrix before
+#' calling this function.
+#'
+#' @return A \code{\link{Seurat}} object
+#'
+#' @rdname CreateSeuratObject
+#' @export
+#'
+#' @concept seurat
+#'
+#' @examples
+#' pbmc_raw <- read.table(
+#'   file = system.file('extdata', 'pbmc_raw.txt', package = 'Seurat'),
+#'   as.is = TRUE
+#' )
+#' pbmc_small <- CreateSeuratObject(counts = pbmc_raw)
+#' pbmc_small
+#'
+CreateSeuratObject <- function(
+  counts,
+  project = 'CreateSeuratObject',
+  assay = 'RNA',
+  names.field = 1,
+  names.delim = '_',
+  meta.data = NULL,
+  ...
+) {
+  UseMethod(generic = 'CreateSeuratObject', object = counts)
 }
 
 #' Default Assay
@@ -349,7 +402,7 @@ IsGlobal <- function(object, ...) {
 #' @rdname JS
 #' @export JS
 #'
-#' @concept dimreduc
+#' @concept jackstraw
 #'
 JS <- function(object, ...) {
   UseMethod(generic = 'JS', object = object)

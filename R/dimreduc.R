@@ -32,8 +32,6 @@ NULL
 #' @rdname DimReduc-class
 #' @exportClass DimReduc
 #'
-#' @concept dimreduc
-#'
 DimReduc <- setClass(
   Class = 'DimReduc',
   slots = c(
@@ -180,19 +178,26 @@ CreateDimReducObject <- function(
   return(dim.reduc)
 }
 
-#' Find cells with highest scores for a given dimensional reduction technique
+#' Top Cells and Features
 #'
-#' Return a list of genes with the strongest contribution to a set of components
+#' Find cells and features with highest scores for a given dimensional
+#' reduction technique
 #'
 #' @param object DimReduc object
 #' @param dim Dimension to use
-#' @param ncells Number of cells to return
+#' @param ncells/nfeatures Number of cells and features to return
 #' @param balanced Return an equal number of cells with both + and - scores.
-#' @param ... Extra parameters passed to \code{\link{Embeddings}}
+#' @param ... Extra parameters passed to \code{\link{Embeddings}} or
+#' \code{\link{Loadings}}
 #'
-#' @return Returns a vector of cells
+#' @return Returns a vector of cells or features
+#'
+#' @name TopN
+#' @rdname TopN
 #'
 #' @export
+#'
+#' @concept dimreduc
 #'
 #' @examples
 #' pbmc_small
@@ -209,19 +214,9 @@ TopCells <- function(object, dim = 1, ncells = 20, balanced = FALSE, ...) {
   ))
 }
 
-#' Find features with highest scores for a given dimensional reduction technique
-#'
-#' Return a list of features with the strongest contribution to a set of components
-#'
-#' @param object DimReduc object
-#' @param dim Dimension to use
-#' @param nfeatures Number of features to return
 #' @param projected Use the projected feature loadings
-#' @param balanced Return an equal number of features with both + and - scores.
-#' @param ... Extra parameters passed to \code{\link{Loadings}}
 #'
-#' @return Returns a vector of features
-#'
+#' @rdname TopN
 #' @export
 #'
 #' @examples

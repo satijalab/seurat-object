@@ -35,4 +35,3 @@ this \code{DimReduc}}
 \code{DimReduc} (e.g. the total variance of the PCA)}
 }}
 
-\concept{dimreduc}
