@@ -24,8 +24,6 @@ NULL
 #' @rdname SeuratCommand-class
 #' @exportClass SeuratCommand
 #'
-#' @concept command
-#'
 SeuratCommand <- setClass(
   Class = 'SeuratCommand',
   slots = c(

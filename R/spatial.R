@@ -89,7 +89,7 @@ SlideSeq <- setClass(
 #'
 #' @name STARmap-class
 #' @rdname STARmap-class
-#'
+#'9
 #' @concept spatial-class
 #'
 #' @seealso For slots defined by the \code{SpatialImage} class, see

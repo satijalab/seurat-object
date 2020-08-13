@@ -21,4 +21,4 @@ The radius size
 \description{
 Get the spot radius from an image
 }
-\concept{spatial}
+\concept{unsorted}

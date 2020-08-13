@@ -86,4 +86,4 @@ pbmc_small <- CreateSeuratObject(counts = pbmc_raw)
 pbmc_small
 
 }
-\concept{seurat}
+\concept{unsorted}

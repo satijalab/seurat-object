@@ -197,7 +197,7 @@ CreateDimReducObject <- function(
 #'
 #' @export
 #'
-#' @concept dimreduc
+#' @concept unsorted
 #'
 #' @examples
 #' pbmc_small

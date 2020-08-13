@@ -157,7 +157,7 @@ Command <- function(object, ...) {
 #' @rdname CreateSeuratObject
 #' @export
 #'
-#' @concept seurat
+#' @concept unsorted
 #'
 #' @examples
 #' pbmc_raw <- read.table(
@@ -528,7 +528,7 @@ Project <- function(object, ...) {
 #' @rdname Radius
 #' @export Radius
 #'
-#' @concept spatial
+#' @concept unsorted
 #'
 Radius <- function(object) {
   UseMethod(generic = 'Radius', object = object)
@@ -668,7 +668,7 @@ StashIdent <- function(object, save.name, ...) {
 #' @rdname Stdev
 #' @export Stdev
 #'
-#' @concept dimreduc
+#' @concept unsorted
 #'
 Stdev <- function(object, ...) {
   UseMethod(generic = 'Stdev', object = object)
