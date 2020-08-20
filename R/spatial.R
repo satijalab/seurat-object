@@ -8,29 +8,6 @@ NULL
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @note \code{scalefactors} objects can be created with \code{scalefactors()}
-#'
-#' @param spot Spot full resolution scale factor
-#' @param fiducial Fiducial full resolution scale factor
-#' @param hires High resolutoin scale factor
-#' @param lowres Low resolution scale factor
-#'
-#' @rdname ScaleFactors
-#' @export
-#'
-scalefactors <- function(spot, fiducial, hires, lowres) {
-  object <- list(
-    spot = spot,
-    fiducial = fiducial,
-    hires = hires,
-    lowres = lowres
-  )
-  object <- sapply(X = object, FUN = as.numeric, simplify = FALSE, USE.NAMES = TRUE)
-  return(structure(.Data = object, class = 'scalefactors'))
-}
-
-setOldClass(Classes = c('scalefactors'))
-
 #' The SpatialImage class
 #'
 #' The \code{SpatialImage} class is a virtual class representing spatial
@@ -57,86 +34,6 @@ SpatialImage <- setClass(
     'key' = 'character'
   )
 )
-
-#' The SlideSeq class
-#'
-#' The SlideSeq class represents spatial information from the Slide-seq platform
-#'
-#' @slot coordinates ...
-#' @slot ...
-#'
-#' @name SlideSeq-class
-#' @rdname SlideSeq-class
-#'
-#' @concept spatial-class
-#'
-#' @seealso For slots defined by the \code{SpatialImage} class, see
-#' \code{\link{SpatialImage-class}}
-#'
-SlideSeq <- setClass(
-  Class = 'SlideSeq',
-  contains = 'SpatialImage',
-  slots = list(
-    'coordinates' = 'data.frame'
-  )
-)
-
-#' The STARmap class
-#'
-#' The STARmap class represents spatial information from the STARmap platform
-#'
-#' @slot ... ...
-#'
-#' @name STARmap-class
-#' @rdname STARmap-class
-#'
-#' @concept spatial-class
-#'
-#' @seealso For slots defined by the \code{SpatialImage} class, see
-#' \code{\link{SpatialImage-class}}
-#'
-STARmap <- setClass(
-  Class = 'STARmap',
-  contains = 'SpatialImage',
-  slots = list(
-    'coordinates' = 'data.frame',
-    'qhulls' = 'data.frame'
-  )
-)
-
-#' The VisiumV1 class
-#'
-#' The VisiumV1 class represents spatial information from the 10X Genomics
-#' Visium platform
-#'
-#' @slot image A three-dimensional array with PNG image data, see
-#' \code{\link[png]{readPNG}} for more details
-#' @slot scale.factors An object of class \code{\link{scalefactors}}; see
-#' \code{\link{scalefactors}} for more information
-#' @slot coordinates A data frame with tissue coordinate information
-#' @slot spot.radius Single numeric value giving the radius of the spots
-#'
-#' @name VisiumV1-class
-#' @rdname VisiumV1-class
-#' @exportClass VisiumV1
-#'
-#' @concept spatial-class
-#'
-#' @seealso For slots defined by the \code{SpatialImage} class, see
-#' \code{\link{SpatialImage-class}}
-#'
-VisiumV1 <- setClass(
-  Class = 'VisiumV1',
-  contains = 'SpatialImage',
-  slots = list(
-    'image' = 'array',
-    'scale.factors' = 'scalefactors',
-    'coordinates' = 'data.frame',
-    'spot.radius' = 'numeric'
-  )
-)
-
-setClass(Class = 'SliceImage', contains = 'VisiumV1')
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
@@ -208,15 +105,6 @@ setClass(Class = 'SliceImage', contains = 'VisiumV1')
 #'
 NULL
 
-
-#' @rdname Cells
-#' @export
-#' @method Cells SlideSeq
-#'
-Cells.SlideSeq <- function(x) {
-  return(rownames(x = GetTissueCoordinates(object = x)))
-}
-
 #' @describeIn SpatialImage-methods Get the cell names from an image
 #' (\strong{[Override]})
 #'
@@ -230,22 +118,6 @@ Cells.SpatialImage <- function(x) {
     "'Cells' must be implemented for all subclasses of 'SpatialImage'",
     call. = FALSE
   )
-}
-
-#' @rdname Cells
-#' @method Cells STARmap
-#' @export
-#'
-Cells.STARmap <- function(x) {
-  return(rownames(x = GetTissueCoordinates(object = x)))
-}
-
-#' @rdname Cells
-#' @method Cells VisiumV1
-#' @export
-#'
-Cells.VisiumV1 <- function(x) {
-  return(rownames(x = GetTissueCoordinates(object = x, scale = NULL)))
 }
 
 #' @describeIn SpatialImage-methods Get the associated assay of a
@@ -279,18 +151,6 @@ DefaultAssay.SpatialImage <- function(object, ...) {
   return(object)
 }
 
-#' @method GetImage SlideSeq
-#' @export
-#'
-GetImage.SlideSeq <- function(
-  object,
-  mode = c('grob', 'raster', 'plotly', 'raw'),
-  ...
-) {
-  mode <- match.arg(arg = mode)
-  return(NullImage(mode = mode))
-}
-
 #' @describeIn SpatialImage-methods Get the image data from a
 #' \code{SpatialImage}-derived object (\strong{[Override]})
 #'
@@ -316,72 +176,6 @@ GetImage.SpatialImage <- function(
   )
 }
 
-#' @method GetImage STARmap
-#' @export
-#'
-GetImage.STARmap <- function(
-  object,
-  mode = c('grob', 'raster', 'plotly', 'raw'),
-  ...
-) {
-  mode <- match.arg(arg = mode)
-  return(NullImage(mode = mode))
-}
-
-#' @importFrom plotly raster2uri
-#' @importFrom grDevices as.raster
-#' @importFrom grid rasterGrob unit
-#'
-#' @rdname GetImage
-#' @method GetImage VisiumV1
-#' @export
-#'
-GetImage.VisiumV1 <- function(
-  object,
-  mode = c('grob', 'raster', 'plotly', 'raw'),
-  ...
-) {
-  mode <- match.arg(arg = mode)
-  image <- slot(object = object, name = 'image')
-  image <- switch(
-    EXPR = mode,
-    'grob' = rasterGrob(
-      image = image,
-      width = unit(x = 1, units = 'npc'),
-      height = unit(x = 1, units = 'npc')
-    ),
-    'raster' = as.raster(x = image),
-    'plotly' = list(
-      source = raster2uri(r = GetImage(object = object, mode = 'raster')),
-      xref = 'x',
-      yref = 'y',
-      # x = -7,
-      # y = -7,
-      sizex = ncol(x = object),
-      sizey = nrow(x = object),
-      sizing = 'stretch',
-      opacity = 1,
-      layer = 'below'
-    ),
-    'raw' = image,
-    stop("Unknown image mode: ", mode, call. = FALSE)
-  )
-  return(image)
-}
-
-#' @rdname GetTissueCoordinates
-#' @method GetTissueCoordinates SlideSeq
-#' @export
-#'
-GetTissueCoordinates.SlideSeq <- function(object, ...) {
-  coords <- slot(object = object, name = 'coordinates')
-  colnames(x = coords) <- c('x', 'y')
-  # coords$y <- -rev(x = coords$y) + 1
-  # coords$y <- FlipCoords(x = coords$y)
-  coords$cells <- rownames(x = coords)
-  return(coords)
-}
-
 #' @describeIn SpatialImage-methods Get tissue coordinates for a
 #' \code{SpatialImage}-derived object (\strong{[Override]})
 #'
@@ -397,45 +191,6 @@ GetTissueCoordinates.SpatialImage <- function(object, ...) {
     "'GetTissueCoordinates' must be implemented for all subclasses of 'SpatialImage'",
     call. = FALSE
   )
-}
-
-#' @param qhulls return qhulls instead of centroids
-#'
-#' @rdname GetTissueCoordinates
-#' @method GetTissueCoordinates STARmap
-#' @export
-#'
-GetTissueCoordinates.STARmap <- function(object, qhulls = FALSE, ...) {
-  if (qhulls) {
-    return(slot(object = object, name = 'qhulls'))
-  }
-  return(slot(object = object, name = 'coordinates'))
-}
-
-#' @param scale A factor to scale the coordinates by; choose from: 'tissue',
-#' 'fiducial', 'hires', 'lowres', or \code{NULL} for no scaling
-#' @param cols Columns of tissue coordinates data.frame to pull
-#'
-#' @rdname GetTissueCoordinates
-#' @method GetTissueCoordinates VisiumV1
-#' @export
-#'
-GetTissueCoordinates.VisiumV1 <- function(
-  object,
-  scale = 'lowres',
-  cols = c('imagerow', 'imagecol'),
-  ...
-) {
-  cols <- cols %||% colnames(x = slot(object = object, name = 'coordinates'))
-  if (!is.null(x = scale)) {
-    coordinates <- slot(object = object, name = 'coordinates')[, c('imagerow', 'imagecol')]
-    scale <- match.arg(arg = scale, choices = c('spot', 'fiducial', 'hires', 'lowres'))
-    scale.use <- ScaleFactors(object = object)[[scale]]
-    coordinates <- coordinates * scale.use
-  } else {
-    coordinates <- slot(object = object, name = 'coordinates')[, cols]
-  }
-  return(coordinates)
 }
 
 #' @describeIn SpatialImage-methods Globality test for
@@ -485,14 +240,6 @@ Key.SpatialImage <- function(object, ...) {
   return(object)
 }
 
-#' @rdname Radius
-#' @method Radius SlideSeq
-#' @export
-#'
-Radius.SlideSeq <- function(object) {
-  return(0.005)
-}
-
 #' @describeIn SpatialImage-methods Get the radius of spots for a
 #' \code{SpatialImage}-derived object. \strong{Note}: this method should be
 #' overridden for spot-based technologies. For non-spot technologies, this
@@ -508,21 +255,6 @@ Radius.SlideSeq <- function(object) {
 #'
 Radius.SpatialImage <- function(object) {
   return(NULL)
-}
-
-#' @rdname Radius
-#' @method Radius VisiumV1
-#' @export
-#'
-Radius.VisiumV1 <- function(object) {
-  return(slot(object = object, name = 'spot.radius'))
-}
-
-#' @method RenameCells SlideSeq
-#' @export
-#'
-RenameCells.SlideSeq <- function(object, new.names = NULL, ...) {
-  return(RenameCells.VisiumV1(object = object, new.names = new.names))
 }
 
 #' @describeIn SpatialImage-methods Rename cells in a
@@ -543,53 +275,9 @@ RenameCells.SpatialImage <- function(object, new.names = NULL, ...) {
   )
 }
 
-#' @method RenameCells STARmap
-#' @export
-#'
-RenameCells.STARmap <- function(object, new.names = NULL, ...) {
-  names(x = new.names) <- Cells(x = object)
-  object <- RenameCells.VisiumV1(object = object, new.names = new.names)
-  qhulls <- GetTissueCoordinates(object = object, qhull = TRUE)
-  qhulls$cell <- new.names[qhulls$cell]
-  slot(object = object, name = "qhulls") <- qhulls
-  return(object)
-}
-
-#' @rdname RenameCells
-#' @method RenameCells VisiumV1
-#' @export
-#'
-RenameCells.VisiumV1 <- function(object, new.names = NULL, ...) {
-  if (is.null(x = new.names)) {
-    return(object)
-  } else if (length(x = new.names) != length(x = Cells(x = object))) {
-    stop("Wrong number of cell/spot names", call. = FALSE)
-  }
-  names(x = new.names) <- Cells(x = object)
-  coordinates <- GetTissueCoordinates(object = object, scale = NULL, cols = NULL)
-  rownames(x = coordinates) <- new.names[rownames(x = coordinates)]
-  slot(object = object, name = 'coordinates') <- coordinates
-  return(object)
-}
-
-#' @rdname ScaleFactors
-#' @method ScaleFactors VisiumV1
-#' @export
-#'
-ScaleFactors.VisiumV1 <- function(object, ...) {
-  return(slot(object = object, name = 'scale.factors'))
-}
-
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#' @method [ SlideSeq
-#' @export
-#'
-"[.SlideSeq" <- function(x, i, ...) {
-  return(subset(x = x, cells = i, ...))
-}
 
 #' @describeIn SpatialImage-methods Subset a \code{SpatialImage}-derived object
 #' (\strong{[Override]})
@@ -609,21 +297,6 @@ ScaleFactors.VisiumV1 <- function(object, ...) {
   )
 }
 
-#' @method [ VisiumV1
-#' @export
-#'
-"[.VisiumV1" <- function(x, i, ...) {
-  return(subset(x = x, cells = i))
-}
-
-#' @method dim SlideSeq
-#' @export
-#'
-dim.SlideSeq <- function(x) {
-  # return(dim(x = GetImage(object = x, mode = 'raw')))
-  return(c(599, 600))
-}
-
 #' @describeIn SpatialImage-methods Get the plotting dimensions of an image
 #' (\strong{[Override]})
 #'
@@ -640,32 +313,6 @@ dim.SpatialImage <- function(x) {
   )
 }
 
-#' @method dim STARmap
-#' @export
-#'
-dim.STARmap <- function(x) {
-  coords <- GetTissueCoordinates(object = x)
-  return(c(
-    max(coords[, 1]) - min(coords[, 1]),
-    max(coords[, 2]) - min(coords[, 2])
-  ))
-}
-
-#' @method dim VisiumV1
-#' @export
-#'
-dim.VisiumV1 <- function(x) {
-  return(dim(x = GetImage(object = x)$raster))
-}
-
-#' @method subset SlideSeq
-#' @export
-#'
-subset.SlideSeq <- function(x, cells, ...) {
-  x <- subset.VisiumV1(x = x, cells = cells, ...)
-  return(x)
-}
-
 #' @describeIn SpatialImage-methods Subset a \code{SpatialImage}-derived object
 #' (\strong{[Override]})
 #'
@@ -674,28 +321,6 @@ subset.SlideSeq <- function(x, cells, ...) {
 #'
 subset.SpatialImage <- function(x, cells, ...) {
   stop("'subset' must be implemented for all subclasses of 'SpatialImage'")
-}
-
-#' @method subset STARmap
-#' @export
-#'
-subset.STARmap <- function(x, cells, ...) {
-  x <- subset.VisiumV1(x = x, cells = cells, ...)
-  qhulls <- GetTissueCoordinates(object = x, qhulls = TRUE)
-  qhulls <- qhulls[qhulls$cell %in% cells, ]
-  slot(object = x, name = 'qhulls') <- qhulls
-  return(x)
-}
-
-#' @method subset VisiumV1
-#' @export
-#'
-subset.VisiumV1 <- function(x, cells, ...) {
-  coordinates <- GetTissueCoordinates(object = x, scale = NULL, cols = NULL)
-  cells <- cells[cells %in% rownames(x = coordinates)]
-  coordinates <- coordinates[cells, ]
-  slot(object = x, name = 'coordinates') <- coordinates
-  return(x)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
