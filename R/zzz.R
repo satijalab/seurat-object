@@ -10,9 +10,36 @@ NULL
 #'
 "_PACKAGE"
 
-setOldClass(Classes = 'package_version')
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Class definitions
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Helper Classes
+#'
+#' A suite of helper classes used in S4 class definitions
+#'
+#' @name helper-classes
+#' @rdname helper-classes
+#'
+#' @exportClass AnyMatrix
+#'
 setClassUnion(name = 'AnyMatrix', members = c("matrix", "dgCMatrix"))
+
+#' @name helper-classes
+#' @rdname helper-classes
+#'
+#' @exportClass OptionalCharacter
+#'
 setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
+
+#' @name helper-classes
+#' @rdname helper-classes
+#'
+#' @exportClass OptionalList
+#'
+setClassUnion(name = 'OptionalList', members = c('NULL', 'list'))
+
+setOldClass(Classes = 'package_version')
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
@@ -20,7 +47,7 @@ setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
 
 #' Object Metadata
 #'
-#' Internal \code{\link{AddMetaData}} defintion
+#' Internal \code{\link{AddMetaData}} definition
 #'
 #' @param object An object
 #' @param metadata A vector, list, or data.frame with metadata to add
