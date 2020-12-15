@@ -12,6 +12,7 @@
   y = NULL,
   add.cell.ids = NULL,
   merge.data = TRUE,
+  merge.dr = NULL,
   project = "SeuratProject",
   ...
 )
@@ -25,8 +26,12 @@
 corresponding values to the start of each objects' cell names.}
 
 \item{merge.data}{Merge the data slots instead of just merging the counts
-(which requires renormalization). This is recommended if the same
-normalization approach was applied to all objects.}
+(which requires renormalization). This is recommended if the same normalization
+approach was applied to all objects.}
+
+\item{merge.dr}{Merge specified DimReducs that are present in all objects.
+Will only merge the embeddings slots for the first N dimensions that are
+shared across all objects.}
 
 \item{project}{\link{Project} name for the \code{Seurat} object}
 
@@ -40,14 +45,18 @@ Merge two or more objects.
 }
 \details{
 When merging Seurat objects, the merge procedure will merge the Assay level
-counts and potentially the data slots (depending on the merge.data
-parameter). It will also merge the cell-level meta data that was stored with
-each object and preserve the cell identities that were active in the objects
-pre-merge. The merge will not preserve reductions, graphs, logged commands,
-or  feature-level metadata that were present in the original objects. If
-add.cell.ids isn't specified and any cell names are duplicated, cell names
-will be appended with _X, where X is the numeric index of the object in
-c(x, y).
+counts and potentially the data slots (depending on the merge.data parameter).
+It will also merge the cell-level meta data that was stored with each object
+and preserve the cell identities that were active in the objects pre-merge.
+The merge will optionally merge reductions depending on the values passed to
+\code{merge.dr} if they have the same name across objects. Here the
+embeddings slots will be merged and if there are differing numbers of
+dimensions across objects, only the first N shared dimensions will be merged.
+The feature loadings slots will be filled by the values present in the first
+object.The merge will not preserve graphs, logged commands, or feature-level
+metadata that were present in the original objects. If add.cell.ids isn't
+specified and any cell names are duplicated, cell names will be appended
+with _X, where X is the numeric index of the object in c(x, y).
 }
 \examples{
 # merge two objects
@@ -56,4 +65,3 @@ merge(x = pbmc_small, y = pbmc_small)
 merge(x = pbmc_small, y = c(pbmc_small, pbmc_small))
 
 }
-\concept{seurat}

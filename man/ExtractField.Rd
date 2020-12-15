@@ -9,8 +9,8 @@ ExtractField(string, field = 1, delim = "_")
 \arguments{
 \item{string}{String to parse.}
 
-\item{field}{Integer(s) indicating which field(s) to extract. Can be a vector
-multiple numbers.}
+\item{field}{Integer(s) indicating which field(s) to extract. Can be a
+vector multiple numbers.}
 
 \item{delim}{Delimiter to use, set to underscore by default.}
 }

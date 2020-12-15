@@ -12,8 +12,8 @@ ValidateDataForMerge(assay, slot)
 \item{slot}{Slot to pull from}
 }
 \value{
-Returns the data matrix if present (i.e.) not 0x0. Otherwise, returns an
-appropriately sized empty sparse matrix
+Returns the data matrix if present (i.e.) not 0x0. Otherwise,
+returns an appropriately sized empty sparse matrix
 }
 \description{
 Pulls the proper data matrix for merging assay data. If the slot is empty,

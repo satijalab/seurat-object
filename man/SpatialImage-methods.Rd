@@ -10,7 +10,6 @@
 \alias{IsGlobal.SpatialImage}
 \alias{Key.SpatialImage}
 \alias{Key<-.SpatialImage}
-\alias{Radius.SpatialImage}
 \alias{RenameCells.SpatialImage}
 \alias{[.SpatialImage}
 \alias{dim.SpatialImage}
@@ -33,8 +32,6 @@
 \method{Key}{SpatialImage}(object, ...)
 
 \method{Key}{SpatialImage}(object, ...) <- value
-
-\method{Radius}{SpatialImage}(object)
 
 \method{RenameCells}{SpatialImage}(object, new.names = NULL, ...)
 
@@ -77,14 +74,11 @@ global
 
 \code{Key<-}: \code{object} with the key set to \code{value}
 
-\code{Radius}: by default, returns \code{NULL}; for overridden
-methods, returns the radius of the spot
-
 \strong{[Override]} \code{RenameCells}: \code{object} with the new
 cell names
 
-\strong{[Override]} \code{[}, \code{subset}: \code{x}/\code{object}
-for only the cells requested
+\code{[}, \code{subset}: \code{x}/\code{object} for only the cells
+requested
 
 \strong{[Override]} \code{dim}: The dimensions of the image data in
 (Y, X) format
@@ -111,7 +105,7 @@ should only be overridden if necessary
 \code{SpatialImage}-derived object
 
 \item \code{GetImage.SpatialImage}: Get the image data from a
-\code{SpatialImage}-derived object (\strong{[Override]})
+\code{SpatialImage}-derived object
 
 \item \code{GetTissueCoordinates.SpatialImage}: Get tissue coordinates for a
 \code{SpatialImage}-derived object (\strong{[Override]})
@@ -125,16 +119,10 @@ should only be overridden if necessary
 \item \code{Key<-.SpatialImage}: Set the key for a
 \code{SpatialImage}-derived object
 
-\item \code{Radius.SpatialImage}: Get the radius of spots for a
-\code{SpatialImage}-derived object. \strong{Note}: this method should be
-overridden for spot-based technologies. For non-spot technologies, this
-method does \emph{not} need to be overridden
-
 \item \code{RenameCells.SpatialImage}: Rename cells in a
 \code{SpatialImage}-derived object (\strong{[Override]})
 
 \item \code{[.SpatialImage}: Subset a \code{SpatialImage}-derived object
-(\strong{[Override]})
 
 \item \code{dim.SpatialImage}: Get the plotting dimensions of an image
 (\strong{[Override]})
@@ -148,14 +136,20 @@ object
 
 \section{Provided methods}{
 
-These methods are defined on the \code{SpatialImage} object and should not be
-overridden without careful thought
+These methods are defined on the \code{SpatialImage} object and should not
+be overridden without careful thought
 \itemize{
   \item \code{\link{DefaultAssay}} and \code{\link{DefaultAssay<-}}
   \item \code{\link{Key}} and \code{\link{Key<-}}
+  \item{\code{\link{GetImage}}}; this method \emph{can} be overridden to
+  provide image data, normally returns empty image data. If overridden,
+  should default to returning a  \code{\link[grid]{grob}} object
   \item \code{\link{IsGlobal}}
-  \item \code{\link{Radius}}; this method \emph{can} be overridden to provide
-  a spot radius for image objects
+  \item \code{\link{Radius}}; this method \emph{can} be overridden to
+  provide a spot radius for image objects
+  \item \code{\link[base:Extract]{[}}; this method \emph{can} be overridden
+  to change default subset behavior, normally returns
+  \code{subset(x = x, cells = i)}. If overridden, should only accept \code{i}
 }
 }
 
@@ -172,12 +166,10 @@ errors. For required parameters and their values, see the \code{Usage} and
   \item{\code{\link{dim}}}{
    Return the dimensions of the image for plotting in \code{(Y, X)} format
   }
-  \item{\code{\link{GetImage}}}{
-   Return image data; by default, must return a grob object
-  }
   \item{\code{\link{GetTissueCoordinates}}}{
-   Return tissue coordinates; by default, must return a two-column data.frame
-   with x-coordinates in the first column and y-coordiantes in the second
+   Return tissue coordinates; by default, must return a two-column
+   \code{data.frame} with x-coordinates in the first column and
+   y-coordinates in the second
   }
   \item{\code{\link{Radius}}}{
    Return the spot radius; returns \code{NULL} by default for use with
@@ -186,9 +178,8 @@ errors. For required parameters and their values, see the \code{Usage} and
   \item{\code{\link{RenameCells}}}{
    Rename the cell/spot barcodes for this image
   }
-  \item{\code{\link{subset}} and \code{[}}{
-   Subset the image data by cells/spots; \code{[} should only take \code{i}
-   for subsetting by cells/spots
+  \item{\code{\link{subset}}}{
+   Subset the image data by cells/spots
   }
 }
 These methods are used throughout Seurat, so defining them and setting the
@@ -206,8 +197,6 @@ seamlessly
 \code{\link{IsGlobal}}
 
 \code{\link{Key}}
-
-\code{\link{Radius}}
 
 \code{\link{RenameCells}}
 }

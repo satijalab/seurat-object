@@ -22,10 +22,11 @@ cell expression data such as RNA-seq, protein, or imputed expression data.
 
 \item{\code{key}}{Key for the Assay}
 
-\item{\code{assay.orig}}{Original assay that this assay is based off of. Used to track
-assay provenance}
+\item{\code{assay.orig}}{Original assay that this assay is based off of. Used to
+track assay provenance}
 
-\item{\code{var.features}}{Vector of features exhibiting high variance across single cells}
+\item{\code{var.features}}{Vector of features exhibiting high variance across
+single cells}
 
 \item{\code{meta.features}}{Feature-level metadata}
 

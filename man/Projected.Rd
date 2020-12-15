@@ -10,7 +10,7 @@ Projected(object)
 \item{object}{a DimReduc object}
 }
 \value{
-TRUE if proejcted loadings have been set, else FALSE
+TRUE if projected loadings have been set, else FALSE
 }
 \description{
 Check to see if projected loadings have been set

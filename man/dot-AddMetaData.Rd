@@ -17,6 +17,6 @@
 object with metadata added
 }
 \description{
-Internal \code{\link{AddMetaData}} defintion
+Internal \code{\link{AddMetaData}} definition
 }
 \keyword{internal}

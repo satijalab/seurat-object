@@ -2,7 +2,7 @@
 % Please edit documentation in R/seurat.R
 \name{UpdateSeuratObject}
 \alias{UpdateSeuratObject}
-\title{Update old Seurat object to accomodate new features}
+\title{Update old Seurat object to accommodate new features}
 \usage{
 UpdateSeuratObject(object)
 }
@@ -14,8 +14,8 @@ Returns a Seurat object compatible with latest changes
 }
 \description{
 Updates Seurat objects to new structure for storing data/calculations.
-For Seurat v3 objects, will validate object structure ensuring all keys and feature
-names are formed properly.
+For Seurat v3 objects, will validate object structure ensuring all keys
+and feature names are formed properly.
 }
 \examples{
 \dontrun{

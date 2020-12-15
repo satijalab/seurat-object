@@ -54,12 +54,12 @@ feature names or indices}
 
 \item{y}{A vector or list of one or more objects to merge}
 
-\item{add.cell.ids}{A character vector of \code{length(x = c(x, y))}; appends
-the corresponding values to the start of each objects' cell names}
+\item{add.cell.ids}{A character vector of \code{length(x = c(x, y))};
+appends the corresponding values to the start of each objects' cell names}
 
 \item{merge.data}{Merge the data slots instead of just merging the counts
-(which requires renormalization); this is recommended if the same normalization
-approach was applied to all objects}
+(which requires renormalization); this is recommended if the same
+normalization approach was applied to all objects}
 
 \item{value}{Additional metadata to add}
 

@@ -60,7 +60,7 @@ other packages
 \item \code{[.SeuratCommand}: Access data from a \code{SeuratCommand}
 object
 
-\item \code{as.list.SeuratCommand}: Coerce a SeuratCommand to a list
+\item \code{as.list.SeuratCommand}: Coerce a \code{SeuratCommand} to a list
 
 \item \code{show,SeuratCommand-method}: Overview of a \code{SeuratCommand} object
 }}

@@ -4,11 +4,20 @@
 \alias{NullImage}
 \title{Return a null image}
 \usage{
-NullImage(mode)
+NullImage(mode = c("grob", "raster", "plotly", "raw"))
 }
 \arguments{
-\item{mode}{Image representation to return
-see \code{\link{GetImage}} for more details}
+\item{mode}{How to return the image; should accept one of 'grob', 'raster',
+'plotly', or 'raw'}
+}
+\value{
+Varies by value of \code{mode}:
+\describe{
+ \item{\dQuote{grob}}{a \code{\link[grid]{nullGrob}}}
+ \item{\dQuote{raster}}{an empty \code{\link[grDevices:as.raster]{raster}}}
+ \item{\dQuote{plotly}}{a list with one named item: \code{value = FALSE}}
+ \item{\dQuote{raw}}{returns \code{NULL}}
+}
 }
 \description{
 Return a null image

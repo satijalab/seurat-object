@@ -15,8 +15,9 @@ Images(object, assay = NULL)
 A list of image names
 }
 \description{
-List the names of \code{SpatialImage} objects present in a \code{Seurat} object.
-If \code{assay} is provided, limits search to images associated with that assay
+List the names of \code{SpatialImage} objects present in a \code{Seurat}
+object. If \code{assay} is provided, limits search to images associated with
+that assay
 }
 \examples{
 \dontrun{

@@ -35,7 +35,8 @@ settable using \code{\link{Idents}}}
 
 \item{\code{neighbors}}{...}
 
-\item{\code{reductions}}{A list of dimmensional reduction objects for this object}
+\item{\code{reductions}}{A list of dimmensional reduction objects for this object
+#' @slot images A list of spatial image objects}
 
 \item{\code{project.name}}{Name of the project}
 

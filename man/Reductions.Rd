@@ -12,8 +12,9 @@ Reductions(object, slot = NULL)
 \item{slot}{Name of DimReduc}
 }
 \value{
-If \code{slot} is \code{NULL}, the names of all \code{DimReduc} objects
-in this Seurat object. Otherwise, the \code{DimReduc} object requested
+If \code{slot} is \code{NULL}, the names of all \code{DimReduc}
+objects in this Seurat object. Otherwise, the \code{DimReduc}
+object requested
 }
 \description{
 Lists the names of \code{\link{DimReduc}} objects present in

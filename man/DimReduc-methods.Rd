@@ -7,6 +7,7 @@
 \alias{dim.DimReduc}
 \alias{dimnames.DimReduc}
 \alias{length.DimReduc}
+\alias{merge.DimReduc}
 \alias{names.DimReduc}
 \alias{print.DimReduc}
 \alias{print}
@@ -23,6 +24,8 @@
 \method{dimnames}{DimReduc}(x)
 
 \method{length}{DimReduc}(x)
+
+\method{merge}{DimReduc}(x = NULL, y = NULL, add.cell.ids = NULL, ...)
 
 \method{names}{DimReduc}(x)
 
@@ -44,6 +47,11 @@ or indices}
 
 \item{...}{Arguments passed to other methods}
 
+\item{y}{A vector or list of one or more objects to merge}
+
+\item{add.cell.ids}{A character vector of \code{length(x = c(x, y))};
+appends the corresponding values to the start of each objects' cell names}
+
 \item{dims}{Number of dimensions to display}
 
 \item{nfeatures}{Number of genes to display}
@@ -56,7 +64,7 @@ or indices}
 \code{[}: Feature loadings for features \code{i} and dimensions
 \code{j}
 
-\code{[[}: Cell mebeddings for cells \code{i} and dimensions \code{j}
+\code{[[}: Cell embeddings for cells \code{i} and dimensions \code{j}
 
 \code{dim}: The number of cells (\code{nrow}) and dimensions
 (\code{ncol})
@@ -70,7 +78,8 @@ or indices}
 \code{print}: Displays set of features defining the components and
 invisibly returns \code{x}
 
-\code{subset}: \code{x} for cells \code{cells} and features \code{features}
+\code{subset}: \code{x} for cells \code{cells} and features
+\code{features}
 
 \code{show}: Prints summary to \code{\link[base]{stdout}} and
 invisibly returns \code{NULL}
@@ -93,6 +102,9 @@ other packages
 
 \item \code{length.DimReduc}: The number of dimensions for a \code{DimReduc}
 object
+
+\item \code{merge.DimReduc}: Merge two or more \code{DimReduc} objects
+together
 
 \item \code{names.DimReduc}: The dimension names for a \code{DimReduc} object
 

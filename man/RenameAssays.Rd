@@ -21,4 +21,3 @@ Rename assays in a \code{Seurat} object
 RenameAssays(object = pbmc_small, RNA = 'rna')
 
 }
-\concept{unsorted}

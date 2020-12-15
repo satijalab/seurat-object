@@ -38,4 +38,3 @@ subset(x = pbmc_small, features = VariableFeatures(object = pbmc_small))
 \seealso{
 \code{\link[base]{subset}} \code{\link{WhichCells}}
 }
-\concept{seurat}

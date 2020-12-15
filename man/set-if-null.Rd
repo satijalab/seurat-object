@@ -18,19 +18,15 @@ x \%iff\% y
 For \code{\%||\%}: \code{y} if \code{x} is \code{NULL} otherwise
 \code{x}
 
-For \code{\%iff\%}: \code{y} if \code{x} is \strong{not} \code{NULL};
-otherwise \code{x}
+For \code{\%iff\%}: \code{y} if \code{x} is \strong{not}
+\code{NULL}; otherwise \code{x}
 }
 \examples{
-\donttest{
 1 \%||\% 2
 NULL \%||\% 2
-}
 
-\donttest{
 1 \%iff\% 2
 NULL \%iff\% 2
-}
 
 }
 \concept{infix}

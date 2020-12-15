@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{CheckDots}
 \alias{CheckDots}
-\title{Check the use of ...}
+\title{Check the use of dots}
 \usage{
 CheckDots(..., fxns = NULL)
 }
 \arguments{
-\item{...}{Arguments passed to a function that fall under ...}
+\item{...}{Arguments passed to a function that fall under \code{...}}
 
 \item{fxns}{A list/vector of functions or function names}
 }
@@ -15,6 +15,6 @@ CheckDots(..., fxns = NULL)
 ...
 }
 \description{
-Check the use of ...
+Check the use of dots
 }
 \keyword{internal}

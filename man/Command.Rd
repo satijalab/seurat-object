@@ -14,12 +14,13 @@ Command(object, ...)
 
 \item{...}{Arguments passed to other methods}
 
-\item{command}{Name of the command to pull, pass \code{NULL} to get the names of all commands run}
+\item{command}{Name of the command to pull, pass \code{NULL} to get the
+names of all commands run}
 
 \item{value}{Name of the parameter to pull the value for}
 }
 \value{
-Either a SeuratCommand object or the requested paramter value
+Either a SeuratCommand object or the requested parameter value
 }
 \description{
 Pull information on previously run commands in the Seurat object.

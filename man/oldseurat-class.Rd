@@ -8,7 +8,7 @@
 \description{
 The Seurat object is the center of each single cell analysis. It stores all
 information associated with the dataset, including data, annotations,
-analyes, etc. All that is needed to construct a Seurat object is an
+analyses, etc. All that is needed to construct a Seurat object is an
 expression matrix (rows are genes, columns are cells), which should
 be log-scale
 }
@@ -24,7 +24,7 @@ to access are listed below.
 \item{\code{data}}{The normalized expression matrix (log-scale)}
 
 \item{\code{scale.data}}{scaled (default is z-scoring each gene) expression matrix;
-used for dimmensional reduction and heatmap visualization}
+used for dimensional reduction and heatmap visualization}
 
 \item{\code{var.genes}}{Vector of genes exhibiting high variance across single cells}
 
@@ -34,13 +34,12 @@ used for dimmensional reduction and heatmap visualization}
 \item{\code{ident}}{THe 'identity class' for each cell}
 
 \item{\code{meta.data}}{Contains meta-information about each cell, starting with
-number of genes detected (nGene)
-and the original identity class (orig.ident); more information is added using
-\code{AddMetaData}}
+number of genes detected (nFeature) and the original identity class
+(orig.ident); more information is added using \code{AddMetaData}}
 
 \item{\code{project.name}}{Name of the project (for record keeping)}
 
-\item{\code{dr}}{List of stored dimmensional reductions; named by technique}
+\item{\code{dr}}{List of stored dimensional reductions; named by technique}
 
 \item{\code{assay}}{List of additional assays for multimodal analysis; named by
 technique}
@@ -65,7 +64,7 @@ parameter choices}
 \item{\code{spatial}}{Stores internal data and calculations for spatial mapping of
 single cells}
 
-\item{\code{misc}}{Miscellaneous spot to store any data alongisde the object
+\item{\code{misc}}{Miscellaneous spot to store any data alongside the object
 (for example, gene lists)}
 
 \item{\code{version}}{Version of package used in object creation}

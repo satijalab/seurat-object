@@ -4,7 +4,7 @@
 \name{DimReduc-class}
 \alias{DimReduc-class}
 \alias{DimReduc}
-\title{The Dimmensional Reduction Class}
+\title{The Dimensional Reduction Class}
 \description{
 The DimReduc object stores a dimensionality reduction taken out in Seurat;
 each DimReduc consists of a cell embeddings matrix, a feature loadings
@@ -26,7 +26,8 @@ removed when removing its associated assay}
 
 \item{\code{stdev}}{A vector of standard deviations}
 
-\item{\code{key}}{Key for the \code{DimReduc}, must be alphanumerics followed by an underscore}
+\item{\code{key}}{Key for the \code{DimReduc}, must be alphanumeric characters
+followed by an underscore}
 
 \item{\code{jackstraw}}{A \code{\link{JackStrawData-class}} object associated with
 this \code{DimReduc}}
