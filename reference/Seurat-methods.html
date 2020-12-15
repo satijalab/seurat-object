@@ -81,7 +81,7 @@ packages" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -92,7 +92,7 @@ packages" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -163,10 +163,10 @@ show(object)</pre>
     </tr>
     <tr>
       <th>i, features</th>
-      <td><p>Depends on the method</p><dl'>
- <dt><code>[</code>, <code>subset</code></dt><dd><p>Feature names or indices</p></dd>
- <dt><code>$</code>, <code>$&lt;-</code></dt><dd><p>Name of a single metadata column</p></dd>
- <dt><code>[[</code>, <code>[[&lt;-</code></dt><dd><p>Name of one or more metadata columns or an associated object; associated
+      <td><p>Depends on the method</p><dl>
+ <dt><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>, <code>subset</code></dt><dd><p>Feature names or indices</p></dd>
+ <dt><code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code>, <code>$&lt;-</code></dt><dd><p>Name of a single metadata column</p></dd>
+ <dt><code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code>, <code>[[&lt;-</code></dt><dd><p>Name of one or more metadata columns or an associated object; associated
   objects include <code><a href='Assay-class.html'>Assay</a></code>, <code><a href='DimReduc-class.html'>DimReduc</a></code>,
   <code><a href='Graph-class.html'>Graph</a></code>, <code><a href='SeuratCommand-class.html'>SeuratCommand</a></code>, or
   <code><a href='SpatialImage-class.html'>SpatialImage</a></code> objects</p></dd>
@@ -188,13 +188,13 @@ can pass <code>NULL</code> to remove metadata or an associated object</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>$</code>: metadata column <code>i</code> for object <code>x</code>;
-<strong>note</strong>: unlike <code>[[</code>, <code>$</code> drops the shape of the metadata
+    <p><code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code>: metadata column <code>i</code> for object <code>x</code>;
+<strong>note</strong>: unlike <code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code>, <code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code> drops the shape of the metadata
 to return a vector instead of a dataframe</p>
 <p><code>$&lt;-</code>: object <code>x</code> with metadata <code>value</code> saved as
 <code>i</code></p>
-<p><code>[</code>: object <code>x</code> with features <code>i</code> and cells <code>j</code></p>
-<p><code>[[</code>: If <code>i</code> is missing, the metadata dataframe; if
+<p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>: object <code>x</code> with features <code>i</code> and cells <code>j</code></p>
+<p><code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code>: If <code>i</code> is missing, the metadata dataframe; if
 <code>i</code> is a vector of metadata names, a dataframe with the requested
 metadata, otherwise, the requested associated object</p>
 <p><code>dim</code>: The number of features (<code>nrow</code>) and cells
@@ -216,7 +216,7 @@ invisibly returns <code>NULL</code></p>
 
     
 <ul>
-<li><p><code>.DollarNames.Seurat</code>: Autocompletion for <code>$</code> access on a
+<li><p><code>.DollarNames.Seurat</code>: Autocompletion for <code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code> access on a
 <code>Seurat</code> object</p></li>
 <li><p><code>$.Seurat</code>: Metadata access for <code>Seurat</code> objects</p></li>
 <li><p><code>$&lt;-.Seurat</code>: Metadata setter for <code>Seurat</code> objects</p></li>
@@ -230,7 +230,9 @@ invisibly returns <code>NULL</code></p>
 </ul>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>pbmc_small</span>[<span class='fu'><a href='VariableFeatures.html'>VariableFeatures</a></span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>), ]</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'pbmc_small' not found</span></div><div class='input'><span class='no'>pbmc_small</span>[, <span class='fl'>1</span>:<span class='fl'>10</span>]</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'pbmc_small' not found</span></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='va'>pbmc_small</span><span class='op'>[</span><span class='fu'><a href='VariableFeatures.html'>VariableFeatures</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>, <span class='op'>]</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'pbmc_small' not found</span></div><div class='input'><span class='va'>pbmc_small</span><span class='op'>[</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span><span class='op'>]</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'pbmc_small' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -247,7 +249,7 @@ invisibly returns <code>NULL</code></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

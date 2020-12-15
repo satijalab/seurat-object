@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -91,7 +91,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -118,14 +118,15 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for Seurat</span>
-<span class='fu'>merge</span>(
-  <span class='kw'>x</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>add.cell.ids</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>merge.data</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>project</span> <span class='kw'>=</span> <span class='st'>"SeuratProject"</span>,
-  <span class='no'>...</span>
-)</pre>
+<span class='fu'>merge</span><span class='op'>(</span>
+  x <span class='op'>=</span> <span class='cn'>NULL</span>,
+  y <span class='op'>=</span> <span class='cn'>NULL</span>,
+  add.cell.ids <span class='op'>=</span> <span class='cn'>NULL</span>,
+  merge.data <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  merge.dr <span class='op'>=</span> <span class='cn'>NULL</span>,
+  project <span class='op'>=</span> <span class='st'>"SeuratProject"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,8 +147,14 @@ corresponding values to the start of each objects' cell names.</p></td>
     <tr>
       <th>merge.data</th>
       <td><p>Merge the data slots instead of just merging the counts
-(which requires renormalization). This is recommended if the same
-normalization approach was applied to all objects.</p></td>
+(which requires renormalization). This is recommended if the same normalization
+approach was applied to all objects.</p></td>
+    </tr>
+    <tr>
+      <th>merge.dr</th>
+      <td><p>Merge specified DimReducs that are present in all objects.
+Will only merge the embeddings slots for the first N dimensions that are
+shared across all objects.</p></td>
     </tr>
     <tr>
       <th>project</th>
@@ -165,19 +172,25 @@ normalization approach was applied to all objects.</p></td>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>When merging Seurat objects, the merge procedure will merge the Assay level
-counts and potentially the data slots (depending on the merge.data
-parameter). It will also merge the cell-level meta data that was stored with
-each object and preserve the cell identities that were active in the objects
-pre-merge. The merge will not preserve reductions, graphs, logged commands,
-or  feature-level metadata that were present in the original objects. If
-add.cell.ids isn't specified and any cell names are duplicated, cell names
-will be appended with _X, where X is the numeric index of the object in
-c(x, y).</p>
+counts and potentially the data slots (depending on the merge.data parameter).
+It will also merge the cell-level meta data that was stored with each object
+and preserve the cell identities that were active in the objects pre-merge.
+The merge will optionally merge reductions depending on the values passed to
+<code>merge.dr</code> if they have the same name across objects. Here the
+embeddings slots will be merged and if there are differing numbers of
+dimensions across objects, only the first N shared dimensions will be merged.
+The feature loadings slots will be filled by the values present in the first
+object.The merge will not preserve graphs, logged commands, or feature-level
+metadata that were present in the original objects. If add.cell.ids isn't
+specified and any cell names are duplicated, cell names will be appended
+with _X, where X is the numeric index of the object in c(x, y).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># merge two objects</span>
-<span class='fu'>merge</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>)</div><div class='output co'>#&gt; <span class='error'>Error in merge(x = pbmc_small, y = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'><span class='co'># to merge more than two objects, pass one to x and a list of objects to y</span>
-<span class='fu'>merge</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>pbmc_small</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>pbmc_small</span>, <span class='no'>pbmc_small</span>))</div><div class='output co'>#&gt; <span class='error'>Error in merge(x = pbmc_small, y = c(pbmc_small, pbmc_small)): object 'pbmc_small' not found</span></div><div class='input'>
+<span class='fu'>merge</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in merge(x = pbmc_small, y = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'><span class='co'># to merge more than two objects, pass one to x and a list of objects to y</span>
+<span class='fu'>merge</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>pbmc_small</span>, <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in merge(x = pbmc_small, y = c(pbmc_small, pbmc_small)): object 'pbmc_small' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -194,7 +207,7 @@ c(x, y).</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

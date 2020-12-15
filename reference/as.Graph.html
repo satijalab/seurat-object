@@ -81,7 +81,7 @@ Graph class" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -92,7 +92,7 @@ Graph class" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -119,13 +119,16 @@ Graph class" />
 <code><a href='Graph-class.html'>Graph</a></code> class</p>
     </div>
 
-    <pre class="usage"><span class='fu'>as.Graph</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>as.Graph</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for Matrix</span>
-<span class='fu'>as.Graph</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>as.Graph</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for matrix</span>
-<span class='fu'>as.Graph</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>as.Graph</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span>
+
+<span class='co'># S3 method for Neighbor</span>
+<span class='fu'>as.Graph</span><span class='op'>(</span><span class='va'>x</span>, weighted <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -138,6 +141,11 @@ Graph class" />
       <th>...</th>
       <td><p>Arguments passed to other methods (ignored for now)</p></td>
     </tr>
+    <tr>
+      <th>weighted</th>
+      <td><p>If TRUE, fill entries in Graph matrix with value from the
+nn.dist slot of the Neighbor object</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -146,16 +154,18 @@ Graph class" />
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># converting sparse matrix</span>
-<span class='no'>mat</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>Matrix</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Matrix/man/rsparsematrix.html'>rsparsematrix</a></span>(<span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>density</span> <span class='kw'>=</span> <span class='fl'>0.1</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>mat</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"feature_"</span>, <span class='fl'>1</span>:<span class='fl'>10</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>mat</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"cell_"</span>, <span class='fl'>1</span>:<span class='fl'>10</span>)
-<span class='no'>g</span> <span class='kw'>&lt;-</span> <span class='fu'>as.Graph</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>mat</span>)
+<span class='va'>mat</span> <span class='op'>&lt;-</span> <span class='fu'>Matrix</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Matrix/man/rsparsematrix.html'>rsparsematrix</a></span><span class='op'>(</span>nrow <span class='op'>=</span> <span class='fl'>10</span>, ncol <span class='op'>=</span> <span class='fl'>10</span>, density <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>mat</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"feature_"</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>mat</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"cell_"</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span><span class='op'>)</span>
+<span class='va'>g</span> <span class='op'>&lt;-</span> <span class='fu'>as.Graph</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>mat</span><span class='op'>)</span>
 
 <span class='co'># converting dense matrix</span>
-<span class='no'>mat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>16</span>, <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>4</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>mat</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"feature_"</span>, <span class='fl'>1</span>:<span class='fl'>4</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>mat</span>) <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"cell_"</span>, <span class='fl'>1</span>:<span class='fl'>4</span>)
-<span class='no'>g</span> <span class='kw'>&lt;-</span> <span class='fu'>as.Graph</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>mat</span>)</div></pre>
+<span class='va'>mat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span>data <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>16</span>, nrow <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>mat</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"feature_"</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>mat</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"cell_"</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>)</span>
+<span class='va'>g</span> <span class='op'>&lt;-</span> <span class='fu'>as.Graph</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>mat</span><span class='op'>)</span>
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -171,7 +181,7 @@ Graph class" />
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

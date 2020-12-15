@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -91,7 +91,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -109,7 +109,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get tissue coordinates</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/spatial.R'><code>R/spatial.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>GetTissueCoordinates.Rd</code></div>
     </div>
 
@@ -117,24 +117,10 @@
     <p>Get tissue coordinates</p>
     </div>
 
-    <pre class="usage"><span class='fu'>GetTissueCoordinates</span>(<span class='no'>object</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for SlideSeq</span>
-<span class='fu'>GetTissueCoordinates</span>(<span class='no'>object</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for STARmap</span>
-<span class='fu'>GetTissueCoordinates</span>(<span class='no'>object</span>, <span class='kw'>qhulls</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for VisiumV1</span>
-<span class='fu'>GetTissueCoordinates</span>(
-  <span class='no'>object</span>,
-  <span class='kw'>scale</span> <span class='kw'>=</span> <span class='st'>"lowres"</span>,
-  <span class='kw'>cols</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"imagerow"</span>, <span class='st'>"imagecol"</span>),
-  <span class='no'>...</span>
-)
+    <pre class="usage"><span class='fu'>GetTissueCoordinates</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for Seurat</span>
-<span class='fu'>GetTissueCoordinates</span>(<span class='no'>object</span>, <span class='kw'>image</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>GetTissueCoordinates</span><span class='op'>(</span><span class='va'>object</span>, image <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,19 +132,6 @@
     <tr>
       <th>...</th>
       <td><p>Arguments passed to other methods</p></td>
-    </tr>
-    <tr>
-      <th>qhulls</th>
-      <td><p>return qhulls instead of centroids</p></td>
-    </tr>
-    <tr>
-      <th>scale</th>
-      <td><p>A factor to scale the coordinates by; choose from: 'tissue',
-'fiducial', 'hires', 'lowres', or <code>NULL</code> for no scaling</p></td>
-    </tr>
-    <tr>
-      <th>cols</th>
-      <td><p>Columns of tissue coordinates data.frame to pull</p></td>
     </tr>
     <tr>
       <th>image</th>
@@ -186,7 +159,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

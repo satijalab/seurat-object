@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title><code>SpatialImage</code> methods — SpatialImage-methods • SeuratObject</title>
+<title>SpatialImage methods — SpatialImage-methods • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="<code>SpatialImage</code> methods — SpatialImage-methods" />
+<meta property="og:title" content="SpatialImage methods — SpatialImage-methods" />
 <meta property="og:description" content="Methods defined on the SpatialImage class. Some of these
 methods must be overridden in order to ensure proper functionality of the
 derived classes (see Required methods below). Other methods are
@@ -84,7 +84,7 @@ should only be overridden if necessary" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,7 +95,7 @@ should only be overridden if necessary" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -150,9 +150,6 @@ Key(object, ...)
 Key(object, ...) &lt;- value
 
 # S3 method for SpatialImage
-Radius(object)
-
-# S3 method for SpatialImage
 RenameCells(object, new.names = NULL, ...)
 
 # S3 method for SpatialImage
@@ -203,12 +200,10 @@ updated</p>
 global</p>
 <p><code>Key</code>: The key for a <code>SpatialImage</code>-derived object</p>
 <p><code>Key&lt;-</code>: <code>object</code> with the key set to <code>value</code></p>
-<p><code>Radius</code>: by default, returns <code>NULL</code>; for overridden
-methods, returns the radius of the spot</p>
 <p><strong>[Override]</strong> <code>RenameCells</code>: <code>object</code> with the new
 cell names</p>
-<p><strong>[Override]</strong> <code>[</code>, <code>subset</code>: <code>x</code>/<code>object</code>
-for only the cells requested</p>
+<p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>, <code>subset</code>: <code>x</code>/<code>object</code> for only the cells
+requested</p>
 <p><strong>[Override]</strong> <code>dim</code>: The dimensions of the image data in
 (Y, X) format</p>
 <p><code>show</code>: Prints summary to <code><a href='https://rdrr.io/r/base/showConnections.html'>stdout</a></code> and
@@ -224,7 +219,7 @@ invisibly returns <code>NULL</code></p>
 <li><p><code>DefaultAssay&lt;-.SpatialImage</code>: Set the associated assay of a
 <code>SpatialImage</code>-derived object</p></li>
 <li><p><code>GetImage.SpatialImage</code>: Get the image data from a
-<code>SpatialImage</code>-derived object (<strong>[Override]</strong>)</p></li>
+<code>SpatialImage</code>-derived object</p></li>
 <li><p><code>GetTissueCoordinates.SpatialImage</code>: Get tissue coordinates for a
 <code>SpatialImage</code>-derived object (<strong>[Override]</strong>)</p></li>
 <li><p><code>IsGlobal.SpatialImage</code>: Globality test for
@@ -233,14 +228,9 @@ invisibly returns <code>NULL</code></p>
 <code>SpatialImage</code>-derived object</p></li>
 <li><p><code>Key&lt;-.SpatialImage</code>: Set the key for a
 <code>SpatialImage</code>-derived object</p></li>
-<li><p><code>Radius.SpatialImage</code>: Get the radius of spots for a
-<code>SpatialImage</code>-derived object. <strong>Note</strong>: this method should be
-overridden for spot-based technologies. For non-spot technologies, this
-method does <em>not</em> need to be overridden</p></li>
 <li><p><code>RenameCells.SpatialImage</code>: Rename cells in a
 <code>SpatialImage</code>-derived object (<strong>[Override]</strong>)</p></li>
-<li><p><code>[.SpatialImage</code>: Subset a <code>SpatialImage</code>-derived object
-(<strong>[Override]</strong>)</p></li>
+<li><p><code>[.SpatialImage</code>: Subset a <code>SpatialImage</code>-derived object</p></li>
 <li><p><code>dim.SpatialImage</code>: Get the plotting dimensions of an image
 (<strong>[Override]</strong>)</p></li>
 <li><p><code>subset.SpatialImage</code>: Subset a <code>SpatialImage</code>-derived object
@@ -252,13 +242,19 @@ object</p></li>
 
     
 
-<p>These methods are defined on the <code>SpatialImage</code> object and should not be
-overridden without careful thought</p><ul>
+<p>These methods are defined on the <code>SpatialImage</code> object and should not
+be overridden without careful thought</p><ul>
 <li><p><code><a href='DefaultAssay.html'>DefaultAssay</a></code> and <code>DefaultAssay&lt;-</code></p></li>
 <li><p><code><a href='Key.html'>Key</a></code> and <code>Key&lt;-</code></p></li>
+<li><p><code><a href='GetImage.html'>GetImage</a></code>; this method <em>can</em> be overridden to
+  provide image data, normally returns empty image data. If overridden,
+  should default to returning a  <code><a href='https://rdrr.io/r/grid/grid.grob.html'>grob</a></code> object</p></li>
 <li><p><code><a href='IsGlobal.html'>IsGlobal</a></code></p></li>
-<li><p><code><a href='Radius.html'>Radius</a></code>; this method <em>can</em> be overridden to provide
-  a spot radius for image objects</p></li>
+<li><p><code>Radius</code>; this method <em>can</em> be overridden to
+  provide a spot radius for image objects</p></li>
+<li><p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>; this method <em>can</em> be overridden
+  to change default subset behavior, normally returns
+  <code><a href='subset.Seurat.html'>subset(x = x, cells = i)</a></code>. If overridden, should only accept <code>i</code></p></li>
 </ul>
 
     <h2 class="hasAnchor" id="required-methods"><a class="anchor" href="#required-methods"></a>Required methods</h2>
@@ -268,17 +264,16 @@ overridden without careful thought</p><ul>
 <p>All subclasses of the <code>SpatialImage</code> class must define the following
 methods; simply relying on the <code>SpatialImage</code> method will result in
 errors. For required parameters and their values, see the <code>Usage</code> and
-<code>Arguments</code> sections</p><dl'>
+<code>Arguments</code> sections</p><dl>
   <dt><code><a href='Cells.html'>Cells</a></code></dt><dd><p>Return the cell/spot barcodes associated with each position</p></dd>
   <dt><code><a href='https://rdrr.io/r/base/dim.html'>dim</a></code></dt><dd><p>Return the dimensions of the image for plotting in <code>(Y, X)</code> format</p></dd>
-  <dt><code><a href='GetImage.html'>GetImage</a></code></dt><dd><p>Return image data; by default, must return a grob object</p></dd>
-  <dt><code><a href='GetTissueCoordinates.html'>GetTissueCoordinates</a></code></dt><dd><p>Return tissue coordinates; by default, must return a two-column data.frame
-   with x-coordinates in the first column and y-coordiantes in the second</p></dd>
-  <dt><code><a href='Radius.html'>Radius</a></code></dt><dd><p>Return the spot radius; returns <code>NULL</code> by default for use with
+  <dt><code><a href='GetTissueCoordinates.html'>GetTissueCoordinates</a></code></dt><dd><p>Return tissue coordinates; by default, must return a two-column
+   <code>data.frame</code> with x-coordinates in the first column and
+   y-coordinates in the second</p></dd>
+  <dt><code>Radius</code></dt><dd><p>Return the spot radius; returns <code>NULL</code> by default for use with
    non-spot image technologies</p></dd>
   <dt><code><a href='RenameCells.html'>RenameCells</a></code></dt><dd><p>Rename the cell/spot barcodes for this image</p></dd>
-  <dt><code><a href='subset.Seurat.html'>subset</a></code> and <code>[</code></dt><dd><p>Subset the image data by cells/spots; <code>[</code> should only take <code>i</code>
-   for subsetting by cells/spots</p></dd>
+  <dt><code><a href='subset.Seurat.html'>subset</a></code></dt><dd><p>Subset the image data by cells/spots</p></dd>
 
 </dl><p>These methods are used throughout Seurat, so defining them and setting the
 proper defaults will allow subclasses of <code>SpatialImage</code> to work
@@ -290,7 +285,6 @@ seamlessly</p>
 <p><code><a href='GetTissueCoordinates.html'>GetTissueCoordinates</a></code></p>
 <p><code><a href='IsGlobal.html'>IsGlobal</a></code></p>
 <p><code><a href='Key.html'>Key</a></code></p>
-<p><code><a href='Radius.html'>Radius</a></code></p>
 <p><code><a href='RenameCells.html'>RenameCells</a></code></p></div>
 
   </div>
@@ -308,7 +302,7 @@ seamlessly</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

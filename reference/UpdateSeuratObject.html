@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Update old Seurat object to accomodate new features — UpdateSeuratObject • SeuratObject</title>
+<title>Update old Seurat object to accommodate new features — UpdateSeuratObject • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,10 +39,10 @@
 
 
 
-<meta property="og:title" content="Update old Seurat object to accomodate new features — UpdateSeuratObject" />
+<meta property="og:title" content="Update old Seurat object to accommodate new features — UpdateSeuratObject" />
 <meta property="og:description" content="Updates Seurat objects to new structure for storing data/calculations.
-For Seurat v3 objects, will validate object structure ensuring all keys and feature
-names are formed properly." />
+For Seurat v3 objects, will validate object structure ensuring all keys
+and feature names are formed properly." />
 
 
 
@@ -82,7 +82,7 @@ names are formed properly." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -93,7 +93,7 @@ names are formed properly." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -110,18 +110,18 @@ names are formed properly." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Update old Seurat object to accomodate new features</h1>
+    <h1>Update old Seurat object to accommodate new features</h1>
     <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/seurat.R'><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>UpdateSeuratObject.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>Updates Seurat objects to new structure for storing data/calculations.
-For Seurat v3 objects, will validate object structure ensuring all keys and feature
-names are formed properly.</p>
+For Seurat v3 objects, will validate object structure ensuring all keys
+and feature names are formed properly.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>UpdateSeuratObject</span>(<span class='no'>object</span>)</pre>
+    <pre class="usage"><span class='fu'>UpdateSeuratObject</span><span class='op'>(</span><span class='va'>object</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -137,9 +137,11 @@ names are formed properly.</p>
     <p>Returns a Seurat object compatible with latest changes</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>updated_seurat_object</span> <span class='kw'>=</span> <span class='fu'>UpdateSeuratObject</span>(<span class='kw'>object</span> <span class='kw'>=</span> <span class='no'>old_seurat_object</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>updated_seurat_object</span> <span class='op'>=</span> <span class='fu'>UpdateSeuratObject</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>old_seurat_object</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -155,7 +157,7 @@ names are formed properly.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

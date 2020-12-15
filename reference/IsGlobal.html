@@ -84,7 +84,7 @@ the associated object will remain even if its original assay was deleted" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,7 +95,7 @@ the associated object will remain even if its original assay was deleted" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -125,13 +125,13 @@ are removed as well. If an associated object is marked as global/persistent,
 the associated object will remain even if its original assay was deleted</p>
     </div>
 
-    <pre class="usage"><span class='fu'>IsGlobal</span>(<span class='no'>object</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>IsGlobal</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for default</span>
-<span class='fu'>IsGlobal</span>(<span class='no'>object</span>)
+<span class='fu'>IsGlobal</span><span class='op'>(</span><span class='va'>object</span><span class='op'>)</span>
 
 <span class='co'># S3 method for DimReduc</span>
-<span class='fu'>IsGlobal</span>(<span class='no'>object</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>IsGlobal</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,7 +151,8 @@ the associated object will remain even if its original assay was deleted</p>
     <p><code>TRUE</code> if the object is global/persistent otherwise <code>FALSE</code></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>IsGlobal</span>(<span class='no'>pbmc_small</span><span class='kw'>[[</span><span class='st'>'pca'</span>]])</div><div class='output co'>#&gt; <span class='error'>Error in IsGlobal(pbmc_small[["pca"]]): object 'pbmc_small' not found</span></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'>IsGlobal</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>'pca'</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in IsGlobal(pbmc_small[["pca"]]): object 'pbmc_small' not found</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -168,7 +169,7 @@ the associated object will remain even if its original assay was deleted</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -42,7 +42,7 @@
 <meta property="og:title" content="The Seurat Class — seurat-class" />
 <meta property="og:description" content="The Seurat object is the center of each single cell analysis. It stores all
 information associated with the dataset, including data, annotations,
-analyes, etc. All that is needed to construct a Seurat object is an
+analyses, etc. All that is needed to construct a Seurat object is an
 expression matrix (rows are genes, columns are cells), which should
 be log-scale" />
 
@@ -84,7 +84,7 @@ be log-scale" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,7 +95,7 @@ be log-scale" />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -120,7 +120,7 @@ be log-scale" />
     <div class="ref-description">
     <p>The Seurat object is the center of each single cell analysis. It stores all
 information associated with the dataset, including data, annotations,
-analyes, etc. All that is needed to construct a Seurat object is an
+analyses, etc. All that is needed to construct a Seurat object is an
 expression matrix (rows are genes, columns are cells), which should
 be log-scale</p>
     </div>
@@ -135,13 +135,13 @@ to access are listed below.</p>
 
     
 
-<dl'>
+<dl>
 <dt><code>raw.data</code></dt><dd><p>The raw project data</p></dd>
 
 <dt><code>data</code></dt><dd><p>The normalized expression matrix (log-scale)</p></dd>
 
 <dt><code>scale.data</code></dt><dd><p>scaled (default is z-scoring each gene) expression matrix;
-used for dimmensional reduction and heatmap visualization</p></dd>
+used for dimensional reduction and heatmap visualization</p></dd>
 
 <dt><code>var.genes</code></dt><dd><p>Vector of genes exhibiting high variance across single cells</p></dd>
 
@@ -151,13 +151,12 @@ used for dimmensional reduction and heatmap visualization</p></dd>
 <dt><code>ident</code></dt><dd><p>THe 'identity class' for each cell</p></dd>
 
 <dt><code>meta.data</code></dt><dd><p>Contains meta-information about each cell, starting with
-number of genes detected (nGene)
-and the original identity class (orig.ident); more information is added using
-<code>AddMetaData</code></p></dd>
+number of genes detected (nFeature) and the original identity class
+(orig.ident); more information is added using <code>AddMetaData</code></p></dd>
 
 <dt><code>project.name</code></dt><dd><p>Name of the project (for record keeping)</p></dd>
 
-<dt><code>dr</code></dt><dd><p>List of stored dimmensional reductions; named by technique</p></dd>
+<dt><code>dr</code></dt><dd><p>List of stored dimensional reductions; named by technique</p></dd>
 
 <dt><code>assay</code></dt><dd><p>List of additional assays for multimodal analysis; named by
 technique</p></dd>
@@ -182,7 +181,7 @@ parameter choices</p></dd>
 <dt><code>spatial</code></dt><dd><p>Stores internal data and calculations for spatial mapping of
 single cells</p></dd>
 
-<dt><code>misc</code></dt><dd><p>Miscellaneous spot to store any data alongisde the object
+<dt><code>misc</code></dt><dd><p>Miscellaneous spot to store any data alongside the object
 (for example, gene lists)</p></dd>
 
 <dt><code>version</code></dt><dd><p>Version of package used in object creation</p></dd>
@@ -204,7 +203,7 @@ single cells</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

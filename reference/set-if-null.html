@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set a default value depending on if an object is <code>NULL</code> — set-if-null • SeuratObject</title>
+<title>Set a default value depending on if an object is NULL — set-if-null • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Set a default value depending on if an object is <code>NULL</code> — set-if-null" />
+<meta property="og:title" content="Set a default value depending on if an object is NULL — set-if-null" />
 <meta property="og:description" content="These objects are imported from other packages. Follow the links
 below to see their documentation.
 
@@ -85,7 +85,7 @@ below to see their documentation.
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,7 +96,7 @@ below to see their documentation.
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mojaveazure/seurat-object/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -121,13 +121,13 @@ below to see their documentation.
     <div class="ref-description">
     <p>These objects are imported from other packages. Follow the links
 below to see their documentation.</p>
-<dl'>
+<dl>
   <dt>rlang</dt><dd><p><code><a href='https://rlang.r-lib.org/reference/op-null-default.html'>%||%</a></code></p></dd>
 
 </dl>
     </div>
 
-    <pre class="usage"><span class='no'>x</span> <span class='kw'>%iff%</span> <span class='no'>y</span></pre>
+    <pre class="usage"><span class='va'>x</span> <span class='op'>%iff%</span> <span class='va'>y</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,16 +146,16 @@ below to see their documentation.</p>
 
     <p>For <code>%||%</code>: <code>y</code> if <code>x</code> is <code>NULL</code> otherwise
 <code>x</code></p>
-<p>For <code>%iff%</code>: <code>y</code> if <code>x</code> is <strong>not</strong> <code>NULL</code>;
-otherwise <code>x</code></p>
+<p>For <code>%iff%</code>: <code>y</code> if <code>x</code> is <strong>not</strong>
+<code>NULL</code>; otherwise <code>x</code></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='fl'>1</span> <span class='kw'>%||%</span> <span class='fl'>2</span></div><div class='output co'>#&gt; <span class='error'>Error in 1 %||% 2: could not find function "%||%"</span></div><div class='input'><span class='kw'>NULL</span> <span class='kw'>%||%</span> <span class='fl'>2</span></div><div class='output co'>#&gt; <span class='error'>Error in NULL %||% 2: could not find function "%||%"</span></div><div class='input'><span class='co'># }</span>
-
-<span class='co'># \donttest{</span>
-<span class='fl'>1</span> <span class='kw'>%iff%</span> <span class='fl'>2</span></div><div class='output co'>#&gt; <span class='error'>Error in 1 %iff% 2: could not find function "%iff%"</span></div><div class='input'><span class='kw'>NULL</span> <span class='kw'>%iff%</span> <span class='fl'>2</span></div><div class='output co'>#&gt; <span class='error'>Error in NULL %iff% 2: could not find function "%iff%"</span></div><div class='input'># }
-
+    <pre class="examples"><div class='input'><span class='fl'>1</span> <span class='op'>%||%</span> <span class='fl'>2</span>
+</div><div class='output co'>#&gt; [1] 1</div><div class='input'><span class='cn'>NULL</span> <span class='op'>%||%</span> <span class='fl'>2</span>
+</div><div class='output co'>#&gt; [1] 2</div><div class='input'>
+<span class='fl'>1</span> <span class='op'>%iff%</span> <span class='fl'>2</span>
+</div><div class='output co'>#&gt; [1] 2</div><div class='input'><span class='cn'>NULL</span> <span class='op'>%iff%</span> <span class='fl'>2</span>
+</div><div class='output co'>#&gt; NULL</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -172,7 +172,7 @@ otherwise <code>x</code></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
