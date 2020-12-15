@@ -1,7 +1,233 @@
+#' @importFrom Rcpp evalCpp
+#' @useDynLib SeuratObject
+#'
+NULL
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Generics
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Cast to Sparse
+#'
+#' Convert dense objects to sparse representations
+#'
+#' @param x An object
+#' @param ... Arguments passed to other methods
+#'
+#' @return A sparse representation of the input data
+#'
+#' @rdname as.sparse
+#' @export as.sparse
+#'
+#' @concept conversion
+#'
+as.sparse <- function(x, ...) {
+  UseMethod(generic = 'as.sparse', object = x)
+}
+
+#' S4/List Conversion
+#'
+#' Convert S4 objects to lists and vice versa. Useful for declassing an S4
+#' object while keeping track of it's class using attributes (see section
+#' \strong{S4 Class Definition Attributes} below for more details). Both
+#' \code{ListToS4} and \code{S4ToList} are recursive functions, affecting all
+#' lists/S4 objects contained as sub-lists/sub-objects.
+#'
+#' @param x A list with an S4 class definition attribute
+#' @param object An S4 object
+#'
+#' @return \code{S4ToList}: A list with an S4 class definition attribute
+#'
+#' @section S4 Class Definition Attributes:
+#' S4 classes are scoped to the package and class name. In order to properly
+#' track which class a list is generated from in order to build a new one,
+#' these function use an \code{\link[base:attr]{attribute}} to denote the
+#' class name and package of origin. This attribute is stored as
+#' \dQuote{classDef} and takes the form of \dQuote{\code{package:class}}.
+#'
+#' @name s4list
+#' @rdname s4list
+#'
+#' @export
+#'
+#'
+S4ToList <- function(object) {
+  if (!(isS4(object) || inherits(x = object, what = 'list'))) {
+    return(object)
+  }
+  UseMethod(generic = 'S4ToList', object = object)
+}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Set a default value depending on if an object is \code{NULL}
+#'
+#' @param x An object to test
+#' @param y A default value
+#'
+#' @return For \code{\%||\%}: \code{y} if \code{x} is \code{NULL} otherwise
+#' \code{x}
+#'
+#' @importFrom rlang %||%
+#'
+#' @name set-if-null
+#' @rdname set-if-null
+#'
+#' @export
+#'
+#' @concept infix
+#'
+#' @examples
+#' 1 %||% 2
+#' NULL %||% 2
+#'
+rlang::`%||%`
+
+#' @rdname set-if-null
+#'
+#' @return For \code{\%iff\%}: \code{y} if \code{x} is \strong{not}
+#' \code{NULL}; otherwise \code{x}
+#'
+#' @importFrom rlang is_null
+#'
+#' @export
+#'
+#' @concept infix
+#'
+#' @examples
+#' 1 %iff% 2
+#' NULL %iff% 2
+#'
+`%iff%` <- function(x, y) {
+  if (!is_null(x = x)) {
+    return(y)
+  }
+  return(x)
+}
+
+#' Conditional Garbage Collection
+#'
+#' Call \code{gc} only when desired
+#'
+#' @param option ...
+#'
+#' @return Invisibly returns \code{NULL}
+#'
+#' @export
+#'
+#' @concept utils
+#'
+CheckGC <- function(option = 'SeuratObject.memsafe') {
+  if (isTRUE(x = getOption(x = option, default = FALSE))) {
+    gc(verbose = FALSE)
+  }
+  return(invisible(x = NULL))
+}
+
+#' @name s4list
+#' @rdname s4list
+#'
+#' @return \code{IsS4List}: \code{TRUE} if \code{x} is a list with an S4 class
+#' definition attribute
+#'
+#' @export
+#'
+IsS4List <- function(x) {
+  return(
+    inherits(x = x, what = 'list') &&
+      isTRUE(x = grepl(
+        pattern = '^[[:alnum:]]+:[[:alnum:]]+$',
+        x = attr(x = x, which = 'classDef')
+      ))
+  )
+}
+
+#' @name s4list
+#' @rdname s4list
+#'
+#' @return \code{ListToS4}: An S4 object as defined by the S4 class definition
+#' attribute
+#'
+#' @importFrom methods getClassDef new
+#'
+#' @export
+#'
+ListToS4 <- function(x) {
+  if (!inherits(x = x, what = 'list')) {
+    return(x)
+  }
+  for (i in seq_along(along.with = x)) {
+    if (!is.null(x = x[[i]])) {
+      x[[i]] <- ListToS4(x = x[[i]])
+    }
+  }
+  classdef <- attr(x = x, which = 'classDef')
+  x <- Filter(f = Negate(f = is.function), x = x)
+  attr(x = x, which = 'classDef') <- classdef
+  if (!IsS4List(x = x)) {
+    return(x)
+  }
+  classdef <- unlist(x = strsplit(
+    x = attr(x = x, which = 'classDef'),
+    split = ':'
+  ))
+  pkg <- classdef[1]
+  cls <- classdef[2]
+  formal <- getClassDef(Class = cls, package = pkg, inherits = FALSE)
+  return(do.call(what = new, args = c(list(Class = formal), x)))
+}
+
+#' Merge Sparse Matrices by Row
+#'
+#' Merge two or more sparse matrices by rowname.
+#'
+#' @details
+#' Shared matrix rows (with the same row name) will be merged, and unshared
+#' rows (with different names) will be filled with zeros in the matrix not
+#' containing the row.
+#'
+#' @param mat1 First matrix
+#' @param mat2 Second matrix or list of matrices
+#'
+#' @return Returns a sparse matrix
+#'
+#' @importFrom methods as
+#
+#' @export
+#'
+#' @concept utils
+#'
+RowMergeSparseMatrices <- function(mat1, mat2) {
+  all.mat <- c(list(mat1), mat2)
+  all.colnames <- all.rownames <- vector(
+    mode = 'list',
+    length = length(x = all.mat)
+  )
+  for (i in seq_along(along.with = all.mat)) {
+    if (is.data.frame(x = all.mat[[1]])) {
+      all.mat[[i]] <- as.matrix(x = all.mat[[i]])
+    }
+    all.rownames[[i]] <- rownames(x = all.mat[[i]])
+    all.colnames[[i]] <- colnames(x = all.mat[[i]])
+  }
+  use.cbind <- all(duplicated(x = all.rownames)[2:length(x = all.rownames)])
+  if (isTRUE(x = use.cbind)) {
+    new.mat <- do.call(what = cbind, args = all.mat)
+  } else {
+    all.mat <- lapply(X = all.mat, FUN = as, Class = "RsparseMatrix")
+    all.names <- unique(x = unlist(x = all.rownames))
+    new.mat <- RowMergeMatricesList(
+      mat_list = all.mat,
+      mat_rownames = all.rownames,
+      all_rownames = all.names
+    )
+    rownames(x = new.mat) <- make.unique(names = all.names)
+  }
+  colnames(x = new.mat) <- make.unique(names = unlist(x = all.colnames))
+  return(new.mat)
+}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
@@ -14,11 +240,9 @@
 as.sparse.data.frame <- function(x, ...) {
   CheckDots(...)
   return(as.sparse(x = as.matrix(x = x)))
-  # return(as(object = as.matrix(x = x), Class = 'dgCMatrix'))
 }
 
 #' @importFrom methods as
-#' @importClassesFrom Matrix dgCMatrix
 #'
 #' @rdname as.sparse
 #' @export
@@ -35,62 +259,61 @@ as.sparse.Matrix <- function(x, ...) {
 #'
 as.sparse.matrix <- as.sparse.Matrix
 
+#' @importFrom methods slotNames
+#'
+#' @rdname s4list
+#' @export
+#' @method S4ToList default
+#'
+S4ToList.default <- function(object) {
+  obj.list <- sapply(
+    X = slotNames(x = object),
+    FUN = function(x) {
+      return(S4ToList(object = slot(object = object, name = x)))
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  attr(x = obj.list, which = 'classDef') <- paste(
+    c(
+      attr(x = class(x = object), which = 'package'),
+      class(x = object)
+    ),
+    collapse = ':'
+  )
+  return(obj.list)
+}
+
+#' @rdname s4list
+#' @export
+#' @method S4ToList list
+#'
+S4ToList.list <- function(object) {
+  if (length(x = object)) {
+    for (i in seq_along(along.with = object)) {
+      if (!is.null(x = object[[i]])) {
+        object[[i]] <- S4ToList(object = object[[i]])
+      }
+    }
+  }
+  return(object)
+}
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Methods for R-defined generics
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# S4 methods
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' Set a default value depending on if an object is \code{NULL}
+#' Check the use of dots
 #'
-#' @param x An object to test
-#' @param y A default value
-#'
-#' @return For \code{\%||\%}: \code{y} if \code{x} is \code{NULL} otherwise
-#' \code{x}
-#'
-#' @importFrom rlang %||%
-#'
-#' @name set-if-null
-#' @rdname set-if-null
-#'
-#' @keywords internal
-#'
-#' @concept infix
-#'
-#' @examples
-#' \donttest{
-#' 1 %||% 2
-#' NULL %||% 2
-#' }
-#'
-rlang::`%||%`
-
-#' @rdname set-if-null
-#'
-#' @return For \code{\%iff\%}: \code{y} if \code{x} is \strong{not} \code{NULL};
-#' otherwise \code{x}
-#'
-#' @importFrom rlang is_null
-#'
-#' @keywords internal
-#'
-#' @concept infix
-#'
-#' @examples
-#' \donttest{
-#' 1 %iff% 2
-#' NULL %iff% 2
-#' }
-#'
-`%iff%` <- function(x, y) {
-  if (!is_null(x = x)) {
-    return(y)
-  }
-  return(x)
-}
-
-#' Check the use of ...
-#'
-#' @param ... Arguments passed to a function that fall under ...
+#' @param ... Arguments passed to a function that fall under \code{...}
 #' @param fxns A list/vector of functions or function names
 #'
 #' @return ...
@@ -228,14 +451,47 @@ CheckDots <- function(..., fxns = NULL) {
   }
 }
 
+#' Check a list of objects for duplicate cell names
+#'
+#' @param object.list List of Seurat objects
+#' @param verbose Print message about renaming
+#' @param stop Error out if any duplicate names exist
+#'
+#' @return Returns list of objects with duplicate cells renamed to be unique
+#'
+#'
+#' @export
+#'
+CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
+  cell.names <- unlist(x = lapply(X = object.list, FUN = colnames))
+  if (any(duplicated(x = cell.names))) {
+    if (stop) {
+      stop("Duplicate cell names present across objects provided.")
+    }
+    if (verbose) {
+      warning("Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.")
+    }
+    object.list <- lapply(
+      X = 1:length(x = object.list),
+      FUN = function(x) {
+        return(RenameCells(
+          object = object.list[[x]],
+          new.names = paste0(Cells(x = object.list[[x]]), "_", x)
+        ))
+      }
+    )
+  }
+  return(object.list)
+}
+
 #' Extract delimiter information from a string.
 #'
 #' Parses a string (usually a cell name) and extracts fields based
 #'  on a delimiter
 #'
 #' @param string String to parse.
-#' @param field Integer(s) indicating which field(s) to extract. Can be a vector
-#'  multiple numbers.
+#' @param field Integer(s) indicating which field(s) to extract. Can be a
+#' vector multiple numbers.
 #' @param delim Delimiter to use, set to underscore by default.
 #'
 #' @return A new string, that parses out the requested fields, and
@@ -249,11 +505,17 @@ CheckDots <- function(..., fxns = NULL) {
 #' }
 #'
 ExtractField <- function(string, field = 1, delim = "_") {
-  fields <- as.numeric(x = unlist(x = strsplit(x = as.character(x = field), split = ",")))
+  fields <- as.numeric(x = unlist(x = strsplit(
+    x = as.character(x = field),
+    split = ","
+  )))
   if (length(x = fields) == 1) {
     return(strsplit(x = string, split = delim)[[1]][field])
   }
-  return(paste(strsplit(x = string, split = delim)[[1]][fields], collapse = delim))
+  return(paste(
+    strsplit(x = string, split = delim)[[1]][fields],
+    collapse = delim
+  ))
 }
 
 #' Check if a matrix is empty
@@ -277,6 +539,25 @@ IsMatrixEmpty <- function(x) {
   matrix.dims <- dim(x = x)
   matrix.na <- all(matrix.dims == 1) && all(is.na(x = x))
   return(all(matrix.dims == 0) || matrix.na)
+}
+
+#' Test Null Pointers
+#'
+#' Check to see if a C++ pointer is a null pointer on the compiled side
+#'
+#' @param x An \link[methods:externalptr-class]{external pointer} object
+#'
+#' @return \code{TRUE} if \code{x} is a null pointer, otherwise \code{FALSE}
+#'
+#' @importFrom methods is
+#'
+#' @references \url{https://stackoverflow.com/questions/26666614/how-do-i-check-if-an-externalptr-is-null-from-within-r}
+#'
+#' @keywords internal
+#'
+IsNullPtr <- function(x) {
+  stopifnot(is(object = x, class2 = 'externalptr'))
+  return(.Call('isnull', x))
 }
 
 #' Generate a random name
@@ -305,33 +586,85 @@ RandomName <- function(length = 5L, ...) {
   return(paste(sample(x = letters, size = length, ...), collapse = ''))
 }
 
-#' Get the top
+#' Update a Class's Package
 #'
-#' @param data Data to pull the top from
-#' @param num Pull top \code{num}
-#' @param balanced Pull even amounts of from positive and negative values
+#' Swap packages for an object's class definition. As classes move between
+#' packages, these functions rescope the namespace of the S4 class. This allows
+#' objects to depend only on the new package for class definitions rather than
+#' both the new and old packages
 #'
-#' @return The top \code{num}
+#' @inheritParams s4list
+#' @param from A vector of one or more packages to limit conversion from
+#' @param to A character naming the package to search for new class definitions;
+#' defaults to the package of the function calling this function
 #'
-#' @importFrom utils head tail
+#' @return \code{SwapClassPkg}: \code{x} with an updated S4 class
+#' definition attribute
 #'
-#' @seealso \code{\link{TopCells}} \code{\link{TopFeatures}}
+#' @inheritSection s4list S4 Class Definition Attributes
+#'
+#' @name classpkg
+#' @rdname classpkg
 #'
 #' @keywords internal
 #'
-Top <- function(data, num, balanced) {
-  top <- if (balanced) {
-    num <- round(x = num / 2)
-    data <- data[order(data, decreasing = TRUE), , drop = FALSE]
-    positive <- head(x = rownames(x = data), n = num)
-    negative <- rev(x = tail(x = rownames(x = data), n = num))
-    list(positive = positive, negative = negative)
-  } else {
-    data <- data[rev(x = order(abs(x = data))), , drop = FALSE]
-    top <- head(x = rownames(x = data), n = num)
-    top[order(data[top, ])]
+#' @seealso \code{\link{s4list}}
+#'
+SwapClassPkg <- function(x, from = NULL, to = NULL) {
+  if (!inherits(x = x, what = 'list')) {
+    return(x)
   }
-  return(top)
+  to <- to[1] %||% environmentName(env = environment(
+    fun = sys.function(which = 1L)
+  ))
+  if (!nchar(x = to) || !paste0('package:', to) %in% search()) {
+    to <- environmentName(env = environment(fun = sys.function(which = 0L)))
+  }
+  for (i in seq_along(along.with = x)) {
+    if (!is.null(x = x[[i]])) {
+      x[[i]] <- SwapClassPkg(x = x[[i]], from = from, to = to)
+    }
+  }
+  if (!IsS4List(x = x)) {
+    return(x)
+  }
+  classdef <- unlist(x = strsplit(
+    x = attr(x = x, which = 'classDef'),
+    split = ':'
+  ))
+  pkg <- classdef[1]
+  cls <- classdef[2]
+  if (is.null(x = from) || pkg %in% from) {
+    pkg <- ifelse(
+      test = is.null(x = getClassDef(
+        Class = cls,
+        package = to,
+        inherits = FALSE
+      )),
+      yes = pkg,
+      no = to
+    )
+  }
+  attr(x = x, which = 'classDef') <- paste(pkg, cls, sep = ':')
+  return(x)
+}
+
+#' @name classpkg
+#' @rdname classpkg
+#'
+#' @return \code{UpdateClassPkg}: \code{object} with the updated
+#' class definition
+#'
+#' @keywords internal
+#'
+UpdateClassPkg <- function(object, from = NULL, to = NULL) {
+  if (!isS4(object)) {
+    return(object)
+  }
+  obj.list <- S4ToList(object = object)
+  obj.list <- SwapClassPkg(x = obj.list, from = from, to = to)
+  # browser()
+  return(ListToS4(x = obj.list))
 }
 
 #' Update slots in an object
@@ -364,7 +697,10 @@ UpdateSlots <- function(object) {
   for (x in setdiff(x = slotNames(x = object), y = names(x = object.list))) {
     xobj <- slot(object = object, name = x)
     if (is.vector(x = xobj) && !is.list(x = xobj) && length(x = xobj) == 0) {
-      slot(object = object, name = x) <- vector(mode = class(x = xobj), length = 1L)
+      slot(object = object, name = x) <- vector(
+        mode = class(x = xobj),
+        length = 1L
+      )
     }
   }
   return(object)
