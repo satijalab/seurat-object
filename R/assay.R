@@ -19,9 +19,10 @@ NULL
 #' @slot data Normalized expression data
 #' @slot scale.data Scaled expression data
 #' @slot key Key for the Assay
-#' @slot assay.orig Original assay that this assay is based off of. Used to track
-#' assay provenance
-#' @slot var.features Vector of features exhibiting high variance across single cells
+#' @slot assay.orig Original assay that this assay is based off of. Used to
+#' track assay provenance
+#' @slot var.features Vector of features exhibiting high variance across
+#' single cells
 #' @slot meta.features Feature-level metadata
 #' @slot misc Utility slot for storing additional data associated with the assay
 #'
@@ -43,7 +44,7 @@ Assay <- setClass(
     assay.orig = 'OptionalCharacter',
     var.features = 'vector',
     meta.features = 'data.frame',
-    misc = 'ANY'
+    misc = 'OptionalList'
   )
 )
 
@@ -94,7 +95,7 @@ CreateAssayObject <- function(
     stop("Either 'counts' or 'data' must be missing; both cannot be provided")
   } else if (!missing(x = counts)) {
     # check that dimnames of input counts are unique
-    if (anyDuplicated(rownames(x = counts))) {
+    if (anyDuplicated(x = rownames(x = counts))) {
       warning(
         "Non-unique features (rownames) present in the input matrix, making unique",
         call. = FALSE,
@@ -102,7 +103,7 @@ CreateAssayObject <- function(
       )
       rownames(x = counts) <- make.unique(names = rownames(x = counts))
     }
-    if (anyDuplicated(colnames(x = counts))) {
+    if (anyDuplicated(x = colnames(x = counts))) {
       warning(
         "Non-unique cell names (colnames) present in the input matrix, making unique",
         call. = FALSE,
@@ -135,7 +136,7 @@ CreateAssayObject <- function(
     data <- counts
   } else if (!missing(x = data)) {
     # check that dimnames of input data are unique
-    if (anyDuplicated(rownames(x = data))) {
+    if (anyDuplicated(x = rownames(x = data))) {
       warning(
         "Non-unique features (rownames) present in the input matrix, making unique",
         call. = FALSE,
@@ -143,7 +144,7 @@ CreateAssayObject <- function(
       )
       rownames(x = data) <- make.unique(names = rownames(x = data))
     }
-    if (anyDuplicated(colnames(x = data))) {
+    if (anyDuplicated(x = colnames(x = data))) {
       warning(
         "Non-unique cell names (colnames) present in the input matrix, making unique",
         call. = FALSE,
@@ -225,7 +226,8 @@ CreateAssayObject <- function(
     counts = counts,
     data = data,
     scale.data = new(Class = 'matrix'),
-    meta.features = init.meta.features
+    meta.features = init.meta.features,
+    misc = list()
   )
   return(assay)
 }
@@ -511,7 +513,6 @@ SetAssayData.Assay <- function(
   return(object)
 }
 
-# @inheritParams FindSpatiallyVariableFeatures
 #' @param decreasing Return features in decreasing order (most spatially
 #' variable first).
 #' @rdname SpatiallyVariableFeatures
@@ -638,10 +639,10 @@ VariableFeatures.Assay <- function(object, selection.method = NULL, ...) {
 }
 
 #' @param cells Subset of cell names
-#' @param expression A predicate expression for feature/variable expression, can
-#' evalue anything that can be pulled by \code{FetchData}; please note, you may
-#' need to wrap feature names in backticks (\code{``}) if dashes between numbers
-#' are present in the feature name
+#' @param expression A predicate expression for feature/variable expression,
+#' can evaluate anything that can be pulled by \code{FetchData}; please note,
+#' you may need to wrap feature names in backticks (\code{``}) if dashes
+#' between numbers are present in the feature name
 #' @param invert Invert the selection of cells
 #'
 #' @importFrom stats na.omit
@@ -788,11 +789,11 @@ dimnames.Assay <- function(x) {
 #' @describeIn Assay-methods Merge \code{Assay} objects
 #'
 #' @param y A vector or list of one or more objects to merge
-#' @param add.cell.ids A character vector of \code{length(x = c(x, y))}; appends
-#' the corresponding values to the start of each objects' cell names
+#' @param add.cell.ids A character vector of \code{length(x = c(x, y))};
+#' appends the corresponding values to the start of each objects' cell names
 #' @param merge.data Merge the data slots instead of just merging the counts
-#' (which requires renormalization); this is recommended if the same normalization
-#' approach was applied to all objects
+#' (which requires renormalization); this is recommended if the same
+#' normalization approach was applied to all objects
 #'
 #' @return \code{merge}: Merged object
 #'
@@ -809,22 +810,20 @@ merge.Assay <- function(
   CheckDots(...)
   assays <- c(x, y)
   if (!is.null(x = add.cell.ids)) {
-    for (i in 1:length(assays)) {
-      assays[[i]] <- RenameCells(object = assays[[i]], new.names = add.cell.ids[i])
+    for (i in seq_along(along.with = assays)) {
+      assays[[i]] <- RenameCells(
+        object = assays[[i]],
+        new.names = add.cell.ids[i]
+      )
     }
   }
   # Merge the counts (if present)
-  merged.counts <- ValidateDataForMerge(assay = assays[[1]], slot = "counts")
-  keys <- Key(object = assays[[1]])
-  for (i in 2:length(x = assays)) {
-    merged.counts <- RowMergeSparseMatrices(
-      mat1 = merged.counts,
-      mat2 = ValidateDataForMerge(assay = assays[[i]], slot = "counts")
-    )
-    if (length(Key(object = assays[[i]]) > 0)) {
-      keys[i] <- Key(object = assays[[i]])
-    }
-  }
+  counts.mats <- lapply(X = assays, FUN = ValidateDataForMerge, slot = "counts")
+  keys <- sapply(X = assays, FUN = Key)
+  merged.counts <- RowMergeSparseMatrices(
+    mat1 = counts.mats[[1]],
+    mat2 = counts.mats[2:length(x = counts.mats)]
+  )
   combined.assay <- CreateAssayObject(
     counts = merged.counts,
     min.cells = -1,
@@ -834,15 +833,15 @@ merge.Assay <- function(
     Key(object = combined.assay) <- keys[1]
   }
   if (merge.data) {
-    merged.data <- ValidateDataForMerge(assay = assays[[1]], slot = "data")
-    for (i in 2:length(x = assays)) {
-      merged.data <- RowMergeSparseMatrices(
-        mat1 = merged.data,
-        mat2 = ValidateDataForMerge(assay = assays[[i]], slot = "data")
-      )
-    }
+    data.mats <- lapply(X = assays, FUN = ValidateDataForMerge, slot = "data")
+    merged.data <- RowMergeSparseMatrices(
+      mat1 = data.mats[[1]],
+      mat2 = data.mats[2:length(x = data.mats)]
+    )
     # only keep cells that made it through counts filtering params
-    merged.data <- merged.data[, colnames(x = combined.assay)]
+    if (!all.equal(target = colnames(x = combined.assay), current = colnames(x = merged.data))) {
+      merged.data <- merged.data[, colnames(x = combined.assay)]
+    }
     combined.assay <- SetAssayData(
       object = combined.assay,
       slot = "data",
@@ -857,7 +856,7 @@ merge.Assay <- function(
     for (i in 1:length(x = assays)) {
       vst.set.old <- Misc(object = assays[[i]], slot = "vst.set")
       umi.assay.old <- Misc(object = assays[[i]], slot = "umi.assay")
-      if (!is.null(x = vst.set.old)) {
+      if (!is.null(x = vst.set.old) && length(x = vst.set.old) > 1) {
         for (j in 1:length(x = vst.set.old)) {
           vst.set.new[[idx]] <- vst.set.old[[j]]
           umi.assay.new[[idx]] <- umi.assay.old[[j]]
@@ -873,7 +872,12 @@ merge.Assay <- function(
     Misc(object = combined.assay, slot = "umi.assay") <- umi.assay.new
     scale.data <- do.call(
       what = cbind,
-      args = lapply(X = assays, FUN = GetAssayData, slot = "scale.data")
+      args = lapply(
+        X = assays,
+        FUN = GetAssayData,
+        slot = 'scale.data'
+        # FUN = function(x) GetAssayData(object = x, slot = "scale.data")
+      )
     )
     combined.assay <- SetAssayData(
       object = combined.assay,
@@ -925,15 +929,9 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
     stop("Cannot find features provided")
   }
   if (ncol(x = GetAssayData(object = x, slot = 'counts')) == ncol(x = x)) {
-    slot(object = x, name = "counts") <- GetAssayData(
-      object = x,
-      slot = "counts"
-    )[features, cells, drop = FALSE]
+    slot(object = x, name = "counts") <- GetAssayData(object = x, slot = "counts")[features, cells, drop = FALSE]
   }
-  slot(object = x, name = "data") <- GetAssayData(
-    object = x,
-    slot = "data"
-  )[features, cells, drop = FALSE]
+  slot(object = x, name = "data") <- GetAssayData(object = x, slot = "data")[features, cells, drop = FALSE]
   cells.scaled <- colnames(x = GetAssayData(object = x, slot = "scale.data"))
   cells.scaled <- cells.scaled[cells.scaled %in% cells]
   cells.scaled <- cells.scaled[na.omit(object = match(x = colnames(x = x), table = cells.scaled))]
@@ -1238,8 +1236,8 @@ SubsetVST <- function(sct.info, cells, features) {
 #' @param assay Assay to pull data from
 #' @param slot Slot to pull from
 #'
-#' @return Returns the data matrix if present (i.e.) not 0x0. Otherwise, returns an
-#' appropriately sized empty sparse matrix
+#' @return Returns the data matrix if present (i.e.) not 0x0. Otherwise,
+#' returns an appropriately sized empty sparse matrix
 #'
 #' @importFrom methods as
 #' @importFrom Matrix Matrix
