@@ -9,7 +9,7 @@ NULL
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' The Dimmensional Reduction Class
+#' The Dimensional Reduction Class
 #'
 #' The DimReduc object stores a dimensionality reduction taken out in Seurat;
 #' each DimReduc consists of a cell embeddings matrix, a feature loadings
@@ -22,7 +22,8 @@ NULL
 #' @slot global Is this \code{DimReduc} global/persistent? If so, it will not be
 #' removed when removing its associated assay
 #' @slot stdev A vector of standard deviations
-#' @slot key Key for the \code{DimReduc}, must be alphanumerics followed by an underscore
+#' @slot key Key for the \code{DimReduc}, must be alphanumeric characters
+#' followed by an underscore
 #' @slot jackstraw A \code{\link{JackStrawData-class}} object associated with
 #' this \code{DimReduc}
 #' @slot misc Utility slot for storing additional data associated with the
@@ -176,69 +177,6 @@ CreateDimReducObject <- function(
     misc = misc
   )
   return(dim.reduc)
-}
-
-#' Top Cells and Features
-#'
-#' Find cells and features with highest scores for a given dimensional
-#' reduction technique
-#'
-#' @param object DimReduc object
-#' @param dim Dimension to use
-#' @param ncells/nfeatures Number of cells and features to return
-#' @param balanced Return an equal number of cells with both + and - scores.
-#' @param ... Extra parameters passed to \code{\link{Embeddings}} or
-#' \code{\link{Loadings}}
-#'
-#' @return Returns a vector of cells or features
-#'
-#' @name TopN
-#' @rdname TopN
-#'
-#' @export
-#'
-#' @concept unsorted
-#'
-#' @examples
-#' pbmc_small
-#' head(TopCells(object = pbmc_small[["pca"]]))
-#' # Can specify which dimension and how many cells to return
-#' TopCells(object = pbmc_small[["pca"]], dim = 2, ncells = 5)
-#'
-TopCells <- function(object, dim = 1, ncells = 20, balanced = FALSE, ...) {
-  embeddings <- Embeddings(object = object, ...)[, dim, drop = FALSE]
-  return(Top(
-    data = embeddings,
-    num = ncells,
-    balanced = balanced
-  ))
-}
-
-#' @param projected Use the projected feature loadings
-#'
-#' @rdname TopN
-#' @export
-#'
-#' @examples
-#' pbmc_small
-#' TopFeatures(object = pbmc_small[["pca"]], dim = 1)
-#' # After projection:
-#' TopFeatures(object = pbmc_small[["pca"]], dim = 1,  projected = TRUE)
-#'
-TopFeatures <- function(
-  object,
-  dim = 1,
-  nfeatures = 20,
-  projected = FALSE,
-  balanced = FALSE,
-  ...
-) {
-  loadings <- Loadings(object = object, projected = projected, ...)[, dim, drop = FALSE]
-  return(Top(
-    data = loadings,
-    num = nfeatures,
-    balanced = balanced
-  ))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -521,7 +459,7 @@ NULL
 
 #' @describeIn DimReduc-methods Pull cell embeddings
 #'
-#' @return \code{[[}: Cell mebeddings for cells \code{i} and dimensions \code{j}
+#' @return \code{[[}: Cell embeddings for cells \code{i} and dimensions \code{j}
 #'
 #' @export
 #' @method [[ DimReduc
@@ -585,6 +523,58 @@ dimnames.DimReduc <- function(x) {
 #'
 length.DimReduc <- function(x) {
   return(ncol(x = Embeddings(object = x)))
+}
+
+#' @describeIn DimReduc-methods Merge two or more \code{DimReduc} objects
+#' together
+#'
+#' @export
+#' @method merge DimReduc
+#'
+merge.DimReduc <- function(
+  x = NULL,
+  y = NULL,
+  add.cell.ids = NULL,
+  ...
+) {
+  CheckDots(...)
+  drs <- c(x, y)
+  if (!is.null(x = add.cell.ids)) {
+    for (i in 1:length(x = drs)) {
+      drs[[i]] <- RenameCells(object = drs[[i]], new.names = add.cell.ids[i])
+    }
+  }
+  embeddings.mat <- list()
+  min.dim <- c()
+  for (i in 1:length(x = drs)) {
+    embeddings.mat[[i]] <- Embeddings(object = drs[[i]])
+    min.dim <- c(min.dim, ncol(x = embeddings.mat[[i]]))
+  }
+  if (length(x = unique(x = min.dim)) > 1) {
+    min.dim <- min(min.dim)
+    warning(
+      "Reductions contain differing numbers of dimensions, merging first ",
+      min.dim,
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    embeddings.mat <- lapply(
+      X = embeddings.mat,
+      FUN = function(x) {
+        return(x[, 1:min.dim])
+      }
+    )
+  }
+  embeddings.mat <- do.call(what = rbind, args = embeddings.mat)
+  merged.dr <- CreateDimReducObject(
+    embeddings = embeddings.mat,
+    loadings = Loadings(object = drs[[1]], projected = FALSE),
+    projected = Loadings(object = drs[[1]], projected = TRUE),
+    assay = DefaultAssay(object = drs[[1]]),
+    key = Key(object = drs[[1]]),
+    global = IsGlobal(object = drs[[1]])
+  )
+  return(merged.dr)
 }
 
 #' @describeIn DimReduc-methods The dimension names for a \code{DimReduc} object
@@ -680,7 +670,8 @@ print.DimReduc <- function(
 #'
 #' @param cells,features Cells and features to keep during the subset
 #'
-#' @return \code{subset}: \code{x} for cells \code{cells} and features \code{features}
+#' @return \code{subset}: \code{x} for cells \code{cells} and features
+#' \code{features}
 #'
 #' @export
 #' @method subset DimReduc
@@ -778,20 +769,10 @@ setMethod(
 #'
 #' @param object a DimReduc object
 #'
-#' @return TRUE if proejcted loadings have been set, else FALSE
+#' @return TRUE if projected loadings have been set, else FALSE
 #'
 #' @keywords internal
 #'
 Projected <- function(object) {
-  projected.dims <- dim(x = slot(
-    object = object,
-    name = 'feature.loadings.projected'
-  ))
-  if (all(projected.dims == 1)) {
-    return(!all(is.na(x = slot(
-      object = object,
-      name = 'feature.loadings.projected'
-    ))))
-  }
-  return(!all(projected.dims == 0))
+  return(!IsMatrixEmpty(x = Loadings(object = object, projected = TRUE)))
 }
