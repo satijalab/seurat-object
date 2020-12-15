@@ -29,6 +29,10 @@ Graph <- setClass(
 )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Functions
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -70,6 +74,34 @@ as.Graph.Matrix <- function(x, ...) {
 #'
 as.Graph.matrix <- as.Graph.Matrix
 
+#' @param weighted If TRUE, fill entries in Graph matrix with value from the
+#' nn.dist slot of the Neighbor object
+#'
+#' @rdname as.Graph
+#' @export
+#' @method as.Graph Neighbor
+#'
+as.Graph.Neighbor <- function(x, weighted = TRUE, ...) {
+  CheckDots(...)
+  j <- as.integer(x = Indices(object = x) - 1)
+  i <- as.integer(x = rep(x = (1:nrow(x = x)) - 1, times = ncol(x = x)))
+  vals <- if (weighted) {
+    as.vector(x = Distances(object = x))
+  } else {
+    1
+  }
+  graph <- new(
+    Class = "dgTMatrix",
+    i = i,
+    j = j,
+    x = vals,
+    Dim = as.integer(x = c(nrow(x = x), nrow(x = x)))
+  )
+  colnames(x = graph) <- rownames(x = graph) <- Cells(x = x)
+  graph <- as.Graph.Matrix(x = graph)
+  return(graph)
+}
+
 #' @rdname DefaultAssay
 #' @export
 #' @method DefaultAssay Graph
@@ -88,3 +120,15 @@ DefaultAssay.Graph <- function(object, ...) {
   slot(object = object, name = 'assay.used') <- value
   return(object)
 }
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Methods for R-defined generics
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# S4 methods
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Internal
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
