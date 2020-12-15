@@ -228,7 +228,7 @@ NULL
   return(slot(object = x, name = i))
 }
 
-#' @describeIn SeuratCommand-methods Coerce a SeuratCommand to a list
+#' @describeIn SeuratCommand-methods Coerce a \code{SeuratCommand} to a list
 #'
 #' @param complete Include slots besides just parameters
 #' (eg. call string, name, timestamp)
