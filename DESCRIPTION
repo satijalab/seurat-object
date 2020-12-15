@@ -27,13 +27,17 @@ RoxygenNote: 7.1.1
 Depends:
   R (>= 3.5.0)
 Imports:
-  Matrix (>= 1.2.18),
-  methods,
-  plotly (>= 4.9.2),
-  rlang (>= 0.4.7),
-  stats,
-  utils
+    grDevices,
+    grid,
+    Matrix (>= 1.2.18),
+    methods,
+    Rcpp (>= 1.0.5),
+    rlang (>= 0.4.7),
+    stats,
+    tools,
+    utils
 Collate: 
+    'RcppExports.R'
     'utils.R'
     'zzz.R'
     'generics.R'
@@ -43,5 +47,9 @@ Collate:
     'jackstraw.R'
     'dimreduc.R'
     'graph.R'
+    'neighbor.R'
     'spatial.R'
     'seurat.R'
+LinkingTo: 
+    Rcpp,
+    RcppEigen
