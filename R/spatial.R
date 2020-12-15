@@ -1,6 +1,6 @@
 #' @include zzz.R
 #' @include generics.R
-#' @importFrom methods setOldClass setClass slot slot<- new
+#' @importFrom methods setClass slot slot<- new
 #'
 NULL
 
@@ -55,14 +55,20 @@ SpatialImage <- setClass(
 #' @param ... Arguments passed to other methods
 #'
 #' @section Provided methods:
-#' These methods are defined on the \code{SpatialImage} object and should not be
-#' overridden without careful thought
+#' These methods are defined on the \code{SpatialImage} object and should not
+#' be overridden without careful thought
 #' \itemize{
 #'   \item \code{\link{DefaultAssay}} and \code{\link{DefaultAssay<-}}
 #'   \item \code{\link{Key}} and \code{\link{Key<-}}
+#'   \item{\code{\link{GetImage}}}; this method \emph{can} be overridden to
+#'   provide image data, normally returns empty image data. If overridden,
+#'   should default to returning a  \code{\link[grid]{grob}} object
 #'   \item \code{\link{IsGlobal}}
-#'   \item \code{\link{Radius}}; this method \emph{can} be overridden to provide
-#'   a spot radius for image objects
+#'   \item \code{\link{Radius}}; this method \emph{can} be overridden to
+#'   provide a spot radius for image objects
+#'   \item \code{\link[base:Extract]{[}}; this method \emph{can} be overridden
+#'   to change default subset behavior, normally returns
+#'   \code{subset(x = x, cells = i)}. If overridden, should only accept \code{i}
 #' }
 #'
 #' @section Required methods:
@@ -77,12 +83,10 @@ SpatialImage <- setClass(
 #'   \item{\code{\link{dim}}}{
 #'    Return the dimensions of the image for plotting in \code{(Y, X)} format
 #'   }
-#'   \item{\code{\link{GetImage}}}{
-#'    Return image data; by default, must return a grob object
-#'   }
 #'   \item{\code{\link{GetTissueCoordinates}}}{
-#'    Return tissue coordinates; by default, must return a two-column data.frame
-#'    with x-coordinates in the first column and y-coordiantes in the second
+#'    Return tissue coordinates; by default, must return a two-column
+#'    \code{data.frame} with x-coordinates in the first column and
+#'    y-coordinates in the second
 #'   }
 #'   \item{\code{\link{Radius}}}{
 #'    Return the spot radius; returns \code{NULL} by default for use with
@@ -91,9 +95,8 @@ SpatialImage <- setClass(
 #'   \item{\code{\link{RenameCells}}}{
 #'    Rename the cell/spot barcodes for this image
 #'   }
-#'   \item{\code{\link{subset}} and \code{[}}{
-#'    Subset the image data by cells/spots; \code{[} should only take \code{i}
-#'    for subsetting by cells/spots
+#'   \item{\code{\link{subset}}}{
+#'    Subset the image data by cells/spots
 #'   }
 #' }
 #' These methods are used throughout Seurat, so defining them and setting the
@@ -152,7 +155,7 @@ DefaultAssay.SpatialImage <- function(object, ...) {
 }
 
 #' @describeIn SpatialImage-methods Get the image data from a
-#' \code{SpatialImage}-derived object (\strong{[Override]})
+#' \code{SpatialImage}-derived object
 #'
 #' @inheritParams GetImage
 #'
@@ -169,11 +172,7 @@ GetImage.SpatialImage <- function(
   mode = c('grob', 'raster', 'plotly', 'raw'),
   ...
 ) {
-  mode <- match.arg(arg = mode)
-  stop(
-    "'GetImage' must be implemented for all subclasses of 'SpatialImage'",
-    call. = FALSE
-  )
+  return(NullImage(mode = mode))
 }
 
 #' @describeIn SpatialImage-methods Get tissue coordinates for a
@@ -240,23 +239,6 @@ Key.SpatialImage <- function(object, ...) {
   return(object)
 }
 
-#' @describeIn SpatialImage-methods Get the radius of spots for a
-#' \code{SpatialImage}-derived object. \strong{Note}: this method should be
-#' overridden for spot-based technologies. For non-spot technologies, this
-#' method does \emph{not} need to be overridden
-#'
-#' @return \code{Radius}: by default, returns \code{NULL}; for overridden
-#' methods, returns the radius of the spot
-#'
-#' @method Radius SpatialImage
-#' @export
-#'
-#' @seealso \code{\link{Radius}}
-#'
-Radius.SpatialImage <- function(object) {
-  return(NULL)
-}
-
 #' @describeIn SpatialImage-methods Rename cells in a
 #' \code{SpatialImage}-derived object (\strong{[Override]})
 #'
@@ -280,21 +262,17 @@ RenameCells.SpatialImage <- function(object, new.names = NULL, ...) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @describeIn SpatialImage-methods Subset a \code{SpatialImage}-derived object
-#' (\strong{[Override]})
 #'
 #' @param i,cells A vector of cells to keep
 #'
-#' @return \strong{[Override]} \code{[}, \code{subset}: \code{x}/\code{object}
-#' for only the cells requested
+#' @return \code{[}, \code{subset}: \code{x}/\code{object} for only the cells
+#' requested
 #'
 #' @method [ SpatialImage
 #' @export
 #'
 "[.SpatialImage" <- function(x, i, ...) {
-  stop(
-    "'[' must be implemented for all subclasses of 'SpatialImage'",
-    call. = FALSE
-  )
+  return(subset(x = x, cells = i))
 }
 
 #' @describeIn SpatialImage-methods Get the plotting dimensions of an image
@@ -361,15 +339,24 @@ setMethod(
 
 #' Return a null image
 #'
-#' @param mode Image representation to return
-#' see \code{\link{GetImage}} for more details
+#' @inheritParams GetImage
+#'
+#' @return Varies by value of \code{mode}:
+#' \describe{
+#'  \item{\dQuote{grob}}{a \code{\link[grid]{nullGrob}}}
+#'  \item{\dQuote{raster}}{an empty \code{\link[grDevices:as.raster]{raster}}}
+#'  \item{\dQuote{plotly}}{a list with one named item: \code{value = FALSE}}
+#'  \item{\dQuote{raw}}{returns \code{NULL}}
+#' }
 #'
 #' @importFrom grid nullGrob
 #' @importFrom grDevices as.raster
 #'
 #' @keywords internal
 #'
-NullImage <- function(mode) {
+NullImage <- function(mode = c('grob', 'raster', 'plotly', 'raw')) {
+  mode <- mode[1]
+  mode <- match.arg(arg = mode)
   image <- switch(
     EXPR = mode,
     'grob' = nullGrob(),
