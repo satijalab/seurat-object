@@ -55,6 +55,18 @@ as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
 }
 
+#' Convert objects to Neighbor objects
+#'
+#' @param x An object to convert to \code{Neighbor}
+#' @param ... Arguments passed to other methods
+#'
+#' @rdname as.Neighbor
+#' @export as.Neighbor
+#'
+as.Neighbor <- function(x, ...) {
+  UseMethod(generic = 'as.Neighbor', object = x)
+}
+
 #' Convert objects to Seurat objects
 #'
 #' @param x An object to convert to class \code{Seurat}
@@ -67,24 +79,6 @@ as.Graph <- function(x, ...) {
 #'
 as.Seurat <- function(x, ...) {
   UseMethod(generic = 'as.Seurat', object = x)
-}
-
-#' Cast to Sparse
-#'
-#' Convert dense objects to sparse representations
-#'
-#' @param x An object
-#' @param ... Arguments passed to other methods
-#'
-#' @return A sparse representation of the input data
-#'
-#' @rdname as.sparse
-#' @export as.sparse
-#'
-#' @concept conversion
-#'
-as.sparse <- function(x, ...) {
-  UseMethod(generic = 'as.sparse', object = x)
 }
 
 #' Get cells present in an object
@@ -112,7 +106,7 @@ Cells <- function(x) {
 #' @param object An object
 #' @param ... Arguments passed to other methods
 #'
-#' @return Either a SeuratCommand object or the requested paramter value
+#' @return Either a SeuratCommand object or the requested parameter value
 #'
 #' @rdname Command
 #' @export Command
@@ -208,6 +202,18 @@ DefaultAssay <- function(object, ...) {
   UseMethod(generic = 'DefaultAssay<-', object = object)
 }
 
+#' Get the Neighbor nearest neighbors distance matrix
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @rdname Distances
+#' @export Distances
+#'
+Distances <- function(object, ...) {
+  UseMethod(generic = 'Distances', object = object)
+}
+
 #' Get cell embeddings
 #'
 #' @param object An object
@@ -220,22 +226,6 @@ DefaultAssay <- function(object, ...) {
 #'
 Embeddings <- function(object, ...) {
   UseMethod(generic = 'Embeddings', object = object)
-}
-
-#' Get an Assay object from a given Seurat object.
-#'
-#' @param object An object
-#' @param ... Arguments passed to other methods
-#'
-#' @return Returns an Assay object
-#'
-#' @rdname GetAssay
-#' @export GetAssay
-#'
-#' @concept data-access
-#'
-GetAssay <- function(object, ...) {
-  UseMethod(generic = 'GetAssay', object = object)
 }
 
 #' General accessor function for the Assay class
@@ -367,6 +357,45 @@ Idents <- function(object, ... ) {
 #'
 "Idents<-" <- function(object, ..., value) {
   UseMethod(generic = 'Idents<-', object = object)
+}
+
+#' Get Neighbor algorithm index
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods;
+#'
+#' @return Returns the value in the alg.idx slot of the Neighbor object
+#'
+#' @rdname Index
+#' @export Index
+#'
+Index <- function(object, ...) {
+  UseMethod(generic = "Index", object = object)
+}
+
+#' @param value The index to store
+#'
+#' @return \code{Idents<-}: A Neighbor bject with the index stored
+#'
+#' @rdname Index
+#' @export Index<-
+#'
+"Index<-" <- function(object, ..., value) {
+  UseMethod(generic = 'Index<-', object = object)
+}
+
+#' Get Neighbor nearest neighbor index matrices
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods;
+#'
+#' @return A matrix with the nearest neighbor indices
+#'
+#' @rdname Indices
+#' @export Indices
+#'
+Indices <- function(object, ...) {
+  UseMethod(generic = "Indices", object = object)
 }
 
 #' Is an object global/persistent?
@@ -519,21 +548,6 @@ Project <- function(object, ...) {
   UseMethod(generic = 'Project<-', object = object)
 }
 
-#' Get the spot radius from an image
-#'
-#' @param object An image object
-#'
-#' @return The radius size
-#'
-#' @rdname Radius
-#' @export Radius
-#'
-#' @concept unsorted
-#'
-Radius <- function(object) {
-  UseMethod(generic = 'Radius', object = object)
-}
-
 #' Rename cells
 #'
 #' Change the cell names in all the different parts of an object. Can be useful
@@ -587,22 +601,6 @@ RenameIdents <- function(object, ...) {
 #'
 ReorderIdent <- function(object, var, ...) {
   UseMethod(generic = 'ReorderIdent', object = object)
-}
-
-#' Get image scale factors
-#'
-#' @param object An object to get scale factors from
-#' @param ... Arguments passed to other methods
-#'
-#' @return An object of class \code{scalefactors}
-#'
-#' @rdname ScaleFactors
-#' @export ScaleFactors
-#'
-#' @concept spatial
-#'
-ScaleFactors <- function(object, ...) {
-  UseMethod(generic = 'ScaleFactors', object = object)
 }
 
 #' Setter for multimodal data
