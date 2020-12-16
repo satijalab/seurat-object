@@ -627,15 +627,19 @@ print.DimReduc <- function(
     }
     if (max(dims) > ncol(x = loadings)) {
       warning("Only ", ncol(x = loadings), " dimensions have been computed.")
-      # dims <- min(dims):ncol(x = loadings)
       dims <- intersect(x = dims, y = seq_len(length.out = ncol(x = loadings)))
     }
     for (dim in dims) {
-      features <- TopFeatures(
-        object = x,
-        dim = dim,
-        nfeatures = nfeatures * 2,
-        projected = projected,
+      # features <- TopFeatures(
+      #   object = x,
+      #   dim = dim,
+      #   nfeatures = nfeatures * 2,
+      #   projected = projected,
+      #   balanced = TRUE
+      # )
+      features <- Top(
+        data = loadings[, dim, drop = FALSE],
+        num = nfeatures * 2,
         balanced = TRUE
       )
       cat(Key(object = x), dim, '\n')
