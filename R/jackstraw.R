@@ -84,6 +84,7 @@ JS.JackStrawData <- function(object, slot, ...) {
 #' other packages
 #'
 #' @param x,object A \code{\link{JackStrawData}} object
+#' @param ... Ignored
 #'
 #' @name JackStrawData-methods
 #' @rdname JackStrawData-methods
