@@ -33,6 +33,7 @@ Imports:
     methods,
     Rcpp (>= 1.0.5),
     rlang (>= 0.4.7),
+    sctransform,
     stats,
     tools,
     utils
