@@ -224,23 +224,60 @@ starting from 1 (default is FALSE)</p></td>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Get cell identity classes</span>
 <span class='fu'>Idents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in Idents(object = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt; ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA 
+#&gt;              0              0              0              0              0 
+#&gt; TCTGATACACGTGT TGGTATCTAAACAG GCAGCTCTGTTTCT GATATAACACGCAT AATGTTGACAGTCA 
+#&gt;              0              0              0              0              0 
+#&gt; AGGTCATGAGTGTC AGAGATGATCTCGC GGGTAACTCTAGTG CATGAGACACGGGA TACGCCACTCCGAA 
+#&gt;              2              2              2              2              2 
+#&gt; CTAAACCTGTGCAT GTAAGCACTCATTC TTGGTACTGAATCC CATCATACGGAGCA TACATCACGCTAAC 
+#&gt;              2              2              2              2              2 
+#&gt; TTACCATGAATCGC ATAGGAGAAACAGA GCGCACGACTTTAC ACTCGCACGAAAGT ATTACCTGCCTTAT 
+#&gt;              1              1              1              1              1 
+#&gt; CCCAACTGCAATCG AAATTCGAATCACG CCATCCGATTCGCC TCCACTCTGAGCTT CATCAGGATGCACA 
+#&gt;              1              1              1              1              1 
+#&gt; CTAAACCTCTGACA GATAGAGAAGGGTG CTAACGGAACCGAT AGATATACCCGTAA TACTCTGAATCGAC 
+#&gt;              0              2              0              0              0 
+#&gt; GCGCATCTTGCTCC GTTGACGATATCGG ACAGGTACTGGTGT GGCATATGCTTATC CATTACACCAACTG 
+#&gt;              0              0              0              0              0 
+#&gt; TAGGGACTGAACTC GCTCCATGAGAAGT TACAATGATGCTAG CTTCATGACCGAAT CTGCCAACAGGAGC 
+#&gt;              0              2              0              0              2 
+#&gt; TTGCATTGAGCTAC AAGCAAGAGCTTAG CGGCACGAACTCAG GGTGGAGATTACTC GGCCGATGTACTCT 
+#&gt;              2              0              0              0              0 
+#&gt; CGTAGCCTGTATGC TGAGCTGAATGCTG CCTATAACGAGACG ATAAGTTGGTACGT AAGCGACTTTGACG 
+#&gt;              1              1              2              1              1 
+#&gt; ACCAGTGAATACCG ATTGCACTTGCTTT CTAGGTGATGGTTG GCACTAGACCTTTA CATGCGCTAGTCAC 
+#&gt;              1              1              1              1              0 
+#&gt; TTGAGGACTACGCA ATACCACTCTAAGC CATATAGACTAAGC TTTAGCTGTACTCT GACATTCTCCACCT 
+#&gt;              2              1              2              1              2 
+#&gt; ACGTGATGCCATGA ATTGTAGATTCCCG GATAGAGATCACGA AATGCGTGGACGGA GCGTAAACACGGTT 
+#&gt;              1              1              1              1              2 
+#&gt; ATTCAGCTCATTGG GGCATATGGGGAGT ATCATCTGACACCA GTCATACTTCGCCT TTACGTACGTTCAG 
+#&gt;              0              0              0              0              0 
+#&gt; GAGTTGTGGTAGCT GACGCTCTCTCTCG AGTCTTACTTCGGA GGAACACTTCAGAC CTTGATTGATCTTC 
+#&gt;              0              0              0              0              1 
+#&gt; Levels: 0 1 2</div><div class='input'>
 <span class='co'># Set cell identity classes</span>
 <span class='co'># Can be used to set identities for specific cells to a new level</span>
 <span class='fu'>Idents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, cells <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='st'>'a'</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in Idents(object = pbmc_small, cells = 1:4) &lt;- "a": object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'>Idents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in Idents(object = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'>Idents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA 
+#&gt;              a              a              a              a              0 
+#&gt; TCTGATACACGTGT 
+#&gt;              0 
+#&gt; Levels: a 0 1 2</div><div class='input'>
 <span class='co'># Can also set idents from a value in object metadata</span>
 <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>[[</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in is.data.frame(x): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'>Idents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='st'>'RNA_snn_res.1'</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in Idents(object = pbmc_small) &lt;- "RNA_snn_res.1": object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in levels(x = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt; [1] "orig.ident"      "nCount_RNA"      "nFeature_RNA"    "RNA_snn_res.0.8"
+#&gt; [5] "letter.idents"   "groups"          "RNA_snn_res.1"  </div><div class='input'><span class='fu'>Idents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='st'>'RNA_snn_res.1'</span>
+<span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "0" "1" "2"</div><div class='input'>
 <span class='co'># Rename cell identity classes</span>
 <span class='co'># Can provide an arbitrary amount of idents to rename</span>
 <span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in levels(x = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'><span class='va'>pbmc_small</span> <span class='op'>&lt;-</span> <span class='fu'>RenameIdents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, <span class='st'>'0'</span> <span class='op'>=</span> <span class='st'>'A'</span>, <span class='st'>'2'</span> <span class='op'>=</span> <span class='st'>'C'</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in RenameIdents(object = pbmc_small, `0` = "A", `2` = "C"): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in levels(x = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt; [1] "0" "1" "2"</div><div class='input'><span class='va'>pbmc_small</span> <span class='op'>&lt;-</span> <span class='fu'>RenameIdents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, <span class='st'>'0'</span> <span class='op'>=</span> <span class='st'>'A'</span>, <span class='st'>'2'</span> <span class='op'>=</span> <span class='st'>'C'</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "A" "C" "1"</div><div class='input'>
 <span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'>Idents</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
 <span class='va'>pbmc_small</span> <span class='op'>&lt;-</span> <span class='fu'>ReorderIdent</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, var <span class='op'>=</span> <span class='st'>'PC_1'</span><span class='op'>)</span>
@@ -249,20 +286,47 @@ starting from 1 (default is FALSE)</p></td>
 
 <span class='co'># Set cell identity classes using SetIdent</span>
 <span class='va'>cells.use</span> <span class='op'>&lt;-</span> <span class='fu'><a href='WhichCells.html'>WhichCells</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='st'>'1'</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in WhichCells(object = pbmc_small, idents = "1"): object 'pbmc_small' not found</span></div><div class='input'><span class='va'>pbmc_small</span> <span class='op'>&lt;-</span> <span class='fu'>SetIdent</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, cells <span class='op'>=</span> <span class='va'>cells.use</span>, value <span class='op'>=</span> <span class='st'>'B'</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in SetIdent(object = pbmc_small, cells = cells.use, value = "B"): object 'pbmc_small' not found</span></div><div class='input'>
+<span class='va'>pbmc_small</span> <span class='op'>&lt;-</span> <span class='fu'>SetIdent</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, cells <span class='op'>=</span> <span class='va'>cells.use</span>, value <span class='op'>=</span> <span class='st'>'B'</span><span class='op'>)</span>
+
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>[[</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in head(x = pbmc_small[[]]): object 'pbmc_small' not found</span></div><div class='input'><span class='va'>pbmc_small</span> <span class='op'>&lt;-</span> <span class='fu'>StashIdent</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, save.name <span class='op'>=</span> <span class='st'>'idents'</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in StashIdent(object = pbmc_small, save.name = "idents"): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>[[</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in head(x = pbmc_small[[]]): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt;                   orig.ident nCount_RNA nFeature_RNA RNA_snn_res.0.8
+#&gt; ATGCCAGAACGACT SeuratProject         70           47               0
+#&gt; CATGGCCTGTGCAT SeuratProject         85           52               0
+#&gt; GAACCTGATGAACC SeuratProject         87           50               1
+#&gt; TGACTGGATTCTCA SeuratProject        127           56               0
+#&gt; AGTCAGACTGCACA SeuratProject        173           53               0
+#&gt; TCTGATACACGTGT SeuratProject         70           48               0
+#&gt;                letter.idents groups RNA_snn_res.1
+#&gt; ATGCCAGAACGACT             A     g2             0
+#&gt; CATGGCCTGTGCAT             A     g1             0
+#&gt; GAACCTGATGAACC             B     g2             0
+#&gt; TGACTGGATTCTCA             A     g2             0
+#&gt; AGTCAGACTGCACA             A     g2             0
+#&gt; TCTGATACACGTGT             A     g1             0</div><div class='input'><span class='va'>pbmc_small</span> <span class='op'>&lt;-</span> <span class='fu'>StashIdent</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, save.name <span class='op'>=</span> <span class='st'>'idents'</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>With Seurat 3.X, stashing identity classes can be accomplished with the following:</span>
+#&gt; <span class='message'>pbmc_small[["idents"]] &lt;- Idents(object = pbmc_small)</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>[[</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                   orig.ident nCount_RNA nFeature_RNA RNA_snn_res.0.8
+#&gt; ATGCCAGAACGACT SeuratProject         70           47               0
+#&gt; CATGGCCTGTGCAT SeuratProject         85           52               0
+#&gt; GAACCTGATGAACC SeuratProject         87           50               1
+#&gt; TGACTGGATTCTCA SeuratProject        127           56               0
+#&gt; AGTCAGACTGCACA SeuratProject        173           53               0
+#&gt; TCTGATACACGTGT SeuratProject         70           48               0
+#&gt;                letter.idents groups RNA_snn_res.1 idents
+#&gt; ATGCCAGAACGACT             A     g2             0      A
+#&gt; CATGGCCTGTGCAT             A     g1             0      A
+#&gt; GAACCTGATGAACC             B     g2             0      A
+#&gt; TGACTGGATTCTCA             A     g2             0      A
+#&gt; AGTCAGACTGCACA             A     g2             0      A
+#&gt; TCTGATACACGTGT             A     g1             0      A</div><div class='input'>
 <span class='co'># Get the levels of identity classes of a Seurat object</span>
 <span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in levels(x = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt; [1] "B" "A" "C"</div><div class='input'>
 <span class='co'># Reorder identity classes</span>
 <span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in levels(x = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'C'</span>, <span class='st'>'A'</span>, <span class='st'>'B'</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in levels(x = pbmc_small) &lt;- c("C", "A", "B"): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in levels(x = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt; [1] "B" "A" "C"</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'C'</span>, <span class='st'>'A'</span>, <span class='st'>'B'</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "C" "A" "B"</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

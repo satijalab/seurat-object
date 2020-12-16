@@ -342,21 +342,42 @@ with _X, where X is the numeric index of the object in c(x, y).</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># `[' examples</span>
 <span class='va'>pbmc_small</span><span class='op'>[</span><span class='fu'><a href='VariableFeatures.html'>VariableFeatures</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>, <span class='op'>]</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'pbmc_small' not found</span></div><div class='input'><span class='va'>pbmc_small</span><span class='op'>[</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span><span class='op'>]</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 20 features across 80 samples within 1 assay 
+#&gt; Active assay: RNA (20 features, 20 variable features)
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='va'>pbmc_small</span><span class='op'>[</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span><span class='op'>]</span>
+</div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 230 features across 10 samples within 1 assay 
+#&gt; Active assay: RNA (230 features, 20 variable features)
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'>
 <span class='co'># `merge' examples</span>
 <span class='co'># merge two objects</span>
 <span class='fu'>merge</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in merge(x = pbmc_small, y = pbmc_small): object 'pbmc_small' not found</span></div><div class='input'><span class='co'># to merge more than two objects, pass one to x and a list of objects to y</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.</span></div><div class='output co'>#&gt; <span class='error'>Error in packageVersion(pkg = "Seurat"): there is no package called ‘Seurat’</span></div><div class='input'><span class='co'># to merge more than two objects, pass one to x and a list of objects to y</span>
 <span class='fu'>merge</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>pbmc_small</span>, <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in merge(x = pbmc_small, y = c(pbmc_small, pbmc_small)): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.</span></div><div class='output co'>#&gt; <span class='error'>Error in packageVersion(pkg = "Seurat"): there is no package called ‘Seurat’</span></div><div class='input'>
 <span class='co'># `subset' examples</span>
 <span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>4</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in subset(x = pbmc_small, subset = MS4A1 &gt; 4): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>`DLGAP1-AS1`</span> <span class='op'>&gt;</span> <span class='fl'>2</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in subset(x = pbmc_small, subset = `DLGAP1-AS1` &gt; 2): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='st'>'0'</span>, invert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in subset(x = pbmc_small, idents = "0", invert = TRUE): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>3</span>, slot <span class='op'>=</span> <span class='st'>'counts'</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in subset(x = pbmc_small, subset = MS4A1 &gt; 3, slot = "counts"): object 'pbmc_small' not found</span></div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, features <span class='op'>=</span> <span class='fu'><a href='VariableFeatures.html'>VariableFeatures</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in subset(x = pbmc_small, features = VariableFeatures(object = pbmc_small)): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 230 features across 10 samples within 1 assay 
+#&gt; Active assay: RNA (230 features, 20 variable features)
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>`DLGAP1-AS1`</span> <span class='op'>&gt;</span> <span class='fl'>2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 230 features across 4 samples within 1 assay 
+#&gt; Active assay: RNA (230 features, 20 variable features)
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='st'>'0'</span>, invert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 230 features across 44 samples within 1 assay 
+#&gt; Active assay: RNA (230 features, 20 variable features)
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>3</span>, slot <span class='op'>=</span> <span class='st'>'counts'</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 230 features across 3 samples within 1 assay 
+#&gt; Active assay: RNA (230 features, 20 variable features)
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, features <span class='op'>=</span> <span class='fu'><a href='VariableFeatures.html'>VariableFeatures</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 20 features across 80 samples within 1 assay 
+#&gt; Active assay: RNA (20 features, 20 variable features)
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

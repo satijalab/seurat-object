@@ -146,10 +146,14 @@
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Get the standard deviations for each PC from the DimReduc object</span>
 <span class='fu'>Stdev</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"pca"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in Stdev(object = pbmc_small[["pca"]]): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt;  [1] 2.7868782 1.6145733 1.3162945 1.1241143 1.0347596 0.9876531 0.8501773
+#&gt;  [8] 0.8225654 0.7607182 0.7387425 0.6680697 0.6216919 0.5463279 0.4933780
+#&gt; [15] 0.4639999 0.4404766 0.3246018 0.2762482 0.1704923</div><div class='input'>
 <span class='co'># Get the standard deviations for each PC from the Seurat object</span>
 <span class='fu'>Stdev</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, reduction <span class='op'>=</span> <span class='st'>"pca"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in Stdev(object = pbmc_small, reduction = "pca"): object 'pbmc_small' not found</span></div><div class='input'>
+</div><div class='output co'>#&gt;  [1] 2.7868782 1.6145733 1.3162945 1.1241143 1.0347596 0.9876531 0.8501773
+#&gt;  [8] 0.8225654 0.7607182 0.7387425 0.6680697 0.6216919 0.5463279 0.4933780
+#&gt; [15] 0.4639999 0.4404766 0.3246018 0.2762482 0.1704923</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

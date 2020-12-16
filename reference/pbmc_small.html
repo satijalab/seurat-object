@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Is an object global/persistent? — IsGlobal • SeuratObject</title>
+<title>A small example version of the PBMC dataset — pbmc_small • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,8 @@
 
 
 
-<meta property="og:title" content="Is an object global/persistent? — IsGlobal" />
-<meta property="og:description" content="Typically, when removing Assay objects from an Seurat object,
-all associated objects (eg. DimReduc, Graph, and
-SeuratCommand objects)
-are removed as well. If an associated object is marked as global/persistent,
-the associated object will remain even if its original assay was deleted" />
+<meta property="og:title" content="A small example version of the PBMC dataset — pbmc_small" />
+<meta property="og:description" content="A subsetted version of 10X Genomics' 3k PBMC dataset" />
 
 
 
@@ -112,48 +108,42 @@ the associated object will remain even if its original assay was deleted" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Is an object global/persistent?</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/default.R'><code>R/default.R</code></a>, <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/dimreduc.R'><code>R/dimreduc.R</code></a></small>
-    <div class="hidden name"><code>IsGlobal.Rd</code></div>
+    <h1>A small example version of the PBMC dataset</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <div class="hidden name"><code>pbmc_small.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Typically, when removing <code>Assay</code> objects from an <code>Seurat</code> object,
-all associated objects (eg. <code>DimReduc</code>, <code>Graph</code>, and
-<code>SeuratCommand</code> objects)
-are removed as well. If an associated object is marked as global/persistent,
-the associated object will remain even if its original assay was deleted</p>
+    <p>A subsetted version of 10X Genomics' 3k PBMC dataset</p>
     </div>
 
-    <pre class="usage"><span class='fu'>IsGlobal</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='va'>pbmc_small</span></pre>
 
-<span class='co'># S3 method for default</span>
-<span class='fu'>IsGlobal</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='co'># S3 method for DimReduc</span>
-<span class='fu'>IsGlobal</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>object</th>
-      <td><p>An object</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed to other methods</p></td>
-    </tr>
-    </table>
+    <p>A Seurat object with the following slots filled</p><dl>
+  <dt>assays</dt><dd><p><ul>
+<li><p>counts - Raw expression data</p></li>
+<li><p>data - Normalized expression data</p></li>
+<li><p>scale.data - Scaled expression data</p></li>
+<li><p>var.features - names of the current features selected as variable</p></li>
+<li><p>meta.features - Assay level metadata such as mean and variance</p></li>
+</ul></p></dd>
+  <dt>meta.data</dt><dd><p>Cell level metadata</p></dd>
+  <dt>active.assay</dt><dd><p>Current default assay</p></dd>
+  <dt>active.ident</dt><dd><p>Current default idents</p></dd>
+  <dt>graphs</dt><dd><p>Neighbor graphs computed, currently stores the SNN</p></dd>
+  <dt>reductions</dt><dd><p>Dimensional reductions: currently PCA and tSNE</p></dd>
+  <dt>version</dt><dd><p>Seurat version used to create the object</p></dd>
+  <dt>commands</dt><dd><p>Command history</p></dd>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+</dl>
 
-    <p><code>TRUE</code> if the object is global/persistent otherwise <code>FALSE</code></p>
+    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>IsGlobal</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>'pca'</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
-</div></pre>
+    <p><a href='https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/pbmc3k'>https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/pbmc3k</a></p>
+
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
