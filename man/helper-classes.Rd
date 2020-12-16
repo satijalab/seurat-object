@@ -3,6 +3,9 @@
 \docType{class}
 \name{helper-classes}
 \alias{helper-classes}
+\alias{AnyMatrix}
+\alias{OptionalCharacter}
+\alias{OptionalList}
 \title{Helper Classes}
 \description{
 A suite of helper classes used in S4 class definitions

@@ -24,12 +24,16 @@ SpatiallyVariableFeatures(object, ...)
 )
 }
 \arguments{
+\item{object}{An object}
+
+\item{...}{Arguments passed to other methods}
+
+\item{selection.method}{Method used to set variable features}
+
 \item{decreasing}{Return features in decreasing order (most spatially
 variable first).}
 
-\item{assay}{Name of assay to pull spatially variable features for}
-
-\item{Seurat}{object}
+\item{assay}{Name of assay to pull variable features for}
 }
 \description{
 Get spatially variable feature information

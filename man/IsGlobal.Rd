@@ -8,7 +8,7 @@
 \usage{
 IsGlobal(object, ...)
 
-\method{IsGlobal}{default}(object)
+\method{IsGlobal}{default}(object, ...)
 
 \method{IsGlobal}{DimReduc}(object, ...)
 }

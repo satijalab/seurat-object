@@ -19,8 +19,6 @@ AddMetaData(object, metadata, col.name = NULL)
 \item{metadata}{A vector, list, or data.frame with metadata to add}
 
 \item{col.name}{A name for meta data if not a named list or data.frame}
-
-\item{...}{Arguments passed to other methods}
 }
 \value{
 An object with metadata or and object added

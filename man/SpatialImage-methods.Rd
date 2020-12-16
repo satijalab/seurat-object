@@ -10,6 +10,7 @@
 \alias{IsGlobal.SpatialImage}
 \alias{Key.SpatialImage}
 \alias{Key<-.SpatialImage}
+\alias{Radius.SpatialImage}
 \alias{RenameCells.SpatialImage}
 \alias{[.SpatialImage}
 \alias{dim.SpatialImage}
@@ -33,6 +34,8 @@
 
 \method{Key}{SpatialImage}(object, ...) <- value
 
+\method{Radius}{SpatialImage}(object)
+
 \method{RenameCells}{SpatialImage}(object, new.names = NULL, ...)
 
 \method{[}{SpatialImage}(x, i, ...)
@@ -48,8 +51,17 @@
 
 \item{...}{Arguments passed to other methods}
 
+\item{value}{Depends on the method
+\describe{
+ \itemize{\code{DefaultAssay<-}}{Assay that the image should be
+ associated with}
+ \itemize{\code{Key<-}}{New key for the image}
+}}
+
 \item{mode}{How to return the image; should accept one of 'grob', 'raster',
 'plotly', or 'raw'}
+
+\item{new.names}{vector of new cell names}
 
 \item{i, cells}{A vector of cells to keep}
 }
@@ -73,6 +85,8 @@ global
 \code{Key}: The key for a \code{SpatialImage}-derived object
 
 \code{Key<-}: \code{object} with the key set to \code{value}
+
+\code{Radius}: The spot radius size; by default, returns \code{NULL}
 
 \strong{[Override]} \code{RenameCells}: \code{object} with the new
 cell names
@@ -118,6 +132,8 @@ should only be overridden if necessary
 
 \item \code{Key<-.SpatialImage}: Set the key for a
 \code{SpatialImage}-derived object
+
+\item \code{Radius.SpatialImage}: Get the spot radius size
 
 \item \code{RenameCells.SpatialImage}: Rename cells in a
 \code{SpatialImage}-derived object (\strong{[Override]})

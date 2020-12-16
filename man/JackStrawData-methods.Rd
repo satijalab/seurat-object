@@ -24,6 +24,8 @@
   }
 
 \item{i}{A \code{JackStrawData} slot name}
+
+\item{...}{Ignored}
 }
 \value{
 \code{$}: Slot \code{i} from \code{x}

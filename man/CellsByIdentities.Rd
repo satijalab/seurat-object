@@ -16,7 +16,7 @@ defaults to all identity class levels}
 }
 \value{
 A named list where names are identity classes and values are vectors
-of cells beloning to that class
+of cells belonging to that class
 }
 \description{
 Get cell names grouped by identity class

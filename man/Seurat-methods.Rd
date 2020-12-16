@@ -9,8 +9,18 @@
 \alias{[[.Seurat}
 \alias{dim.Seurat}
 \alias{dimnames.Seurat}
+\alias{merge.Seurat}
+\alias{merge}
+\alias{MergeSeurat}
+\alias{AddSamples}
 \alias{names.Seurat}
+\alias{subset.Seurat}
+\alias{subset}
 \alias{[[<-,Seurat-method}
+\alias{colMeans,Seurat-method}
+\alias{colSums,Seurat-method}
+\alias{rowMeans,Seurat-method}
+\alias{rowSums,Seurat-method}
 \alias{show,Seurat-method}
 \title{Seurat Methods}
 \usage{
@@ -28,9 +38,29 @@
 
 \method{dimnames}{Seurat}(x)
 
+\method{merge}{Seurat}(
+  x = NULL,
+  y = NULL,
+  add.cell.ids = NULL,
+  merge.data = TRUE,
+  merge.dr = NULL,
+  project = "SeuratProject",
+  ...
+)
+
 \method{names}{Seurat}(x)
 
+\method{subset}{Seurat}(x, subset, cells = NULL, features = NULL, idents = NULL, ...)
+
 \S4method{[[}{Seurat}(x, i, j, ...) <- value
+
+\S4method{colMeans}{Seurat}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
+
+\S4method{colSums}{Seurat}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
+
+\S4method{rowMeans}{Seurat}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
+
+\S4method{rowSums}{Seurat}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
 
 \S4method{show}{Seurat}(object)
 }
@@ -51,27 +81,55 @@
   \code{\link{Graph}}, \code{\link{SeuratCommand}}, or
   \code{\link{SpatialImage}} objects
  }
- @param j,cells Cell names or indices
- @param ... Arguments passed to other methods
 }}
+
+\item{...}{Arguments passed to other methods}
 
 \item{value}{Additional metadata or associated objects to add; \strong{note}:
 can pass \code{NULL} to remove metadata or an associated object}
 
+\item{j, cells}{Cell names or indices}
+
 \item{drop}{See \code{\link[base]{drop}}}
+
+\item{y}{A single \code{Seurat} object or a list of \code{Seurat} objects}
+
+\item{add.cell.ids}{A character vector of \code{length(x = c(x, y))};
+appends the corresponding values to the start of each objects' cell names}
+
+\item{merge.data}{Merge the data slots instead of just merging the counts
+(which requires renormalization); this is recommended if the same
+normalization approach was applied to all objects}
+
+\item{merge.dr}{Merge specified DimReducs that are present in all objects;
+will only merge the embeddings slots for the first \code{N} dimensions that
+are shared across all objects.}
+
+\item{project}{\link{Project} name for the \code{Seurat} object}
+
+\item{subset}{Logical expression indicating features/variables to keep}
+
+\item{idents}{A vector of identity classes to keep}
+
+\item{na.rm}{logical.  Should missing values (including \code{NaN})
+    be omitted from the calculations?}
+
+\item{dims}{completely ignored by the \code{Matrix} methods.}
+
+\item{slot}{Specific information to pull (i.e. counts, data, scale.data, ...)}
 }
 \value{
 \code{$}: metadata column \code{i} for object \code{x};
 \strong{note}: unlike \code{[[}, \code{$} drops the shape of the metadata
-to return a vector instead of a dataframe
+to return a vector instead of a data frame
 
 \code{$<-}: object \code{x} with metadata \code{value} saved as
 \code{i}
 
 \code{[}: object \code{x} with features \code{i} and cells \code{j}
 
-\code{[[}: If \code{i} is missing, the metadata dataframe; if
-\code{i} is a vector of metadata names, a dataframe with the requested
+\code{[[}: If \code{i} is missing, the metadata data frame; if
+\code{i} is a vector of metadata names, a data frame with the requested
 metadata, otherwise, the requested associated object
 
 \code{dim}: The number of features (\code{nrow}) and cells
@@ -83,9 +141,13 @@ the same across all assays
 \strong{note}: while the features change depending on the active assay, the
 cell names remain the same across all assays
 
+\code{merge}: Merged object
+
 \code{names}: The names of all \code{\link{Assay}},
 \code{\link{DimReduc}}, \code{\link{Graph}}, and \code{\link{SpatialImage}}
 objects in the \code{Seurat} object
+
+\code{subset}: A subsetted \code{Seurat} object
 
 \code{[[<-}: \code{x} with the metadata or associated objects added
 as \code{i}; if \code{value} is \code{NULL}, removes metadata or associated
@@ -115,16 +177,66 @@ packages
 
 \item \code{dimnames.Seurat}: The cell and feature names for the active assay
 
+\item \code{merge.Seurat}: Merge two or more \code{Seurat} objects together
+
 \item \code{names.Seurat}: Common associated objects
 
+\item \code{subset.Seurat}: Subset a \code{\link{Seurat}} object
+
 \item \code{[[<-,Seurat-method}: Add cell-level metadata or associated objects
+
+\item \code{colMeans,Seurat-method}: Calculate \code{\link[base]{colMeans}} on a
+\code{Seurat} object
+
+\item \code{colSums,Seurat-method}: Calculate \code{\link[base]{colSums}} on a
+\code{Seurat} object
+
+\item \code{rowMeans,Seurat-method}: Calculate \code{\link[base]{rowMeans}} on a
+\code{rowMeans} object
+
+\item \code{rowSums,Seurat-method}: Calculate \code{\link[base]{rowSums}} on a
+\code{Seurat} object
 
 \item \code{show,Seurat-method}: Overview of a \code{Seurat} object
 }}
 
+\section{Merge Details}{
+
+When merging Seurat objects, the merge procedure will merge the Assay level
+counts and potentially the data slots (depending on the merge.data parameter).
+It will also merge the cell-level meta data that was stored with each object
+and preserve the cell identities that were active in the objects pre-merge.
+The merge will optionally merge reductions depending on the values passed to
+\code{merge.dr} if they have the same name across objects. Here the
+embeddings slots will be merged and if there are differing numbers of
+dimensions across objects, only the first N shared dimensions will be merged.
+The feature loadings slots will be filled by the values present in the first
+object.The merge will not preserve graphs, logged commands, or feature-level
+metadata that were present in the original objects. If add.cell.ids isn't
+specified and any cell names are duplicated, cell names will be appended
+with _X, where X is the numeric index of the object in c(x, y).
+}
+
 \examples{
+# `[' examples
 pbmc_small[VariableFeatures(object = pbmc_small), ]
 pbmc_small[, 1:10]
 
+# `merge' examples
+# merge two objects
+merge(x = pbmc_small, y = pbmc_small)
+# to merge more than two objects, pass one to x and a list of objects to y
+merge(x = pbmc_small, y = c(pbmc_small, pbmc_small))
+
+# `subset' examples
+subset(x = pbmc_small, subset = MS4A1 > 4)
+subset(x = pbmc_small, subset = `DLGAP1-AS1` > 2)
+subset(x = pbmc_small, idents = '0', invert = TRUE)
+subset(x = pbmc_small, subset = MS4A1 > 3, slot = 'counts')
+subset(x = pbmc_small, features = VariableFeatures(object = pbmc_small))
+
+}
+\seealso{
+\code{\link[base]{subset}} \code{\link{WhichCells}}
 }
 \concept{seurat}
