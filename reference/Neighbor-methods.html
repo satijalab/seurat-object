@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get the spot radius from an image — Radius • SeuratObject</title>
+<title>Neighbor Methods — Neighbor-methods • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Get the spot radius from an image — Radius" />
-<meta property="og:description" content="Get the spot radius from an image" />
+<meta property="og:title" content="Neighbor Methods — Neighbor-methods" />
+<meta property="og:description" content="Methods for Neighbor objects for generics defined in
+other packages" />
 
 
 
@@ -108,29 +109,43 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get the spot radius from an image</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/generics.R'><code>R/generics.R</code></a></small>
-    <div class="hidden name"><code>Radius.Rd</code></div>
+    <h1><code>Neighbor</code> Methods</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/neighbor.R'><code>R/neighbor.R</code></a></small>
+    <div class="hidden name"><code>Neighbor-methods.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get the spot radius from an image</p>
+    <p>Methods for <code><a href='Neighbor-class.html'>Neighbor</a></code> objects for generics defined in
+other packages</p>
     </div>
 
-    <pre class="usage"><span class='fu'>Radius</span><span class='op'>(</span><span class='va'>object</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='co'># S3 method for Neighbor</span>
+<span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+
+<span class='co'># S4 method for Neighbor</span>
+<span class='fu'>show</span><span class='op'>(</span><span class='va'>object</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>An image object</p></td>
+      <th>x, object</th>
+      <td><p>A <code><a href='Neighbor-class.html'>Neighbor</a></code> object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The radius size</p>
+    <p><code>dim</code> Dimensions of the indices matrix</p>
+<p><code>show</code>: Prints summary to <code><a href='https://rdrr.io/r/base/showConnections.html'>stdout</a></code> and
+invisibly returns <code>NULL</code></p>
+    <h2 class="hasAnchor" id="functions"><a class="anchor" href="#functions"></a>Functions</h2>
+
+    
+<ul>
+<li><p><code>dim.Neighbor</code>: Dimensions of the neighbor indices</p></li>
+<li><p><code>show,Neighbor-method</code>: Overview of a <code>Neighbor</code> object</p></li>
+</ul>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

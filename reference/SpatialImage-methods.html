@@ -150,6 +150,9 @@ Key(object, ...)
 Key(object, ...) &lt;- value
 
 # S3 method for SpatialImage
+Radius(object)
+
+# S3 method for SpatialImage
 RenameCells(object, new.names = NULL, ...)
 
 # S3 method for SpatialImage
@@ -176,9 +179,22 @@ show(object)</pre>
       <td><p>Arguments passed to other methods</p></td>
     </tr>
     <tr>
+      <th>value</th>
+      <td><p>Depends on the method</p><dl>
+ <code>DefaultAssay&lt;-</code>Assay that the image should be
+ associated with
+ <code>Key&lt;-</code>New key for the image
+
+</dl></td>
+    </tr>
+    <tr>
       <th>mode</th>
       <td><p>How to return the image; should accept one of 'grob', 'raster',
 'plotly', or 'raw'</p></td>
+    </tr>
+    <tr>
+      <th>new.names</th>
+      <td><p>vector of new cell names</p></td>
     </tr>
     <tr>
       <th>i, cells</th>
@@ -200,6 +216,7 @@ updated</p>
 global</p>
 <p><code>Key</code>: The key for a <code>SpatialImage</code>-derived object</p>
 <p><code>Key&lt;-</code>: <code>object</code> with the key set to <code>value</code></p>
+<p><code>Radius</code>: The spot radius size; by default, returns <code>NULL</code></p>
 <p><strong>[Override]</strong> <code>RenameCells</code>: <code>object</code> with the new
 cell names</p>
 <p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>, <code>subset</code>: <code>x</code>/<code>object</code> for only the cells
@@ -228,6 +245,7 @@ invisibly returns <code>NULL</code></p>
 <code>SpatialImage</code>-derived object</p></li>
 <li><p><code>Key&lt;-.SpatialImage</code>: Set the key for a
 <code>SpatialImage</code>-derived object</p></li>
+<li><p><code>Radius.SpatialImage</code>: Get the spot radius size</p></li>
 <li><p><code>RenameCells.SpatialImage</code>: Rename cells in a
 <code>SpatialImage</code>-derived object (<strong>[Override]</strong>)</p></li>
 <li><p><code>[.SpatialImage</code>: Subset a <code>SpatialImage</code>-derived object</p></li>
@@ -250,11 +268,11 @@ be overridden without careful thought</p><ul>
   provide image data, normally returns empty image data. If overridden,
   should default to returning a  <code><a href='https://rdrr.io/r/grid/grid.grob.html'>grob</a></code> object</p></li>
 <li><p><code><a href='IsGlobal.html'>IsGlobal</a></code></p></li>
-<li><p><code>Radius</code>; this method <em>can</em> be overridden to
+<li><p><code><a href='Radius.html'>Radius</a></code>; this method <em>can</em> be overridden to
   provide a spot radius for image objects</p></li>
 <li><p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>; this method <em>can</em> be overridden
   to change default subset behavior, normally returns
-  <code><a href='subset.Seurat.html'>subset(x = x, cells = i)</a></code>. If overridden, should only accept <code>i</code></p></li>
+  <code><a href='Seurat-methods.html'>subset(x = x, cells = i)</a></code>. If overridden, should only accept <code>i</code></p></li>
 </ul>
 
     <h2 class="hasAnchor" id="required-methods"><a class="anchor" href="#required-methods"></a>Required methods</h2>
@@ -270,10 +288,10 @@ errors. For required parameters and their values, see the <code>Usage</code> and
   <dt><code><a href='GetTissueCoordinates.html'>GetTissueCoordinates</a></code></dt><dd><p>Return tissue coordinates; by default, must return a two-column
    <code>data.frame</code> with x-coordinates in the first column and
    y-coordinates in the second</p></dd>
-  <dt><code>Radius</code></dt><dd><p>Return the spot radius; returns <code>NULL</code> by default for use with
+  <dt><code><a href='Radius.html'>Radius</a></code></dt><dd><p>Return the spot radius; returns <code>NULL</code> by default for use with
    non-spot image technologies</p></dd>
   <dt><code><a href='RenameCells.html'>RenameCells</a></code></dt><dd><p>Rename the cell/spot barcodes for this image</p></dd>
-  <dt><code><a href='subset.Seurat.html'>subset</a></code></dt><dd><p>Subset the image data by cells/spots</p></dd>
+  <dt><code><a href='Seurat-methods.html'>subset</a></code></dt><dd><p>Subset the image data by cells/spots</p></dd>
 
 </dl><p>These methods are used throughout Seurat, so defining them and setting the
 proper defaults will allow subclasses of <code>SpatialImage</code> to work
