@@ -43,13 +43,13 @@ reference:
     contents:
       - has_concept("data-access")
       - has_concept("unsorted")
+      - has_concept("utils")
   - title: Internal Functions
     contents:
       - has_keyword("internal")
   - title: Package Information
     contents:
       - SeuratObject-package
-
 
 # reference:
 #   - title: Package Information

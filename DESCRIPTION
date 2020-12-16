@@ -46,7 +46,6 @@ Collate:
     'generics.R'
     'assay.R'
     'command.R'
-    'data.R'
     'default.R'
     'jackstraw.R'
     'dimreduc.R'
