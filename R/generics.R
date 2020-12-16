@@ -11,7 +11,6 @@ NULL
 #' feature-level metadata, add to the Assay object (e.g. object[["RNA"]]))
 #'
 #' @inheritParams .AddMetaData
-#' @param ... Arguments passed to other methods
 #'
 #' @return An object with metadata or and object added
 #'
@@ -121,6 +120,7 @@ Command <- function(object, ...) {
 #'
 #' Create a \code{Seurat} object from raw data
 #'
+#' @inheritParams CreateAssayObject
 #' @param counts Either a \code{\link[base]{matrix}}-like object with
 #' unnormalized data with cells as columns and features as rows or an
 #' \code{\link{Assay}}-derived object
@@ -548,6 +548,19 @@ Project <- function(object, ...) {
   UseMethod(generic = 'Project<-', object = object)
 }
 
+#' Get the spot radius from an image
+#'
+#' @param object An image object
+#'
+#' @return The radius size
+#'
+#' @rdname Radius
+#' @export Radius
+#'
+Radius <- function(object) {
+  UseMethod(generic = 'Radius', object = object)
+}
+
 #' Rename cells
 #'
 #' Change the cell names in all the different parts of an object. Can be useful
@@ -635,12 +648,14 @@ SetIdent <- function(object, ...) {
 
 #' Get spatially variable feature information
 #'
+#' @inheritParams VariableFeatures
+#'
 #' @rdname SpatiallyVariableFeatures
 #' @export SpatiallyVariableFeatures
 #'
 #' @concept data-access
 #'
-SpatiallyVariableFeatures <- function(object, ...){
+SpatiallyVariableFeatures <- function(object, ...) {
   UseMethod(generic = 'SpatiallyVariableFeatures', object = object)
 }
 

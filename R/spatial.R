@@ -53,6 +53,13 @@ SpatialImage <- setClass(
 #'
 #' @param x,object A \code{SpatialImage}-derived object
 #' @param ... Arguments passed to other methods
+#' @param value Depends on the method
+#' \describe{
+#'  \itemize{\code{DefaultAssay<-}}{Assay that the image should be
+#'  associated with}
+#'  \itemize{\code{Key<-}}{New key for the image}
+#' }
+#' @inheritParams RenameCells
 #'
 #' @section Provided methods:
 #' These methods are defined on the \code{SpatialImage} object and should not
@@ -237,6 +244,17 @@ Key.SpatialImage <- function(object, ...) {
   value <- UpdateKey(key = value)
   slot(object = object, name = 'key') <- value
   return(object)
+}
+
+#' @describeIn SpatialImage-methods Get the spot radius size
+#'
+#' @return \code{Radius}: The spot radius size; by default, returns \code{NULL}
+#'
+#' @method Radius SpatialImage
+#' @export
+#'
+Radius.SpatialImage <- function(object) {
+  return(NULL)
 }
 
 #' @describeIn SpatialImage-methods Rename cells in a
