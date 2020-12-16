@@ -17,6 +17,6 @@ Cells.default <- function(x) {
 #' @export
 #' @method IsGlobal default
 #'
-IsGlobal.default <- function(object) {
+IsGlobal.default <- function(object, ...) {
   return(FALSE)
 }
