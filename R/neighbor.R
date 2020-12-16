@@ -136,6 +136,24 @@ RenameCells.Neighbor <- function(
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' \code{Neighbor} Methods
+#'
+#' Methods for \code{\link{Neighbor}} objects for generics defined in
+#' other packages
+#'
+#' @param x,object A \code{\link{Neighbor}} object
+#'
+#' @name Neighbor-methods
+#' @rdname Neighbor-methods
+#'
+#' @concept neighbor
+#'
+NULL
+
+#' @describeIn Neighbor-methods Dimensions of the neighbor indices
+#'
+#' @return \code{dim} Dimensions of the indices matrix
+#'
 #' @export
 #' @method dim Neighbor
 #'
@@ -147,6 +165,15 @@ dim.Neighbor <- function(x) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @describeIn Neighbor-methods Overview of a \code{Neighbor} object
+#'
+#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
+#' invisibly returns \code{NULL}
+#'
+#' @importFrom methods show
+#'
+#' @export
+#'
 setMethod(
   f = 'show',
   signature = 'Neighbor',
