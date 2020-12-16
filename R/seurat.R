@@ -3076,8 +3076,10 @@ FindObject <- function(object, name) {
 #' @seealso \code{\link[sctransform]{get_residuals}}
 #'
 #' @examples
+#' \dontrun{
 #' pbmc_small <- SCTransform(object = pbmc_small, variable.features.n = 20)
 #' pbmc_small <- GetResidual(object = pbmc_small, features = c('MS4A1', 'TCL1A'))
+#' }
 #'
 GetResidual <- function(
   object,

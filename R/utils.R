@@ -657,6 +657,10 @@ SwapClassPkg <- function(x, from = NULL, to = NULL) {
 #'
 #' @return The top \code{num}
 #'
+#' @importFrom utils head tail
+#'
+#' @keywords internal
+#'
 Top <- function(data, num = 20, balanced = FALSE) {
   nr <- nrow(x = data)
   if (num > nr) {

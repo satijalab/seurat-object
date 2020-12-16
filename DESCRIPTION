@@ -37,6 +37,8 @@ Imports:
     stats,
     tools,
     utils
+Suggests:
+    testthat
 Collate: 
     'RcppExports.R'
     'utils.R'
@@ -44,6 +46,7 @@ Collate:
     'generics.R'
     'assay.R'
     'command.R'
+    'data.R'
     'default.R'
     'jackstraw.R'
     'dimreduc.R'
