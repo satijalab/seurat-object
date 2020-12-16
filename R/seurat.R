@@ -36,8 +36,8 @@ NULL
 #' settable using \code{\link{Idents}}
 #' @slot graphs A list of \code{\link{Graph}} objects
 #' @slot neighbors ...
-#' @slot reductions A list of dimmensional reduction objects for this object
-#' #' @slot images A list of spatial image objects
+#' @slot reductions A list of dimensional reduction objects for this object
+#' @slot images A list of spatial image objects
 #' @slot project.name Name of the project
 #' @slot misc A list of miscellaneous information
 #' @slot version Version of Seurat this object was built under
@@ -189,7 +189,7 @@ Assays <- function(object, slot = NULL) {
 #' @param cells A vector of cells to grouping to
 #'
 #' @return A named list where names are identity classes and values are vectors
-#' of cells beloning to that class
+#' of cells belonging to that class
 #'
 #' @export
 #'
@@ -395,7 +395,7 @@ FetchData <- function(object, vars, cells = NULL, slot = 'data') {
     ))
     if (length(x = vars.many) > 0) {
       warning(
-        "Found the following features in more than one assay, excluding the default. We will not include these in the final dataframe: ",
+        "Found the following features in more than one assay, excluding the default. We will not include these in the final data frame: ",
         paste(vars.many, collapse = ', '),
         call. = FALSE,
         immediate. = TRUE
@@ -459,7 +459,7 @@ FetchData <- function(object, vars, cells = NULL, slot = 'data') {
       paste(head(x = vars.missing, n = 10L), collapse = ', ')
     )
   }
-  # Assembled fetched vars in a dataframe
+  # Assembled fetched vars in a data frame
   data.fetched <- as.data.frame(
     x = data.fetched,
     row.names = cells,
@@ -691,6 +691,7 @@ RenameAssays <- function(object, ...) {
 #'
 #' @return Returns a Seurat object compatible with latest changes
 #'
+#' @importFrom methods .hasSlot new slot
 #' @importFrom utils packageVersion
 #'
 #' @export
@@ -1395,7 +1396,7 @@ ReorderIdent.Seurat <- function(
     yes = function(x) {
       return(max(x) + 1 - x)
     },
-    no = Same
+    no = identity
   )
   new.levels <- names(x = rfxn(x = sort(x = tapply(
     X = data.use,
@@ -1603,9 +1604,6 @@ SetIdent.Seurat <- function(object, cells = NULL, value, ...) {
   return(object)
 }
 
-#' @param Seurat object
-#' @param assay Name of assay to pull spatially variable features for
-#'
 #' @rdname SpatiallyVariableFeatures
 #' @export
 #' @method SpatiallyVariableFeatures Seurat
@@ -1909,9 +1907,9 @@ WhichCells.Seurat <- function(
 #'   \code{\link{Graph}}, \code{\link{SeuratCommand}}, or
 #'   \code{\link{SpatialImage}} objects
 #'  }
-#'  @param j,cells Cell names or indices
-#'  @param ... Arguments passed to other methods
 #' }
+#' @param j,cells Cell names or indices
+#' @param ... Arguments passed to other methods
 #'
 #' @name Seurat-methods
 #' @rdname Seurat-methods
@@ -1939,7 +1937,7 @@ NULL
 #'
 #' @return \code{$}: metadata column \code{i} for object \code{x};
 #' \strong{note}: unlike \code{[[}, \code{$} drops the shape of the metadata
-#' to return a vector instead of a dataframe
+#' to return a vector instead of a data frame
 #'
 #' @export
 #' @method $ Seurat
@@ -1969,6 +1967,7 @@ NULL
 #' @method [ Seurat
 #'
 #' @examples
+#' # `[' examples
 #' pbmc_small[VariableFeatures(object = pbmc_small), ]
 #' pbmc_small[, 1:10]
 #'
@@ -2007,8 +2006,8 @@ NULL
 #'
 #' @param drop See \code{\link[base]{drop}}
 #'
-#' @return \code{[[}: If \code{i} is missing, the metadata dataframe; if
-#' \code{i} is a vector of metadata names, a dataframe with the requested
+#' @return \code{[[}: If \code{i} is missing, the metadata data frame; if
+#' \code{i} is a vector of metadata names, a data frame with the requested
 #' metadata, otherwise, the requested associated object
 #'
 #' @export
@@ -2128,10 +2127,22 @@ levels.Seurat <- function(x) {
   return(x)
 }
 
-#' Merge Seurat Objects
+#' @describeIn Seurat-methods Merge two or more \code{Seurat} objects together
 #'
-#' Merge two or more objects.
+#' @inheritParams CreateSeuratObject
+#' @param y A single \code{Seurat} object or a list of \code{Seurat} objects
+#' @param add.cell.ids A character vector of \code{length(x = c(x, y))};
+#' appends the corresponding values to the start of each objects' cell names
+#' @param merge.data Merge the data slots instead of just merging the counts
+#' (which requires renormalization); this is recommended if the same
+#' normalization approach was applied to all objects
+#' @param merge.dr Merge specified DimReducs that are present in all objects;
+#' will only merge the embeddings slots for the first \code{N} dimensions that
+#' are shared across all objects.
 #'
+#' @return \code{merge}: Merged object
+#'
+#' @section Merge Details:
 #' When merging Seurat objects, the merge procedure will merge the Assay level
 #' counts and potentially the data slots (depending on the merge.data parameter).
 #' It will also merge the cell-level meta data that was stored with each object
@@ -2146,28 +2157,13 @@ levels.Seurat <- function(x) {
 #' specified and any cell names are duplicated, cell names will be appended
 #' with _X, where X is the numeric index of the object in c(x, y).
 #'
-#' @inheritParams CreateSeuratObject
-#' @param x Object
-#' @param y Object (or a list of multiple objects)
-#' @param add.cell.ids A character vector of length(x = c(x, y)). Appends the
-#' corresponding values to the start of each objects' cell names.
-#' @param merge.data Merge the data slots instead of just merging the counts
-#' (which requires renormalization). This is recommended if the same normalization
-#' approach was applied to all objects.
-#' @param merge.dr Merge specified DimReducs that are present in all objects.
-#' Will only merge the embeddings slots for the first N dimensions that are
-#' shared across all objects.
-#' @param ... Arguments passed to other methods
-#'
-#' @return Merged object
-#'
-#' @rdname merge.Seurat
 #' @aliases merge MergeSeurat AddSamples
 #'
 #' @export
 #' @method merge Seurat
 #'
 #' @examples
+#' # `merge' examples
 #' # merge two objects
 #' merge(x = pbmc_small, y = pbmc_small)
 #' # to merge more than two objects, pass one to x and a list of objects to y
@@ -2368,21 +2364,15 @@ names.Seurat <- function(x) {
   ))
 }
 
-#' Subset a Seurat object
+#' @describeIn Seurat-methods Subset a \code{\link{Seurat}} object
 #'
-#' @param x Seurat object to be subsetted
 #' @param subset Logical expression indicating features/variables to keep
-#' @param i,features A vector of features to keep
-#' @param j,cells A vector of cells to keep
 #' @param idents A vector of identity classes to keep
-#' @param ... Extra parameters passed to \code{\link{WhichCells}},
-#' such as \code{slot}, \code{invert}, or \code{downsample}
 #'
-#' @return A subsetted Seurat object
+#' @return \code{subset}: A subsetted \code{Seurat} object
 #'
 #' @importFrom rlang enquo
-#'
-#' @rdname subset.Seurat
+#
 #' @aliases subset
 #' @seealso \code{\link[base]{subset}} \code{\link{WhichCells}}
 #'
@@ -2390,6 +2380,7 @@ names.Seurat <- function(x) {
 #' @method subset Seurat
 #'
 #' @examples
+#' # `subset' examples
 #' subset(x = pbmc_small, subset = MS4A1 > 4)
 #' subset(x = pbmc_small, subset = `DLGAP1-AS1` > 2)
 #' subset(x = pbmc_small, idents = '0', invert = TRUE)
@@ -2773,6 +2764,16 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   }
 )
 
+#' @describeIn Seurat-methods Calculate \code{\link[base]{colMeans}} on a
+#' \code{Seurat} object
+#'
+#' @inheritParams GetAssayData
+#' @inheritParams Matrix::colMeans
+#'
+#' @importFrom Matrix colMeans
+#'
+#' @export
+#'
 setMethod(
   f = 'colMeans',
   signature = c('x' = 'Seurat'),
@@ -2786,6 +2787,13 @@ setMethod(
   }
 )
 
+#' @describeIn Seurat-methods Calculate \code{\link[base]{colSums}} on a
+#' \code{Seurat} object
+#'
+#' @importFrom Matrix colSums
+#'
+#' @export
+#'
 setMethod(
   f = 'colSums',
   signature = c('x' = 'Seurat'),
@@ -2799,6 +2807,13 @@ setMethod(
   }
 )
 
+#' @describeIn Seurat-methods Calculate \code{\link[base]{rowMeans}} on a
+#' \code{rowMeans} object
+#'
+#' @importFrom Matrix colSums
+#'
+#' @export
+#'
 setMethod(
   f = 'rowMeans',
   signature = c('x' = 'Seurat'),
@@ -2812,6 +2827,13 @@ setMethod(
   }
 )
 
+#' @describeIn Seurat-methods Calculate \code{\link[base]{rowSums}} on a
+#' \code{Seurat} object
+#'
+#' @importFrom Matrix rowSums
+#'
+#' @export
+#'
 setMethod(
   f = 'rowSums',
   signature = c('x' = 'Seurat'),
@@ -2889,6 +2911,12 @@ setMethod(
   }
 )
 
+#' @rdname oldseurat-class
+#'
+#' @inheritParams Seurat-methods
+#'
+#' @importFrom methods show
+#'
 setMethod(
   f = 'show',
   signature = 'seurat',
@@ -3024,6 +3052,255 @@ FindObject <- function(object, name) {
   return(NULL)
 }
 
+#' Calculate pearson residuals of features not in the scale.data
+#'
+#' This function calls sctransform::get_residuals.
+#'
+#' @param object A seurat object
+#' @param features Name of features to add into the scale.data
+#' @param assay Name of the assay of the seurat object generated by SCTransform
+#' @param umi.assay Name of the assay of the seurat object containing UMI matrix and the default is
+#' RNA
+#' @param clip.range Numeric of length two specifying the min and max values the Pearson residual
+#' will be clipped to
+#' @param replace.value Recalculate residuals for all features, even if they are already present.
+#' Useful if you want to change the clip.range.
+#' @param verbose Whether to print messages and progress bars
+#'
+#' @return Returns a Seurat object containing  pearson residuals of added features in its scale.data
+#'
+#' @importFrom sctransform get_residuals
+#'
+#' @export
+#'
+#' @seealso \code{\link[sctransform]{get_residuals}}
+#'
+#' @examples
+#' pbmc_small <- SCTransform(object = pbmc_small, variable.features.n = 20)
+#' pbmc_small <- GetResidual(object = pbmc_small, features = c('MS4A1', 'TCL1A'))
+#'
+GetResidual <- function(
+  object,
+  features,
+  assay = "SCT",
+  umi.assay = NULL,
+  clip.range = NULL,
+  replace.value = FALSE,
+  verbose = TRUE
+) {
+  if (!IsSCT(assay = object[[assay]])) {
+    stop(assay, " assay was not generated by SCTransform")
+  }
+  model.name <- ifelse(
+    test = "vst.set" %in% names(x = Misc(object = object[[assay]])),
+    yes = "vst.set",
+    no = "vst.out"
+  )
+  if (length(x = Misc(object = object[[assay]])[[model.name]]) == 0) {
+    warning("SCT model not present in assay")
+    return(object)
+  }
+  umi.assay <- umi.assay %||% Misc(object = object[[assay]], slot = "umi.assay")
+  umi.assay <- umi.assay %||% "RNA" # for object created in 3.1.1 or earlier, default to RNA
+  if (replace.value) {
+    new_features <- features
+  } else {
+    new_features <- setdiff(
+      x = features,
+      y = rownames(x = GetAssayData(object = object, assay = assay, slot = "scale.data"))
+    )
+  }
+  if (length(x = new_features) == 0) {
+    if (verbose) {
+      message("Pearson residuals of input features exist already")
+    }
+  } else {
+    if (is.null(x = Misc(object = object[[assay]], slot = 'vst.set'))) {
+      vst_out <- Misc(object = object[[assay]], slot = 'vst.out')
+      # filter cells not in the object but in the SCT model
+      vst_out$cell_attr <- vst_out$cell_attr[Cells(x = object), ]
+      vst_out$cells_step1 <- intersect(x = vst_out$cells_step1, y = Cells(x = object))
+      object <- GetResidualVstOut(
+        object = object,
+        assay = assay,
+        umi.assay = umi.assay,
+        new_features = new_features,
+        vst_out = vst_out,
+        clip.range = clip.range,
+        verbose = verbose
+      )
+    } else {
+      # Calculate Pearson Residual from integrated object SCT assay
+      vst.set <- Misc(object = object[[assay]], slot = 'vst.set')
+      scale.data <- GetAssayData(
+        object = object,
+        assay = assay,
+        slot = "scale.data"
+      )
+      vst_set_genes <-  sapply(1:length(vst.set), function(x) rownames(vst.set[[x]]$model_pars_fit))
+      vst_set_genes <- Reduce(intersect, vst_set_genes)
+      diff_features <- setdiff(
+        x = new_features,
+        y = vst_set_genes
+      )
+      if (length(x = diff_features) != 0) {
+        warning(
+          "The following ", length(x = diff_features),
+          " features do not exist in all SCT models: ",
+          paste(diff_features, collapse = " ")
+        )
+      }
+      new_features <- intersect(
+        x = new_features,
+        y = vst_set_genes
+      )
+      if (length(new_features) != 0) {
+        object <- SetAssayData(
+          object = object,
+          assay = assay,
+          slot = "scale.data",
+          new.data = scale.data[!rownames(x = scale.data) %in% new_features, , drop = FALSE]
+        )
+        new.scale.data <- matrix(nrow = length(new_features), ncol = 0)
+        rownames(x = new.scale.data) <- new_features
+        for (v in 1:length(x = vst.set)) {
+          vst_out <- vst.set[[v]]
+          # confirm that cells from SCT model also exist in the integrated object
+          cells.v <- intersect(x = rownames(x = vst_out$cell_attr), y = Cells(x = object))
+          if (length(x = cells.v) != 0) {
+            vst_out$cell_attr <- vst_out$cell_attr[cells.v, ]
+            vst_out$cells_step1 <- intersect(x = vst_out$cells_step1, y = cells.v)
+            object.v <- subset(x = object, cells = cells.v)
+            object.v <- GetResidualVstOut(
+              object = object.v,
+              assay = assay,
+              umi.assay = umi.assay[[v]],
+              new_features = new_features,
+              vst_out = vst_out,
+              clip.range = clip.range,
+              verbose = verbose
+            )
+            new.scale.data <- cbind(
+              new.scale.data,
+              GetAssayData(
+                object = object.v,
+                assay = assay,
+                slot = "scale.data")[new_features, , drop = FALSE]
+            )
+          }
+        }
+        object <- SetAssayData(
+          object = object,
+          assay = assay,
+          slot = "scale.data",
+          new.data = rbind(
+            GetAssayData(object = object, slot = 'scale.data', assay = assay),
+            new.scale.data
+          )
+        )
+      }
+    }
+  }
+  return(object)
+}
+
+# Calculate pearson residuals of features not in the scale.data
+# This function is the secondary function under GetResidual
+#
+# @param object A seurat object
+# @param features Name of features to add into the scale.data
+# @param assay Name of the assay of the seurat object generated by SCTransform
+# @param vst_out The SCT parameter list
+# @param clip.range Numeric of length two specifying the min and max values the Pearson residual
+# will be clipped to
+# Useful if you want to change the clip.range.
+# @param verbose Whether to print messages and progress bars
+#
+# @return Returns a Seurat object containing  pearson residuals of added features in its scale.data
+#
+#' @importFrom sctransform get_residuals
+#
+GetResidualVstOut <- function(
+  object,
+  assay,
+  umi.assay,
+  new_features,
+  vst_out,
+  clip.range,
+  verbose
+) {
+  diff_features <- setdiff(
+    x = new_features,
+    y = rownames(x = vst_out$model_pars_fit)
+  )
+  intersect_feature <- intersect(
+    x = new_features,
+    y = rownames(x = vst_out$model_pars_fit)
+  )
+  if (length(x = diff_features) == 0) {
+    umi <- GetAssayData(object = object, assay = umi.assay, slot = "counts" )[new_features, , drop = FALSE]
+  } else {
+    warning(
+      "The following ", length(x = diff_features),
+      " features do not exist in the counts slot: ",
+      paste(diff_features, collapse = " ")
+    )
+    if (length(x = intersect_feature) == 0) {
+      return(object)
+    }
+    umi <- GetAssayData(object = object, assay = umi.assay, slot = "counts" )[intersect_feature, , drop = FALSE]
+  }
+  if (is.null(x = clip.range)) {
+    if (length(vst_out$arguments$sct.clip.range) != 0 ) {
+      clip.max <- max(vst_out$arguments$sct.clip.range)
+      clip.min <- min(vst_out$arguments$sct.clip.range)
+    } else {
+      clip.max <- max(vst_out$arguments$res_clip_range)
+      clip.min <- min(vst_out$arguments$res_clip_range)
+    }
+  } else {
+    clip.max <- max(clip.range)
+    clip.min <- min(clip.range)
+  }
+  new_residual <- get_residuals(
+    vst_out = vst_out,
+    umi = umi,
+    residual_type = "pearson",
+    res_clip_range = c(clip.min, clip.max),
+    verbosity = as.numeric(x = verbose) * 2
+  )
+  new_residual <- as.matrix(x = new_residual)
+  # centered data
+  new_residual <- new_residual - rowMeans(new_residual)
+  # remove genes from the scale.data if genes are part of new_features
+  scale.data <- GetAssayData(object = object, assay = assay, slot = "scale.data")
+  object <- SetAssayData(
+    object = object,
+    assay = assay,
+    slot = "scale.data",
+    new.data = scale.data[!rownames(x = scale.data) %in% new_features, , drop = FALSE]
+  )
+  if (nrow(x = GetAssayData(object = object, slot = 'scale.data', assay = assay)) == 0 ) {
+    object <- SetAssayData(
+      object = object,
+      slot = 'scale.data',
+      new.data = new_residual,
+      assay = assay
+    )
+  } else {
+    object <- SetAssayData(
+      object = object,
+      slot = 'scale.data',
+      new.data = rbind(
+        GetAssayData(object = object, slot = 'scale.data', assay = assay),
+        new_residual
+      ),
+      assay = assay
+    )
+  }
+  return(object)
+}
+
 #' Update Seurat assay
 #'
 #' @param old.assay Seurat2 assay
@@ -3031,7 +3308,7 @@ FindObject <- function(object, name) {
 #'
 #' @keywords internal
 #'
-UpdateAssay <- function(old.assay, assay){
+UpdateAssay <- function(old.assay, assay) {
   cells <- colnames(x = old.assay@data)
   counts <- old.assay@raw.data
   data <- old.assay@data
@@ -3057,6 +3334,8 @@ UpdateAssay <- function(old.assay, assay){
 #'
 #' @param old.dr Seurat2 dimension reduction slot
 #' @param assay.used Name of assay used to compute dimension reduction
+#'
+#' @importFrom methods new
 #'
 #' @keywords internal
 #'
@@ -3103,6 +3382,8 @@ UpdateDimReduction <- function(old.dr, assay) {
 #' Update jackstraw
 #'
 #' @param old.jackstraw
+#'
+#' @importFrom methods .hasSlot new
 #'
 #' @keywords internal
 #'
