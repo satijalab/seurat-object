@@ -23,21 +23,21 @@ NULL
 #'
 #' @exportClass AnyMatrix
 #'
-setClassUnion(name = 'AnyMatrix', members = c("matrix", "dgCMatrix"))
+AnyMatrix <- setClassUnion(name = 'AnyMatrix', members = c("matrix", "dgCMatrix"))
 
 #' @name helper-classes
 #' @rdname helper-classes
 #'
 #' @exportClass OptionalCharacter
 #'
-setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
+OptionalCharacter <- setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
 
 #' @name helper-classes
 #' @rdname helper-classes
 #'
 #' @exportClass OptionalList
 #'
-setClassUnion(name = 'OptionalList', members = c('NULL', 'list'))
+OptionalList <- setClassUnion(name = 'OptionalList', members = c('NULL', 'list'))
 
 setOldClass(Classes = 'package_version')
 

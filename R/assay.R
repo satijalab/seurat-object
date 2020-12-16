@@ -421,7 +421,6 @@ RenameCells.Assay <- function(object, new.names = NULL, ...) {
 #' @param slot Where to store the new data
 #' @param new.data New data to insert
 #'
-#'
 #' @importFrom stats na.omit
 #'
 #' @rdname SetAssayData
@@ -515,6 +514,7 @@ SetAssayData.Assay <- function(
 
 #' @param decreasing Return features in decreasing order (most spatially
 #' variable first).
+#'
 #' @rdname SpatiallyVariableFeatures
 #' @export
 #' @method SpatiallyVariableFeatures Assay
