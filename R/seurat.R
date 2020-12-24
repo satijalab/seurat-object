@@ -5,7 +5,7 @@
 #' @include dimreduc.R
 #' @include graph.R
 #' @include spatial.R
-#' @importFrom methods setClassUnion setClass
+#' @importFrom methods setClass
 #' @importClassesFrom Matrix dgCMatrix
 #'
 NULL
@@ -146,20 +146,22 @@ seurat <- setClass(
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' Pull Assays or assay names
+#' Query Specific Object Types
 #'
-#' Lists the names of \code{\link{Assay}} objects present in
-#' a Seurat object. If slot is provided, pulls specified Assay object.
+#' List the names of \code{\link{Assay}}, \code{\link{DimReduc}},
+#' \code{\link{Graph}}, \code{\link{Neighbor}} objects
 #'
-#' @param object A Seurat object
-#' @param slot Name of Assay to return
+#' @param object A \code{\link{Seurat}} object
+#' @param slot Name of component object to return
 #'
-#' @return If \code{slot} is \code{NULL}, the names of all \code{Assay} objects
-#' in this Seurat object. Otherwise, the \code{Assay} object specified
+#' @return If \code{slot} is \code{NULL}, the names of all component objects
+#' in this \code{Seurat} object. Otherwise, the specific object specified
+#'
+#' @rdname ObjectAccess
 #'
 #' @export
 #'
-#' @concept unsorted
+#' @concept data-access
 #'
 #' @examples
 #' Assays(object = pbmc_small)
@@ -193,7 +195,7 @@ Assays <- function(object, slot = NULL) {
 #'
 #' @export
 #'
-#' @concept unsorted
+#' @concept data-access
 #'
 #' @examples
 #' CellsByIdentities(object = pbmc_small)
@@ -232,7 +234,7 @@ CellsByIdentities <- function(object, idents = NULL, cells = NULL) {
 #'
 #' @return A vector of cell names
 #'
-#' @concept unsorted
+#' @concept data-access
 #'
 #' @examples
 #' \dontrun{
@@ -270,7 +272,7 @@ CellsByImage <- function(object, images = NULL, unlist = FALSE) {
 #'
 #' @export
 #'
-#' @concept unsorted
+#' @concept data-access
 #'
 #' @examples
 #' pc1 <- FetchData(object = pbmc_small, vars = 'PC_1')
@@ -476,18 +478,11 @@ FetchData <- function(object, vars, cells = NULL, slot = 'data') {
   return(data.fetched)
 }
 
-#' Pull Graph or Graph names
-#'
-#' Lists the names of \code{\link{Graph}} objects present in
-#' a Seurat object. If slot is provided, pulls specified Graph object.
-#'
-#' @param object A Seurat object
-#' @param slot Name of Graph object
-#'
-#' @return If \code{slot} is \code{NULL}, the names of all \code{Graph} objects
-#' in this Seurat object. Otherwise, the \code{Graph} object requested
-#'
+#' @rdname ObjectAccess
 #' @export
+#'
+#' @examples
+#' Graphs(pbmc_small)
 #'
 Graphs <- function(object, slot = NULL) {
   graphs <- FilterObjects(object = object, classes.keep = "Graph")
@@ -519,7 +514,7 @@ Graphs <- function(object, slot = NULL) {
 #'
 #' @export
 #'
-#' @concept unsorted
+#' @concept data-access
 #'
 #' @examples
 #' \dontrun{
@@ -541,18 +536,7 @@ Images <- function(object, assay = NULL) {
   return(images)
 }
 
-#' Pull Neighbor or Neighbor names
-#'
-#' Lists the names of \code{\link{Neighbor}} objects present in
-#' a Seurat object. If slot is provided, pulls specified Neighbors object.
-#'
-#' @param object A Seurat object
-#' @param slot Name of Neighbor object
-#'
-#' @return If \code{slot} is \code{NULL}, the names of all \code{Neighbor}
-#' objects in this Seurat object. Otherwise, the \code{Neighbor}
-#' object requested
-#'
+#' @rdname ObjectAccess
 #' @export
 #'
 Neighbors <- function(object, slot = NULL) {
@@ -572,21 +556,8 @@ Neighbors <- function(object, slot = NULL) {
   return(slot(object = object, name = 'neighbors')[[slot]])
 }
 
-#' Pull DimReducs or DimReduc names
-#'
-#' Lists the names of \code{\link{DimReduc}} objects present in
-#' a Seurat object. If slot is provided, pulls specified DimReduc object.
-#'
-#' @param object A Seurat object
-#' @param slot Name of DimReduc
-#'
-#' @return If \code{slot} is \code{NULL}, the names of all \code{DimReduc}
-#' objects in this Seurat object. Otherwise, the \code{DimReduc}
-#' object requested
-#'
+#' @rdname ObjectAccess
 #' @export
-#'
-#' @concept unsorted
 #'
 #' @examples
 #' Reductions(object = pbmc_small)
@@ -616,6 +587,9 @@ Reductions <- function(object, slot = NULL) {
 #' @return \code{object} with assays renamed
 #'
 #' @export
+#'
+#' @concept seurat
+#'
 #' @examples
 #' RenameAssays(object = pbmc_small, RNA = 'rna')
 #'
@@ -1106,15 +1080,18 @@ Embeddings.Seurat <- function(object, reduction = 'pca', ...) {
   return(Embeddings(object = object[[reduction]], ...))
 }
 
-#' @param assay Name of assay to pull data from
+#' @param assay Specific assay to get data from or set data for; defaults to
+#' the \link[SeuratObject:DefaultAssay]{default assay}
 #'
-#' @rdname GetAssayData
+#' @rdname AssayData
 #' @export
 #' @method GetAssayData Seurat
 #'
+#' @order 3
+#'
 #' @examples
-#' # Get the data from a specific Assay in a Seurat object
-#' GetAssayData(object = pbmc_small, assay = "RNA", slot = "data")[1:5,1:5]
+#' # Get assay data from the default assay in a Seurat object
+#' GetAssayData(object = pbmc_small, slot = "data")[1:5,1:5]
 #'
 GetAssayData.Seurat <- function(object, slot = 'data', assay = NULL, ...) {
   CheckDots(...)
@@ -1169,9 +1146,11 @@ GetTissueCoordinates.Seurat <- function(object, image = NULL, ...) {
 #'
 #' @importFrom tools file_path_sans_ext
 #'
-#' @rdname HVFInfo
+#' @rdname VariableFeatures
 #' @export
 #' @method HVFInfo Seurat
+#'
+#' @order 6
 #'
 #' @examples
 #' # Get the HVF info from a specific Assay in a Seurat object
@@ -1180,8 +1159,8 @@ GetTissueCoordinates.Seurat <- function(object, image = NULL, ...) {
 HVFInfo.Seurat <- function(
   object,
   selection.method = NULL,
-  assay = NULL,
   status = FALSE,
+  assay = NULL,
   ...
 ) {
   CheckDots(...)
@@ -1552,11 +1531,11 @@ RenameIdents.Seurat <- function(object, ...) {
   return(object)
 }
 
-#' @param assay Name of assay whose data should be set
-#'
-#' @rdname SetAssayData
+#' @rdname AssayData
 #' @export
 #' @method SetAssayData Seurat
+#'
+#' @order 4
 #'
 #' @examples
 #' # Set an Assay slot through the Seurat object
@@ -1579,7 +1558,12 @@ SetAssayData.Seurat <- function(
   CheckDots(...)
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
-  object[[assay]] <- SetAssayData(object = object[[assay]], slot = slot, new.data = new.data, ...)
+  object[[assay]] <- SetAssayData(
+    object = object[[assay]],
+    slot = slot,
+    new.data = new.data,
+    ...
+  )
   return(object)
 }
 
@@ -1604,14 +1588,16 @@ SetIdent.Seurat <- function(object, cells = NULL, value, ...) {
   return(object)
 }
 
-#' @rdname SpatiallyVariableFeatures
+#' @rdname VariableFeatures
 #' @export
 #' @method SpatiallyVariableFeatures Seurat
 #'
+#' @order 10
+#'
 SpatiallyVariableFeatures.Seurat <- function(
   object,
-  assay = NULL,
   selection.method = "markvariogram",
+  assay = NULL,
   decreasing = TRUE,
   ...
 ) {
@@ -1661,19 +1647,19 @@ Stdev.Seurat <- function(object, reduction = 'pca', ...) {
   return(Stdev(object = object[[reduction]]))
 }
 
-#' @param assay Name of assay to pull highly variable feature information for
-#'
 #' @importFrom tools file_path_sans_ext
 #'
-#' @rdname SVFInfo
+#' @rdname VariableFeatures
 #' @export
 #' @method SVFInfo Seurat
+#'
+#' @order 9
 #'
 SVFInfo.Seurat <- function(
   object,
   selection.method = c("markvariogram", "moransi"),
-  assay = NULL,
   status = FALSE,
+  assay = NULL,
   ...
 ) {
   CheckDots(...)
@@ -1743,13 +1729,18 @@ Tool.Seurat <- function(object, slot = NULL, ...) {
   return(object)
 }
 
-#' @param assay Name of assay to pull variable features for
-#'
 #' @rdname VariableFeatures
 #' @export
 #' @method VariableFeatures Seurat
 #'
-VariableFeatures.Seurat <- function(object, assay = NULL, selection.method = NULL, ...) {
+#' @order 7
+#'
+VariableFeatures.Seurat <- function(
+  object,
+  selection.method = NULL,
+  assay = NULL,
+  ...
+) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
@@ -1759,6 +1750,8 @@ VariableFeatures.Seurat <- function(object, assay = NULL, selection.method = NUL
 #' @rdname VariableFeatures
 #' @export
 #' @method VariableFeatures<- Seurat
+#'
+#' @order 8
 #'
 "VariableFeatures<-.Seurat" <- function(object, assay = NULL, ..., value) {
   CheckDots(...)
@@ -1942,6 +1935,10 @@ NULL
 #' @export
 #' @method $ Seurat
 #'
+#' @examples
+#' # Get metadata using `$'
+#' head(pbmc_small$groups)
+#'
 "$.Seurat" <- function(x, i, ...) {
   return(x[[i, drop = TRUE]])
 }
@@ -1953,6 +1950,12 @@ NULL
 #'
 #' @export
 #' @method $<- Seurat
+#'
+#' @examples
+#' # Add metadata using the `$' operator
+#' set.seed(42)
+#' pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
+#' head(pbmc_small[["value"]])
 #'
 "$<-.Seurat" <- function(x, i, ..., value) {
   x[[i]] <- value
@@ -2013,6 +2016,18 @@ NULL
 #' @export
 #' @method [[ Seurat
 #'
+#' @examples
+#' # Get the cell-level metadata data frame
+#' head(pbmc_small[[]])
+#'
+#' # Pull specific metadata information
+#' head(pbmc_small[[c("letter.idents", "groups")]])
+#' head(pbmc_small[["groups", drop = TRUE]])
+#'
+#' # Get a sub-object (eg. an `Assay' or `DimReduc')
+#' pbmc_small[["RNA"]]
+#' pbmc_small[["pca"]]
+#'
 "[[.Seurat" <- function(x, i, ..., drop = FALSE) {
   x <- UpdateSlots(object = x)
   if (missing(x = i)) {
@@ -2064,6 +2079,13 @@ NULL
 #' @export
 #' @method dim Seurat
 #'
+#' @examples
+#' # Get the number of features in an object
+#' nrow(pbmc_small)
+#'
+#' # Get the number of cells in an object
+#' ncol(pbmc_small)
+#'
 dim.Seurat <- function(x) {
   x <- UpdateSlots(object = x)
   return(dim(x = x[[DefaultAssay(object = x)]]))
@@ -2077,6 +2099,13 @@ dim.Seurat <- function(x) {
 #'
 #' @export
 #' @method dimnames Seurat
+#'
+#' @examples
+#' # Get the feature names of an object
+#' rownames(pbmc_small)
+#'
+#' # Get the cell names of an object
+#' colnames(pbmc_small)
 #'
 dimnames.Seurat <- function(x) {
   x <- UpdateSlots(object = x)
@@ -2165,9 +2194,9 @@ levels.Seurat <- function(x) {
 #' @examples
 #' # `merge' examples
 #' # merge two objects
-#' merge(x = pbmc_small, y = pbmc_small)
+#' merge(pbmc_small, y = pbmc_small)
 #' # to merge more than two objects, pass one to x and a list of objects to y
-#' merge(x = pbmc_small, y = c(pbmc_small, pbmc_small))
+#' merge(pbmc_small, y = c(pbmc_small, pbmc_small))
 #'
 merge.Seurat <- function(
   x = NULL,
@@ -2343,7 +2372,7 @@ merge.Seurat <- function(
     active.assay = new.default.assay,
     active.ident = new.idents,
     project.name = project,
-    version = packageVersion(pkg = 'Seurat')
+    version = packageVersion(pkg = 'SeuratObject')
   )
   return(merged.object)
 }
@@ -2356,6 +2385,9 @@ merge.Seurat <- function(
 #'
 #' @export
 #' @method names Seurat
+#'
+#' @examples
+#' names(pbmc_small)
 #'
 names.Seurat <- function(x) {
   return(FilterObjects(
@@ -2381,11 +2413,11 @@ names.Seurat <- function(x) {
 #'
 #' @examples
 #' # `subset' examples
-#' subset(x = pbmc_small, subset = MS4A1 > 4)
-#' subset(x = pbmc_small, subset = `DLGAP1-AS1` > 2)
-#' subset(x = pbmc_small, idents = '0', invert = TRUE)
-#' subset(x = pbmc_small, subset = MS4A1 > 3, slot = 'counts')
-#' subset(x = pbmc_small, features = VariableFeatures(object = pbmc_small))
+#' subset(pbmc_small, subset = MS4A1 > 4)
+#' subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
+#' subset(pbmc_small, idents = '0', invert = TRUE)
+#' subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
+#' subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
 #'
 subset.Seurat <- function(
   x,
@@ -2767,12 +2799,16 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #' @describeIn Seurat-methods Calculate \code{\link[base]{colMeans}} on a
 #' \code{Seurat} object
 #'
-#' @inheritParams GetAssayData
+#' @param slot Name of assay expression matrix to calculate column/row
+#' means/sums on
 #' @inheritParams Matrix::colMeans
 #'
 #' @importFrom Matrix colMeans
 #'
 #' @export
+#'
+#' @examples
+#' head(colMeans(pbmc_small))
 #'
 setMethod(
   f = 'colMeans',
@@ -2794,6 +2830,9 @@ setMethod(
 #'
 #' @export
 #'
+#' @examples
+#' head(colSums(pbmc_small))
+#'
 setMethod(
   f = 'colSums',
   signature = c('x' = 'Seurat'),
@@ -2814,6 +2853,9 @@ setMethod(
 #'
 #' @export
 #'
+#' @examples
+#' head(rowMeans(pbmc_small))
+#'
 setMethod(
   f = 'rowMeans',
   signature = c('x' = 'Seurat'),
@@ -2833,6 +2875,9 @@ setMethod(
 #' @importFrom Matrix rowSums
 #'
 #' @export
+#'
+#' @examples
+#' head(rowSums(pbmc_small))
 #'
 setMethod(
   f = 'rowSums',
@@ -2939,17 +2984,25 @@ setMethod(
 #'
 #' Find the names of collections in an object
 #'
-#' @param object An object
+#' @param object An S4 object
 #'
 #' @return A vector with the names of slots that are a list
 #'
 #' @keywords internal
 #'
+#' @examples
+#' \donttest{
+#' SeuratObject:::Collections(pbmc_small)
+#' }
+#'
 Collections <- function(object) {
+  if (!isS4(object)) {
+    return(NULL)
+  }
   collections <- vapply(
     X = slotNames(x = object),
     FUN = function(x) {
-      return(any(grepl(pattern = 'list', x = class(x = slot(object = object, name = x)))))
+      return(inherits(x = slot(object = object, name = x), what = 'list'))
     },
     FUN.VALUE = logical(length = 1L)
   )
@@ -2963,7 +3016,7 @@ Collections <- function(object) {
 #' If none present, finds all images present in the object. Returns the name of
 #' the first image
 #'
-#' @param object A Seurat object
+#' @param object A \code{\link{Seurat}} object
 #'
 #' @return The name of the default image
 #'
@@ -2980,7 +3033,7 @@ DefaultImage <- function(object) {
 
 #' Get the names of objects within a Seurat object that are of a certain class
 #'
-#' @param object A Seurat object
+#' @param object A \code{\link{Seurat}} object
 #' @param classes.keep A vector of names of classes to get
 #'
 #' @return A vector with the names of objects within the Seurat object that are
@@ -3020,12 +3073,17 @@ FilterObjects <- function(object, classes.keep = c('Assay', 'DimReduc')) {
 
 #' Find the collection of an object within a Seurat object
 #'
-#' @param object A Seurat object
+#' @param object A \code{\link{Seurat}} object
 #' @param name Name of object to find
 #'
 #' @return The collection (slot) of the object
 #'
 #' @keywords internal
+#'
+#' @examples
+#' \donttest{
+#' SeuratObject:::FindObject(pbmc_small, name = "RNA")
+#' }
 #'
 FindObject <- function(object, name) {
   collections <- c(
@@ -3071,14 +3129,14 @@ FindObject <- function(object, name) {
 #'
 #' @importFrom sctransform get_residuals
 #'
-#' @export
+#' @keywords internal
 #'
 #' @seealso \code{\link[sctransform]{get_residuals}}
 #'
 #' @examples
 #' \dontrun{
-#' pbmc_small <- SCTransform(object = pbmc_small, variable.features.n = 20)
-#' pbmc_small <- GetResidual(object = pbmc_small, features = c('MS4A1', 'TCL1A'))
+#' pbmc_small <- SCTransform(pbmc_small, variable.features.n = 20)
+#' pbmc_small <- GetResidual(pbmc_small, features = c('MS4A1', 'TCL1A'))
 #' }
 #'
 GetResidual <- function(
@@ -3303,10 +3361,19 @@ GetResidualVstOut <- function(
   return(object)
 }
 
-#' Update Seurat assay
+#' Update Seurat v2 Internal Objects
 #'
-#' @param old.assay Seurat2 assay
+#' Helper functions to update old Seurat v2 objects to v3/v4 objects
+#'
+#' @param old.assay,old.dr,old.jackstraw Seurat v2 assay, dimensional
+#' reduction, or jackstraw object
 #' @param assay Name to store for assay in new object
+#'
+#' @return A v3/v4 \code{\link{Assay}}, \code{\link{DimReduc}}, or
+#' \code{\link{JackStrawData}} object
+#'
+#' @name V2Update
+#' @rdname V2Update
 #'
 #' @keywords internal
 #'
@@ -3332,12 +3399,11 @@ UpdateAssay <- function(old.assay, assay) {
   return(new.assay)
 }
 
-#' Update dimension reduction
-#'
-#' @param old.dr Seurat2 dimension reduction slot
 #' @param assay.used Name of assay used to compute dimension reduction
 #'
 #' @importFrom methods new
+#'
+#' @rdname V2Update
 #'
 #' @keywords internal
 #'
@@ -3381,11 +3447,9 @@ UpdateDimReduction <- function(old.dr, assay) {
   return(new.dr)
 }
 
-#' Update jackstraw
-#'
-#' @param old.jackstraw
-#'
 #' @importFrom methods .hasSlot new
+#'
+#' @rdname V2Update
 #'
 #' @keywords internal
 #'

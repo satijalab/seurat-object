@@ -19,3 +19,4 @@ Returns list of objects with duplicate cells renamed to be unique
 \description{
 Check a list of objects for duplicate cell names
 }
+\keyword{internal}

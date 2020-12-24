@@ -17,8 +17,8 @@ GetImage(object, mode = c("grob", "raster", "plotly", "raw"), ...)
 \arguments{
 \item{object}{An object}
 
-\item{mode}{How to return the image; should accept one of 'grob', 'raster',
-'plotly', or 'raw'}
+\item{mode}{How to return the image; should accept one of \dQuote{grob},
+\dQuote{raster}, \dQuote{plotly}, or \dQuote{raw}}
 
 \item{...}{Arguments passed to other methods}
 
@@ -28,16 +28,16 @@ GetImage(object, mode = c("grob", "raster", "plotly", "raw"), ...)
 \value{
 Image data, varying depending on the value of \code{mode}:
 \describe{
- \item{'grob'}{
+ \item{\dQuote{grob}}{
   An object representing image data inheriting from \code{grob} objects
   (eg. \code{rastergrob})
  }
- \item{'raster'}{An object of class \code{raster}}
- \item{'plotly'}{
+ \item{\dQuote{raster}}{An object of class \code{raster}}
+ \item{\dQuote{plotly}}{
   A list with image data suitable for Plotly rendering, see
-  \code{\link[plotly]{layout}} for more details
+  \code{\link[plotly:layout]{plotly::layout}} for more details
  }
- \item{'raw'}{The raw image data as stored in the object}
+ \item{\dQuote{raw}}{The raw image data as stored in the object}
 }
 }
 \description{

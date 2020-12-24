@@ -7,7 +7,7 @@
 FindObject(object, name)
 }
 \arguments{
-\item{object}{A Seurat object}
+\item{object}{A \code{\link{Seurat}} object}
 
 \item{name}{Name of object to find}
 }
@@ -16,5 +16,11 @@ The collection (slot) of the object
 }
 \description{
 Find the collection of an object within a Seurat object
+}
+\examples{
+\donttest{
+SeuratObject:::FindObject(pbmc_small, name = "RNA")
+}
+
 }
 \keyword{internal}

@@ -4,7 +4,7 @@
 \alias{Embeddings}
 \alias{Embeddings.DimReduc}
 \alias{Embeddings.Seurat}
-\title{Get cell embeddings}
+\title{Get Cell Embeddings}
 \usage{
 Embeddings(object, ...)
 
@@ -20,7 +20,7 @@ Embeddings(object, ...)
 \item{reduction}{Name of reduction to pull cell embeddings for}
 }
 \description{
-Get cell embeddings
+Get Cell Embeddings
 }
 \examples{
 # Get the embeddings directly from a DimReduc object

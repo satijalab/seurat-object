@@ -19,7 +19,7 @@ NULL
 #' @rdname as.sparse
 #' @export as.sparse
 #'
-#' @concept conversion
+#' @concept utils
 #'
 as.sparse <- function(x, ...) {
   UseMethod(generic = 'as.sparse', object = x)
@@ -48,8 +48,9 @@ as.sparse <- function(x, ...) {
 #' @name s4list
 #' @rdname s4list
 #'
-#' @export
+#' @concept utils
 #'
+#' @export
 #'
 S4ToList <- function(object) {
   if (!(isS4(object) || inherits(x = object, what = 'list'))) {
@@ -77,7 +78,7 @@ S4ToList <- function(object) {
 #'
 #' @export
 #'
-#' @concept infix
+#' @concept utils
 #'
 #' @examples
 #' 1 %||% 2
@@ -93,8 +94,6 @@ rlang::`%||%`
 #' @importFrom rlang is_null
 #'
 #' @export
-#'
-#' @concept infix
 #'
 #' @examples
 #' 1 %iff% 2
@@ -459,8 +458,7 @@ CheckDots <- function(..., fxns = NULL) {
 #'
 #' @return Returns list of objects with duplicate cells renamed to be unique
 #'
-#'
-#' @export
+#' @keywords internal
 #'
 CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
   cell.names <- unlist(x = lapply(X = object.list, FUN = colnames))
@@ -501,7 +499,7 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
 #'
 #' @examples
 #' \donttest{
-#' ExtractField(string = 'Hello World', field = 1, delim = '_')
+#' SeuratObject:::ExtractField('Hello World', field = 1, delim = '_')
 #' }
 #'
 ExtractField <- function(string, field = 1, delim = "_") {
@@ -530,9 +528,9 @@ ExtractField <- function(string, field = 1, delim = "_") {
 #'
 #' @examples
 #' \donttest{
-#' IsMatrixEmpty(new("matrix"))
-#' IsMatrixEmpty(matrix())
-#' IsMatrixEmpty(matrix(1:3))
+#' SeuratObject:::IsMatrixEmpty(new("matrix"))
+#' SeuratObject:::IsMatrixEmpty(matrix())
+#' SeuratObject:::IsMatrixEmpty(matrix(1:3))
 #' }
 #'
 IsMatrixEmpty <- function(x) {
@@ -577,8 +575,8 @@ IsNullPtr <- function(x) {
 #' @examples
 #' \dontrun{
 #' set.seed(42L)
-#' RandomName()
-#' RandomName(7L, replace = TRUE)
+#' SeuratObject:::RandomName()
+#' SeuratObject:::RandomName(7L, replace = TRUE)
 #' }
 #'
 RandomName <- function(length = 5L, ...) {
@@ -674,9 +672,7 @@ Top <- function(data, num = 20, balanced = FALSE) {
     )
     num <- nr
   }
-  if (num == 1) {
-    balanced <- FALSE
-  }
+  balanced <- ifelse(test = nr == 1, yes = FALSE, no = balanced)
   top <- if (isTRUE(x = balanced)) {
     num <- round(x = num / 2)
     data <- data[order(data, decreasing = TRUE), , drop = FALSE]
@@ -757,6 +753,9 @@ UpdateSlots <- function(object) {
 #' @param key A character to become a Seurat Key
 #'
 #' @return An updated Key that's valid for Seurat
+#'
+#' @section \code{Seurat} Object Keys:
+#' blah
 #'
 #' @keywords internal
 #'

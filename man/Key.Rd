@@ -36,11 +36,11 @@ Get and set object keys
 }
 \examples{
 # Get an Assay key
-Key(object = pbmc_small[["RNA"]])
+Key(pbmc_small[["RNA"]])
 
 # Set the key for an Assay
-Key(object = pbmc_small[["RNA"]]) <- "newkey_"
-Key(object = pbmc_small[["RNA"]])
+Key(pbmc_small[["RNA"]]) <- "newkey_"
+Key(pbmc_small[["RNA"]])
 
 # Get a DimReduc key
 Key(object = pbmc_small[["pca"]])

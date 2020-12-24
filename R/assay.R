@@ -76,12 +76,14 @@ Assay <- setClass(
 #' @concept assay
 #'
 #' @examples
+#' \dontrun{
 #' pbmc_raw <- read.table(
 #'   file = system.file('extdata', 'pbmc_raw.txt', package = 'Seurat'),
 #'   as.is = TRUE
 #' )
 #' pbmc_rna <- CreateAssayObject(counts = pbmc_raw)
 #' pbmc_rna
+#' }
 #'
 CreateAssayObject <- function(
   counts,
@@ -261,15 +263,13 @@ DefaultAssay.Assay <- function(object, ...) {
   return(object)
 }
 
-#' @param slot Specific information to pull (i.e. counts, data, scale.data, ...)
-#'
-#' @rdname GetAssayData
+#' @rdname AssayData
 #' @export
 #' @method GetAssayData Assay
 #'
 #' @examples
 #' # Get the data directly from an Assay object
-#' GetAssayData(object = pbmc_small[["RNA"]], slot = "data")[1:5,1:5]
+#' GetAssayData(pbmc_small[["RNA"]], slot = "data")[1:5,1:5]
 #'
 GetAssayData.Assay <- function(
   object,
@@ -282,18 +282,13 @@ GetAssayData.Assay <- function(
   return(slot(object = object, name = slot))
 }
 
-#' @param selection.method Which method to pull; choose one from
-#' \code{c('sctransform', 'sct')}
-#' or \code{c('mean.var.plot', 'dispersion', 'mvp', 'disp')}
-#' @param status Add variable status to the resulting data.frame
-#'
-#' @rdname HVFInfo
+#' @rdname VariableFeatures
 #' @export
 #' @method HVFInfo Assay
 #'
 #' @examples
 #' # Get the HVF info directly from an Assay object
-#' HVFInfo(object = pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
+#' HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
 #'
 HVFInfo.Assay <- function(object, selection.method, status = FALSE, ...) {
   CheckDots(...)
@@ -337,7 +332,7 @@ HVFInfo.Assay <- function(object, selection.method, status = FALSE, ...) {
 #'
 #' @examples
 #' # Get an Assay key
-#' Key(object = pbmc_small[["RNA"]])
+#' Key(pbmc_small[["RNA"]])
 #'
 Key.Assay <- function(object, ...) {
   CheckDots(...)
@@ -350,8 +345,8 @@ Key.Assay <- function(object, ...) {
 #'
 #' @examples
 #' # Set the key for an Assay
-#' Key(object = pbmc_small[["RNA"]]) <- "newkey_"
-#' Key(object = pbmc_small[["RNA"]])
+#' Key(pbmc_small[["RNA"]]) <- "newkey_"
+#' Key(pbmc_small[["RNA"]])
 #'
 "Key<-.Assay" <- function(object, ..., value) {
   CheckDots(...)
@@ -383,7 +378,7 @@ Misc.Assay <- .Misc
 #' # Rename cells in an Assay
 #' head(x = colnames(x = pbmc_small[["RNA"]]))
 #' renamed.assay <- RenameCells(
-#'     object = pbmc_small[["RNA"]],
+#'     pbmc_small[["RNA"]],
 #'     new.names = paste0("A_", colnames(x = pbmc_small[["RNA"]]))
 #' )
 #' head(x = colnames(x = renamed.assay))
@@ -418,24 +413,21 @@ RenameCells.Assay <- function(object, new.names = NULL, ...) {
   return(object)
 }
 
-#' @param slot Where to store the new data
-#' @param new.data New data to insert
-#'
 #' @importFrom stats na.omit
 #'
-#' @rdname SetAssayData
+#' @rdname AssayData
 #' @export
 #' @method SetAssayData Assay
 #'
 #' @examples
 #' # Set an Assay slot directly
-#' count.data <- GetAssayData(object = pbmc_small[["RNA"]], slot = "counts")
+#' count.data <- GetAssayData(pbmc_small[["RNA"]], slot = "counts")
 #' count.data <- as.matrix(x = count.data + 1)
-#' new.assay <- SetAssayData(object = pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
+#' new.assay <- SetAssayData(pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
 #'
 SetAssayData.Assay <- function(
   object,
-  slot = c('counts', 'data', 'scale.data'),
+  slot = c('data', 'scale.data', 'counts'),
   new.data,
   ...
 ) {
@@ -515,7 +507,7 @@ SetAssayData.Assay <- function(
 #' @param decreasing Return features in decreasing order (most spatially
 #' variable first).
 #'
-#' @rdname SpatiallyVariableFeatures
+#' @rdname VariableFeatures
 #' @export
 #' @method SpatiallyVariableFeatures Assay
 #'
@@ -534,10 +526,7 @@ SpatiallyVariableFeatures.Assay <- function(
   return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
 }
 
-#' @param selection.method Which method to pull. Options: markvariogram, moransi
-#' @param status Add variable status to the resulting data.frame
-#'
-#' @rdname SVFInfo
+#' @rdname VariableFeatures
 #' @export
 #' @method SVFInfo Assay
 #'
@@ -1032,7 +1021,8 @@ setMethod(
 #' @describeIn Assay-methods Calculate \code{\link[base]{colMeans}} on an
 #' \code{Assay}
 #'
-#' @inheritParams GetAssayData
+#' @param slot Name of assay expression matrix to calculate column/row
+#' means/sums on
 #' @inheritParams Matrix::colMeans
 #'
 #' @return \code{colMeans}: The column (cell-wise) means of \code{slot}
@@ -1183,6 +1173,12 @@ setMethod(
 #'
 #' @keywords internal
 #'
+#' @examples
+#' \donttest{
+#' calcn <- SeuratObject:::CalcN(pbmc_small[["RNA"]])
+#' head(as.data.frame(calcn))
+#' }
+#'
 CalcN <- function(object) {
   if (IsMatrixEmpty(x = GetAssayData(object = object, slot = "counts"))) {
     return(NULL)
@@ -1218,6 +1214,7 @@ IsSCT <- function(assay) {
 #' @param features vector of features to retain
 #'
 #' @keywords internal
+#'
 SubsetVST <- function(sct.info, cells, features) {
   cells.keep <- intersect(x = cells, y = rownames(x = sct.info$cell_attr))
   sct.info$cell_attr <- sct.info$cell_attr[cells.keep, ]

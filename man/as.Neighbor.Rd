@@ -3,17 +3,21 @@
 \name{as.Neighbor}
 \alias{as.Neighbor}
 \alias{as.Neighbor.Graph}
-\title{Convert objects to Neighbor objects}
+\title{Coerce to a \code{Neighbor} Object}
 \usage{
 as.Neighbor(x, ...)
 
 \method{as.Neighbor}{Graph}(x, ...)
 }
 \arguments{
-\item{x}{An object to convert to \code{Neighbor}}
+\item{x}{An object to convert to \code{\link{Neighbor}}}
 
 \item{...}{Arguments passed to other methods}
 }
-\description{
-Convert objects to Neighbor objects
+\value{
+A \code{\link{Neighbor}} object
 }
+\description{
+Convert objects to \code{\link{Neighbor}} objects
+}
+\concept{neighbor}

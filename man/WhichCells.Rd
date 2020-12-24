@@ -51,13 +51,13 @@ A vector of cell names
 }
 \description{
 Returns a list of cells that match a particular set of criteria such as
-identity class, high/low values for particular PCs, ect..
+identity class, high/low values for particular PCs, etc.
 }
 \examples{
-WhichCells(object = pbmc_small, idents = 2)
-WhichCells(object = pbmc_small, expression = MS4A1 > 3)
-levels(x = pbmc_small)
-WhichCells(object = pbmc_small, idents = c(1, 2), invert = TRUE)
+WhichCells(pbmc_small, idents = 2)
+WhichCells(pbmc_small, expression = MS4A1 > 3)
+levels(pbmc_small)
+WhichCells(pbmc_small, idents = c(1, 2), invert = TRUE)
 
 }
 \seealso{

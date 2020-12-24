@@ -40,11 +40,12 @@ This function calls sctransform::get_residuals.
 }
 \examples{
 \dontrun{
-pbmc_small <- SCTransform(object = pbmc_small, variable.features.n = 20)
-pbmc_small <- GetResidual(object = pbmc_small, features = c('MS4A1', 'TCL1A'))
+pbmc_small <- SCTransform(pbmc_small, variable.features.n = 20)
+pbmc_small <- GetResidual(pbmc_small, features = c('MS4A1', 'TCL1A'))
 }
 
 }
 \seealso{
 \code{\link[sctransform]{get_residuals}}
 }
+\keyword{internal}

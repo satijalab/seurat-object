@@ -15,4 +15,11 @@ A named list with nCount and nFeature
 \description{
 Calculate nCount and nFeature
 }
+\examples{
+\donttest{
+calcn <- SeuratObject:::CalcN(pbmc_small[["RNA"]])
+head(as.data.frame(calcn))
+}
+
+}
 \keyword{internal}

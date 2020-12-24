@@ -7,12 +7,18 @@
 Collections(object)
 }
 \arguments{
-\item{object}{An object}
+\item{object}{An S4 object}
 }
 \value{
 A vector with the names of slots that are a list
 }
 \description{
 Find the names of collections in an object
+}
+\examples{
+\donttest{
+SeuratObject:::Collections(pbmc_small)
+}
+
 }
 \keyword{internal}

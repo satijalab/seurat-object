@@ -29,7 +29,7 @@ NULL \%||\% 2
 NULL \%iff\% 2
 
 }
-\concept{infix}
+\concept{utils}
 \keyword{internal}
 \description{
 These objects are imported from other packages. Follow the links

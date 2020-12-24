@@ -25,7 +25,7 @@ Index(object, ...) <- value
 \value{
 Returns the value in the alg.idx slot of the Neighbor object
 
-\code{Idents<-}: A Neighbor bject with the index stored
+\code{Idents<-}: A Neighbor object with the index stored
 }
 \description{
 Get Neighbor algorithm index

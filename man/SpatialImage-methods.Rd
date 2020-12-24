@@ -51,15 +51,15 @@
 
 \item{...}{Arguments passed to other methods}
 
-\item{value}{Depends on the method
+\item{value}{Depends on the method:
 \describe{
- \itemize{\code{DefaultAssay<-}}{Assay that the image should be
+ \item{\code{DefaultAssay<-}}{Assay that the image should be
  associated with}
- \itemize{\code{Key<-}}{New key for the image}
+ \item{\code{Key<-}}{New key for the image}
 }}
 
-\item{mode}{How to return the image; should accept one of 'grob', 'raster',
-'plotly', or 'raw'}
+\item{mode}{How to return the image; should accept one of \dQuote{grob},
+\dQuote{raster}, \dQuote{plotly}, or \dQuote{raw}}
 
 \item{new.names}{vector of new cell names}
 
@@ -157,7 +157,7 @@ be overridden without careful thought
 \itemize{
   \item \code{\link{DefaultAssay}} and \code{\link{DefaultAssay<-}}
   \item \code{\link{Key}} and \code{\link{Key<-}}
-  \item{\code{\link{GetImage}}}; this method \emph{can} be overridden to
+  \item \code{\link{GetImage}}; this method \emph{can} be overridden to
   provide image data, normally returns empty image data. If overridden,
   should default to returning a  \code{\link[grid]{grob}} object
   \item \code{\link{IsGlobal}}
@@ -216,3 +216,4 @@ seamlessly
 
 \code{\link{RenameCells}}
 }
+\concept{spatialimage}

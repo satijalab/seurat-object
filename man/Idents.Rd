@@ -61,7 +61,8 @@ StashIdent(object, save.name, ...)
 arguments as \code{old.ident = new.ident}; for \code{ReorderIdent}: arguments
 passed on to \code{\link{FetchData}}}
 
-\item{value}{The name of the identites to pull from object metadata or the identities themselves}
+\item{value}{The name of the identities to pull from object metadata or the
+identities themselves}
 
 \item{var}{Feature or variable to order on}
 
@@ -82,9 +83,9 @@ starting from 1 (default is FALSE)}
 \item{x, object}{An object}
 }
 \value{
-\code{Idents}: The cell identies
+\code{Idents}: The cell identities
 
-\code{Idents<-}: An object with the cell identites changed
+\code{Idents<-}: \code{object} with the cell identities changed
 
 \code{RenameIdents}: An object with selected identity classes renamed
 
@@ -99,37 +100,37 @@ Get, set, and manipulate an object's identity classes
 }
 \examples{
 # Get cell identity classes
-Idents(object = pbmc_small)
+Idents(pbmc_small)
 
 # Set cell identity classes
 # Can be used to set identities for specific cells to a new level
-Idents(object = pbmc_small, cells = 1:4) <- 'a'
-head(x = Idents(object = pbmc_small))
+Idents(pbmc_small, cells = 1:4) <- 'a'
+head(Idents(pbmc_small))
 
 # Can also set idents from a value in object metadata
-colnames(x = pbmc_small[[]])
-Idents(object = pbmc_small) <- 'RNA_snn_res.1'
-levels(x = pbmc_small)
+colnames(pbmc_small[[]])
+Idents(pbmc_small) <- 'RNA_snn_res.1'
+levels(pbmc_small)
 
 # Rename cell identity classes
 # Can provide an arbitrary amount of idents to rename
-levels(x = pbmc_small)
-pbmc_small <- RenameIdents(object = pbmc_small, '0' = 'A', '2' = 'C')
-levels(x = pbmc_small)
+levels(pbmc_small)
+pbmc_small <- RenameIdents(pbmc_small, '0' = 'A', '2' = 'C')
+levels(pbmc_small)
 
 \dontrun{
-head(x = Idents(object = pbmc_small))
-pbmc_small <- ReorderIdent(object = pbmc_small, var = 'PC_1')
-head(x = Idents(object = pbmc_small))
+head(Idents(pbmc_small))
+pbmc_small <- ReorderIdent(pbmc_small, var = 'PC_1')
+head(Idents(pbmc_small))
 }
 
 # Set cell identity classes using SetIdent
-cells.use <- WhichCells(object = pbmc_small, idents = '1')
-pbmc_small <- SetIdent(object = pbmc_small, cells = cells.use, value = 'B')
+cells.use <- WhichCells(pbmc_small, idents = '1')
+pbmc_small <- SetIdent(pbmc_small, cells = cells.use, value = 'B')
 
-head(x = pbmc_small[[]])
-pbmc_small <- StashIdent(object = pbmc_small, save.name = 'idents')
-head(x = pbmc_small[[]])
+head(pbmc_small[[]])
+pbmc_small <- StashIdent(pbmc_small, save.name = 'idents')
+head(pbmc_small[[]])
 
 # Get the levels of identity classes of a Seurat object
 levels(x = pbmc_small)

@@ -86,12 +86,14 @@ your particular dataset, simply filter the input expression matrix before
 calling this function.
 }
 \examples{
+\dontrun{
 pbmc_raw <- read.table(
   file = system.file('extdata', 'pbmc_raw.txt', package = 'Seurat'),
   as.is = TRUE
 )
 pbmc_small <- CreateSeuratObject(counts = pbmc_raw)
 pbmc_small
+}
 
 }
-\concept{unsorted}
+\concept{seurat}

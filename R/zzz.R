@@ -11,33 +11,36 @@ NULL
 "_PACKAGE"
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Reexports
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @importFrom Matrix colMeans
+#' @export
+#'
+Matrix::colMeans
+
+#' @importFrom Matrix colSums
+#' @export
+#'
+Matrix::colSums
+
+#' @importFrom Matrix rowMeans
+#' @export
+#'
+Matrix::rowMeans
+
+#' @importFrom Matrix rowSums
+#' @export
+#'
+Matrix::rowSums
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' Helper Classes
-#'
-#' A suite of helper classes used in S4 class definitions
-#'
-#' @name helper-classes
-#' @rdname helper-classes
-#'
-#' @exportClass AnyMatrix
-#'
-AnyMatrix <- setClassUnion(name = 'AnyMatrix', members = c("matrix", "dgCMatrix"))
-
-#' @name helper-classes
-#' @rdname helper-classes
-#'
-#' @exportClass OptionalCharacter
-#'
-OptionalCharacter <- setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
-
-#' @name helper-classes
-#' @rdname helper-classes
-#'
-#' @exportClass OptionalList
-#'
-OptionalList <- setClassUnion(name = 'OptionalList', members = c('NULL', 'list'))
+setClassUnion(name = 'AnyMatrix', members = c("matrix", "dgCMatrix"))
+setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
+setClassUnion(name = 'OptionalList', members = c('NULL', 'list'))
 
 setOldClass(Classes = 'package_version')
 

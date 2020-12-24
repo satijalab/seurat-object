@@ -18,15 +18,17 @@ Description: Defines S4 classes for single-cell genomic data and associated
   information, such as dimensionality reduction embeddings, nearest-neighbor
   graphs, and spatially-resolved coordinates. Provides data access methods and
   R-native hooks to ensure the Seurat object is familiar to other R users.
-URL: http://www.satijalab.org/seurat, https://github.com/mojaveazure/seurat-object
-BugReports: https://github.com/mojaveazure/seurat-object/issues
+URL: http://www.satijalab.org/seurat,
+      https://github.com/mojaveazure/seurat-object
+BugReports:
+      https://github.com/mojaveazure/seurat-object/issues
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Depends:
+Depends: 
   R (>= 3.5.0)
-Imports:
+Imports: 
     grDevices,
     grid,
     Matrix (>= 1.2.18),
@@ -37,23 +39,10 @@ Imports:
     stats,
     tools,
     utils
-Suggests:
-    testthat
-Collate: 
-    'RcppExports.R'
-    'utils.R'
-    'zzz.R'
-    'generics.R'
-    'assay.R'
-    'command.R'
-    'data.R'
-    'default.R'
-    'jackstraw.R'
-    'dimreduc.R'
-    'graph.R'
-    'neighbor.R'
-    'spatial.R'
-    'seurat.R'
-LinkingTo: 
-    Rcpp,
-    RcppEigen
+Suggests: 
+    tinytest
+Collate: 'RcppExports.R' 'utils.R' 'zzz.R' 'generics.R'
+      'assay.R' 'command.R' 'data.R' 'default.R'
+      'jackstraw.R' 'dimreduc.R' 'graph.R' 'neighbor.R'
+      'spatial.R' 'seurat.R'
+LinkingTo: Rcpp, RcppEigen

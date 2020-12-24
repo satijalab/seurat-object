@@ -54,7 +54,7 @@ If \code{add.cell.id} is set a prefix is added to existing cell names. If
 # Rename cells in an Assay
 head(x = colnames(x = pbmc_small[["RNA"]]))
 renamed.assay <- RenameCells(
-    object = pbmc_small[["RNA"]],
+    pbmc_small[["RNA"]],
     new.names = paste0("A_", colnames(x = pbmc_small[["RNA"]]))
 )
 head(x = colnames(x = renamed.assay))

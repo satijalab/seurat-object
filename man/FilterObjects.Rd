@@ -7,7 +7,7 @@
 FilterObjects(object, classes.keep = c("Assay", "DimReduc"))
 }
 \arguments{
-\item{object}{A Seurat object}
+\item{object}{A \code{\link{Seurat}} object}
 
 \item{classes.keep}{A vector of names of classes to get}
 }

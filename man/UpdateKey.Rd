@@ -15,4 +15,9 @@ An updated Key that's valid for Seurat
 \description{
 Update a Key
 }
+\section{\code{Seurat} Object Keys}{
+
+blah
+}
+
 \keyword{internal}

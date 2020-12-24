@@ -21,8 +21,8 @@ spaces or other characters
 \examples{
 \dontrun{
 set.seed(42L)
-RandomName()
-RandomName(7L, replace = TRUE)
+SeuratObject:::RandomName()
+SeuratObject:::RandomName(7L, replace = TRUE)
 }
 
 }

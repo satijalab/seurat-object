@@ -18,7 +18,7 @@ GetTissueCoordinates(object, ...)
 \code{NULL}, will attempt to select an image automatically}
 }
 \value{
-A data.frame with tissue coordinates
+A data frame with tissue coordinates
 }
 \description{
 Get tissue coordinates

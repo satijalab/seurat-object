@@ -5,7 +5,7 @@
 \alias{as.Graph.Matrix}
 \alias{as.Graph.matrix}
 \alias{as.Graph.Neighbor}
-\title{Graph Converter}
+\title{Coerce to a \code{Graph} Object}
 \usage{
 as.Graph(x, ...)
 
@@ -27,8 +27,8 @@ nn.dist slot of the Neighbor object}
 A \code{\link{Graph}} object
 }
 \description{
-Convert a \code{\link[base]{matrix}} (or \code{\link[Matrix]{Matrix}}) to the
-\code{\link{Graph}} class
+Convert a \code{\link[base]{matrix}} (or \code{\link[Matrix]{Matrix}}) to
+a \code{\link{Graph}} object
 }
 \examples{
 # converting sparse matrix

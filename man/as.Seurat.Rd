@@ -2,7 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{as.Seurat}
 \alias{as.Seurat}
-\title{Convert objects to Seurat objects}
+\title{Coerce to a \code{Seurat} Object}
 \usage{
 as.Seurat(x, ...)
 }

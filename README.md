@@ -24,5 +24,5 @@ SeuratObject is not currently available on CRAN. You can install it from
 if (!requireNamespace("remotes", quietly = TRUE)) {
   install.packages("remotes")
 }
-remotes::install_github("mojaveazure/seurat-disk")
+remotes::install_github("mojaveazure/seurat-object")
 ```

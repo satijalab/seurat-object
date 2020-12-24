@@ -49,3 +49,4 @@ class name and package of origin. This attribute is stored as
 \dQuote{classDef} and takes the form of \dQuote{\code{package:class}}.
 }
 
+\concept{utils}

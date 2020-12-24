@@ -27,12 +27,14 @@ Non-unique cell or feature names are not allowed. Please make unique before
 calling this function.
 }
 \examples{
+\dontrun{
 pbmc_raw <- read.table(
   file = system.file('extdata', 'pbmc_raw.txt', package = 'Seurat'),
   as.is = TRUE
 )
 pbmc_rna <- CreateAssayObject(counts = pbmc_raw)
 pbmc_rna
+}
 
 }
 \concept{assay}

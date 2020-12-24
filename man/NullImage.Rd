@@ -7,8 +7,8 @@
 NullImage(mode = c("grob", "raster", "plotly", "raw"))
 }
 \arguments{
-\item{mode}{How to return the image; should accept one of 'grob', 'raster',
-'plotly', or 'raw'}
+\item{mode}{How to return the image; should accept one of \dQuote{grob},
+\dQuote{raster}, \dQuote{plotly}, or \dQuote{raw}}
 }
 \value{
 Varies by value of \code{mode}:

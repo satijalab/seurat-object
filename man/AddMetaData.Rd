@@ -21,14 +21,14 @@ AddMetaData(object, metadata, col.name = NULL)
 \item{col.name}{A name for meta data if not a named list or data.frame}
 }
 \value{
-An object with metadata or and object added
+\code{object} with metadata added
 }
 \description{
 Adds additional data to the object. Can be any piece of information
 associated with a cell (examples include read depth, alignment rate,
 experimental batch, or subpopulation identity) or feature (ENSG name,
 variance). To add cell level information, add to the Seurat object. If adding
-feature-level metadata, add to the Assay object (e.g. object[["RNA"]]))
+feature-level metadata, add to the Assay object (e.g. \code{object[["RNA"]]})
 }
 \examples{
 cluster_letters <- LETTERS[Idents(object = pbmc_small)]

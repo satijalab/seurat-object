@@ -26,4 +26,4 @@ A sparse representation of the input data
 \description{
 Convert dense objects to sparse representations
 }
-\concept{conversion}
+\concept{utils}

@@ -68,7 +68,8 @@ normalization approach was applied to all objects}
 
 \item{dims}{completely ignored by the \code{Matrix} methods.}
 
-\item{slot}{Specific information to pull (i.e. counts, data, scale.data, ...)}
+\item{slot}{Name of assay expression matrix to calculate column/row
+means/sums on}
 }
 \value{
 \code{[}: The \code{data} slot for features \code{i} and cells

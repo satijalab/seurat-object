@@ -8,11 +8,11 @@ NULL
 #' associated with a cell (examples include read depth, alignment rate,
 #' experimental batch, or subpopulation identity) or feature (ENSG name,
 #' variance). To add cell level information, add to the Seurat object. If adding
-#' feature-level metadata, add to the Assay object (e.g. object[["RNA"]]))
+#' feature-level metadata, add to the Assay object (e.g. \code{object[["RNA"]]})
 #'
 #' @inheritParams .AddMetaData
 #'
-#' @return An object with metadata or and object added
+#' @return \code{object} with metadata added
 #'
 #' @rdname AddMetaData
 #' @export AddMetaData
@@ -35,10 +35,10 @@ AddMetaData <- function(object, metadata, col.name = NULL) {
   UseMethod(generic = 'AddMetaData', object = object)
 }
 
-#' Graph Converter
+#' Coerce to a \code{Graph} Object
 #'
-#' Convert a \code{\link[base]{matrix}} (or \code{\link[Matrix]{Matrix}}) to the
-#' \code{\link{Graph}} class
+#' Convert a \code{\link[base]{matrix}} (or \code{\link[Matrix]{Matrix}}) to
+#' a \code{\link{Graph}} object
 #'
 #' @param x The matrix to convert
 #' @param ... Arguments passed to other methods (ignored for now)
@@ -54,18 +54,26 @@ as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
 }
 
-#' Convert objects to Neighbor objects
+#' Coerce to a \code{Neighbor} Object
 #'
-#' @param x An object to convert to \code{Neighbor}
+#' Convert objects to \code{\link{Neighbor}} objects
+#'
+#' @param x An object to convert to \code{\link{Neighbor}}
 #' @param ... Arguments passed to other methods
+#'
+#' @return A \code{\link{Neighbor}} object
 #'
 #' @rdname as.Neighbor
 #' @export as.Neighbor
+#'
+#' @concept neighbor
 #'
 as.Neighbor <- function(x, ...) {
   UseMethod(generic = 'as.Neighbor', object = x)
 }
 
+#' Coerce to a \code{Seurat} Object
+#'
 #' Convert objects to Seurat objects
 #'
 #' @param x An object to convert to class \code{Seurat}
@@ -152,15 +160,17 @@ Command <- function(object, ...) {
 #' @rdname CreateSeuratObject
 #' @export
 #'
-#' @concept unsorted
+#' @concept seurat
 #'
 #' @examples
+#' \dontrun{
 #' pbmc_raw <- read.table(
 #'   file = system.file('extdata', 'pbmc_raw.txt', package = 'Seurat'),
 #'   as.is = TRUE
 #' )
 #' pbmc_small <- CreateSeuratObject(counts = pbmc_raw)
 #' pbmc_small
+#' }
 #'
 CreateSeuratObject <- function(
   counts,
@@ -215,7 +225,7 @@ Distances <- function(object, ...) {
   UseMethod(generic = 'Distances', object = object)
 }
 
-#' Get cell embeddings
+#' Get Cell Embeddings
 #'
 #' @param object An object
 #' @param ... Arguments passed to other methods
@@ -229,45 +239,51 @@ Embeddings <- function(object, ...) {
   UseMethod(generic = 'Embeddings', object = object)
 }
 
-#' General accessor function for the Assay class
+#' Get and Set Assay Data
 #'
-#' This function can be used to pull information from any of the slots in the
-#' Assay class. For example, pull one of the data matrices("counts", "data", or
-#' "scale.data").
+#' General accessor and setter functions for \code{\link{Assay}} objects.
+#' \code{GetAssayData} can be used to pull information from any of the
+#' expression matrices (eg. \dQuote{counts}, \dQuote{data}, or
+#' \dQuote{scale.data}). \code{SetAssayData} can be used to replace one of these
+#' expression matrices
 #'
 #' @param object An object
+#' @param slot Specific assay data to get or set
 #' @param ... Arguments passed to other methods
 #'
-#' @return Returns info from requested slot
+#' @return \code{GetAssayData}: returns the specified assay data
 #'
-#' @rdname GetAssayData
+#' @name AssayData
+#' @rdname AssayData
 #' @export GetAssayData
+#'
+#' @order 1
 #'
 #' @concept data-access
 #'
-GetAssayData <- function(object, ...) {
+GetAssayData <- function(object, slot, ...) {
   UseMethod(generic = 'GetAssayData', object = object)
 }
 
 #' Get image data
 #'
 #' @param object An object
-#' @param mode How to return the image; should accept one of 'grob', 'raster',
-#' 'plotly', or 'raw'
+#' @param mode How to return the image; should accept one of \dQuote{grob},
+#' \dQuote{raster}, \dQuote{plotly}, or \dQuote{raw}
 #' @param ... Arguments passed to other methods
 #'
 #' @return Image data, varying depending on the value of \code{mode}:
 #' \describe{
-#'  \item{'grob'}{
+#'  \item{\dQuote{grob}}{
 #'   An object representing image data inheriting from \code{grob} objects
 #'   (eg. \code{rastergrob})
 #'  }
-#'  \item{'raster'}{An object of class \code{raster}}
-#'  \item{'plotly'}{
+#'  \item{\dQuote{raster}}{An object of class \code{raster}}
+#'  \item{\dQuote{plotly}}{
 #'   A list with image data suitable for Plotly rendering, see
-#'   \code{\link[plotly]{layout}} for more details
+#'   \code{\link[plotly:layout]{plotly::layout}} for more details
 #'  }
-#'  \item{'raw'}{The raw image data as stored in the object}
+#'  \item{\dQuote{raw}}{The raw image data as stored in the object}
 #' }
 #'
 #' @seealso \code{\link[plotly]{layout}}
@@ -278,18 +294,17 @@ GetAssayData <- function(object, ...) {
 #' @concept data-access
 #'
 GetImage <- function(object, mode = c('grob', 'raster', 'plotly', 'raw'), ...) {
+  mode <- mode[1]
   mode <- match.arg(arg = mode)
   UseMethod(generic = 'GetImage', object = object)
 }
 
 #' Get tissue coordinates
 #'
-#' Get tissue coordinates
-#'
 #' @param object An object
 #' @param ... Arguments passed to other methods
 #'
-#' @return A data.frame with tissue coordinates
+#' @return A data frame with tissue coordinates
 #'
 #' @rdname GetTissueCoordinates
 #' @export GetTissueCoordinates
@@ -300,19 +315,43 @@ GetTissueCoordinates <- function(object, ...) {
   UseMethod(generic = 'GetTissueCoordinates', object = object)
 }
 
-#' Get highly variable feature information
+#' Highly Variable Features
+#'
+#' Get and set variable feature information for an \code{\link{Assay}} object.
+#' \code{HVFInfo} and \code{VariableFeatures} utilize generally variable
+#' features, while \code{SVFInfo} and \code{SpatiallyVariableFeatures} are
+#' restricted to spatially variable features
 #'
 #' @param object An object
+#' @param selection.method Which method to pull. For \code{HVFInfo} and
+#' \code{VariableFeatures}, choose one from one of the
+#' following:
+#' \itemize{
+#'  \item \dQuote{vst}
+#'  \item \dQuote{sctransform} or \dQuote{sct}
+#'  \item \dQuote{mean.var.plot}, \dQuote{dispersion}, \dQuote{mvp}, or
+#'   \dQuote{disp}
+#' }
+#' For \code{SVFInfo} and \code{SpatiallyVariableFeatures}, choose from:
+#' \itemize{
+#'  \item \dQuote{markvariogram}
+#'  \item \dQuote{moransi}
+#' }
+#' @param status Add variable status to the resulting data frame
+#'
 #' @param ... Arguments passed to other methods
 #'
-#' @return A dataframe with feature means, dispersion, and scaled dispersion
+#' @return \code{HVFInfo}: A data frame with feature means, dispersion, and
+#' scaled dispersion
 #'
-#' @rdname HVFInfo
+#' @rdname VariableFeatures
 #' @export HVFInfo
+#'
+#' @order 1
 #'
 #' @concept data-access
 #'
-HVFInfo <- function(object, ...) {
+HVFInfo <- function(object, selection.method, status = FALSE, ...) {
   UseMethod(generic = 'HVFInfo', object = object)
 }
 
@@ -323,7 +362,7 @@ HVFInfo <- function(object, ...) {
 #' arguments as \code{old.ident = new.ident}; for \code{ReorderIdent}: arguments
 #' passed on to \code{\link{FetchData}}
 #'
-#' @return \code{Idents}: The cell identies
+#' @return \code{Idents}: The cell identities
 #'
 #' @rdname Idents
 #' @export Idents
@@ -332,15 +371,16 @@ HVFInfo <- function(object, ...) {
 #'
 #' @examples
 #' # Get cell identity classes
-#' Idents(object = pbmc_small)
+#' Idents(pbmc_small)
 #'
 Idents <- function(object, ... ) {
   UseMethod(generic = 'Idents', object = object)
 }
 
-#' @param value The name of the identites to pull from object metadata or the identities themselves
+#' @param value The name of the identities to pull from object metadata or the
+#' identities themselves
 #'
-#' @return \code{Idents<-}: An object with the cell identites changed
+#' @return \code{Idents<-}: \code{object} with the cell identities changed
 #'
 #' @rdname Idents
 #' @export Idents<-
@@ -348,13 +388,13 @@ Idents <- function(object, ... ) {
 #' @examples
 #' # Set cell identity classes
 #' # Can be used to set identities for specific cells to a new level
-#' Idents(object = pbmc_small, cells = 1:4) <- 'a'
-#' head(x = Idents(object = pbmc_small))
+#' Idents(pbmc_small, cells = 1:4) <- 'a'
+#' head(Idents(pbmc_small))
 #'
 #' # Can also set idents from a value in object metadata
-#' colnames(x = pbmc_small[[]])
-#' Idents(object = pbmc_small) <- 'RNA_snn_res.1'
-#' levels(x = pbmc_small)
+#' colnames(pbmc_small[[]])
+#' Idents(pbmc_small) <- 'RNA_snn_res.1'
+#' levels(pbmc_small)
 #'
 "Idents<-" <- function(object, ..., value) {
   UseMethod(generic = 'Idents<-', object = object)
@@ -376,7 +416,7 @@ Index <- function(object, ...) {
 
 #' @param value The index to store
 #'
-#' @return \code{Idents<-}: A Neighbor bject with the index stored
+#' @return \code{Idents<-}: A Neighbor object with the index stored
 #'
 #' @rdname Index
 #' @export Index<-
@@ -590,9 +630,9 @@ RenameCells <- function(object, ...) {
 #' @examples
 #' # Rename cell identity classes
 #' # Can provide an arbitrary amount of idents to rename
-#' levels(x = pbmc_small)
-#' pbmc_small <- RenameIdents(object = pbmc_small, '0' = 'A', '2' = 'C')
-#' levels(x = pbmc_small)
+#' levels(pbmc_small)
+#' pbmc_small <- RenameIdents(pbmc_small, '0' = 'A', '2' = 'C')
+#' levels(pbmc_small)
 #'
 RenameIdents <- function(object, ...) {
   UseMethod(generic = 'RenameIdents', object = object)
@@ -608,28 +648,26 @@ RenameIdents <- function(object, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' head(x = Idents(object = pbmc_small))
-#' pbmc_small <- ReorderIdent(object = pbmc_small, var = 'PC_1')
-#' head(x = Idents(object = pbmc_small))
+#' head(Idents(pbmc_small))
+#' pbmc_small <- ReorderIdent(pbmc_small, var = 'PC_1')
+#' head(Idents(pbmc_small))
 #' }
 #'
 ReorderIdent <- function(object, var, ...) {
   UseMethod(generic = 'ReorderIdent', object = object)
 }
 
-#' Setter for multimodal data
+#' @param new.data New assay data to add
 #'
-#' @param object An object
-#' @param ... Arguments passed to other methods
+#' @return \code{SetAssayData}: \code{object} with the assay data set
 #'
-#' @return object with the assay data set
-#'
-#' @rdname SetAssayData
+#' @rdname AssayData
 #' @export SetAssayData
 #'
-#' @concept data-access
+#' @order 2
 #'
-SetAssayData <- function(object, ...) {
+#'
+SetAssayData <- function(object, slot, new.data, ...) {
   UseMethod(generic = 'SetAssayData', object = object)
 }
 
@@ -640,23 +678,22 @@ SetAssayData <- function(object, ...) {
 #'
 #' @examples
 #' # Set cell identity classes using SetIdent
-#' cells.use <- WhichCells(object = pbmc_small, idents = '1')
-#' pbmc_small <- SetIdent(object = pbmc_small, cells = cells.use, value = 'B')
+#' cells.use <- WhichCells(pbmc_small, idents = '1')
+#' pbmc_small <- SetIdent(pbmc_small, cells = cells.use, value = 'B')
 #'
 SetIdent <- function(object, ...) {
   UseMethod(generic = 'SetIdent', object = object)
 }
 
-#' Get spatially variable feature information
+#' @return \code{SpatiallyVariableFeatures}: a character vector of the spatially
+#' variable features
 #'
-#' @inheritParams VariableFeatures
-#'
-#' @rdname SpatiallyVariableFeatures
+#' @rdname VariableFeatures
 #' @export SpatiallyVariableFeatures
 #'
-#' @concept data-access
+#' @order 5
 #'
-SpatiallyVariableFeatures <- function(object, ...) {
+SpatiallyVariableFeatures <- function(object, selection.method, ...) {
   UseMethod(generic = 'SpatiallyVariableFeatures', object = object)
 }
 
@@ -666,9 +703,9 @@ SpatiallyVariableFeatures <- function(object, ...) {
 #' @export StashIdent
 #'
 #' @examples
-#' head(x = pbmc_small[[]])
-#' pbmc_small <- StashIdent(object = pbmc_small, save.name = 'idents')
-#' head(x = pbmc_small[[]])
+#' head(pbmc_small[[]])
+#' pbmc_small <- StashIdent(pbmc_small, save.name = 'idents')
+#' head(pbmc_small[[]])
 #'
 StashIdent <- function(object, save.name, ...) {
   UseMethod(generic = 'StashIdent', object = object)
@@ -688,17 +725,14 @@ Stdev <- function(object, ...) {
   UseMethod(generic = 'Stdev', object = object)
 }
 
-#' Get spatially variable feature information
+#' @return \code{SVFInfo}: a data frame with the spatially variable features
 #'
-#' @param object An object
-#' @param ... Arguments passed to other methods
-#'
-#' @rdname SVFInfo
+#' @rdname VariableFeatures
 #' @export SVFInfo
 #'
-#' @concept data-access
+#' @order 4
 #'
-SVFInfo <- function(object, ...) {
+SVFInfo <- function(object, selection.method, status, ...) {
   UseMethod(generic = 'SVFInfo', object = object)
 }
 
@@ -714,10 +748,11 @@ SVFInfo <- function(object, ...) {
 #' object; otherwise returns the data placed by the tool requested
 #'
 #'@note For developers: set tool data using \code{Tool<-}. \code{Tool<-} will
-#'automatically set the name of the tool to the function that called \code{Tool<-},
-#'so each function gets one entry in the tools list and cannot overwrite another
-#'function's entry. The automatic naming will also remove any method identifiers
-#'(eg. RunPCA.Seurat will become RunPCA); please plan accordingly.
+#'automatically set the name of the tool to the function that called
+#'\code{Tool<-},so each function gets one entry in the tools list and cannot
+#'overwrite another function's entry. The automatic naming will also remove any
+#'method identifiers (eg. RunPCA.Seurat will become RunPCA); please
+#'plan accordingly.
 #'
 #' @rdname Tool
 #' @export Tool
@@ -739,22 +774,20 @@ Tool <- function(object, ...) {
   UseMethod(generic = 'Tool<-', object = object)
 }
 
-#' Get and set variable feature information
-#'
-#' @param object An object
-#' @param selection.method Method used to set variable features
-#' @param ... Arguments passed to other methods
+#' @return \code{VariableFeatures}: a vector of the variable features
 #'
 #' @rdname VariableFeatures
 #' @export VariableFeatures
 #'
-#' @concept data-access
+#' @order 2
 #'
-VariableFeatures <- function(object, ...) {
+VariableFeatures <- function(object, selection.method = NULL, ...) {
   UseMethod(generic = 'VariableFeatures', object = object)
 }
 
 #' @param value A character vector of variable features
+#'
+#' @order 3
 #'
 #' @rdname VariableFeatures
 #' @export VariableFeatures<-
@@ -766,7 +799,7 @@ VariableFeatures <- function(object, ...) {
 #' Identify cells matching certain criteria
 #'
 #' Returns a list of cells that match a particular set of criteria such as
-#' identity class, high/low values for particular PCs, ect..
+#' identity class, high/low values for particular PCs, etc.
 #'
 #' @param object An object
 #' @param ... Arguments passed to other methods
@@ -781,10 +814,10 @@ VariableFeatures <- function(object, ...) {
 #' @seealso \code{\link{FetchData}}
 #'
 #' @examples
-#' WhichCells(object = pbmc_small, idents = 2)
-#' WhichCells(object = pbmc_small, expression = MS4A1 > 3)
-#' levels(x = pbmc_small)
-#' WhichCells(object = pbmc_small, idents = c(1, 2), invert = TRUE)
+#' WhichCells(pbmc_small, idents = 2)
+#' WhichCells(pbmc_small, expression = MS4A1 > 3)
+#' levels(pbmc_small)
+#' WhichCells(pbmc_small, idents = c(1, 2), invert = TRUE)
 #'
 WhichCells <- function(object, ...) {
   UseMethod(generic = 'WhichCells', object = object)

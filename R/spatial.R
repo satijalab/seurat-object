@@ -53,11 +53,11 @@ SpatialImage <- setClass(
 #'
 #' @param x,object A \code{SpatialImage}-derived object
 #' @param ... Arguments passed to other methods
-#' @param value Depends on the method
+#' @param value Depends on the method:
 #' \describe{
-#'  \itemize{\code{DefaultAssay<-}}{Assay that the image should be
+#'  \item{\code{DefaultAssay<-}}{Assay that the image should be
 #'  associated with}
-#'  \itemize{\code{Key<-}}{New key for the image}
+#'  \item{\code{Key<-}}{New key for the image}
 #' }
 #' @inheritParams RenameCells
 #'
@@ -67,7 +67,7 @@ SpatialImage <- setClass(
 #' \itemize{
 #'   \item \code{\link{DefaultAssay}} and \code{\link{DefaultAssay<-}}
 #'   \item \code{\link{Key}} and \code{\link{Key<-}}
-#'   \item{\code{\link{GetImage}}}; this method \emph{can} be overridden to
+#'   \item \code{\link{GetImage}}; this method \emph{can} be overridden to
 #'   provide image data, normally returns empty image data. If overridden,
 #'   should default to returning a  \code{\link[grid]{grob}} object
 #'   \item \code{\link{IsGlobal}}
@@ -112,6 +112,8 @@ SpatialImage <- setClass(
 #'
 #' @name SpatialImage-methods
 #' @rdname SpatialImage-methods
+#'
+#' @concept spatialimage
 #'
 NULL
 

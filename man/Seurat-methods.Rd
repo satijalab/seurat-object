@@ -116,7 +116,8 @@ are shared across all objects.}
 
 \item{dims}{completely ignored by the \code{Matrix} methods.}
 
-\item{slot}{Specific information to pull (i.e. counts, data, scale.data, ...)}
+\item{slot}{Name of assay expression matrix to calculate column/row
+means/sums on}
 }
 \value{
 \code{$}: metadata column \code{i} for object \code{x};
@@ -218,22 +219,63 @@ with _X, where X is the numeric index of the object in c(x, y).
 }
 
 \examples{
+# Get metadata using `$'
+head(pbmc_small$groups)
+
+# Add metadata using the `$' operator
+set.seed(42)
+pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
+head(pbmc_small[["value"]])
+
 # `[' examples
 pbmc_small[VariableFeatures(object = pbmc_small), ]
 pbmc_small[, 1:10]
 
+# Get the cell-level metadata data frame
+head(pbmc_small[[]])
+
+# Pull specific metadata information
+head(pbmc_small[[c("letter.idents", "groups")]])
+head(pbmc_small[["groups", drop = TRUE]])
+
+# Get a sub-object (eg. an `Assay' or `DimReduc')
+pbmc_small[["RNA"]]
+pbmc_small[["pca"]]
+
+# Get the number of features in an object
+nrow(pbmc_small)
+
+# Get the number of cells in an object
+ncol(pbmc_small)
+
+# Get the feature names of an object
+rownames(pbmc_small)
+
+# Get the cell names of an object
+colnames(pbmc_small)
+
 # `merge' examples
 # merge two objects
-merge(x = pbmc_small, y = pbmc_small)
+merge(pbmc_small, y = pbmc_small)
 # to merge more than two objects, pass one to x and a list of objects to y
-merge(x = pbmc_small, y = c(pbmc_small, pbmc_small))
+merge(pbmc_small, y = c(pbmc_small, pbmc_small))
+
+names(pbmc_small)
 
 # `subset' examples
-subset(x = pbmc_small, subset = MS4A1 > 4)
-subset(x = pbmc_small, subset = `DLGAP1-AS1` > 2)
-subset(x = pbmc_small, idents = '0', invert = TRUE)
-subset(x = pbmc_small, subset = MS4A1 > 3, slot = 'counts')
-subset(x = pbmc_small, features = VariableFeatures(object = pbmc_small))
+subset(pbmc_small, subset = MS4A1 > 4)
+subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
+subset(pbmc_small, idents = '0', invert = TRUE)
+subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
+subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
+
+head(colMeans(pbmc_small))
+
+head(colSums(pbmc_small))
+
+head(rowMeans(pbmc_small))
+
+head(rowSums(pbmc_small))
 
 }
 \seealso{

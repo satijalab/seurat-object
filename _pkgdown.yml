@@ -8,48 +8,98 @@ development:
   mode: auto
 
 reference:
-  - title: Main Class Definitions
+  - title: The Seurat Class and Interaction Methods
     contents:
       - Seurat-class
-      - Assay-class
-      - DimReduc-class
-      - Graph-class
-      - SpatialImage-class
-      - SeuratCommand-class
-  - title: Other Class Definitions
-    contents:
-      - JackStrawData-class
-      - has_concept("spatial-class")
-  - title: Main Interaction Methods
-    contents:
+      - Seurat-methods
       - has_concept("seurat")
+  - title: The Assay Class and Interaction Methods
+    contents:
+      - Assay-class
+      - Assay-methods
       - has_concept("assay")
+  - title: The DimReduc and JackStrawData Classes and Interaction Methods
+    contents:
+      - DimReduc-class
+      - DimReduc-methods
       - has_concept("dimreduc")
-      - has_concept("graph")
-      - has_concept("spatial")
-      - has_concept("command")
-      - has_concept("spatial")
-  - title: Other Interaction Methods
-    contents:
+      - JackStrawData-class
+      - JackStrawData-methods
       - has_concept("jackstraw")
-      - SpatialImage-methods
-  - title: Conversion Functions
+  - title: The SeuratCommand Class and Interaction Methods
     contents:
-      - has_concept("conversion")
-  - title: Data Loading
+      - SeuratCommand-class
+      - SeuratCommand-methods
+      - has_concept("command")
+  - title: The SpatialImage Class and Interaction Methods
     contents:
-      - has_concept("data-load")
-  - title: Other Functions
+      - SpatialImage-class
+      - has_concept("spatialimage")
+  - title: The Graph and Neighbor Classes and Interaction Methods
+    contents:
+      - Graph-class
+      - has_concept("graph")
+      - Neighbor-class
+      - has_concept("neighbor")
+  - title: Accessing and Setting Object Data
     contents:
       - has_concept("data-access")
-      - has_concept("unsorted")
-      - has_concept("utils")
-  - title: Internal Functions
+  - title: Utility Functions
     contents:
-      - has_keyword("internal")
+      - set-if-null
+      - has_concept("utils")
   - title: Package Information
     contents:
       - SeuratObject-package
+      - pbmc_small
+      - reexports
+  - title: Unsorted
+    contents:
+      - has_concept("unsorted")
+
+# reference:
+#   - title: Main Class Definitions
+#     contents:
+#       - Seurat-class
+#       - Assay-class
+#       - DimReduc-class
+#       - Graph-class
+#       - SpatialImage-class
+#       - SeuratCommand-class
+#   - title: Other Class Definitions
+#     contents:
+#       - JackStrawData-class
+#       - has_concept("spatial-class")
+#   - title: Main Interaction Methods
+#     contents:
+#       - has_concept("seurat")
+#       - has_concept("assay")
+#       - has_concept("dimreduc")
+#       - has_concept("graph")
+#       - has_concept("spatial")
+#       - has_concept("command")
+#       - has_concept("spatial")
+#   - title: Other Interaction Methods
+#     contents:
+#       - has_concept("jackstraw")
+#       - SpatialImage-methods
+#   - title: Conversion Functions
+#     contents:
+#       - has_concept("conversion")
+#   - title: Data Loading
+#     contents:
+#       - has_concept("data-load")
+#   - title: Other Functions
+#     contents:
+#       - has_concept("data-access")
+#       - has_concept("unsorted")
+#       - has_concept("utils")
+#   - title: Internal Functions
+#     contents:
+#       - has_keyword("internal")
+#   - title: Package Information
+#     contents:
+#       - SeuratObject-package
 
 # reference:
 #   - title: Package Information

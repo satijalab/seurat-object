@@ -7,7 +7,7 @@
 DefaultImage(object)
 }
 \arguments{
-\item{object}{A Seurat object}
+\item{object}{A \code{\link{Seurat}} object}
 }
 \value{
 The name of the default image

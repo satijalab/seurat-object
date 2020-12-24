@@ -17,9 +17,9 @@ Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
 }
 \examples{
 \donttest{
-IsMatrixEmpty(new("matrix"))
-IsMatrixEmpty(matrix())
-IsMatrixEmpty(matrix(1:3))
+SeuratObject:::IsMatrixEmpty(new("matrix"))
+SeuratObject:::IsMatrixEmpty(matrix())
+SeuratObject:::IsMatrixEmpty(matrix(1:3))
 }
 
 }

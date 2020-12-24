@@ -24,7 +24,7 @@ Parses a string (usually a cell name) and extracts fields based
 }
 \examples{
 \donttest{
-ExtractField(string = 'Hello World', field = 1, delim = '_')
+SeuratObject:::ExtractField('Hello World', field = 1, delim = '_')
 }
 
 }
