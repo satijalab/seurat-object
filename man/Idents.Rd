@@ -141,4 +141,4 @@ levels(x = pbmc_small) <- c('C', 'A', 'B')
 levels(x = pbmc_small)
 
 }
-\concept{data-access}
+\concept{seurat}

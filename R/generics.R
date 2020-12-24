@@ -19,7 +19,7 @@ NULL
 #'
 #' @aliases SeuratAccess
 #'
-#' @concept unsorted
+#' @concept seurat
 #'
 #' @examples
 #' cluster_letters <- LETTERS[Idents(object = pbmc_small)]
@@ -82,7 +82,7 @@ as.Neighbor <- function(x, ...) {
 #' @rdname as.Seurat
 #' @export as.Seurat
 #'
-#' @concept conversion
+#' @concept seurat
 #'
 as.Seurat <- function(x, ...) {
   UseMethod(generic = 'as.Seurat', object = x)
@@ -220,6 +220,8 @@ DefaultAssay <- function(object, ...) {
 #'
 #' @rdname Distances
 #' @export Distances
+#'
+#' @concept data-access
 #'
 Distances <- function(object, ...) {
   UseMethod(generic = 'Distances', object = object)
@@ -367,7 +369,7 @@ HVFInfo <- function(object, selection.method, status = FALSE, ...) {
 #' @rdname Idents
 #' @export Idents
 #'
-#' @concept data-access
+#' @concept seurat
 #'
 #' @examples
 #' # Get cell identity classes
@@ -410,6 +412,8 @@ Idents <- function(object, ... ) {
 #' @rdname Index
 #' @export Index
 #'
+#' @concept data-access
+#'
 Index <- function(object, ...) {
   UseMethod(generic = "Index", object = object)
 }
@@ -434,6 +438,8 @@ Index <- function(object, ...) {
 #'
 #' @rdname Indices
 #' @export Indices
+#'
+#' @concept data-access
 #'
 Indices <- function(object, ...) {
   UseMethod(generic = "Indices", object = object)
@@ -598,6 +604,8 @@ Project <- function(object, ...) {
 #' @rdname Radius
 #' @export Radius
 #'
+#' @concept spatialimage
+#'
 Radius <- function(object) {
   UseMethod(generic = 'Radius', object = object)
 }
@@ -719,7 +727,7 @@ StashIdent <- function(object, save.name, ...) {
 #' @rdname Stdev
 #' @export Stdev
 #'
-#' @concept unsorted
+#' @concept data-access
 #'
 Stdev <- function(object, ...) {
   UseMethod(generic = 'Stdev', object = object)
