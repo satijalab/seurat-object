@@ -44,7 +44,7 @@
 associated with a cell (examples include read depth, alignment rate,
 experimental batch, or subpopulation identity) or feature (ENSG name,
 variance). To add cell level information, add to the Seurat object. If adding
-feature-level metadata, add to the Assay object (e.g. object[[&quot;RNA&quot;]]))" />
+feature-level metadata, add to the Assay object (e.g. object[[&quot;RNA&quot;]])" />
 
 
 
@@ -122,7 +122,7 @@ feature-level metadata, add to the Assay object (e.g. object[[&quot;RNA&quot;]])
 associated with a cell (examples include read depth, alignment rate,
 experimental batch, or subpopulation identity) or feature (ENSG name,
 variance). To add cell level information, add to the Seurat object. If adding
-feature-level metadata, add to the Assay object (e.g. object[["RNA"]]))</p>
+feature-level metadata, add to the Assay object (e.g. <code>object[["RNA"]]</code>)</p>
     </div>
 
     <pre class="usage"><span class='fu'>AddMetaData</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>metadata</span>, col.name <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
@@ -152,7 +152,7 @@ feature-level metadata, add to the Assay object (e.g. object[["RNA"]]))</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object with metadata or and object added</p>
+    <p><code>object</code> with metadata added</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='va'>cluster_letters</span> <span class='op'>&lt;-</span> <span class='va'>LETTERS</span><span class='op'>[</span><span class='fu'><a href='Idents.html'>Idents</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>]</span>

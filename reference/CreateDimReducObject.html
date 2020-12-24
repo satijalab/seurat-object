@@ -174,7 +174,7 @@ with the dimensional reduction</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='GetAssayData.html'>GetAssayData</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"RNA"</span><span class='op'>]</span><span class='op'>]</span>, slot <span class='op'>=</span> <span class='st'>"scale.data"</span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='AssayData.html'>GetAssayData</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"RNA"</span><span class='op'>]</span><span class='op'>]</span>, slot <span class='op'>=</span> <span class='st'>"scale.data"</span><span class='op'>)</span>
 <span class='va'>pcs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>data</span><span class='op'>)</span>
 <span class='va'>pca.dr</span> <span class='op'>&lt;-</span> <span class='fu'>CreateDimReducObject</span><span class='op'>(</span>
   embeddings <span class='op'>=</span> <span class='va'>pcs</span><span class='op'>$</span><span class='va'>rotation</span>,

@@ -260,7 +260,8 @@ are shared across all objects.</p></td>
     </tr>
     <tr>
       <th>slot</th>
-      <td><p>Specific information to pull (i.e. counts, data, scale.data, ...)</p></td>
+      <td><p>Name of assay expression matrix to calculate column/row
+means/sums on</p></td>
     </tr>
     </table>
 
@@ -340,8 +341,25 @@ with _X, where X is the numeric index of the object in c(x, y).</p>
     <div class='dont-index'><p><code><a href='https://rdrr.io/r/base/subset.html'>subset</a></code> <code><a href='WhichCells.html'>WhichCells</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># `[' examples</span>
-<span class='va'>pbmc_small</span><span class='op'>[</span><span class='fu'><a href='VariableFeatures.html'>VariableFeatures</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>, <span class='op'>]</span>
+    <pre class="examples"><div class='input'><span class='co'># Get metadata using `$'</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>$</span><span class='va'>groups</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA 
+#&gt;           "g2"           "g1"           "g2"           "g2"           "g2" 
+#&gt; TCTGATACACGTGT 
+#&gt;           "g1" </div><div class='input'>
+<span class='co'># Add metadata using the `$' operator</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>42</span><span class='op'>)</span>
+<span class='va'>pbmc_small</span><span class='op'>$</span><span class='va'>value</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>, size <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>, replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"value"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                value
+#&gt; ATGCCAGAACGACT     1
+#&gt; CATGGCCTGTGCAT     1
+#&gt; GAACCTGATGAACC     1
+#&gt; TGACTGGATTCTCA     1
+#&gt; AGTCAGACTGCACA     2
+#&gt; TCTGATACACGTGT     2</div><div class='input'>
+<span class='co'># `[' examples</span>
+<span class='va'>pbmc_small</span><span class='op'>[</span><span class='fu'><a href='HVFInfo.html'>VariableFeatures</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>, <span class='op'>]</span>
 </div><div class='output co'>#&gt; An object of class Seurat 
 #&gt; 20 features across 80 samples within 1 assay 
 #&gt; Active assay: RNA (20 features, 20 variable features)
@@ -350,34 +368,183 @@ with _X, where X is the numeric index of the object in c(x, y).</p>
 #&gt; 230 features across 10 samples within 1 assay 
 #&gt; Active assay: RNA (230 features, 20 variable features)
 #&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'>
+<span class='co'># Get the cell-level metadata data frame</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                   orig.ident nCount_RNA nFeature_RNA RNA_snn_res.0.8
+#&gt; ATGCCAGAACGACT SeuratProject         70           47               0
+#&gt; CATGGCCTGTGCAT SeuratProject         85           52               0
+#&gt; GAACCTGATGAACC SeuratProject         87           50               1
+#&gt; TGACTGGATTCTCA SeuratProject        127           56               0
+#&gt; AGTCAGACTGCACA SeuratProject        173           53               0
+#&gt; TCTGATACACGTGT SeuratProject         70           48               0
+#&gt;                letter.idents groups RNA_snn_res.1 value
+#&gt; ATGCCAGAACGACT             A     g2             0     1
+#&gt; CATGGCCTGTGCAT             A     g1             0     1
+#&gt; GAACCTGATGAACC             B     g2             0     1
+#&gt; TGACTGGATTCTCA             A     g2             0     1
+#&gt; AGTCAGACTGCACA             A     g2             0     2
+#&gt; TCTGATACACGTGT             A     g1             0     2</div><div class='input'>
+<span class='co'># Pull specific metadata information</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"letter.idents"</span>, <span class='st'>"groups"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                letter.idents groups
+#&gt; ATGCCAGAACGACT             A     g2
+#&gt; CATGGCCTGTGCAT             A     g1
+#&gt; GAACCTGATGAACC             B     g2
+#&gt; TGACTGGATTCTCA             A     g2
+#&gt; AGTCAGACTGCACA             A     g2
+#&gt; TCTGATACACGTGT             A     g1</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"groups"</span>, drop <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA 
+#&gt;           "g2"           "g1"           "g2"           "g2"           "g2" 
+#&gt; TCTGATACACGTGT 
+#&gt;           "g1" </div><div class='input'>
+<span class='co'># Get a sub-object (eg. an `Assay' or `DimReduc')</span>
+<span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"RNA"</span><span class='op'>]</span><span class='op'>]</span>
+</div><div class='output co'>#&gt; Assay data with 230 features for 80 cells
+#&gt; Top 10 variable features:
+#&gt;  PPBP, IGLL5, VDAC3, CD1C, AKR1C3, PF4, MYL9, GNLY, TREML1, CA2 </div><div class='input'><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"pca"</span><span class='op'>]</span><span class='op'>]</span>
+</div><div class='output co'>#&gt; A dimensional reduction object with key PC_ 
+#&gt;  Number of dimensions: 19 
+#&gt;  Projected dimensional reduction calculated:  TRUE 
+#&gt;  Jackstraw run: TRUE 
+#&gt;  Computed using assay: RNA </div><div class='input'>
+<span class='co'># Get the number of features in an object</span>
+<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 230</div><div class='input'>
+<span class='co'># Get the number of cells in an object</span>
+<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 80</div><div class='input'>
+<span class='co'># Get the feature names of an object</span>
+<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   [1] "MS4A1"         "CD79B"         "CD79A"         "HLA-DRA"      
+#&gt;   [5] "TCL1A"         "HLA-DQB1"      "HVCN1"         "HLA-DMB"      
+#&gt;   [9] "LTB"           "LINC00926"     "FCER2"         "SP100"        
+#&gt;  [13] "NCF1"          "PPP3CC"        "EAF2"          "PPAPDC1B"     
+#&gt;  [17] "CD19"          "KIAA0125"      "CYB561A3"      "CD180"        
+#&gt;  [21] "RP11-693J15.5" "FAM96A"        "CXCR4"         "STX10"        
+#&gt;  [25] "SNHG7"         "NT5C"          "BANK1"         "IGLL5"        
+#&gt;  [29] "CD200"         "FCRLA"         "CD3D"          "NOSIP"        
+#&gt;  [33] "SAFB2"         "CD2"           "IL7R"          "PIK3IP1"      
+#&gt;  [37] "MPHOSPH6"      "KHDRBS1"       "MAL"           "CCR7"         
+#&gt;  [41] "THYN1"         "TAF7"          "LDHB"          "TMEM123"      
+#&gt;  [45] "CCDC104"       "EPC1"          "EIF4A2"        "CD3E"         
+#&gt;  [49] "TMUB1"         "BLOC1S4"       "ACSM3"         "TMEM204"      
+#&gt;  [53] "SRSF7"         "ACAP1"         "TNFAIP8"       "CD7"          
+#&gt;  [57] "TAGAP"         "DNAJB1"        "ASNSD1"        "S1PR4"        
+#&gt;  [61] "CTSW"          "GZMK"          "NKG7"          "IL32"         
+#&gt;  [65] "DNAJC2"        "LYAR"          "CST7"          "LCK"          
+#&gt;  [69] "CCL5"          "HNRNPH1"       "SSR2"          "DLGAP1-AS1"   
+#&gt;  [73] "GIMAP1"        "MMADHC"        "ZNF76"         "CD8A"         
+#&gt;  [77] "PTPN22"        "GYPC"          "HNRNPF"        "RPL7L1"       
+#&gt;  [81] "KLRG1"         "CRBN"          "SATB1"         "SIT1"         
+#&gt;  [85] "PMPCB"         "NRBP1"         "TCF7"          "HNRNPA3"      
+#&gt;  [89] "S100A8"        "S100A9"        "LYZ"           "CD14"         
+#&gt;  [93] "FCN1"          "TYROBP"        "ASGR1"         "NFKBIA"       
+#&gt;  [97] "TYMP"          "CTSS"          "TSPO"          "RBP7"         
+#&gt; [101] "CTSB"          "LGALS1"        "FPR1"          "VSTM1"        
+#&gt; [105] "BLVRA"         "MPEG1"         "BID"           "SMCO4"        
+#&gt; [109] "CFD"           "LINC00936"     "LGALS2"        "MS4A6A"       
+#&gt; [113] "FCGRT"         "LGALS3"        "NUP214"        "SCO2"         
+#&gt; [117] "IL17RA"        "IFI6"          "HLA-DPA1"      "FCER1A"       
+#&gt; [121] "CLEC10A"       "HLA-DMA"       "RGS1"          "HLA-DPB1"     
+#&gt; [125] "HLA-DQA1"      "RNF130"        "HLA-DRB5"      "HLA-DRB1"     
+#&gt; [129] "CST3"          "IL1B"          "POP7"          "HLA-DQA2"     
+#&gt; [133] "CD1C"          "GSTP1"         "EIF3G"         "VPS28"        
+#&gt; [137] "LY86"          "ZFP36L1"       "ZNF330"        "ANXA2"        
+#&gt; [141] "GRN"           "CFP"           "HSP90AA1"      "FUOM"         
+#&gt; [145] "LST1"          "AIF1"          "PSAP"          "YWHAB"        
+#&gt; [149] "MYO1G"         "SAT1"          "RGS2"          "SERPINA1"     
+#&gt; [153] "IFITM3"        "FCGR3A"        "LILRA3"        "S100A11"      
+#&gt; [157] "FCER1G"        "TNFRSF1B"      "IFITM2"        "WARS"         
+#&gt; [161] "IFI30"         "MS4A7"         "C5AR1"         "HCK"          
+#&gt; [165] "COTL1"         "LGALS9"        "CD68"          "RP11-290F20.3"
+#&gt; [169] "RHOC"          "CARD16"        "LRRC25"        "COPS6"        
+#&gt; [173] "ADAR"          "PPBP"          "GPX1"          "TPM4"         
+#&gt; [177] "PF4"           "SDPR"          "NRGN"          "SPARC"        
+#&gt; [181] "GNG11"         "CLU"           "HIST1H2AC"     "NCOA4"        
+#&gt; [185] "GP9"           "FERMT3"        "ODC1"          "CD9"          
+#&gt; [189] "RUFY1"         "TUBB1"         "TALDO1"        "TREML1"       
+#&gt; [193] "NGFRAP1"       "PGRMC1"        "CA2"           "ITGA2B"       
+#&gt; [197] "MYL9"          "TMEM40"        "PARVB"         "PTCRA"        
+#&gt; [201] "ACRBP"         "TSC22D1"       "VDAC3"         "GZMB"         
+#&gt; [205] "GZMA"          "GNLY"          "FGFBP2"        "AKR1C3"       
+#&gt; [209] "CCL4"          "PRF1"          "GZMH"          "XBP1"         
+#&gt; [213] "GZMM"          "PTGDR"         "IGFBP7"        "TTC38"        
+#&gt; [217] "KLRD1"         "ARHGDIA"       "IL2RB"         "CLIC3"        
+#&gt; [221] "PPP1R18"       "CD247"         "ALOX5AP"       "XCL2"         
+#&gt; [225] "C12orf75"      "RARRES3"       "PCMT1"         "LAMP1"        
+#&gt; [229] "SPON2"         "S100B"        </div><div class='input'>
+<span class='co'># Get the cell names of an object</span>
+<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] "ATGCCAGAACGACT" "CATGGCCTGTGCAT" "GAACCTGATGAACC" "TGACTGGATTCTCA"
+#&gt;  [5] "AGTCAGACTGCACA" "TCTGATACACGTGT" "TGGTATCTAAACAG" "GCAGCTCTGTTTCT"
+#&gt;  [9] "GATATAACACGCAT" "AATGTTGACAGTCA" "AGGTCATGAGTGTC" "AGAGATGATCTCGC"
+#&gt; [13] "GGGTAACTCTAGTG" "CATGAGACACGGGA" "TACGCCACTCCGAA" "CTAAACCTGTGCAT"
+#&gt; [17] "GTAAGCACTCATTC" "TTGGTACTGAATCC" "CATCATACGGAGCA" "TACATCACGCTAAC"
+#&gt; [21] "TTACCATGAATCGC" "ATAGGAGAAACAGA" "GCGCACGACTTTAC" "ACTCGCACGAAAGT"
+#&gt; [25] "ATTACCTGCCTTAT" "CCCAACTGCAATCG" "AAATTCGAATCACG" "CCATCCGATTCGCC"
+#&gt; [29] "TCCACTCTGAGCTT" "CATCAGGATGCACA" "CTAAACCTCTGACA" "GATAGAGAAGGGTG"
+#&gt; [33] "CTAACGGAACCGAT" "AGATATACCCGTAA" "TACTCTGAATCGAC" "GCGCATCTTGCTCC"
+#&gt; [37] "GTTGACGATATCGG" "ACAGGTACTGGTGT" "GGCATATGCTTATC" "CATTACACCAACTG"
+#&gt; [41] "TAGGGACTGAACTC" "GCTCCATGAGAAGT" "TACAATGATGCTAG" "CTTCATGACCGAAT"
+#&gt; [45] "CTGCCAACAGGAGC" "TTGCATTGAGCTAC" "AAGCAAGAGCTTAG" "CGGCACGAACTCAG"
+#&gt; [49] "GGTGGAGATTACTC" "GGCCGATGTACTCT" "CGTAGCCTGTATGC" "TGAGCTGAATGCTG"
+#&gt; [53] "CCTATAACGAGACG" "ATAAGTTGGTACGT" "AAGCGACTTTGACG" "ACCAGTGAATACCG"
+#&gt; [57] "ATTGCACTTGCTTT" "CTAGGTGATGGTTG" "GCACTAGACCTTTA" "CATGCGCTAGTCAC"
+#&gt; [61] "TTGAGGACTACGCA" "ATACCACTCTAAGC" "CATATAGACTAAGC" "TTTAGCTGTACTCT"
+#&gt; [65] "GACATTCTCCACCT" "ACGTGATGCCATGA" "ATTGTAGATTCCCG" "GATAGAGATCACGA"
+#&gt; [69] "AATGCGTGGACGGA" "GCGTAAACACGGTT" "ATTCAGCTCATTGG" "GGCATATGGGGAGT"
+#&gt; [73] "ATCATCTGACACCA" "GTCATACTTCGCCT" "TTACGTACGTTCAG" "GAGTTGTGGTAGCT"
+#&gt; [77] "GACGCTCTCTCTCG" "AGTCTTACTTCGGA" "GGAACACTTCAGAC" "CTTGATTGATCTTC"</div><div class='input'>
 <span class='co'># `merge' examples</span>
 <span class='co'># merge two objects</span>
-<span class='fu'>merge</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='warning'>Warning: Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.</span></div><div class='output co'>#&gt; <span class='error'>Error in packageVersion(pkg = "Seurat"): there is no package called ‘Seurat’</span></div><div class='input'><span class='co'># to merge more than two objects, pass one to x and a list of objects to y</span>
-<span class='fu'>merge</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>pbmc_small</span>, <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='warning'>Warning: Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.</span></div><div class='output co'>#&gt; <span class='error'>Error in packageVersion(pkg = "Seurat"): there is no package called ‘Seurat’</span></div><div class='input'>
+<span class='fu'>merge</span><span class='op'>(</span><span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.</span></div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 230 features across 160 samples within 1 assay 
+#&gt; Active assay: RNA (230 features, 0 variable features)</div><div class='input'><span class='co'># to merge more than two objects, pass one to x and a list of objects to y</span>
+<span class='fu'>merge</span><span class='op'>(</span><span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>pbmc_small</span>, <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.</span></div><div class='output co'>#&gt; An object of class Seurat 
+#&gt; 230 features across 240 samples within 1 assay 
+#&gt; Active assay: RNA (230 features, 0 variable features)</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "RNA"     "RNA_snn" "pca"     "tsne"   </div><div class='input'>
 <span class='co'># `subset' examples</span>
-<span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>4</span><span class='op'>)</span>
+<span class='fu'>subset</span><span class='op'>(</span><span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>4</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; An object of class Seurat 
 #&gt; 230 features across 10 samples within 1 assay 
 #&gt; Active assay: RNA (230 features, 20 variable features)
-#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>`DLGAP1-AS1`</span> <span class='op'>&gt;</span> <span class='fl'>2</span><span class='op'>)</span>
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span><span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>`DLGAP1-AS1`</span> <span class='op'>&gt;</span> <span class='fl'>2</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; An object of class Seurat 
 #&gt; 230 features across 4 samples within 1 assay 
 #&gt; Active assay: RNA (230 features, 20 variable features)
-#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='st'>'0'</span>, invert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span><span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='st'>'0'</span>, invert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; An object of class Seurat 
 #&gt; 230 features across 44 samples within 1 assay 
 #&gt; Active assay: RNA (230 features, 20 variable features)
-#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>3</span>, slot <span class='op'>=</span> <span class='st'>'counts'</span><span class='op'>)</span>
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span><span class='va'>pbmc_small</span>, subset <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>3</span>, slot <span class='op'>=</span> <span class='st'>'counts'</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; An object of class Seurat 
 #&gt; 230 features across 3 samples within 1 assay 
 #&gt; Active assay: RNA (230 features, 20 variable features)
-#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span>, features <span class='op'>=</span> <span class='fu'><a href='VariableFeatures.html'>VariableFeatures</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+#&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'><span class='fu'>subset</span><span class='op'>(</span><span class='va'>pbmc_small</span>, features <span class='op'>=</span> <span class='fu'><a href='HVFInfo.html'>VariableFeatures</a></span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; An object of class Seurat 
 #&gt; 20 features across 80 samples within 1 assay 
 #&gt; Active assay: RNA (20 features, 20 variable features)
 #&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>colMeans</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA 
+#&gt;       1.070119       1.156175       1.102886       1.200849       1.051583 
+#&gt; TCTGATACACGTGT 
+#&gt;       1.091485 </div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>colSums</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA 
+#&gt;       246.1273       265.9203       253.6638       276.1952       241.8640 
+#&gt; TCTGATACACGTGT 
+#&gt;       251.0415 </div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>rowMeans</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;     MS4A1     CD79B     CD79A   HLA-DRA     TCL1A  HLA-DQB1 
+#&gt; 0.7890259 1.3545382 0.8719449 3.9500607 0.5661287 1.7583174 </div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>rowSums</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;     MS4A1     CD79B     CD79A   HLA-DRA     TCL1A  HLA-DQB1 
+#&gt;  63.12207 108.36306  69.75559 316.00486  45.29029 140.66539 </div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

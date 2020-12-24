@@ -41,7 +41,7 @@
 
 <meta property="og:title" content="Identify cells matching certain criteria — WhichCells" />
 <meta property="og:description" content="Returns a list of cells that match a particular set of criteria such as
-identity class, high/low values for particular PCs, ect.." />
+identity class, high/low values for particular PCs, etc." />
 
 
 
@@ -116,7 +116,7 @@ identity class, high/low values for particular PCs, ect.." />
 
     <div class="ref-description">
     <p>Returns a list of cells that match a particular set of criteria such as
-identity class, high/low values for particular PCs, ect..</p>
+identity class, high/low values for particular PCs, etc.</p>
     </div>
 
     <pre class="usage"><span class='fu'>WhichCells</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span>
@@ -191,16 +191,16 @@ cell selection</p></td>
     <div class='dont-index'><p><code><a href='FetchData.html'>FetchData</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>WhichCells</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='fu'>WhichCells</span><span class='op'>(</span><span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;  [1] "AGGTCATGAGTGTC" "AGAGATGATCTCGC" "GGGTAACTCTAGTG" "CATGAGACACGGGA"
 #&gt;  [5] "TACGCCACTCCGAA" "CTAAACCTGTGCAT" "GTAAGCACTCATTC" "TTGGTACTGAATCC"
 #&gt;  [9] "CATCATACGGAGCA" "TACATCACGCTAAC" "GATAGAGAAGGGTG" "GCTCCATGAGAAGT"
 #&gt; [13] "CTGCCAACAGGAGC" "TTGCATTGAGCTAC" "CCTATAACGAGACG" "TTGAGGACTACGCA"
-#&gt; [17] "CATATAGACTAAGC" "GACATTCTCCACCT" "GCGTAAACACGGTT"</div><div class='input'><span class='fu'>WhichCells</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, expression <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>3</span><span class='op'>)</span>
+#&gt; [17] "CATATAGACTAAGC" "GACATTCTCCACCT" "GCGTAAACACGGTT"</div><div class='input'><span class='fu'>WhichCells</span><span class='op'>(</span><span class='va'>pbmc_small</span>, expression <span class='op'>=</span> <span class='va'>MS4A1</span> <span class='op'>&gt;</span> <span class='fl'>3</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;  [1] "AGGTCATGAGTGTC" "AGAGATGATCTCGC" "GGGTAACTCTAGTG" "CATGAGACACGGGA"
 #&gt;  [5] "TACGCCACTCCGAA" "CTAAACCTGTGCAT" "GTAAGCACTCATTC" "TTGGTACTGAATCC"
-#&gt;  [9] "CATCATACGGAGCA" "TACATCACGCTAAC" "ATTACCTGCCTTAT" "GATAGAGATCACGA"</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "0" "1" "2"</div><div class='input'><span class='fu'>WhichCells</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, invert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+#&gt;  [9] "CATCATACGGAGCA" "TACATCACGCTAAC" "ATTACCTGCCTTAT" "GATAGAGATCACGA"</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/levels.html'>levels</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "0" "1" "2"</div><div class='input'><span class='fu'>WhichCells</span><span class='op'>(</span><span class='va'>pbmc_small</span>, idents <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, invert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;  [1] "ATGCCAGAACGACT" "CATGGCCTGTGCAT" "GAACCTGATGAACC" "TGACTGGATTCTCA"
 #&gt;  [5] "AGTCAGACTGCACA" "TCTGATACACGTGT" "TGGTATCTAAACAG" "GCAGCTCTGTTTCT"
 #&gt;  [9] "GATATAACACGCAT" "AATGTTGACAGTCA" "CTAAACCTCTGACA" "CTAACGGAACCGAT"
