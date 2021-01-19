@@ -14,6 +14,9 @@ Distances(object, ...)
 
 \item{...}{Arguments passed to other methods}
 }
+\value{
+The distance matrix
+}
 \description{
 Get the Neighbor nearest neighbors distance matrix
 }

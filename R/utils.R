@@ -321,6 +321,8 @@ S4ToList.list <- function(object) {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 CheckDots <- function(..., fxns = NULL) {
   args.names <- names(x = list(...))
   if (length(x = list(...)) == 0) {
@@ -460,6 +462,8 @@ CheckDots <- function(..., fxns = NULL) {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
   cell.names <- unlist(x = lapply(X = object.list, FUN = colnames))
   if (any(duplicated(x = cell.names))) {
@@ -497,6 +501,8 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 #' @examples
 #' \donttest{
 #' SeuratObject:::ExtractField('Hello World', field = 1, delim = '_')
@@ -526,6 +532,8 @@ ExtractField <- function(string, field = 1, delim = "_") {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 #' @examples
 #' \donttest{
 #' SeuratObject:::IsMatrixEmpty(new("matrix"))
@@ -553,6 +561,8 @@ IsMatrixEmpty <- function(x) {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 IsNullPtr <- function(x) {
   stopifnot(is(object = x, class2 = 'externalptr'))
   return(.Call('isnull', x))
@@ -571,6 +581,8 @@ IsNullPtr <- function(x) {
 #' @seealso \code{\link[base]{sample}}
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 #' @examples
 #' \dontrun{
@@ -607,6 +619,8 @@ RandomName <- function(length = 5L, ...) {
 #' @keywords internal
 #'
 #' @seealso \code{\link{s4list}}
+#'
+#' @noRd
 #'
 SwapClassPkg <- function(x, from = NULL, to = NULL) {
   if (!inherits(x = x, what = 'list')) {
@@ -659,6 +673,8 @@ SwapClassPkg <- function(x, from = NULL, to = NULL) {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 Top <- function(data, num = 20, balanced = FALSE) {
   nr <- nrow(x = data)
   if (num > nr) {
@@ -699,6 +715,8 @@ Top <- function(data, num = 20, balanced = FALSE) {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 UpdateClassPkg <- function(object, from = NULL, to = NULL) {
   if (!isS4(object)) {
     return(object)
@@ -718,6 +736,8 @@ UpdateClassPkg <- function(object, from = NULL, to = NULL) {
 #' @importFrom methods slotNames slot
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 UpdateSlots <- function(object) {
   object.list <- sapply(
@@ -758,6 +778,8 @@ UpdateSlots <- function(object) {
 #' blah
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 UpdateKey <- function(key) {
   if (grepl(pattern = '^[[:alnum:]]+_$', x = key)) {

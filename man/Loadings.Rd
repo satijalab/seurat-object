@@ -29,6 +29,11 @@ Loadings(object, ...) <- value
 
 \item{reduction}{Name of reduction to pull feature loadings for}
 }
+\value{
+\code{Loadings}: the feature loadings for \code{object}
+
+\code{Loadings<-}: \code{object} with the updated loadings
+}
 \description{
 Get and set feature loadings
 }

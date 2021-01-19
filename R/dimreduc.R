@@ -66,6 +66,8 @@ DimReduc <- setClass(
 #' @param misc list for the user to store any additional information associated
 #' with the dimensional reduction
 #'
+#' @return A \code{\link{DimReduc}} object
+#'
 #' @aliases SetDimReduction
 #'
 #' @export
@@ -776,6 +778,8 @@ setMethod(
 #' @return TRUE if projected loadings have been set, else FALSE
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 Projected <- function(object) {
   return(!IsMatrixEmpty(x = Loadings(object = object, projected = TRUE)))

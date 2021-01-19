@@ -10,7 +10,9 @@ NULL
 #' variance). To add cell level information, add to the Seurat object. If adding
 #' feature-level metadata, add to the Assay object (e.g. \code{object[["RNA"]]})
 #'
-#' @inheritParams .AddMetaData
+#' @param object An object
+#' @param metadata A vector, list, or data.frame with metadata to add
+#' @param col.name A name for meta data if not a named list or data.frame
 #'
 #' @return \code{object} with metadata added
 #'
@@ -78,6 +80,8 @@ as.Neighbor <- function(x, ...) {
 #'
 #' @param x An object to convert to class \code{Seurat}
 #' @param ... Arguments passed to other methods
+#'
+#' @return A \code{\link{Seurat}} object generated from \code{x}
 #'
 #' @rdname as.Seurat
 #' @export as.Seurat
@@ -218,6 +222,8 @@ DefaultAssay <- function(object, ...) {
 #' @param object An object
 #' @param ... Arguments passed to other methods
 #'
+#' @return The distance matrix
+#'
 #' @rdname Distances
 #' @export Distances
 #'
@@ -231,6 +237,8 @@ Distances <- function(object, ...) {
 #'
 #' @param object An object
 #' @param ... Arguments passed to other methods
+#'
+#' @return The embeddings matrix
 #'
 #' @rdname Embeddings
 #' @export Embeddings
@@ -475,6 +483,9 @@ IsGlobal <- function(object, ...) {
 #' @param object An object
 #' @param ... Arguments passed to other methods
 #'
+#' @return \code{JS}: either a \code{\link{JackStrawData}} object or the
+#' specified jackstraw data
+#'
 #' @rdname JS
 #' @export JS
 #'
@@ -485,6 +496,8 @@ JS <- function(object, ...) {
 }
 
 #' @param value JackStraw information
+#'
+#' @return \code{JS<-}: \code{object} with the update jackstraw information
 #'
 #' @rdname JS
 #' @export JS<-
@@ -498,6 +511,8 @@ JS <- function(object, ...) {
 #' @param object An object
 #' @param ... Arguments passed to other methods
 #'
+#' @return \code{Key}: the object key
+#'
 #' @rdname Key
 #' @export Key
 #'
@@ -508,6 +523,8 @@ Key <- function(object, ...) {
 }
 
 #' @param value Key value
+#'
+#' @return \code{Key<-}: \code{object} with an updated key
 #'
 #' @rdname Key
 #' @export Key<-
@@ -523,6 +540,8 @@ Key <- function(object, ...) {
 #' @param object An object
 #' @param ... Arguments passed to other methods
 #'
+#' @return \code{Loadings}: the feature loadings for \code{object}
+#'
 #' @rdname Loadings
 #' @export Loadings
 #'
@@ -533,6 +552,8 @@ Loadings <- function(object, ...) {
 }
 
 #' @param value Feature loadings to add
+#'
+#' @return \code{Loadings<-}: \code{object} with the updated loadings
 #'
 #' @rdname Loadings
 #' @export Loadings<-
@@ -723,6 +744,8 @@ StashIdent <- function(object, save.name, ...) {
 #'
 #' @param object An object
 #' @param ... Arguments passed to other methods
+#'
+#' @return The standard deviations
 #'
 #' @rdname Stdev
 #' @export Stdev

@@ -19,6 +19,9 @@ Embeddings(object, ...)
 
 \item{reduction}{Name of reduction to pull cell embeddings for}
 }
+\value{
+The embeddings matrix
+}
 \description{
 Get Cell Embeddings
 }

@@ -2990,6 +2990,8 @@ setMethod(
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 #' @examples
 #' \donttest{
 #' SeuratObject:::Collections(pbmc_small)
@@ -3022,6 +3024,8 @@ Collections <- function(object) {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 DefaultImage <- function(object) {
   object <- UpdateSlots(object = object)
   images <- Images(object = object, assay = DefaultAssay(object = object))
@@ -3040,6 +3044,8 @@ DefaultImage <- function(object) {
 #' of class \code{classes.keep}
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 FilterObjects <- function(object, classes.keep = c('Assay', 'DimReduc')) {
   object <- UpdateSlots(object = object)
@@ -3079,6 +3085,8 @@ FilterObjects <- function(object, classes.keep = c('Assay', 'DimReduc')) {
 #' @return The collection (slot) of the object
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 #' @examples
 #' \donttest{
@@ -3132,6 +3140,8 @@ FindObject <- function(object, name) {
 #' @keywords internal
 #'
 #' @seealso \code{\link[sctransform]{get_residuals}}
+#'
+#' @noRd
 #'
 #' @examples
 #' \dontrun{
@@ -3377,6 +3387,8 @@ GetResidualVstOut <- function(
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 UpdateAssay <- function(old.assay, assay) {
   cells <- colnames(x = old.assay@data)
   counts <- old.assay@raw.data
@@ -3405,7 +3417,7 @@ UpdateAssay <- function(old.assay, assay) {
 #'
 #' @rdname V2Update
 #'
-#' @keywords internal
+#' @noRd
 #'
 UpdateDimReduction <- function(old.dr, assay) {
   new.dr <- list()
@@ -3452,6 +3464,8 @@ UpdateDimReduction <- function(old.dr, assay) {
 #' @rdname V2Update
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 UpdateJackstraw <- function(old.jackstraw) {
   if (is.null(x = old.jackstraw)) {

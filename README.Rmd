@@ -47,8 +47,10 @@ color <- c("experimental" = "orange", "maturing" = "blue", "stable" = "brightgre
 # SeuratObject
 
 <!-- badges: start -->
-[![CRAN/METACRAN](https://img.shields.io/cran/v/`r pkg`)](`r paste0(cran.cannoncial, pkg)`)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-`r stage`-`r color`.svg)](`r github.url`)
+[![CRAN/METACRAN](https://img.shields.io/cran/v/`r pkg`)](`r paste0(cran.cannoncial, pkg)`)
+[![dependencies](https://tinyverse.netlify.com/badge/`r pkg`)](`r paste0(cran.cannoncial, pkg)`)
+[![Downloads](https://cranlogs.r-pkg.org/badges/`r pkg`?color=brightgreen)](`r paste0(cran.cannoncial, pkg)`)
 <!-- badges: end -->
 
 ```{r description, echo=FALSE, results='asis'}
@@ -57,12 +59,8 @@ cat(gsub(pattern = '\n', replacement = ' ', x = description[, "Description"]))
 
 ## Installation
 
-`r pkg` is not currently available on CRAN.
-You can install it from [GitHub](`r github.url`) with:
+`r pkg` is available on CRAN
 
-``` r
-if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
-}
-remotes::install_github("mojaveazure/seurat-object")
+```r
+install.packages("SeuratObject")
 ```

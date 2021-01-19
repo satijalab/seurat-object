@@ -38,6 +38,9 @@ specific DimReduc}
 \item{misc}{list for the user to store any additional information associated
 with the dimensional reduction}
 }
+\value{
+A \code{\link{DimReduc}} object
+}
 \description{
 Create a DimReduc object
 }

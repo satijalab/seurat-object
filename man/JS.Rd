@@ -31,6 +31,12 @@ JS(object, ...) <- value
 \item{slot}{Name of slot to store JackStraw scores to
 Can shorten to 'empirical', 'fake', 'full', or 'overall'}
 }
+\value{
+\code{JS}: either a \code{\link{JackStrawData}} object or the
+specified jackstraw data
+
+\code{JS<-}: \code{object} with the update jackstraw information
+}
 \description{
 Get and set JackStraw information
 }

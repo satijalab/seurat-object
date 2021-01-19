@@ -68,6 +68,8 @@ Assay <- setClass(
 #' @param min.features Include cells where at least this many features are
 #' detected.
 #'
+#' @return A \code{\link{Assay}} object
+#'
 #' @importFrom methods as
 #' @importFrom Matrix colSums rowSums
 #'
@@ -1173,6 +1175,8 @@ setMethod(
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 #' @examples
 #' \donttest{
 #' calcn <- SeuratObject:::CalcN(pbmc_small[["RNA"]])
@@ -1197,6 +1201,8 @@ CalcN <- function(object) {
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 IsSCT <- function(assay) {
   if (is.list(x = assay)) {
     sct.check <- lapply(X = assay, FUN = function(x) {
@@ -1214,6 +1220,8 @@ IsSCT <- function(assay) {
 #' @param features vector of features to retain
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 SubsetVST <- function(sct.info, cells, features) {
   cells.keep <- intersect(x = cells, y = rownames(x = sct.info$cell_attr))
@@ -1240,6 +1248,8 @@ SubsetVST <- function(sct.info, cells, features) {
 #' @importFrom Matrix Matrix
 #'
 #' @keywords internal
+#'
+#' @noRd
 #'
 ValidateDataForMerge <- function(assay, slot) {
   mat <- GetAssayData(object = assay, slot = slot)

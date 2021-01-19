@@ -18,6 +18,9 @@ new object with a lower cutoff.}
 \item{min.features}{Include cells where at least this many features are
 detected.}
 }
+\value{
+A \code{\link{Assay}} object
+}
 \description{
 Create an Assay object from a feature (e.g. gene) expression matrix. The
 expected format of the input matrix is features x cells.

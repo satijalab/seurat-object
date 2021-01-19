@@ -374,6 +374,8 @@ setMethod(
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 NullImage <- function(mode = c('grob', 'raster', 'plotly', 'raw')) {
   mode <- mode[1]
   mode <- match.arg(arg = mode)

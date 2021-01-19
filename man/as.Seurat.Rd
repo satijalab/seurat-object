@@ -11,6 +11,9 @@ as.Seurat(x, ...)
 
 \item{...}{Arguments passed to other methods}
 }
+\value{
+A \code{\link{Seurat}} object generated from \code{x}
+}
 \description{
 Convert objects to Seurat objects
 }

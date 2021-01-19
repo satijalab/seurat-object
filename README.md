@@ -5,24 +5,25 @@
 
 <!-- badges: start -->
 
+[![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://github.com/mojaveazure/seurat-object)
 [![CRAN/METACRAN](https://img.shields.io/cran/v/SeuratObject)](https://cran.r-project.org/package=SeuratObject)
-[![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://github.com/mojaveazure/seurat-object)
+[![dependencies](https://tinyverse.netlify.com/badge/SeuratObject)](https://cran.r-project.org/package=SeuratObject)
+[![Downloads](https://cranlogs.r-pkg.org/badges/SeuratObject?color=brightgreen)](https://cran.r-project.org/package=SeuratObject)
 <!-- badges: end -->
 
 Defines S4 classes for single-cell genomic data and associated
 information, such as dimensionality reduction embeddings,
 nearest-neighbor graphs, and spatially-resolved coordinates. Provides
 data access methods and R-native hooks to ensure the Seurat object is
-familiar to other R users.
+familiar to other R users. See Satija R, Farrell J, Gennert D, et al
+(2015) <doi:10.1038/nbt.3192>, Macosko E, Basu A, Satija R, et al (2015)
+<doi:10.1016/j.cell.2015.05.002>, and Stuart T, Butler A, et al (2019)
+<doi:10.1016/j.cell.2019.05.031> for more details.
 
 ## Installation
 
-SeuratObject is not currently available on CRAN. You can install it from
-[GitHub](https://github.com/mojaveazure/seurat-object) with:
+SeuratObject is available on CRAN
 
 ``` r
-if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
-}
-remotes::install_github("mojaveazure/seurat-object")
+install.packages("SeuratObject")
 ```

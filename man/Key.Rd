@@ -31,6 +31,11 @@ Key(object, ...) <- value
 
 \item{value}{Key value}
 }
+\value{
+\code{Key}: the object key
+
+\code{Key<-}: \code{object} with an updated key
+}
 \description{
 Get and set object keys
 }

@@ -19,6 +19,9 @@ Stdev(object, ...)
 
 \item{reduction}{Name of reduction to use}
 }
+\value{
+The standard deviations
+}
 \description{
 Get the standard deviations for an object
 }

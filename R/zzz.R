@@ -60,6 +60,8 @@ setOldClass(Classes = 'package_version')
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 .AddMetaData <- function(object, metadata, col.name = NULL) {
   if (is.null(x = col.name) && is.atomic(x = metadata)) {
     stop("'col.name' must be provided for atomic metadata types (eg. vectors)")
@@ -88,6 +90,8 @@ setOldClass(Classes = 'package_version')
 #'
 #' @keywords internal
 #'
+#' @noRd
+#'
 .Misc <- function(object, slot = NULL, ...) {
   CheckDots(...)
   if (is.null(x = slot)) {
@@ -102,6 +106,8 @@ setOldClass(Classes = 'package_version')
 #' miscellaneous data slot \code{slot}
 #'
 #' @rdname dot-Misc
+#'
+#' @noRd
 #'
 ".Misc<-" <- function(object, slot, ..., value) {
   CheckDots(...)
