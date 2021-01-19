@@ -2697,7 +2697,10 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
         stop("All cells in the object being added must match the cells in this object", call. = FALSE)
       }
       # Ensure we're not duplicating object names
-      if (!is.null(x = FindObject(object = x, name = i)) && !inherits(x = value, what = c(class(x = x[[i]]), 'NULL'))) {
+      duplicate <- !is.null(x = FindObject(object = x, name = i)) &&
+        !inherits(x = value, what = c(class(x = x[[i]]), 'NULL')) &&
+        !inherits(x = x[[i]], what = class(x = value))
+      if (isTRUE(x = duplicate)) {
         stop(
           "This object already contains ",
           i,
