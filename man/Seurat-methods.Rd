@@ -9,6 +9,7 @@
 \alias{[[.Seurat}
 \alias{dim.Seurat}
 \alias{dimnames.Seurat}
+\alias{head.Seurat}
 \alias{merge.Seurat}
 \alias{merge}
 \alias{MergeSeurat}
@@ -16,6 +17,7 @@
 \alias{names.Seurat}
 \alias{subset.Seurat}
 \alias{subset}
+\alias{tail.Seurat}
 \alias{[[<-,Seurat-method}
 \alias{colMeans,Seurat-method}
 \alias{colSums,Seurat-method}
@@ -38,6 +40,8 @@
 
 \method{dimnames}{Seurat}(x)
 
+\method{head}{Seurat}(x, n = 10L, ...)
+
 \method{merge}{Seurat}(
   x = NULL,
   y = NULL,
@@ -51,6 +55,8 @@
 \method{names}{Seurat}(x)
 
 \method{subset}{Seurat}(x, subset, cells = NULL, features = NULL, idents = NULL, ...)
+
+\method{tail}{Seurat}(x, n = 10L, ...)
 
 \S4method{[[}{Seurat}(x, i, j, ...) <- value
 
@@ -91,6 +97,8 @@ can pass \code{NULL} to remove metadata or an associated object}
 \item{j, cells}{Cell names or indices}
 
 \item{drop}{See \code{\link[base]{drop}}}
+
+\item{n}{The number of rows of metadata to return}
 
 \item{y}{A single \code{Seurat} object or a list of \code{Seurat} objects}
 
@@ -142,6 +150,8 @@ the same across all assays
 \strong{note}: while the features change depending on the active assay, the
 cell names remain the same across all assays
 
+\code{head}: The first \code{n} rows of cell-level metadata
+
 \code{merge}: Merged object
 
 \code{names}: The names of all \code{\link{Assay}},
@@ -149,6 +159,8 @@ cell names remain the same across all assays
 objects in the \code{Seurat} object
 
 \code{subset}: A subsetted \code{Seurat} object
+
+\code{tail}: The last \code{n} rows of cell-level metadata
 
 \code{[[<-}: \code{x} with the metadata or associated objects added
 as \code{i}; if \code{value} is \code{NULL}, removes metadata or associated
@@ -178,11 +190,15 @@ packages
 
 \item \code{dimnames.Seurat}: The cell and feature names for the active assay
 
+\item \code{head.Seurat}: Get the first rows of cell-level metadata
+
 \item \code{merge.Seurat}: Merge two or more \code{Seurat} objects together
 
 \item \code{names.Seurat}: Common associated objects
 
 \item \code{subset.Seurat}: Subset a \code{\link{Seurat}} object
+
+\item \code{tail.Seurat}: Get the last rows of cell-level metadata
 
 \item \code{[[<-,Seurat-method}: Add cell-level metadata or associated objects
 
@@ -254,6 +270,9 @@ rownames(pbmc_small)
 # Get the cell names of an object
 colnames(pbmc_small)
 
+# Get the first 10 rows of cell-level metadata
+head(pbmc_small)
+
 # `merge' examples
 # merge two objects
 merge(pbmc_small, y = pbmc_small)
@@ -268,6 +287,9 @@ subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
 subset(pbmc_small, idents = '0', invert = TRUE)
 subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
 subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
+
+# Get the last 10 rows of cell-level metadata
+tail(pbmc_small)
 
 head(colMeans(pbmc_small))
 
