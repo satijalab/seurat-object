@@ -909,6 +909,10 @@ Command.Seurat <- function(object, command = NULL, value = NULL, ...) {
   return(params[[value]])
 }
 
+#' @param row.names When \code{counts} is a \code{data.frame} or
+#' \code{data.frame}-derived object: an optional vector of feature names to be
+#' used
+#'
 #' @rdname CreateSeuratObject
 #' @method CreateSeuratObject default
 #' @export
@@ -922,6 +926,7 @@ CreateSeuratObject.default <- function(
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
+  row.names = NULL,
   ...
 ) {
   if (!is.null(x = meta.data)) {
@@ -932,7 +937,8 @@ CreateSeuratObject.default <- function(
   assay.data <- CreateAssayObject(
     counts = counts,
     min.cells = min.cells,
-    min.features = min.features
+    min.features = min.features,
+    row.names = row.names
   )
   if (!is.null(x = meta.data)) {
     common.cells <- intersect(

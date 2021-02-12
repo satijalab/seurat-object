@@ -9,7 +9,7 @@
 \usage{
 as.sparse(x, ...)
 
-\method{as.sparse}{data.frame}(x, ...)
+\method{as.sparse}{data.frame}(x, row.names = NULL, ...)
 
 \method{as.sparse}{Matrix}(x, ...)
 
@@ -19,6 +19,9 @@ as.sparse(x, ...)
 \item{x}{An object}
 
 \item{...}{Arguments passed to other methods}
+
+\item{row.names}{\code{NULL} or a character vector giving the row names for
+the data; missing values are not allowed}
 }
 \value{
 A sparse representation of the input data

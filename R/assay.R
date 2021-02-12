@@ -67,6 +67,7 @@ Assay <- setClass(
 #' new object with a lower cutoff.
 #' @param min.features Include cells where at least this many features are
 #' detected.
+#' @param ... Arguments passed to \code{\link{as.sparse}}
 #'
 #' @return A \code{\link{Assay}} object
 #'
@@ -91,7 +92,8 @@ CreateAssayObject <- function(
   counts,
   data,
   min.cells = 0,
-  min.features = 0
+  min.features = 0,
+  ...
 ) {
   if (missing(x = counts) && missing(x = data)) {
     stop("Must provide either 'counts' or 'data'")
@@ -125,11 +127,7 @@ CreateAssayObject <- function(
       stop("No feature names (rownames) names present in the input matrix")
     }
     if (!inherits(x = counts, what = 'dgCMatrix')) {
-      rn.stash <- rownames(x = counts)
-      cn.stash <- colnames(x = counts)
-      counts <- as(object = as.matrix(x = counts), Class = 'dgCMatrix')
-      rownames(x = counts) <- rn.stash
-      colnames(x = counts) <- cn.stash
+      counts <- as.sparse(x = counts, ...)
     }
     # Filter based on min.features
     if (min.features > 0) {
