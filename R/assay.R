@@ -125,7 +125,11 @@ CreateAssayObject <- function(
       stop("No feature names (rownames) names present in the input matrix")
     }
     if (!inherits(x = counts, what = 'dgCMatrix')) {
+      rn.stash <- rownames(x = counts)
+      cn.stash <- colnames(x = counts)
       counts <- as(object = as.matrix(x = counts), Class = 'dgCMatrix')
+      rownames(x = counts) <- rn.stash
+      colnames(x = counts) <- cn.stash
     }
     # Filter based on min.features
     if (min.features > 0) {
