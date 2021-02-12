@@ -4,7 +4,7 @@
 \alias{CreateAssayObject}
 \title{Create an Assay object}
 \usage{
-CreateAssayObject(counts, data, min.cells = 0, min.features = 0)
+CreateAssayObject(counts, data, min.cells = 0, min.features = 0, ...)
 }
 \arguments{
 \item{counts}{Unnormalized data such as raw counts or TPMs}
@@ -17,6 +17,8 @@ new object with a lower cutoff.}
 
 \item{min.features}{Include cells where at least this many features are
 detected.}
+
+\item{...}{Arguments passed to \code{\link{as.sparse}}}
 }
 \value{
 A \code{\link{Assay}} object

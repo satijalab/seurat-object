@@ -232,12 +232,21 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @param row.names \code{NULL} or a character vector giving the row names for
+#' the data; missing values are not allowed
+#'
 #' @rdname as.sparse
 #' @export
 #' @method as.sparse data.frame
 #'
-as.sparse.data.frame <- function(x, ...) {
+as.sparse.data.frame <- function(x, row.names = NULL, ...) {
   CheckDots(...)
+  dnames <- list(row.names %||% rownames(x = x), colnames(x = x))
+  if (length(x = dnames[[1]]) != nrow(x = x)) {
+    stop("Differing numbers of rownames and rows", call. = FALSE)
+  }
+  x <- as.data.frame(x = x)
+  dimnames(x = x) <- dnames
   return(as.sparse(x = as.matrix(x = x)))
 }
 
