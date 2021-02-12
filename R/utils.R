@@ -106,6 +106,29 @@ rlang::`%||%`
   return(x)
 }
 
+#' Attach Required Packages
+#'
+#' Helper function to attach required packages. Detects if a package is already
+#' attached and if so, skips it. Should be called in \code{\link[base]{.onAttach}}
+#'
+#' @param deps A character vector of packages to attach
+#'
+#' @return Invisibly returns \code{NULL}
+#'
+#' @export
+#'
+#' @concept utils
+#'
+AttachDeps <- function(deps) {
+  for (d in deps) {
+    if (!paste0('package:', d) %in% search()) {
+      packageStartupMessage("Attaching ", d)
+      attachNamespace(ns = d)
+    }
+  }
+  return(invisible(x = NULL))
+}
+
 #' Conditional Garbage Collection
 #'
 #' Call \code{gc} only when desired
@@ -123,6 +146,29 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
     gc(verbose = FALSE)
   }
   return(invisible(x = NULL))
+}
+
+#' Check if a matrix is empty
+#'
+#' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
+#'
+#' @param x A matrix
+#'
+#' @return Whether or not \code{x} is empty
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' IsMatrixEmpty(new("matrix"))
+#' IsMatrixEmpty(matrix())
+#' IsMatrixEmpty(matrix(1:3))
+#'
+IsMatrixEmpty <- function(x) {
+  matrix.dims <- dim(x = x)
+  matrix.na <- all(matrix.dims == 1) && all(is.na(x = x))
+  return(all(matrix.dims == 0) || matrix.na)
 }
 
 #' @name s4list
@@ -529,31 +575,6 @@ ExtractField <- function(string, field = 1, delim = "_") {
     strsplit(x = string, split = delim)[[1]][fields],
     collapse = delim
   ))
-}
-
-#' Check if a matrix is empty
-#'
-#' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
-#'
-#' @param x A matrix
-#'
-#' @return Whether or not \code{x} is empty
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-#' @examples
-#' \donttest{
-#' SeuratObject:::IsMatrixEmpty(new("matrix"))
-#' SeuratObject:::IsMatrixEmpty(matrix())
-#' SeuratObject:::IsMatrixEmpty(matrix(1:3))
-#' }
-#'
-IsMatrixEmpty <- function(x) {
-  matrix.dims <- dim(x = x)
-  matrix.na <- all(matrix.dims == 1) && all(is.na(x = x))
-  return(all(matrix.dims == 0) || matrix.na)
 }
 
 #' Test Null Pointers
