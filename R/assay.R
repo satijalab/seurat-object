@@ -779,6 +779,15 @@ dimnames.Assay <- function(x) {
   return(dimnames(x = GetAssayData(object = x)))
 }
 
+#' @describeIn Assay-methods Get the first rows of feature-level metadata
+#'
+#' @return \code{head}: The first \code{n} rows of feature-level metadata
+#'
+#' @export
+#' @method head Assay
+#'
+head.Assay <- .head
+
 #' @describeIn Assay-methods Merge \code{Assay} objects
 #'
 #' @param y A vector or list of one or more objects to merge
@@ -963,6 +972,17 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   }
   return(x)
 }
+
+#' @describeIn Assay-methods Get the last rows of feature-level metadata
+#'
+#' @return \code{tail}: The last \code{n} rows of feature-level metadata
+#'
+#' @importFrom utils tail
+#'
+#' @export
+#' @method tail Assay
+#'
+tail.Assay <- .tail
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods

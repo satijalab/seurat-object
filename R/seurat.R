@@ -1908,6 +1908,7 @@ WhichCells.Seurat <- function(
 #'  }
 #' }
 #' @param j,cells Cell names or indices
+#' @param n The number of rows of metadata to return
 #' @param ... Arguments passed to other methods
 #'
 #' @name Seurat-methods
@@ -2127,6 +2128,21 @@ droplevels.Seurat <- function(x, ...) {
   slot(object = x, name = 'active.ident') <- droplevels(x = Idents(object = x), ...)
   return(x)
 }
+
+#' @describeIn Seurat-methods Get the first rows of cell-level metadata
+#'
+#' @return \code{head}: The first \code{n} rows of cell-level metadata
+#'
+#' @importFrom utils head
+#'
+#' @export
+#' @method head Seurat
+#'
+#' @examples
+#' # Get the first 10 rows of cell-level metadata
+#' head(pbmc_small)
+#'
+head.Seurat <- .head
 
 #' @rdname Idents
 #' @export
@@ -2507,6 +2523,21 @@ subset.Seurat <- function(
   }
   return(x)
 }
+
+#' @describeIn Seurat-methods Get the last rows of cell-level metadata
+#'
+#' @return \code{tail}: The last \code{n} rows of cell-level metadata
+#'
+#' @importFrom utils tail
+#'
+#' @export
+#' @method tail Seurat
+#'
+#' @examples
+#' # Get the last 10 rows of cell-level metadata
+#' tail(pbmc_small)
+#'
+tail.Seurat <- .tail
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods

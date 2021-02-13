@@ -48,7 +48,7 @@ setOldClass(Classes = 'package_version')
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' Object Metadata
+#' Add Object Metadata
 #'
 #' Internal \code{\link{AddMetaData}} definition
 #'
@@ -75,6 +75,28 @@ setOldClass(Classes = 'package_version')
   }
   object[[col.name]] <- metadata
   return(object)
+}
+
+#' Head and Tail Object Metadata
+#'
+#' Internal \code{\link[utils]{head}} and \code{\link[utils]{tail}} definitions
+#'
+#' @param x An object
+#' @param n Number of rows to return
+#' @inheritDotParams utils::head
+#'
+#' @return The first or last \code{n} rows of object metadata
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.head <- function(x, n = 10L, ...) {
+  return(head(x = x[[]], n = n, ...))
+}
+
+.tail <- function(x, n = 10L, ...) {
+  return(tail(x = x[[]], n = n, ...))
 }
 
 #' Miscellaneous Data
