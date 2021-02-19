@@ -2748,7 +2748,10 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
             no = ' '
           ),
           class(x = x[[i]]),
-          "; duplicate names are not allowed",
+          ", so ", 
+          i, 
+          " cannot be used for a ", 
+          class(x = value),
           call. = FALSE
         )
       }
