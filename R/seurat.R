@@ -2750,7 +2750,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
           class(x = x[[i]]),
           ", so ", 
           i, 
-          " cannot be used for ", 
+          " cannot be used for a ", 
           class(x = value),
           call. = FALSE
         )
