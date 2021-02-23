@@ -189,6 +189,8 @@ Assays <- function(object, slot = NULL) {
 #' @param idents A vector of identity class levels to limit resulting list to;
 #' defaults to all identity class levels
 #' @param cells A vector of cells to grouping to
+#' @param return.null If no cells are request, return a \code{NULL};
+#' by default, throws an error
 #'
 #' @return A named list where names are identity classes and values are vectors
 #' of cells belonging to that class
@@ -200,10 +202,18 @@ Assays <- function(object, slot = NULL) {
 #' @examples
 #' CellsByIdentities(object = pbmc_small)
 #'
-CellsByIdentities <- function(object, idents = NULL, cells = NULL) {
+CellsByIdentities <- function(
+  object,
+  idents = NULL,
+  cells = NULL,
+  return.null = FALSE
+) {
   cells <- cells %||% colnames(x = object)
   cells <- intersect(x = cells, y = colnames(x = object))
   if (length(x = cells) == 0) {
+    if (isTRUE(x = return.null)) {
+      return(NULL)
+    }
     stop("Cannot find cells provided")
   }
   idents <- idents %||% levels(x = object)
@@ -1769,10 +1779,11 @@ VariableFeatures.Seurat <- function(
 
 #' @param idents A vector of identity classes to keep
 #' @param slot Slot to pull feature data for
-#' @param downsample Maximum number of cells per identity class, default is \code{Inf};
-#' downsampling will happen after all other operations, including inverting the
-#' cell selection
+#' @param downsample Maximum number of cells per identity class, default is
+#' \code{Inf}; downsampling will happen after all other operations, including
+#' inverting the cell selection
 #' @param seed Random seed for downsampling. If NULL, does not set a seed
+#' @inheritDotParams CellsByIdentities
 #'
 #' @importFrom stats na.omit
 #' @importFrom rlang is_quosure enquo eval_tidy
@@ -1792,7 +1803,7 @@ WhichCells.Seurat <- function(
   seed = 1,
   ...
 ) {
-  CheckDots(...)
+  CheckDots(..., fxns = CellsByIdentities)
   if (!is.null(x = seed)) {
     set.seed(seed = seed)
   }
@@ -1867,11 +1878,11 @@ WhichCells.Seurat <- function(
     )
     cells <- rownames(x = data.subset)[eval_tidy(expr = expr, data = data.subset)]
   }
-  if (invert) {
+  if (isTRUE(x = invert)) {
     cell.order <- colnames(x = object)
     cells <- colnames(x = object)[!colnames(x = object) %in% cells]
   }
-  cells <- CellsByIdentities(object = object, cells = cells)
+  cells <- CellsByIdentities(object = object, cells = cells, ...)
   cells <- lapply(
     X = cells,
     FUN = function(x) {
@@ -2420,6 +2431,7 @@ names.Seurat <- function(x) {
 
 #' @describeIn Seurat-methods Subset a \code{\link{Seurat}} object
 #'
+#' @inheritParams CellsByIdentities
 #' @param subset Logical expression indicating features/variables to keep
 #' @param idents A vector of identity classes to keep
 #'
@@ -2447,6 +2459,7 @@ subset.Seurat <- function(
   cells = NULL,
   features = NULL,
   idents = NULL,
+  return.null = FALSE,
   ...
 ) {
   x <- UpdateSlots(object = x)
@@ -2458,9 +2471,13 @@ subset.Seurat <- function(
     cells = cells,
     idents = idents,
     expression = subset,
+    return.null = return.null,
     ...
   )
   if (length(x = cells) == 0) {
+    if (isTRUE(x = return.null)) {
+      return(NULL)
+    }
     stop("No cells found", call. = FALSE)
   }
   if (all(cells %in% Cells(x = x)) && length(x = cells) == length(x = Cells(x = x)) && is.null(x = features)) {
@@ -2748,9 +2765,9 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
             no = ' '
           ),
           class(x = x[[i]]),
-          ", so ", 
-          i, 
-          " cannot be used for a ", 
+          ", so ",
+          i,
+          " cannot be used for a ",
           class(x = value),
           call. = FALSE
         )

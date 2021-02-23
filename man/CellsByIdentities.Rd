@@ -4,7 +4,7 @@
 \alias{CellsByIdentities}
 \title{Get cell names grouped by identity class}
 \usage{
-CellsByIdentities(object, idents = NULL, cells = NULL)
+CellsByIdentities(object, idents = NULL, cells = NULL, return.null = FALSE)
 }
 \arguments{
 \item{object}{A Seurat object}
@@ -13,6 +13,9 @@ CellsByIdentities(object, idents = NULL, cells = NULL)
 defaults to all identity class levels}
 
 \item{cells}{A vector of cells to grouping to}
+
+\item{return.null}{If no cells are request, return a \code{NULL};
+by default, throws an error}
 }
 \value{
 A named list where names are identity classes and values are vectors

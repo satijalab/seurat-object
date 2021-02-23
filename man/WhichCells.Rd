@@ -25,7 +25,12 @@ WhichCells(object, ...)
 \arguments{
 \item{object}{An object}
 
-\item{...}{Arguments passed to other methods}
+\item{...}{
+  Arguments passed on to \code{\link[=CellsByIdentities]{CellsByIdentities}}
+  \describe{
+    \item{\code{return.null}}{If no cells are request, return a \code{NULL};
+by default, throws an error}
+  }}
 
 \item{cells}{Subset of cell names}
 
@@ -40,9 +45,9 @@ between numbers are present in the feature name}
 
 \item{slot}{Slot to pull feature data for}
 
-\item{downsample}{Maximum number of cells per identity class, default is \code{Inf};
-downsampling will happen after all other operations, including inverting the
-cell selection}
+\item{downsample}{Maximum number of cells per identity class, default is
+\code{Inf}; downsampling will happen after all other operations, including
+inverting the cell selection}
 
 \item{seed}{Random seed for downsampling. If NULL, does not set a seed}
 }

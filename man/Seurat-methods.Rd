@@ -54,7 +54,15 @@
 
 \method{names}{Seurat}(x)
 
-\method{subset}{Seurat}(x, subset, cells = NULL, features = NULL, idents = NULL, ...)
+\method{subset}{Seurat}(
+  x,
+  subset,
+  cells = NULL,
+  features = NULL,
+  idents = NULL,
+  return.null = FALSE,
+  ...
+)
 
 \method{tail}{Seurat}(x, n = 10L, ...)
 
@@ -118,6 +126,9 @@ are shared across all objects.}
 \item{subset}{Logical expression indicating features/variables to keep}
 
 \item{idents}{A vector of identity classes to keep}
+
+\item{return.null}{If no cells are request, return a \code{NULL};
+by default, throws an error}
 
 \item{na.rm}{logical.  Should missing values (including \code{NaN})
     be omitted from the calculations?}
