@@ -1886,6 +1886,15 @@ WhichCells.Seurat <- function(
   return(cells)
 }
 
+#' @rdname Version
+#' @method Version Seurat
+#' @export
+#'
+Version.Seurat <- function(object, ...) {
+  CheckDots(...)
+  return(slot(object = object, name = 'version'))
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
