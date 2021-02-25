@@ -2471,7 +2471,7 @@ subset.Seurat <- function(
     cells = cells,
     idents = idents,
     expression = subset,
-    return.null = return.null,
+    return.null = TRUE,
     ...
   )
   if (length(x = cells) == 0) {
