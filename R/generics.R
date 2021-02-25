@@ -835,6 +835,11 @@ VariableFeatures <- function(object, selection.method = NULL, ...) {
 #' @rdname Version
 #' @export Version
 #'
+#' @concept data-access
+#'
+#' @examples
+#' Version(pbmc_small)
+#'
 Version <- function(object, ...) {
   UseMethod(generic = "Version", object = object)
 }

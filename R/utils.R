@@ -119,6 +119,14 @@ rlang::`%||%`
 #'
 #' @concept utils
 #'
+#' @examples
+#' # Use in your .onAttach hook
+#' if (FALSE) {
+#'   .onAttach <- function(libname, pkgname) {
+#'     AttachDeps(c("SeuratObject", "rlang"))
+#'   }
+#' }
+#'
 AttachDeps <- function(deps) {
   for (d in deps) {
     if (!paste0('package:', d) %in% search()) {

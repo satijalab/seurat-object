@@ -17,3 +17,8 @@ Version(object, ...)
 \description{
 Get Version Information
 }
+\examples{
+Version(pbmc_small)
+
+}
+\concept{data-access}

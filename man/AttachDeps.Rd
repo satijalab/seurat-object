@@ -16,4 +16,13 @@ Invisibly returns \code{NULL}
 Helper function to attach required packages. Detects if a package is already
 attached and if so, skips it. Should be called in \code{\link[base]{.onAttach}}
 }
+\examples{
+# Use in your .onAttach hook
+if (FALSE) {
+  .onAttach <- function(libname, pkgname) {
+    AttachDeps(c("SeuratObject", "rlang"))
+  }
+}
+
+}
 \concept{utils}
