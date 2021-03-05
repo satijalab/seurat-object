@@ -389,24 +389,6 @@ Misc.Assay <- .Misc
 #'
 RenameCells.Assay <- function(object, new.names = NULL, ...) {
   CheckDots(...)
-  if (IsSCT(assay = object)) {
-    if (is.null(x = Misc(object = object, slot = 'vst.set'))) {
-      suppressWarnings(Misc(object = object, slot = "vst.out")$cells_step1 <- new.names)
-      suppressWarnings(rownames(x = Misc(object = object, slot = "vst.out")$cell_attr) <- new.names)
-    } else{
-      suppressWarnings(
-        Misc(object, slot = "vst.set") <- lapply(
-          X = Misc(object = object, slot = "vst.set"),
-          FUN = function(x) {
-            new.names.vst <- new.names[which(x = x$cells_step1 %in% Cells(x = object))]
-            x$cells_step1 <- new.names.vst
-            rownames(x = x$cell_attr) <- new.names.vst
-            return(x)
-          }
-        )
-      )
-    }
-  }
   for (data.slot in c("counts", "data", "scale.data")) {
     old.data <- GetAssayData(object = object, slot = data.slot)
     if (ncol(x = old.data) <= 1) {
@@ -850,43 +832,6 @@ merge.Assay <- function(
       new.data = merged.data
     )
   }
-  # merge SCT assay misc vst info and scale.data
-  if (all(IsSCT(assay = assays))) {
-    vst.set.new <- list()
-    idx <- 1
-    umi.assay.new <- list()
-    for (i in 1:length(x = assays)) {
-      vst.set.old <- Misc(object = assays[[i]], slot = "vst.set")
-      umi.assay.old <- Misc(object = assays[[i]], slot = "umi.assay")
-      if (!is.null(x = vst.set.old) && length(x = vst.set.old) > 1) {
-        for (j in 1:length(x = vst.set.old)) {
-          vst.set.new[[idx]] <- vst.set.old[[j]]
-          umi.assay.new[[idx]] <- umi.assay.old[[j]]
-          idx <- idx + 1
-        }
-      } else if (!is.null(x = Misc(object = assays[[i]], slot = "vst.out"))) {
-        vst.set.new[[idx]] <- Misc(object = assays[[i]], slot = "vst.out")
-        umi.assay.new[[idx]] <- Misc(object = assays[[i]], slot = "umi.assay")
-        idx <- idx + 1
-      }
-    }
-    Misc(object = combined.assay, slot = "vst.set") <- vst.set.new
-    Misc(object = combined.assay, slot = "umi.assay") <- umi.assay.new
-    scale.data <- do.call(
-      what = cbind,
-      args = lapply(
-        X = assays,
-        FUN = GetAssayData,
-        slot = 'scale.data'
-        # FUN = function(x) GetAssayData(object = x, slot = "scale.data")
-      )
-    )
-    combined.assay <- SetAssayData(
-      object = combined.assay,
-      slot = "scale.data",
-      new.data = scale.data
-    )
-  }
   return(combined.assay)
 }
 
@@ -946,30 +891,6 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   }
   VariableFeatures(object = x) <- VariableFeatures(object = x)[VariableFeatures(object = x) %in% features]
   slot(object = x, name = 'meta.features') <- x[[]][features, , drop = FALSE]
-  if (IsSCT(assay = x)) {
-    # subset cells and genes in the SCT assay
-    obj.misc <- Misc(object = x)
-    if ("vst.set" %in% names(x = obj.misc)) {
-      # set of vst.out objects
-      vst.info <- obj.misc[["vst.set"]]
-      for (i in seq_along(along.with = vst.info)) {
-        vst.info[[i]] <- SubsetVST(
-          sct.info = vst.info[[i]],
-          cells = cells,
-          features = features
-        )
-      }
-      obj.misc[["vst.set"]] <- vst.info
-    } else {
-      # just one vst.out
-      obj.misc[["vst.out"]] <- SubsetVST(
-        sct.info = obj.misc[["vst.out"]],
-        cells = cells,
-        features = features
-      )
-    }
-    slot(object = x, name = "misc") <- obj.misc
-  }
   return(x)
 }
 
@@ -1210,29 +1131,9 @@ CalcN <- function(object) {
     return(NULL)
   }
   return(list(
-    nCount = colSums(x = object, slot = 'counts'),
-    nFeature = colSums(x = GetAssayData(object = object, slot = 'counts') > 0)
+    nCount = Matrix::colSums(x = object, slot = 'counts'),
+    nFeature = Matrix::colSums(x = GetAssayData(object = object, slot = 'counts') > 0)
   ))
-}
-
-#' Check whether an assay has been processed by sctransform
-#'
-#' @param assay assay to check
-#'
-#' @return Boolean
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-IsSCT <- function(assay) {
-  if (is.list(x = assay)) {
-    sct.check <- lapply(X = assay, FUN = function(x) {
-      return(!is.null(x = Misc(object = x, slot = 'vst.out')) | !is.null(x = Misc(object = x, slot = 'vst.set')))
-    })
-    return(unlist(x = sct.check))
-  }
-  return(!is.null(x = Misc(object = assay, slot = 'vst.out')) | !is.null(x = Misc(object = assay, slot = 'vst.set')))
 }
 
 #' Subset cells in vst data

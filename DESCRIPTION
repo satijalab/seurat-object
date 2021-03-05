@@ -1,8 +1,8 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.0.0.9006
-Date: 2021-03-04
+Version: 4.0.0.9007
+Date: 2021-03-05
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
   person(given = 'Andrew', family = 'Butler', email = 'abutler@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0003-3608-0463')),
@@ -39,7 +39,6 @@ Imports:
     methods,
     Rcpp (>= 1.0.5),
     rlang (>= 0.4.7),
-    sctransform,
     stats,
     tools,
     utils
