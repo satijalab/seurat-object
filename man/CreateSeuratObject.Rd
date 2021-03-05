@@ -25,6 +25,7 @@ CreateSeuratObject(
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
+  row.names = NULL,
   ...
 )
 
@@ -70,6 +71,10 @@ new object with a lower cutoff.}
 
 \item{min.features}{Include cells where at least this many features are
 detected.}
+
+\item{row.names}{When \code{counts} is a \code{data.frame} or
+\code{data.frame}-derived object: an optional vector of feature names to be
+used}
 }
 \value{
 A \code{\link{Seurat}} object

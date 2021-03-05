@@ -189,6 +189,8 @@ Assays <- function(object, slot = NULL) {
 #' @param idents A vector of identity class levels to limit resulting list to;
 #' defaults to all identity class levels
 #' @param cells A vector of cells to grouping to
+#' @param return.null If no cells are request, return a \code{NULL};
+#' by default, throws an error
 #'
 #' @return A named list where names are identity classes and values are vectors
 #' of cells belonging to that class
@@ -200,10 +202,18 @@ Assays <- function(object, slot = NULL) {
 #' @examples
 #' CellsByIdentities(object = pbmc_small)
 #'
-CellsByIdentities <- function(object, idents = NULL, cells = NULL) {
+CellsByIdentities <- function(
+  object,
+  idents = NULL,
+  cells = NULL,
+  return.null = FALSE
+) {
   cells <- cells %||% colnames(x = object)
   cells <- intersect(x = cells, y = colnames(x = object))
   if (length(x = cells) == 0) {
+    if (isTRUE(x = return.null)) {
+      return(NULL)
+    }
     stop("Cannot find cells provided")
   }
   idents <- idents %||% levels(x = object)
@@ -909,6 +919,10 @@ Command.Seurat <- function(object, command = NULL, value = NULL, ...) {
   return(params[[value]])
 }
 
+#' @param row.names When \code{counts} is a \code{data.frame} or
+#' \code{data.frame}-derived object: an optional vector of feature names to be
+#' used
+#'
 #' @rdname CreateSeuratObject
 #' @method CreateSeuratObject default
 #' @export
@@ -922,6 +936,7 @@ CreateSeuratObject.default <- function(
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
+  row.names = NULL,
   ...
 ) {
   if (!is.null(x = meta.data)) {
@@ -932,7 +947,8 @@ CreateSeuratObject.default <- function(
   assay.data <- CreateAssayObject(
     counts = counts,
     min.cells = min.cells,
-    min.features = min.features
+    min.features = min.features,
+    row.names = row.names
   )
   if (!is.null(x = meta.data)) {
     common.cells <- intersect(
@@ -1763,10 +1779,11 @@ VariableFeatures.Seurat <- function(
 
 #' @param idents A vector of identity classes to keep
 #' @param slot Slot to pull feature data for
-#' @param downsample Maximum number of cells per identity class, default is \code{Inf};
-#' downsampling will happen after all other operations, including inverting the
-#' cell selection
+#' @param downsample Maximum number of cells per identity class, default is
+#' \code{Inf}; downsampling will happen after all other operations, including
+#' inverting the cell selection
 #' @param seed Random seed for downsampling. If NULL, does not set a seed
+#' @inheritDotParams CellsByIdentities
 #'
 #' @importFrom stats na.omit
 #' @importFrom rlang is_quosure enquo eval_tidy
@@ -1786,7 +1803,7 @@ WhichCells.Seurat <- function(
   seed = 1,
   ...
 ) {
-  CheckDots(...)
+  CheckDots(..., fxns = CellsByIdentities)
   if (!is.null(x = seed)) {
     set.seed(seed = seed)
   }
@@ -1861,11 +1878,11 @@ WhichCells.Seurat <- function(
     )
     cells <- rownames(x = data.subset)[eval_tidy(expr = expr, data = data.subset)]
   }
-  if (invert) {
+  if (isTRUE(x = invert)) {
     cell.order <- colnames(x = object)
     cells <- colnames(x = object)[!colnames(x = object) %in% cells]
   }
-  cells <- CellsByIdentities(object = object, cells = cells)
+  cells <- CellsByIdentities(object = object, cells = cells, ...)
   cells <- lapply(
     X = cells,
     FUN = function(x) {
@@ -1878,6 +1895,15 @@ WhichCells.Seurat <- function(
   cells <- as.character(x = na.omit(object = unlist(x = cells, use.names = FALSE)))
   cells <- cells[na.omit(object = match(x = cell.order, table = cells))]
   return(cells)
+}
+
+#' @rdname Version
+#' @method Version Seurat
+#' @export
+#'
+Version.Seurat <- function(object, ...) {
+  CheckDots(...)
+  return(slot(object = object, name = 'version'))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1902,6 +1928,7 @@ WhichCells.Seurat <- function(
 #'  }
 #' }
 #' @param j,cells Cell names or indices
+#' @param n The number of rows of metadata to return
 #' @param ... Arguments passed to other methods
 #'
 #' @name Seurat-methods
@@ -2121,6 +2148,21 @@ droplevels.Seurat <- function(x, ...) {
   slot(object = x, name = 'active.ident') <- droplevels(x = Idents(object = x), ...)
   return(x)
 }
+
+#' @describeIn Seurat-methods Get the first rows of cell-level metadata
+#'
+#' @return \code{head}: The first \code{n} rows of cell-level metadata
+#'
+#' @importFrom utils head
+#'
+#' @export
+#' @method head Seurat
+#'
+#' @examples
+#' # Get the first 10 rows of cell-level metadata
+#' head(pbmc_small)
+#'
+head.Seurat <- .head
 
 #' @rdname Idents
 #' @export
@@ -2365,6 +2407,7 @@ names.Seurat <- function(x) {
 
 #' @describeIn Seurat-methods Subset a \code{\link{Seurat}} object
 #'
+#' @inheritParams CellsByIdentities
 #' @param subset Logical expression indicating features/variables to keep
 #' @param idents A vector of identity classes to keep
 #'
@@ -2392,6 +2435,7 @@ subset.Seurat <- function(
   cells = NULL,
   features = NULL,
   idents = NULL,
+  return.null = FALSE,
   ...
 ) {
   x <- UpdateSlots(object = x)
@@ -2403,9 +2447,13 @@ subset.Seurat <- function(
     cells = cells,
     idents = idents,
     expression = subset,
+    return.null = TRUE,
     ...
   )
   if (length(x = cells) == 0) {
+    if (isTRUE(x = return.null)) {
+      return(NULL)
+    }
     stop("No cells found", call. = FALSE)
   }
   if (all(cells %in% Cells(x = x)) && length(x = cells) == length(x = Cells(x = x)) && is.null(x = features)) {
@@ -2468,6 +2516,21 @@ subset.Seurat <- function(
   }
   return(x)
 }
+
+#' @describeIn Seurat-methods Get the last rows of cell-level metadata
+#'
+#' @return \code{tail}: The last \code{n} rows of cell-level metadata
+#'
+#' @importFrom utils tail
+#'
+#' @export
+#' @method tail Seurat
+#'
+#' @examples
+#' # Get the last 10 rows of cell-level metadata
+#' tail(pbmc_small)
+#'
+tail.Seurat <- .tail
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
@@ -2678,7 +2741,10 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
             no = ' '
           ),
           class(x = x[[i]]),
-          "; duplicate names are not allowed",
+          ", so ",
+          i,
+          " cannot be used for a ",
+          class(x = value),
           call. = FALSE
         )
       }

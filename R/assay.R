@@ -67,6 +67,7 @@ Assay <- setClass(
 #' new object with a lower cutoff.
 #' @param min.features Include cells where at least this many features are
 #' detected.
+#' @param ... Arguments passed to \code{\link{as.sparse}}
 #'
 #' @return A \code{\link{Assay}} object
 #'
@@ -91,7 +92,8 @@ CreateAssayObject <- function(
   counts,
   data,
   min.cells = 0,
-  min.features = 0
+  min.features = 0,
+  ...
 ) {
   if (missing(x = counts) && missing(x = data)) {
     stop("Must provide either 'counts' or 'data'")
@@ -125,7 +127,7 @@ CreateAssayObject <- function(
       stop("No feature names (rownames) names present in the input matrix")
     }
     if (!inherits(x = counts, what = 'dgCMatrix')) {
-      counts <- as(object = as.matrix(x = counts), Class = 'dgCMatrix')
+      counts <- as.sparse(x = counts, ...)
     }
     # Filter based on min.features
     if (min.features > 0) {
@@ -759,6 +761,15 @@ dimnames.Assay <- function(x) {
   return(dimnames(x = GetAssayData(object = x)))
 }
 
+#' @describeIn Assay-methods Get the first rows of feature-level metadata
+#'
+#' @return \code{head}: The first \code{n} rows of feature-level metadata
+#'
+#' @export
+#' @method head Assay
+#'
+head.Assay <- .head
+
 #' @describeIn Assay-methods Merge \code{Assay} objects
 #'
 #' @param y A vector or list of one or more objects to merge
@@ -882,6 +893,17 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   slot(object = x, name = 'meta.features') <- x[[]][features, , drop = FALSE]
   return(x)
 }
+
+#' @describeIn Assay-methods Get the last rows of feature-level metadata
+#'
+#' @return \code{tail}: The last \code{n} rows of feature-level metadata
+#'
+#' @importFrom utils tail
+#'
+#' @export
+#' @method tail Assay
+#'
+tail.Assay <- .tail
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods

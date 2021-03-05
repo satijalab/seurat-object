@@ -827,6 +827,23 @@ VariableFeatures <- function(object, selection.method = NULL, ...) {
   UseMethod(generic = 'VariableFeatures<-', object = object)
 }
 
+#' Get Version Information
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @rdname Version
+#' @export Version
+#'
+#' @concept data-access
+#'
+#' @examples
+#' Version(pbmc_small)
+#'
+Version <- function(object, ...) {
+  UseMethod(generic = "Version", object = object)
+}
+
 #' Identify cells matching certain criteria
 #'
 #' Returns a list of cells that match a particular set of criteria such as
