@@ -9,10 +9,10 @@
 Defines S4 classes for single-cell genomic data and associated
   information, such as dimensionality reduction embeddings, nearest-neighbor
   graphs, and spatially-resolved coordinates. Provides data access methods and
-  R-native hooks to ensure the Seurat object is familiar to other R users. See 
-  Satija R, Farrell J, Gennert D, et al (2015) <doi:10.1038/nbt.3192>, 
-  Macosko E, Basu A, Satija R, et al (2015) <doi:10.1016/j.cell.2015.05.002>, 
-  and Stuart T, Butler A, et al (2019) <doi:10.1016/j.cell.2019.05.031> for 
+  R-native hooks to ensure the Seurat object is familiar to other R users. See
+  Satija R, Farrell J, Gennert D, et al (2015) <doi:10.1038/nbt.3192>,
+  Macosko E, Basu A, Satija R, et al (2015) <doi:10.1016/j.cell.2015.05.002>,
+  and Stuart T, Butler A, et al (2019) <doi:10.1016/j.cell.2019.05.031> for
   more details.
 }
 \seealso{
