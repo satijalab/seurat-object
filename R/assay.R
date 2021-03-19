@@ -763,6 +763,8 @@ dimnames.Assay <- function(x) {
 
 #' @describeIn Assay-methods Get the first rows of feature-level metadata
 #'
+#' @inheritParams utils::head
+#'
 #' @return \code{head}: The first \code{n} rows of feature-level metadata
 #'
 #' @export

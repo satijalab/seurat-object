@@ -43,7 +43,7 @@ Imports:
     tools,
     utils
 Suggests:
-    tinytest
+    testthat
 Collate: 'RcppExports.R' 'utils.R' 'zzz.R' 'generics.R'
       'assay.R' 'command.R' 'data.R' 'default.R'
       'jackstraw.R' 'dimreduc.R' 'graph.R' 'neighbor.R'
