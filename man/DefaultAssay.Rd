@@ -4,8 +4,8 @@
 \name{DefaultAssay}
 \alias{DefaultAssay}
 \alias{DefaultAssay<-}
-\alias{DefaultAssay.Assay}
-\alias{DefaultAssay<-.Assay}
+\alias{DefaultAssay.StdAssay}
+\alias{DefaultAssay<-.StdAssay}
 \alias{DefaultAssay.SeuratCommand}
 \alias{DefaultAssay.DimReduc}
 \alias{DefaultAssay<-.DimReduc}
@@ -19,9 +19,9 @@ DefaultAssay(object, ...)
 
 DefaultAssay(object, ...) <- value
 
-\method{DefaultAssay}{Assay}(object, ...)
+\method{DefaultAssay}{StdAssay}(object, ...)
 
-\method{DefaultAssay}{Assay}(object, ...) <- value
+\method{DefaultAssay}{StdAssay}(object, ...) <- value
 
 \method{DefaultAssay}{SeuratCommand}(object, ...)
 

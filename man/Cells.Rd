@@ -8,16 +8,18 @@
 \alias{Cells.Neighbor}
 \title{Get cells present in an object}
 \usage{
-Cells(x)
+Cells(x, ...)
 
-\method{Cells}{default}(x)
+\method{Cells}{default}(x, ...)
 
-\method{Cells}{DimReduc}(x)
+\method{Cells}{DimReduc}(x, ...)
 
-\method{Cells}{Neighbor}(x)
+\method{Cells}{Neighbor}(x, ...)
 }
 \arguments{
 \item{x}{An object}
+
+\item{...}{Arguments passed to other methods}
 }
 \value{
 A vector of cell names

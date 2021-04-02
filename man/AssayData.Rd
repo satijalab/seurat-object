@@ -6,8 +6,8 @@
 \alias{SetAssayData}
 \alias{GetAssayData.Seurat}
 \alias{SetAssayData.Seurat}
-\alias{GetAssayData.Assay}
-\alias{SetAssayData.Assay}
+\alias{GetAssayData.StdAssay}
+\alias{SetAssayData.StdAssay}
 \title{Get and Set Assay Data}
 \usage{
 GetAssayData(object, slot, ...)
@@ -18,9 +18,9 @@ SetAssayData(object, slot, new.data, ...)
 
 \method{SetAssayData}{Seurat}(object, slot = "data", new.data, assay = NULL, ...)
 
-\method{GetAssayData}{Assay}(object, slot = c("data", "scale.data", "counts"), ...)
+\method{GetAssayData}{StdAssay}(object, slot = c("data", "scale.data", "counts"), ...)
 
-\method{SetAssayData}{Assay}(object, slot = c("data", "scale.data", "counts"), new.data, ...)
+\method{SetAssayData}{StdAssay}(object, slot = c("data", "scale.data", "counts"), new.data, ...)
 }
 \arguments{
 \item{object}{An object}

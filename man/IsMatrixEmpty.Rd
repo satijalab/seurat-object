@@ -2,9 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{IsMatrixEmpty}
 \alias{IsMatrixEmpty}
+\alias{IsMatrixEmpty.default}
 \title{Check if a matrix is empty}
 \usage{
 IsMatrixEmpty(x)
+
+\method{IsMatrixEmpty}{default}(x)
 }
 \arguments{
 \item{x}{A matrix}

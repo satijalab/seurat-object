@@ -3,8 +3,8 @@
 \name{Misc}
 \alias{Misc}
 \alias{Misc<-}
-\alias{Misc.Assay}
-\alias{Misc<-.Assay}
+\alias{Misc.StdAssay}
+\alias{Misc<-.StdAssay}
 \alias{Misc.DimReduc}
 \alias{Misc<-.DimReduc}
 \alias{Misc.Seurat}
@@ -15,9 +15,9 @@ Misc(object, ...)
 
 Misc(object, ...) <- value
 
-\method{Misc}{Assay}(object, slot = NULL, ...)
+\method{Misc}{StdAssay}(object, slot = NULL, ...)
 
-\method{Misc}{Assay}(object, slot, ...) <- value
+\method{Misc}{StdAssay}(object, slot, ...) <- value
 
 \method{Misc}{DimReduc}(object, slot = NULL, ...)
 

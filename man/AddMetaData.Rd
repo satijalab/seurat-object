@@ -3,13 +3,13 @@
 \name{AddMetaData}
 \alias{AddMetaData}
 \alias{SeuratAccess}
-\alias{AddMetaData.Assay}
+\alias{AddMetaData.StdAssay}
 \alias{AddMetaData.Seurat}
 \title{Add in metadata associated with either cells or features.}
 \usage{
 AddMetaData(object, metadata, col.name = NULL)
 
-\method{AddMetaData}{Assay}(object, metadata, col.name = NULL)
+\method{AddMetaData}{StdAssay}(object, metadata, col.name = NULL)
 
 \method{AddMetaData}{Seurat}(object, metadata, col.name = NULL)
 }

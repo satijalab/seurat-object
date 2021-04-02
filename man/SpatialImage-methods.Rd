@@ -18,7 +18,7 @@
 \alias{show,SpatialImage-method}
 \title{\code{SpatialImage} methods}
 \usage{
-\method{Cells}{SpatialImage}(x)
+\method{Cells}{SpatialImage}(x, ...)
 
 \method{DefaultAssay}{SpatialImage}(object, ...)
 

@@ -11,11 +11,11 @@
 \alias{VariableFeatures<-.Seurat}
 \alias{SVFInfo.Seurat}
 \alias{SpatiallyVariableFeatures.Seurat}
-\alias{HVFInfo.Assay}
+\alias{HVFInfo.StdAssay}
 \alias{SpatiallyVariableFeatures.Assay}
 \alias{SVFInfo.Assay}
-\alias{VariableFeatures.Assay}
-\alias{VariableFeatures<-.Assay}
+\alias{VariableFeatures.StdAssay}
+\alias{VariableFeatures<-.StdAssay}
 \title{Highly Variable Features}
 \usage{
 HVFInfo(object, selection.method, status = FALSE, ...)
@@ -50,7 +50,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
   ...
 )
 
-\method{HVFInfo}{Assay}(object, selection.method, status = FALSE, ...)
+\method{HVFInfo}{StdAssay}(object, selection.method, status = FALSE, ...)
 
 \method{SpatiallyVariableFeatures}{Assay}(
   object,
@@ -66,9 +66,9 @@ SpatiallyVariableFeatures(object, selection.method, ...)
   ...
 )
 
-\method{VariableFeatures}{Assay}(object, selection.method = NULL, ...)
+\method{VariableFeatures}{StdAssay}(object, selection.method = NULL, ...)
 
-\method{VariableFeatures}{Assay}(object, ...) <- value
+\method{VariableFeatures}{StdAssay}(object, ...) <- value
 }
 \arguments{
 \item{object}{An object}

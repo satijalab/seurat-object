@@ -3,8 +3,8 @@
 \name{Key}
 \alias{Key}
 \alias{Key<-}
-\alias{Key.Assay}
-\alias{Key<-.Assay}
+\alias{Key.StdAssay}
+\alias{Key<-.StdAssay}
 \alias{Key.DimReduc}
 \alias{Key<-.DimReduc}
 \alias{Key.Seurat}
@@ -14,9 +14,9 @@ Key(object, ...)
 
 Key(object, ...) <- value
 
-\method{Key}{Assay}(object, ...)
+\method{Key}{StdAssay}(object, ...)
 
-\method{Key}{Assay}(object, ...) <- value
+\method{Key}{StdAssay}(object, ...) <- value
 
 \method{Key}{DimReduc}(object, ...)
 
