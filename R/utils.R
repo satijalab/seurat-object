@@ -25,6 +25,28 @@ as.sparse <- function(x, ...) {
   UseMethod(generic = 'as.sparse', object = x)
 }
 
+#' Check if a matrix is empty
+#'
+#' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
+#'
+#' @param x A matrix
+#'
+#' @return Whether or not \code{x} is empty
+#'
+#' @rdname IsMatrixEmpty
+#' @export IsMatrixEmpty
+#'
+#' @concept utils
+#'
+#' @examples
+#' IsMatrixEmpty(new("matrix"))
+#' IsMatrixEmpty(matrix())
+#' IsMatrixEmpty(matrix(1:3))
+#'
+IsMatrixEmpty <- function(x) {
+  UseMethod(generic = 'IsMatrixEmpty', object = x)
+}
+
 #' S4/List Conversion
 #'
 #' Convert S4 objects to lists and vice versa. Useful for declassing an S4
@@ -154,29 +176,6 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
     gc(verbose = FALSE)
   }
   return(invisible(x = NULL))
-}
-
-#' Check if a matrix is empty
-#'
-#' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
-#'
-#' @param x A matrix
-#'
-#' @return Whether or not \code{x} is empty
-#'
-#' @export
-#'
-#' @concept utils
-#'
-#' @examples
-#' IsMatrixEmpty(new("matrix"))
-#' IsMatrixEmpty(matrix())
-#' IsMatrixEmpty(matrix(1:3))
-#'
-IsMatrixEmpty <- function(x) {
-  matrix.dims <- dim(x = x)
-  matrix.na <- all(matrix.dims == 1) && all(is.na(x = x))
-  return(all(matrix.dims == 0) || matrix.na)
 }
 
 #' @name s4list
@@ -320,6 +319,16 @@ as.sparse.Matrix <- function(x, ...) {
 #' @method as.sparse matrix
 #'
 as.sparse.matrix <- as.sparse.Matrix
+
+#' @rdname IsMatrixEmpty
+#' @export
+#' @method IsMatrixEmpty default
+#'
+IsMatrixEmpty.default <- function(x) {
+  matrix.dims <- dim(x = x)
+  matrix.na <- all(matrix.dims == 1) && all(is.na(x = x))
+  return(all(matrix.dims == 0) || matrix.na)
+}
 
 #' @importFrom methods slotNames
 #'
