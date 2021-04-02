@@ -95,6 +95,7 @@ as.Seurat <- function(x, ...) {
 #' Get cells present in an object
 #'
 #' @param x An object
+#' @param ... Arguments passed to other methods
 #'
 #' @return A vector of cell names
 #'
@@ -106,7 +107,7 @@ as.Seurat <- function(x, ...) {
 #' @examples
 #' Cells(x = pbmc_small)
 #'
-Cells <- function(x) {
+Cells <- function(x, ...) {
   UseMethod(generic = 'Cells', object = x)
 }
 

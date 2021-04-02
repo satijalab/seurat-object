@@ -9,7 +9,7 @@ NULL
 #' @rdname Cells
 #' @export
 #'
-Cells.default <- function(x) {
+Cells.default <- function(x, ...) {
   return(colnames(x = x))
 }
 
