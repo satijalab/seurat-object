@@ -1,5 +1,6 @@
 #' @include utils.R
-#' @importFrom methods setOldClass setClassUnion slot slot<-
+#' @importFrom methods new setClass setClassUnion setGeneric setOldClass
+#' setValidity slot slot<-
 #' @importClassesFrom Matrix dgCMatrix
 #'
 NULL
@@ -75,6 +76,42 @@ setOldClass(Classes = 'package_version')
   }
   object[[col.name]] <- metadata
   return(object)
+}
+
+#' Check List Names
+#'
+#' Check to see if a list has names; also check to enforce that all names are
+#' present and unique
+#'
+#' @param x A list
+#' @param all.unique Require that all names are unique from one another
+#' @param allow.empty Allow empty (\code{nchar = 0}) names
+#'
+#' @return \code{TRUE} if ..., otherwise \code{FALSE}
+#'
+#' @importFrom rlang is_bare_list
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+IsNamedList <- function(x, all.unique = TRUE, allow.empty = FALSE) {
+  if (!is_bare_list(x = x)) {
+    stop("'x' must be a list")
+  }
+  n <- names(x = x)
+  named <- !is.null(x = n)
+  if (!isTRUE(x = allow.empty)) {
+    named <- named && all(vapply(
+      X = n,
+      FUN = nchar,
+      FUN.VALUE = integer(length = 1L)
+    ))
+  }
+  if (isTRUE(x = all.unique)) {
+    named <- named && (length(x = n) == length(x = unique(x = n)))
+  }
+  return(named)
 }
 
 #' Head and Tail Object Metadata

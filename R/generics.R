@@ -2,6 +2,12 @@
 #'
 NULL
 
+#' @export
+#'
+.AssayClass <- function(object) {
+  UseMethod(generic = '.AssayClass', object = object)
+}
+
 #' Add in metadata associated with either cells or features.
 #'
 #' Adds additional data to the object. Can be any piece of information
@@ -92,12 +98,14 @@ as.Seurat <- function(x, ...) {
   UseMethod(generic = 'as.Seurat', object = x)
 }
 
-#' Get cells present in an object
+#' Cell and Feature Names
+#'
+#' Get the cell and feature names of an object
 #'
 #' @param x An object
 #' @param ... Arguments passed to other methods
 #'
-#' @return A vector of cell names
+#' @return \code{Cell}: A vector of cell names
 #'
 #' @rdname Cells
 #' @export Cells
@@ -248,6 +256,15 @@ Distances <- function(object, ...) {
 #'
 Embeddings <- function(object, ...) {
   UseMethod(generic = 'Embeddings', object = object)
+}
+
+#' @return \code{Features}: A vector of feature names
+#'
+#' @rdname Cells
+#' @export Features
+#'
+Features <- function(x, ...) {
+  UseMethod(generic = 'Features', object = x)
 }
 
 #' Get and Set Assay Data
@@ -534,6 +551,39 @@ Key <- function(object, ...) {
 #'
 "Key<-" <- function(object, ..., value) {
   UseMethod(generic = 'Key<-', object = object)
+}
+
+#' Query and Manipulate Assay Layers
+#'
+#' @param object An object
+#' @param layer Name of layer to fetch or set
+#' @param ... Arguments passed to other methods
+#'
+#' @return ...
+#'
+#' @rdname Layers
+#' @export LayerData
+#'
+LayerData <- function(object, layer = 'data', ...) {
+  UseMethod(generic = 'LayerData', object = object)
+}
+
+#' @param value ...
+#'
+#' @rdname Layers
+#' @export LayerData<-
+#'
+"LayerData<-" <- function(object, layer, ..., value) {
+  UseMethod(generic = 'LayerData<-', object = object)
+}
+
+#' @rdname Layers
+#' @export Layers
+#'
+#' @concept data-access
+#'
+Layers <- function(object, ...) {
+  UseMethod(generic = 'Layers', object = object)
 }
 
 #' Get and set feature loadings

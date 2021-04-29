@@ -8,23 +8,6 @@ NULL
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @exportClass StdAssay
-#'
-setClass(
-  Class = 'StdAssay',
-  contains = 'VIRTUAL',
-  slots = c(
-    counts = 'ANY',
-    data = 'ANY',
-    scale.data = 'ANY',
-    key = 'character',
-    assay.orig = 'OptionalCharacter',
-    var.features = 'character',
-    meta.features = 'data.frame',
-    misc = 'OptionalList'
-  )
-)
-
 #' The Assay Class
 #'
 #' The Assay object is the basic unit of Seurat; each Assay stores raw,
@@ -53,16 +36,16 @@ setClass(
 #'
 Assay <- setClass(
   Class = 'Assay',
-  contains = 'StdAssay',
+  # contains = 'StdAssay',
   slots = c(
     counts = 'AnyMatrix',
     data = 'AnyMatrix',
-    scale.data = 'matrix'
-    # key = 'character',
-    # assay.orig = 'OptionalCharacter',
-    # var.features = 'vector',
-    # meta.features = 'data.frame',
-    # misc = 'OptionalList'
+    scale.data = 'matrix',
+    key = 'character',
+    assay.orig = 'OptionalCharacter',
+    var.features = 'vector',
+    meta.features = 'data.frame',
+    misc = 'OptionalList'
   )
 )
 
@@ -262,24 +245,24 @@ CreateAssayObject <- function(
 
 #' @rdname AddMetaData
 #' @export
-#' @method AddMetaData StdAssay
+#' @method AddMetaData Assay
 #'
-AddMetaData.StdAssay <- .AddMetaData
+AddMetaData.Assay <- .AddMetaData
 
 #' @rdname DefaultAssay
 #' @export
-#' @method DefaultAssay StdAssay
+#' @method DefaultAssay Assay
 #'
-DefaultAssay.StdAssay <- function(object, ...) {
+DefaultAssay.Assay <- function(object, ...) {
   object <- UpdateSlots(object = object)
   return(slot(object = object, name = 'assay.orig'))
 }
 
 #' @rdname DefaultAssay
 #' @export
-#' @method DefaultAssay<- StdAssay
+#' @method DefaultAssay<- Assay
 #'
-"DefaultAssay<-.StdAssay" <- function(object, ..., value) {
+"DefaultAssay<-.Assay" <- function(object, ..., value) {
   object <- UpdateSlots(object = object)
   slot(object = object, name = 'assay.orig') <- value
   return(object)
@@ -287,13 +270,13 @@ DefaultAssay.StdAssay <- function(object, ...) {
 
 #' @rdname AssayData
 #' @export
-#' @method GetAssayData StdAssay
+#' @method GetAssayData Assay
 #'
 #' @examples
 #' # Get the data directly from an Assay object
 #' GetAssayData(pbmc_small[["RNA"]], slot = "data")[1:5,1:5]
 #'
-GetAssayData.StdAssay <- function(
+GetAssayData.Assay <- function(
   object,
   slot = c('data', 'scale.data', 'counts'),
   ...
@@ -306,13 +289,13 @@ GetAssayData.StdAssay <- function(
 
 #' @rdname VariableFeatures
 #' @export
-#' @method HVFInfo StdAssay
+#' @method HVFInfo Assay
 #'
 #' @examples
 #' # Get the HVF info directly from an Assay object
 #' HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
 #'
-HVFInfo.StdAssay <- function(object, selection.method, status = FALSE, ...) {
+HVFInfo.Assay <- function(object, selection.method, status = FALSE, ...) {
   CheckDots(...)
   disp.methods <- c('mean.var.plot', 'dispersion', 'disp')
   if (tolower(x = selection.method) %in% disp.methods) {
@@ -350,27 +333,27 @@ HVFInfo.StdAssay <- function(object, selection.method, status = FALSE, ...) {
 
 #' @rdname Key
 #' @export
-#' @method Key StdAssay
+#' @method Key Assay
 #'
 #' @examples
 #' # Get an Assay key
 #' Key(pbmc_small[["RNA"]])
 #'
-Key.StdAssay <- function(object, ...) {
+Key.Assay <- function(object, ...) {
   CheckDots(...)
   return(slot(object = object, name = 'key'))
 }
 
 #' @rdname Key
 #' @export
-#' @method Key<- StdAssay
+#' @method Key<- Assay
 #'
 #' @examples
 #' # Set the key for an Assay
 #' Key(pbmc_small[["RNA"]]) <- "newkey_"
 #' Key(pbmc_small[["RNA"]])
 #'
-"Key<-.StdAssay" <- function(object, ..., value) {
+"Key<-.Assay" <- function(object, ..., value) {
   CheckDots(...)
   slot(object = object, name = 'key') <- value
   return(object)
@@ -380,15 +363,15 @@ Key.StdAssay <- function(object, ...) {
 #'
 #' @rdname Misc
 #' @export
-#' @method Misc StdAssay
+#' @method Misc Assay
 #'
-Misc.StdAssay <- .Misc
+Misc.Assay <- .Misc
 
 #' @rdname Misc
 #' @export
-#' @method Misc<- StdAssay
+#' @method Misc<- Assay
 #'
-"Misc<-.StdAssay" <- `.Misc<-`
+"Misc<-.Assay" <- `.Misc<-`
 
 #' @param new.names vector of new cell names
 #'
@@ -421,7 +404,7 @@ RenameCells.Assay <- function(object, new.names = NULL, ...) {
 #'
 #' @rdname AssayData
 #' @export
-#' @method SetAssayData StdAssay
+#' @method SetAssayData Assay
 #'
 #' @examples
 #' # Set an Assay slot directly
@@ -429,7 +412,7 @@ RenameCells.Assay <- function(object, new.names = NULL, ...) {
 #' count.data <- as.matrix(x = count.data + 1)
 #' new.assay <- SetAssayData(pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
 #'
-SetAssayData.StdAssay <- function(
+SetAssayData.Assay <- function(
   object,
   slot = c('data', 'scale.data', 'counts'),
   new.data,
@@ -578,9 +561,9 @@ SVFInfo.Assay <- function(
 
 #' @rdname VariableFeatures
 #' @export
-#' @method VariableFeatures StdAssay
+#' @method VariableFeatures Assay
 #'
-VariableFeatures.StdAssay <- function(object, selection.method = NULL, ...) {
+VariableFeatures.Assay <- function(object, selection.method = NULL, ...) {
   CheckDots(...)
   if (!is.null(x = selection.method)) {
     vf <- HVFInfo(
@@ -595,9 +578,9 @@ VariableFeatures.StdAssay <- function(object, selection.method = NULL, ...) {
 
 #' @rdname VariableFeatures
 #' @export
-#' @method VariableFeatures<- StdAssay
+#' @method VariableFeatures<- Assay
 #'
-"VariableFeatures<-.StdAssay" <- function(object, ..., value) {
+"VariableFeatures<-.Assay" <- function(object, ..., value) {
   CheckDots(...)
   if (length(x = value) == 0) {
     slot(object = object, name = 'var.features') <- character(length = 0)
@@ -723,9 +706,9 @@ NULL
 #' \code{j}
 #'
 #' @export
-#' @method [ StdAssay
+#' @method [ Assay
 #'
-"[.StdAssay" <- function(x, i, j, ...) {
+"[.Assay" <- function(x, i, j, ...) {
   if (missing(x = i)) {
     i <- seq_len(length.out = nrow(x = x))
   }
@@ -742,9 +725,9 @@ NULL
 #' @return \code{[[}: The feature-level metadata for \code{i}
 #'
 #' @export
-#' @method [[ StdAssay
+#' @method [[ Assay
 #'
-"[[.StdAssay" <- function(x, i, ..., drop = FALSE) {
+"[[.Assay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.features'))
   }
@@ -762,9 +745,9 @@ NULL
 #' (\code{ncol})
 #'
 #' @export
-#' @method dim StdAssay
+#' @method dim Assay
 #'
-dim.StdAssay <- function(x) {
+dim.Assay <- function(x) {
   return(dim(x = GetAssayData(object = x)))
 }
 
@@ -773,9 +756,9 @@ dim.StdAssay <- function(x) {
 #' @return \code{dimnames}: Feature (row) and cell (column) names
 #'
 #' @export
-#' @method dimnames StdAssay
+#' @method dimnames Assay
 #'
-dimnames.StdAssay <- function(x) {
+dimnames.Assay <- function(x) {
   return(dimnames(x = GetAssayData(object = x)))
 }
 
@@ -784,9 +767,9 @@ dimnames.StdAssay <- function(x) {
 #' @return \code{head}: The first \code{n} rows of feature-level metadata
 #'
 #' @export
-#' @method head StdAssay
+#' @method head Assay
 #'
-head.StdAssay <- .head
+head.Assay <- .head
 
 #' @describeIn Assay-methods Merge \code{Assay} objects
 #'
@@ -919,9 +902,9 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
 #' @importFrom utils tail
 #'
 #' @export
-#' @method tail StdAssay
+#' @method tail Assay
 #'
-tail.StdAssay <- .tail
+tail.Assay <- .tail
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
@@ -937,7 +920,7 @@ tail.StdAssay <- .tail
 #'
 setMethod(
   f = '[[<-',
-  signature = c('x' = 'StdAssay'),
+  signature = c('x' = 'Assay'),
   definition = function(x, i, ..., value) {
     meta.data <- x[[]]
     feature.names <- rownames(x = meta.data)
@@ -1085,7 +1068,7 @@ setMethod(
 #'
 setMethod(
   f = 'show',
-  signature = 'StdAssay',
+  signature = 'Assay',
   definition = function(object) {
     cat(
       class(x = object)[1],
@@ -1120,40 +1103,6 @@ setMethod(
       '\n'
     )
     return(invisible(x = NULL))
-  }
-)
-
-setValidity(
-  Class = 'StdAssay',
-  method = function(object) {
-    valid <- NULL
-    # Check data
-    data.dims <- na.dims <- c(NA_integer_, NA_integer_)
-    if (IsMatrixEmpty(x = GetAssayData(object = object, slot = 'data'))) {
-      valid <- c(valid, "'data' cannot be empty")
-    } else {
-      data.dims <- dim(x = GetAssayData(object = object, slot = 'data'))
-      if (length(x = data.dims) != 2) {
-        valid <- c(valid, "'data' must be a two-dimensional object")
-        data.dims <- na.dims
-      }
-    }
-    # Check counts
-    if (!IsMatrixEmpty(x = GetAssayData(object = object, slot = 'counts'))) {
-      counts.dims <- dim(x = GetAssayData(object = object, slot = 'counts'))
-      if (length(x = counts.dims) != 2) {
-        valid <- c(valid, "'counts' must be a two-dimensional object")
-      } else if (!isTRUE(x = all.equal(target = counts.dims, data.dims))) {
-        valid <- c(valid, "'counts' must be the same size as 'data'")
-      }
-    }
-    # TODO: Check scale data
-    # TODO: Check variable features
-    # TODO: Check meta features
-    # TODO: Check key
-    # TODO: Check misc
-    # if (!is.null(x = ))
-    return(valid %||% TRUE)
   }
 )
 

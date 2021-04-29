@@ -6,7 +6,15 @@ NULL
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @method .AssayClass StdAssay
+#' @export
+#'
+.AssayClass.StdAssay <- function(object) {
+  return('Assay (v5)')
+}
+
 #' @rdname Cells
+#' @method Cells default
 #' @export
 #'
 Cells.default <- function(x, ...) {
@@ -14,8 +22,8 @@ Cells.default <- function(x, ...) {
 }
 
 #' @rdname IsGlobal
-#' @export
 #' @method IsGlobal default
+#' @export
 #'
 IsGlobal.default <- function(object, ...) {
   return(FALSE)

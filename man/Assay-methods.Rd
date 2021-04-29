@@ -2,39 +2,39 @@
 % Please edit documentation in R/assay.R
 \name{Assay-methods}
 \alias{Assay-methods}
-\alias{[.StdAssay}
-\alias{[[.StdAssay}
-\alias{dim.StdAssay}
-\alias{dimnames.StdAssay}
-\alias{head.StdAssay}
+\alias{[.Assay}
+\alias{[[.Assay}
+\alias{dim.Assay}
+\alias{dimnames.Assay}
+\alias{head.Assay}
 \alias{merge.Assay}
 \alias{subset.Assay}
-\alias{tail.StdAssay}
-\alias{[[<-,StdAssay-method}
+\alias{tail.Assay}
+\alias{[[<-,Assay-method}
 \alias{colMeans,Assay-method}
 \alias{colSums,Assay-method}
 \alias{rowMeans,Assay-method}
 \alias{rowSums,Assay-method}
-\alias{show,StdAssay-method}
+\alias{show,Assay-method}
 \title{\code{Assay} Methods}
 \usage{
-\method{[}{StdAssay}(x, i, j, ...)
+\method{[}{Assay}(x, i, j, ...)
 
-\method{[[}{StdAssay}(x, i, ..., drop = FALSE)
+\method{[[}{Assay}(x, i, ..., drop = FALSE)
 
-\method{dim}{StdAssay}(x)
+\method{dim}{Assay}(x)
 
-\method{dimnames}{StdAssay}(x)
+\method{dimnames}{Assay}(x)
 
-\method{head}{StdAssay}(x, n = 10L, ...)
+\method{head}{Assay}(x, n = 10L, ...)
 
 \method{merge}{Assay}(x = NULL, y = NULL, add.cell.ids = NULL, merge.data = TRUE, ...)
 
 \method{subset}{Assay}(x, cells = NULL, features = NULL, ...)
 
-\method{tail}{StdAssay}(x, n = 10L, ...)
+\method{tail}{Assay}(x, n = 10L, ...)
 
-\S4method{[[}{StdAssay}(x, i, j, ...) <- value
+\S4method{[[}{Assay}(x, i, j, ...) <- value
 
 \S4method{colMeans}{Assay}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
 
@@ -44,7 +44,7 @@
 
 \S4method{rowSums}{Assay}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
 
-\S4method{show}{StdAssay}(object)
+\S4method{show}{Assay}(object)
 }
 \arguments{
 \item{x, object}{An \code{\link{Assay}} object}
@@ -115,23 +115,23 @@ other packages
 }
 \section{Functions}{
 \itemize{
-\item \code{[.StdAssay}: Get expression data from an \code{Assay}
+\item \code{[.Assay}: Get expression data from an \code{Assay}
 
-\item \code{[[.StdAssay}: Get feature-level metadata
+\item \code{[[.Assay}: Get feature-level metadata
 
-\item \code{dim.StdAssay}: Number of cells and features for an \code{Assay}
+\item \code{dim.Assay}: Number of cells and features for an \code{Assay}
 
-\item \code{dimnames.StdAssay}: Cell- and feature-names for an \code{Assay}
+\item \code{dimnames.Assay}: Cell- and feature-names for an \code{Assay}
 
-\item \code{head.StdAssay}: Get the first rows of feature-level metadata
+\item \code{head.Assay}: Get the first rows of feature-level metadata
 
 \item \code{merge.Assay}: Merge \code{Assay} objects
 
 \item \code{subset.Assay}: Subset an \code{Assay}
 
-\item \code{tail.StdAssay}: Get the last rows of feature-level metadata
+\item \code{tail.Assay}: Get the last rows of feature-level metadata
 
-\item \code{[[<-,StdAssay-method}: Add feature-level metadata
+\item \code{[[<-,Assay-method}: Add feature-level metadata
 
 \item \code{colMeans,Assay-method}: Calculate \code{\link[base]{colMeans}} on an
 \code{Assay}
@@ -145,7 +145,7 @@ other packages
 \item \code{rowSums,Assay-method}: Calculate \code{\link[base]{rowSums}} on an
 \code{Assay}
 
-\item \code{show,StdAssay-method}: Overview of an \code{Assay} object
+\item \code{show,Assay-method}: Overview of an \code{Assay} object
 }}
 
 \concept{assay}

@@ -44,8 +44,21 @@ Imports:
     utils
 Suggests:
     tinytest
-Collate: 'RcppExports.R' 'utils.R' 'zzz.R' 'generics.R'
-      'assay.R' 'command.R' 'data.R' 'default.R'
-      'jackstraw.R' 'dimreduc.R' 'graph.R' 'neighbor.R'
-      'spatial.R' 'seurat.R'
+Collate: 
+    'RcppExports.R'
+    'utils.R'
+    'zzz.R'
+    'generics.R'
+    'assay.R'
+    'assay5.R'
+    'command.R'
+    'data.R'
+    'default.R'
+    'jackstraw.R'
+    'dimreduc.R'
+    'graph.R'
+    'neighbor.R'
+    'spatial.R'
+    'seurat.R'
+    'seurat5.R'
 LinkingTo: Rcpp, RcppEigen
