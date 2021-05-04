@@ -1,4 +1,5 @@
 #' @include zzz.R
+#' @importFrom methods setAs
 #'
 NULL
 
@@ -53,7 +54,7 @@ setClass(
     data = 'ANY',
     layers = 'list',
     key = 'character',
-    cells = 'character',
+    cells = 'matrix',
     assay.orig = 'character',
     features = 'matrix',
     # var.features = 'character',
@@ -95,6 +96,9 @@ CreateAssay5Object <- function(
   min.features = 0,
   ...
 ) {
+  if (!inherits(x = counts, what = 'AnyMatrix')) {
+    counts <- as.sparse(x = counts, ...)
+  }
   # Filter based on min.features
   if (min.features > 0) {
     nfeatures <- Matrix::colSums(x = counts > 0)
@@ -117,8 +121,13 @@ CreateAssay5Object <- function(
       ncol = 0,
       dimnames = list(features, NULL)
     ),
-    cells = cells,
-    meta.data = as.data.frame(x = matrix(nrow = nrow(x = counts), ncol = 0))
+    # cells = cells,
+    cells = matrix(
+      nrow = ncol(x = counts),
+      ncol = 0,
+      dimnames = list(cells, NULL)
+    ),
+    meta.data = EmptyDF(n = nrow(x = counts))
   ))
 }
 
@@ -137,7 +146,8 @@ AddMetaData.StdAssay <- .AddMetaData
 #' @export
 #'
 Cells.StdAssay <- function(x, ...) {
-  return(slot(object = x, name = 'cells'))
+  # return(slot(object = x, name = 'cells'))
+  return(rownames(x = slot(object = x, name = 'cells')))
 }
 
 #' @rdname DefaultAssay
@@ -191,10 +201,8 @@ GetAssayData.StdAssay <- function(
   slot = 'data',
   ...
 ) {
-  CheckDots(...)
-  slot <- slot[1]
-  slot <- match.arg(arg = slot, choices = Layers(object = object))
-  return(slot(object = object, name = slot))
+  CheckDots(..., fxns = LayerData)
+  return(LayerData(object = object, layer = slot, ...))
 }
 
 #' @rdname VariableFeatures
@@ -341,13 +349,13 @@ LayerData.Assay5 <- function(object, layer = 'data', dnames = TRUE, ...) {
     slot(object = object, name = 'features') <- fmat
   } else {
     # Adding a layer
-    if (!identical(x = ncol(x = value), y = ncol(x = object))) {
-      stop("Layers must have the same cells as currently present")
-    }
+    # if (!identical(x = ncol(x = value), y = ncol(x = object))) {
+    #   stop("Layers must have the same cells as currently present")
+    # }
     if (is.null(x = features)) {
-      if (nrow(x = value) != nrow(x = object)) {
-        stop("If features are not provided, then layers must have the same features as 'data'")
-      }
+      # if (nrow(x = value) != nrow(x = object)) {
+      #   stop("If features are not provided, then layers must have the same features as 'data'")
+      # }
       fmatch <- seq_len(length.out = nrow(x = value))
     } else {
       fmatch <- if (is.numeric(x = features)) {
@@ -373,6 +381,7 @@ LayerData.Assay5 <- function(object, layer = 'data', dnames = TRUE, ...) {
     fmat[fmatch, layer] <- TRUE
     slot(object = object, name = 'features') <- fmat
   }
+  validObject(object = object)
   return(object)
 }
 
@@ -384,6 +393,7 @@ LayerData.Assay5 <- function(object, layer = 'data', dnames = TRUE, ...) {
     value <- as.sparse(x = value)
   }
   object <- NextMethod()
+  validObject(object = object)
   return(object)
 }
 
@@ -638,7 +648,15 @@ NULL
 #' @method dim StdAssay
 #'
 dim.StdAssay <- function(x) {
-  return(dim(x = LayerData(object = x)))
+  # return(dim(x = LayerData(object = x)))
+  return(vapply(
+    X = c('features', 'cells'),
+    FUN = function(s) {
+      return(nrow(x = slot(object = x, name = s)))
+    },
+    FUN.VALUE = numeric(length = 1L),
+    USE.NAMES = FALSE
+  ))
 }
 
 #' @describeIn StdAssay-methods Cell- and feature-names for an \code{StdAssay}
@@ -676,9 +694,27 @@ tail.StdAssay <- .tail
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+CalcN5 <- function(object) {
+  if (IsMatrixEmpty(x = LayerData(object = object))) {
+    return(NULL)
+  }
+  return(list(
+    nCount = colSums(x = object),
+    nFeature = colSums(x = LayerData(object = object) > 0)
+  ))
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# setAs(
+#   from = 'Assay',
+#   to = 'Assay5',
+#   def = function(from, to, ...) {
+#     .NotYetImplemented()
+#   }
+# )
 
 #' @describeIn StdAssay-methods Add feature-level metadata
 #'
@@ -731,6 +767,62 @@ setMethod(
     }
     slot(object = x, name = 'meta.features') <- meta.data
     return(x)
+  }
+)
+
+setMethod(
+  f = 'colMeans',
+  signature = c(x = 'StdAssay'),
+  definition = function(x, na.rm = FALSE, dims = 1, layer = 'data', ...) {
+    layer <- layer[1L]
+    layer <- match.arg(arg = layer, choices = Layers(object = x))
+    return(Matrix::colMeans(
+      x = LayerData(object = x, layer = layer),
+      na.rm = na.rm,
+      dims = dims
+    ))
+  }
+)
+
+setMethod(
+  f = 'colSums',
+  signature = c(x = 'StdAssay'),
+  definition = function(x, na.rm = FALSE, dims = 1, layer = 'data', ...) {
+    layer <- layer[1L]
+    layer <- match.arg(arg = layer, choices = Layers(object = x))
+    return(Matrix::colSums(
+      x = LayerData(object = x, layer = layer),
+      na.rm = na.rm,
+      dims = dims
+    ))
+  }
+)
+
+setMethod(
+  f = 'rowMeans',
+  signature = c(x = 'StdAssay'),
+  definition = function(x, na.rm = FALSE, dims = 1, layer = 'data', ...) {
+    layer <- layer[1L]
+    layer <- match.arg(arg = layer, choices = Layers(object = x))
+    return(Matrix::rowMeans(
+      x = LayerData(object = x, layer = layer),
+      na.rm = na.rm,
+      dims = dims
+    ))
+  }
+)
+
+setMethod(
+  f = 'rowSums',
+  signature = c(x = 'StdAssay'),
+  definition = function(x, na.rm = FALSE, dims = 1, layer = 'data', ...) {
+    layer <- layer[1L]
+    layer <- match.arg(arg = layer, choices = Layers(object = x))
+    return(Matrix::rowSums(
+      x = LayerData(object = x, layer = layer),
+      na.rm = na.rm,
+      dims = dims
+    ))
   }
 )
 
@@ -821,14 +913,25 @@ setValidity(
         valid <- c(valid, "'layers' must be a named list")
       }
       for (layer in Layers(object = object, data = FALSE)) {
-        ldat <- LayerData(object = object, which = layer)
+        ldat <- LayerData(object = object, layer = layer, dnames = FALSE)
         if (ncol(x = ldat) != data.dims[2]) {
-          valid <- c(valid, "All layers must have the same cells as 'data'")
+          valid <- c(
+            valid,
+            paste0(
+              "All layers must have the same cells as 'data' (offending: ",
+              layer,
+              ")"
+            )
+          )
           break
         } else if (nrow(x = ldat) > data.dims[1]) {
           valid <- c(
             valid,
-            "All layers must have the same or a subset of features as 'data'"
+            paste0(
+              "All layers must have the same or a subset of features as 'data' (offending: ",
+              layer,
+              ")"
+            )
           )
           break
         }
@@ -845,10 +948,24 @@ setValidity(
     }
     for (layer in Layers(object = object, data = FALSE)) {
       if (!layer %in% colnames(x = fmat)) {
-        valid <- c(valid, "All layers must have a column in the feature matrix")
+        valid <- c(
+          valid,
+          paste0(
+            "All layers must have a column in the feature matrix (offending: ",
+            layer,
+            ")"
+          )
+        )
         break
       } else if (sum(fmat[, layer], na.rm = TRUE) < 1L) {
-        valid <- c(valid, "All layers must have at least one feature present")
+        valid <- c(
+          valid,
+          paste0(
+            "All layers must have at least one feature present (offending: ",
+            layer,
+            ")"
+          )
+        )
         break
       }
     }
@@ -867,7 +984,7 @@ setValidity(
     # Check class of layers
     for (layer in Layers(object = object, data = FALSE)) {
       cls <- inherits(
-        x = LayerData(object = object, layer = layer),
+        x = LayerData(object = object, layer = layer, dnames = FALSE),
         what = 'AnyMatrix'
       )
       if (!isTRUE(x = cls)) {
