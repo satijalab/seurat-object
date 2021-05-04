@@ -2,12 +2,15 @@
 % Please edit documentation in R/seurat.R
 \name{Assays}
 \alias{Assays}
+\alias{Assays.Seurat}
 \alias{Graphs}
 \alias{Neighbors}
 \alias{Reductions}
 \title{Query Specific Object Types}
 \usage{
-Assays(object, slot = NULL)
+Assays(object, ...)
+
+\method{Assays}{Seurat}(object, slot = NULL, ...)
 
 Graphs(object, slot = NULL)
 

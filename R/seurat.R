@@ -166,7 +166,15 @@ seurat <- setClass(
 #' @examples
 #' Assays(object = pbmc_small)
 #'
-Assays <- function(object, slot = NULL) {
+Assays <- function(object, ...) {
+  UseMethod(generic = "Assays", object = object)
+}
+
+#' @rdname ObjectAccess
+#' @method Assays Seurat
+#' @export
+#'
+Assays.Seurat <- function(object, slot = NULL, ...) {
   assays <- FilterObjects(object = object, classes.keep = 'Assay')
   if (is.null(x = slot)) {
     return(assays)
