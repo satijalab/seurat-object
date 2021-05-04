@@ -8,6 +8,12 @@ NULL
   UseMethod(generic = '.AssayClass', object = object)
 }
 
+#' @export
+#'
+.MARGIN <- function(object, type = c('features', 'cells')) {
+  UseMethod(generic = '.MARGIN', object = object)
+}
+
 #' Add in metadata associated with either cells or features.
 #'
 #' Adds additional data to the object. Can be any piece of information
@@ -195,6 +201,17 @@ CreateSeuratObject <- function(
   ...
 ) {
   UseMethod(generic = 'CreateSeuratObject', object = counts)
+}
+
+CreateSeurat5Object <- function(
+  counts,
+  assay = 'RNA',
+  names.field = 1L,
+  names.delim = '_',
+  meta.data = NULL,
+  ...
+) {
+  UseMethod(generic = 'CreateSeurat5Object', object = counts)
 }
 
 #' Default Assay

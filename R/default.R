@@ -13,6 +13,15 @@ NULL
   return('Assay (v5)')
 }
 
+#' @method .MARGIN default
+#' @export
+#'
+.MARGIN.default <- function(object, type = c('features', 'cells')) {
+  type <- type[1]
+  type <- match.arg(arg = type)
+  return(unname(obj = c(features = 1L, cells = 2L)[type]))
+}
+
 #' @rdname Cells
 #' @method Cells default
 #' @export
@@ -27,4 +36,12 @@ Cells.default <- function(x, ...) {
 #'
 IsGlobal.default <- function(object, ...) {
   return(FALSE)
+}
+
+#' @method Key character
+#' @export
+#'
+Key.character <- function(object, quiet = FALSE, ...) {
+  f <- ifelse(test = isTRUE(x = quiet), yes = suppressWarnings, no = identity)
+  return(f(UpdateKey(key = object)))
 }
