@@ -615,6 +615,73 @@ IsNullPtr <- function(x) {
   return(.Call('isnull', x))
 }
 
+#' Test Empty Characters
+#'
+#' Check to see if a \code{\link[base]{character}} vector is empty. A character
+#' is empty if it has no length or an \code{nchar == 0}
+#'
+#' @param x A \code{\link[base]{character}} vector
+#' @param mode Stringency of emptiness test:
+#' \describe{
+#'  \item{\dQuote{each}}{Return a single value for each member of \code{x}}
+#'  \item{\dQuote{any}}{Return \code{TRUE} if any member of \code{x} is empty}
+#'  \item{\dQuote{all}}{Return \code{TRUE} if \emph{every} member of \code{x} is
+#'  empty}
+#' }
+#' @param na Control how \code{\link[base]{NA}} values are treated:
+#' \describe{
+#'  \item{\dQuote{empty}}{Treat \code{NA}s as empty values}
+#'  \item{\dQuote{keep}}{Keep \code{NA} values and treat them as \code{NA}}
+#'  \item{\dQuote{remove}}{Remove \code{NA} values before testing emptiness}
+#' }
+#'
+#' @return If \code{mode} is \dQuote{each}, a vector of logical values denoting
+#' the emptiness of of each member of \code{x}; otherwise, a singular
+#' \code{\link[base]{logical}} denoting the overall emptiness of \code{x}
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+IsCharEmpty <- function(
+  x,
+  mode = c('each', 'any', 'all'),
+  na = c('empty', 'keep', 'remove')
+) {
+  if (!is.character(x = x)) {
+    return(FALSE)
+  }
+  mode <- mode[1]
+  mode <- match.arg(arg = mode)
+  na <- na[1]
+  na <- match.arg(arg = na)
+  switch(
+    EXPR = na,
+    'empty' = {
+      x[is.na(x = x)] <- ''
+    },
+    'remove' = {
+      x <- x[!is.na(x = x)]
+    }
+  )
+  if (!length(x = x)) {
+    return(TRUE)
+  }
+  empty <- vapply(
+    X = x,
+    FUN = Negate(f = nchar),
+    FUN.VALUE = logical(length = 1L),
+    USE.NAMES = FALSE
+  )
+  empty <- switch(
+    EXPR = mode,
+    'any' = any(empty),
+    'all' = all(empty),
+    empty
+  )
+  return(empty)
+}
+
 #' Generate a random name
 #'
 #' Make a name from randomly sampled lowercase letters, pasted together with no
