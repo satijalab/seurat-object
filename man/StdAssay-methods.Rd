@@ -8,7 +8,7 @@
 \alias{dimnames.StdAssay}
 \alias{head.StdAssay}
 \alias{tail.StdAssay}
-\alias{[[<-,StdAssay-method}
+\alias{[[<-,StdAssay,ANY,ANY,ANY-method}
 \alias{show,StdAssay-method}
 \title{\code{StdAssay} Methods}
 \usage{
@@ -24,7 +24,7 @@
 
 \method{tail}{StdAssay}(x, n = 10L, ...)
 
-\S4method{[[}{StdAssay}(x, i, j, ...) <- value
+\S4method{[[}{StdAssay,ANY,ANY,ANY}(x, i, j, ...) <- value
 
 \S4method{show}{StdAssay}(object)
 }
@@ -80,7 +80,7 @@ other packages
 
 \item \code{tail.StdAssay}: Get the last rows of feature-level metadata
 
-\item \code{[[<-,StdAssay-method}: Add feature-level metadata
+\item \code{[[<-,StdAssay,ANY,ANY,ANY-method}: Add feature-level metadata
 
 \item \code{show,StdAssay-method}: Overview of an \code{StdAssay} object
 }}
