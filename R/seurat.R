@@ -357,6 +357,17 @@ FetchData <- function(object, vars, cells = NULL, slot = 'data') {
   # Pull vars from object metadata
   meta.vars <- vars[vars %in% colnames(x = object[[]]) & !(vars %in% names(x = data.fetched))]
   data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
+  meta.default <- meta.vars[meta.vars %in% rownames(x = GetAssayData(object = object, slot = slot))]
+  if (length(x = meta.default)) {
+    warning(
+      "The following variables were found in both object metadata and the default assay: ",
+      paste0(meta.default, collapse = ", "),
+      "\nReturning metadata; if you want the feature, please use the assay's key (eg. ",
+      paste0(Key(object = object[[DefaultAssay(object = object)]]), meta.default[1]),
+      ")",
+      call. = FALSE
+    )
+  }
   # Pull vars from the default assay
   default.vars <- vars[vars %in% rownames(x = GetAssayData(object = object, slot = slot)) & !(vars %in% names(x = data.fetched))]
   data.fetched <- c(
