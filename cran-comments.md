@@ -1,18 +1,14 @@
-# SeuratObject v4.0.0
+# SeuratObject v4.0.1
 
 ## Test environments
-* local ubuntu 20.04 install, R 4.0.3
-* local macOS 10.14.6 install, R 4.0.2
-* win-builder (oldrelease, release, devel)
+* local ubuntu 20.04 install, R 4.0.5
+* local macOS 10.14.6 install, R 4.0.5
+* win-builder (release, devel)
 
 ## R CMD check results
 
-There were no ERRORs or WARNINGs
-
-There was 1 NOTE:
-
-* This is a new release.
+There were no ERRORs, WARNINGs, or NOTEs
 
 ## Downstream dependencies
 
-There are no packages that import or depend on SeuratObject
+There are two packages that import SeuratObject; this update does impact their functionality. There are two packages that suggest SeuratObject; this update does not impact their functionality.

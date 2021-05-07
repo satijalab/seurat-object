@@ -1,4 +1,4 @@
-# SeuratObject (development version)
+# SeuratObject 4.0.1
 
 ## Added
 - `head` and `tail` methods for `Seurat` and `Assay` objects (#5)
