@@ -7,7 +7,19 @@
 
 ## R CMD check results
 
-There were no ERRORs, WARNINGs, or NOTEs
+There were no ERRORs, WARNINGs
+
+There was one NOTE:
+
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: ‘Paul Hoffman <seurat@nygenome.org>’
+
+New maintainer:
+  Paul Hoffman <seurat@nygenome.org>
+Old maintainer(s):
+  Paul Hoffman <nygcSatijalab@nygenome.org>
+
+We are switching email addresses for the maintainer
 
 ## Downstream dependencies
 
