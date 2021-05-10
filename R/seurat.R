@@ -189,6 +189,8 @@ Assays <- function(object, slot = NULL) {
 #' @param idents A vector of identity class levels to limit resulting list to;
 #' defaults to all identity class levels
 #' @param cells A vector of cells to grouping to
+#' @param return.null If no cells are request, return a \code{NULL};
+#' by default, throws an error
 #'
 #' @return A named list where names are identity classes and values are vectors
 #' of cells belonging to that class
@@ -200,10 +202,18 @@ Assays <- function(object, slot = NULL) {
 #' @examples
 #' CellsByIdentities(object = pbmc_small)
 #'
-CellsByIdentities <- function(object, idents = NULL, cells = NULL) {
+CellsByIdentities <- function(
+  object,
+  idents = NULL,
+  cells = NULL,
+  return.null = FALSE
+) {
   cells <- cells %||% colnames(x = object)
   cells <- intersect(x = cells, y = colnames(x = object))
   if (length(x = cells) == 0) {
+    if (isTRUE(x = return.null)) {
+      return(NULL)
+    }
     stop("Cannot find cells provided")
   }
   idents <- idents %||% levels(x = object)
@@ -347,6 +357,17 @@ FetchData <- function(object, vars, cells = NULL, slot = 'data') {
   # Pull vars from object metadata
   meta.vars <- vars[vars %in% colnames(x = object[[]]) & !(vars %in% names(x = data.fetched))]
   data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
+  meta.default <- meta.vars[meta.vars %in% rownames(x = GetAssayData(object = object, slot = slot))]
+  if (length(x = meta.default)) {
+    warning(
+      "The following variables were found in both object metadata and the default assay: ",
+      paste0(meta.default, collapse = ", "),
+      "\nReturning metadata; if you want the feature, please use the assay's key (eg. ",
+      paste0(Key(object = object[[DefaultAssay(object = object)]]), meta.default[1]),
+      ")",
+      call. = FALSE
+    )
+  }
   # Pull vars from the default assay
   default.vars <- vars[vars %in% rownames(x = GetAssayData(object = object, slot = slot)) & !(vars %in% names(x = data.fetched))]
   data.fetched <- c(
@@ -909,6 +930,10 @@ Command.Seurat <- function(object, command = NULL, value = NULL, ...) {
   return(params[[value]])
 }
 
+#' @param row.names When \code{counts} is a \code{data.frame} or
+#' \code{data.frame}-derived object: an optional vector of feature names to be
+#' used
+#'
 #' @rdname CreateSeuratObject
 #' @method CreateSeuratObject default
 #' @export
@@ -922,6 +947,7 @@ CreateSeuratObject.default <- function(
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
+  row.names = NULL,
   ...
 ) {
   if (!is.null(x = meta.data)) {
@@ -932,7 +958,8 @@ CreateSeuratObject.default <- function(
   assay.data <- CreateAssayObject(
     counts = counts,
     min.cells = min.cells,
-    min.features = min.features
+    min.features = min.features,
+    row.names = row.names
   )
   if (!is.null(x = meta.data)) {
     common.cells <- intersect(
@@ -1763,10 +1790,11 @@ VariableFeatures.Seurat <- function(
 
 #' @param idents A vector of identity classes to keep
 #' @param slot Slot to pull feature data for
-#' @param downsample Maximum number of cells per identity class, default is \code{Inf};
-#' downsampling will happen after all other operations, including inverting the
-#' cell selection
+#' @param downsample Maximum number of cells per identity class, default is
+#' \code{Inf}; downsampling will happen after all other operations, including
+#' inverting the cell selection
 #' @param seed Random seed for downsampling. If NULL, does not set a seed
+#' @inheritDotParams CellsByIdentities
 #'
 #' @importFrom stats na.omit
 #' @importFrom rlang is_quosure enquo eval_tidy
@@ -1786,7 +1814,7 @@ WhichCells.Seurat <- function(
   seed = 1,
   ...
 ) {
-  CheckDots(...)
+  CheckDots(..., fxns = CellsByIdentities)
   if (!is.null(x = seed)) {
     set.seed(seed = seed)
   }
@@ -1861,11 +1889,11 @@ WhichCells.Seurat <- function(
     )
     cells <- rownames(x = data.subset)[eval_tidy(expr = expr, data = data.subset)]
   }
-  if (invert) {
+  if (isTRUE(x = invert)) {
     cell.order <- colnames(x = object)
     cells <- colnames(x = object)[!colnames(x = object) %in% cells]
   }
-  cells <- CellsByIdentities(object = object, cells = cells)
+  cells <- CellsByIdentities(object = object, cells = cells, ...)
   cells <- lapply(
     X = cells,
     FUN = function(x) {
@@ -1878,6 +1906,15 @@ WhichCells.Seurat <- function(
   cells <- as.character(x = na.omit(object = unlist(x = cells, use.names = FALSE)))
   cells <- cells[na.omit(object = match(x = cell.order, table = cells))]
   return(cells)
+}
+
+#' @rdname Version
+#' @method Version Seurat
+#' @export
+#'
+Version.Seurat <- function(object, ...) {
+  CheckDots(...)
+  return(slot(object = object, name = 'version'))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1902,6 +1939,7 @@ WhichCells.Seurat <- function(
 #'  }
 #' }
 #' @param j,cells Cell names or indices
+#' @param n The number of rows of metadata to return
 #' @param ... Arguments passed to other methods
 #'
 #' @name Seurat-methods
@@ -2122,6 +2160,21 @@ droplevels.Seurat <- function(x, ...) {
   return(x)
 }
 
+#' @describeIn Seurat-methods Get the first rows of cell-level metadata
+#'
+#' @return \code{head}: The first \code{n} rows of cell-level metadata
+#'
+#' @importFrom utils head
+#'
+#' @export
+#' @method head Seurat
+#'
+#' @examples
+#' # Get the first 10 rows of cell-level metadata
+#' head(pbmc_small)
+#'
+head.Seurat <- .head
+
 #' @rdname Idents
 #' @export
 #' @method levels Seurat
@@ -2245,39 +2298,6 @@ merge.Seurat <- function(
         ))
       }
     )
-    if (all(IsSCT(assay = assays.merge))) {
-      scaled.features <- unique(x = unlist(x = lapply(
-        X = assays.merge,
-        FUN = function(x) rownames(x = GetAssayData(object = x, slot = "scale.data")))
-      ))
-      for (ob in 1:length(x = objects)) {
-        if (assay %in% FilterObjects(object = objects[[ob]], classes.keep = "Assay")) {
-          objects[[ob]] <- suppressWarnings(GetResidual(object = objects[[ob]], features = scaled.features, assay = assay, verbose = FALSE))
-          assays.merge[[ob]] <- objects[[ob]][[assay]]
-        }
-      }
-      # handle case where some features aren't in counts and can't be retrieved with
-      # GetResidual - take intersection
-      scaled.features <- names(x = which(x = table(x = unlist(x = lapply(
-        X = assays.merge,
-        FUN = function(x) rownames(x = GetAssayData(object = x, slot = "scale.data")))
-      )) == length(x = assays.merge)))
-      if (length(x = scaled.features) > 0) {
-        for (a in 1:length(x = assays.merge)) {
-          assays.merge[[a]] <- SetAssayData(
-            object = assays.merge[[a]],
-            slot = "scale.data",
-            new.data = GetAssayData(object = assays.merge[[a]], slot = "scale.data")[scaled.features, ])
-        }
-      } else {
-        for (a in 1:length(x = assays.merge)) {
-          assays.merge[[a]] <- SetAssayData(
-            object = assays.merge[[a]],
-            slot = "scale.data",
-            new.data = new(Class = "matrix"))
-        }
-      }
-    }
     merged.assay <- merge(
       x = assays.merge[[1]],
       y = assays.merge[2:length(x = assays.merge)],
@@ -2398,6 +2418,7 @@ names.Seurat <- function(x) {
 
 #' @describeIn Seurat-methods Subset a \code{\link{Seurat}} object
 #'
+#' @inheritParams CellsByIdentities
 #' @param subset Logical expression indicating features/variables to keep
 #' @param idents A vector of identity classes to keep
 #'
@@ -2425,6 +2446,7 @@ subset.Seurat <- function(
   cells = NULL,
   features = NULL,
   idents = NULL,
+  return.null = FALSE,
   ...
 ) {
   x <- UpdateSlots(object = x)
@@ -2436,9 +2458,13 @@ subset.Seurat <- function(
     cells = cells,
     idents = idents,
     expression = subset,
+    return.null = TRUE,
     ...
   )
   if (length(x = cells) == 0) {
+    if (isTRUE(x = return.null)) {
+      return(NULL)
+    }
     stop("No cells found", call. = FALSE)
   }
   if (all(cells %in% Cells(x = x)) && length(x = cells) == length(x = Cells(x = x)) && is.null(x = features)) {
@@ -2501,6 +2527,21 @@ subset.Seurat <- function(
   }
   return(x)
 }
+
+#' @describeIn Seurat-methods Get the last rows of cell-level metadata
+#'
+#' @return \code{tail}: The last \code{n} rows of cell-level metadata
+#'
+#' @importFrom utils tail
+#'
+#' @export
+#' @method tail Seurat
+#'
+#' @examples
+#' # Get the last 10 rows of cell-level metadata
+#' tail(pbmc_small)
+#'
+tail.Seurat <- .tail
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
@@ -2697,7 +2738,10 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
         stop("All cells in the object being added must match the cells in this object", call. = FALSE)
       }
       # Ensure we're not duplicating object names
-      if (!is.null(x = FindObject(object = x, name = i)) && !inherits(x = value, what = c(class(x = x[[i]]), 'NULL'))) {
+      duplicate <- !is.null(x = FindObject(object = x, name = i)) &&
+        !inherits(x = value, what = c(class(x = x[[i]]), 'NULL')) &&
+        !inherits(x = x[[i]], what = class(x = value))
+      if (isTRUE(x = duplicate)) {
         stop(
           "This object already contains ",
           i,
@@ -2708,7 +2752,10 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
             no = ' '
           ),
           class(x = x[[i]]),
-          "; duplicate names are not allowed",
+          ", so ",
+          i,
+          " cannot be used for a ",
+          class(x = value),
           call. = FALSE
         )
       }
@@ -3116,259 +3163,6 @@ FindObject <- function(object, name) {
     }
   }
   return(NULL)
-}
-
-#' Calculate pearson residuals of features not in the scale.data
-#'
-#' This function calls sctransform::get_residuals.
-#'
-#' @param object A seurat object
-#' @param features Name of features to add into the scale.data
-#' @param assay Name of the assay of the seurat object generated by SCTransform
-#' @param umi.assay Name of the assay of the seurat object containing UMI matrix and the default is
-#' RNA
-#' @param clip.range Numeric of length two specifying the min and max values the Pearson residual
-#' will be clipped to
-#' @param replace.value Recalculate residuals for all features, even if they are already present.
-#' Useful if you want to change the clip.range.
-#' @param verbose Whether to print messages and progress bars
-#'
-#' @return Returns a Seurat object containing  pearson residuals of added features in its scale.data
-#'
-#' @importFrom sctransform get_residuals
-#'
-#' @keywords internal
-#'
-#' @seealso \code{\link[sctransform]{get_residuals}}
-#'
-#' @noRd
-#'
-#' @examples
-#' \dontrun{
-#' pbmc_small <- SCTransform(pbmc_small, variable.features.n = 20)
-#' pbmc_small <- GetResidual(pbmc_small, features = c('MS4A1', 'TCL1A'))
-#' }
-#'
-GetResidual <- function(
-  object,
-  features,
-  assay = "SCT",
-  umi.assay = NULL,
-  clip.range = NULL,
-  replace.value = FALSE,
-  verbose = TRUE
-) {
-  if (!IsSCT(assay = object[[assay]])) {
-    stop(assay, " assay was not generated by SCTransform")
-  }
-  model.name <- ifelse(
-    test = "vst.set" %in% names(x = Misc(object = object[[assay]])),
-    yes = "vst.set",
-    no = "vst.out"
-  )
-  if (length(x = Misc(object = object[[assay]])[[model.name]]) == 0) {
-    warning("SCT model not present in assay")
-    return(object)
-  }
-  umi.assay <- umi.assay %||% Misc(object = object[[assay]], slot = "umi.assay")
-  umi.assay <- umi.assay %||% "RNA" # for object created in 3.1.1 or earlier, default to RNA
-  if (replace.value) {
-    new_features <- features
-  } else {
-    new_features <- setdiff(
-      x = features,
-      y = rownames(x = GetAssayData(object = object, assay = assay, slot = "scale.data"))
-    )
-  }
-  if (length(x = new_features) == 0) {
-    if (verbose) {
-      message("Pearson residuals of input features exist already")
-    }
-  } else {
-    if (is.null(x = Misc(object = object[[assay]], slot = 'vst.set'))) {
-      vst_out <- Misc(object = object[[assay]], slot = 'vst.out')
-      # filter cells not in the object but in the SCT model
-      vst_out$cell_attr <- vst_out$cell_attr[Cells(x = object), ]
-      vst_out$cells_step1 <- intersect(x = vst_out$cells_step1, y = Cells(x = object))
-      object <- GetResidualVstOut(
-        object = object,
-        assay = assay,
-        umi.assay = umi.assay,
-        new_features = new_features,
-        vst_out = vst_out,
-        clip.range = clip.range,
-        verbose = verbose
-      )
-    } else {
-      # Calculate Pearson Residual from integrated object SCT assay
-      vst.set <- Misc(object = object[[assay]], slot = 'vst.set')
-      scale.data <- GetAssayData(
-        object = object,
-        assay = assay,
-        slot = "scale.data"
-      )
-      vst_set_genes <-  sapply(1:length(vst.set), function(x) rownames(vst.set[[x]]$model_pars_fit))
-      vst_set_genes <- Reduce(intersect, vst_set_genes)
-      diff_features <- setdiff(
-        x = new_features,
-        y = vst_set_genes
-      )
-      if (length(x = diff_features) != 0) {
-        warning(
-          "The following ", length(x = diff_features),
-          " features do not exist in all SCT models: ",
-          paste(diff_features, collapse = " ")
-        )
-      }
-      new_features <- intersect(
-        x = new_features,
-        y = vst_set_genes
-      )
-      if (length(new_features) != 0) {
-        object <- SetAssayData(
-          object = object,
-          assay = assay,
-          slot = "scale.data",
-          new.data = scale.data[!rownames(x = scale.data) %in% new_features, , drop = FALSE]
-        )
-        new.scale.data <- matrix(nrow = length(new_features), ncol = 0)
-        rownames(x = new.scale.data) <- new_features
-        for (v in 1:length(x = vst.set)) {
-          vst_out <- vst.set[[v]]
-          # confirm that cells from SCT model also exist in the integrated object
-          cells.v <- intersect(x = rownames(x = vst_out$cell_attr), y = Cells(x = object))
-          if (length(x = cells.v) != 0) {
-            vst_out$cell_attr <- vst_out$cell_attr[cells.v, ]
-            vst_out$cells_step1 <- intersect(x = vst_out$cells_step1, y = cells.v)
-            object.v <- subset(x = object, cells = cells.v)
-            object.v <- GetResidualVstOut(
-              object = object.v,
-              assay = assay,
-              umi.assay = umi.assay[[v]],
-              new_features = new_features,
-              vst_out = vst_out,
-              clip.range = clip.range,
-              verbose = verbose
-            )
-            new.scale.data <- cbind(
-              new.scale.data,
-              GetAssayData(
-                object = object.v,
-                assay = assay,
-                slot = "scale.data")[new_features, , drop = FALSE]
-            )
-          }
-        }
-        object <- SetAssayData(
-          object = object,
-          assay = assay,
-          slot = "scale.data",
-          new.data = rbind(
-            GetAssayData(object = object, slot = 'scale.data', assay = assay),
-            new.scale.data
-          )
-        )
-      }
-    }
-  }
-  return(object)
-}
-
-# Calculate pearson residuals of features not in the scale.data
-# This function is the secondary function under GetResidual
-#
-# @param object A seurat object
-# @param features Name of features to add into the scale.data
-# @param assay Name of the assay of the seurat object generated by SCTransform
-# @param vst_out The SCT parameter list
-# @param clip.range Numeric of length two specifying the min and max values the Pearson residual
-# will be clipped to
-# Useful if you want to change the clip.range.
-# @param verbose Whether to print messages and progress bars
-#
-# @return Returns a Seurat object containing  pearson residuals of added features in its scale.data
-#
-#' @importFrom sctransform get_residuals
-#
-GetResidualVstOut <- function(
-  object,
-  assay,
-  umi.assay,
-  new_features,
-  vst_out,
-  clip.range,
-  verbose
-) {
-  diff_features <- setdiff(
-    x = new_features,
-    y = rownames(x = vst_out$model_pars_fit)
-  )
-  intersect_feature <- intersect(
-    x = new_features,
-    y = rownames(x = vst_out$model_pars_fit)
-  )
-  if (length(x = diff_features) == 0) {
-    umi <- GetAssayData(object = object, assay = umi.assay, slot = "counts" )[new_features, , drop = FALSE]
-  } else {
-    warning(
-      "The following ", length(x = diff_features),
-      " features do not exist in the counts slot: ",
-      paste(diff_features, collapse = " ")
-    )
-    if (length(x = intersect_feature) == 0) {
-      return(object)
-    }
-    umi <- GetAssayData(object = object, assay = umi.assay, slot = "counts" )[intersect_feature, , drop = FALSE]
-  }
-  if (is.null(x = clip.range)) {
-    if (length(vst_out$arguments$sct.clip.range) != 0 ) {
-      clip.max <- max(vst_out$arguments$sct.clip.range)
-      clip.min <- min(vst_out$arguments$sct.clip.range)
-    } else {
-      clip.max <- max(vst_out$arguments$res_clip_range)
-      clip.min <- min(vst_out$arguments$res_clip_range)
-    }
-  } else {
-    clip.max <- max(clip.range)
-    clip.min <- min(clip.range)
-  }
-  new_residual <- get_residuals(
-    vst_out = vst_out,
-    umi = umi,
-    residual_type = "pearson",
-    res_clip_range = c(clip.min, clip.max),
-    verbosity = as.numeric(x = verbose) * 2
-  )
-  new_residual <- as.matrix(x = new_residual)
-  # centered data
-  new_residual <- new_residual - rowMeans(new_residual)
-  # remove genes from the scale.data if genes are part of new_features
-  scale.data <- GetAssayData(object = object, assay = assay, slot = "scale.data")
-  object <- SetAssayData(
-    object = object,
-    assay = assay,
-    slot = "scale.data",
-    new.data = scale.data[!rownames(x = scale.data) %in% new_features, , drop = FALSE]
-  )
-  if (nrow(x = GetAssayData(object = object, slot = 'scale.data', assay = assay)) == 0 ) {
-    object <- SetAssayData(
-      object = object,
-      slot = 'scale.data',
-      new.data = new_residual,
-      assay = assay
-    )
-  } else {
-    object <- SetAssayData(
-      object = object,
-      slot = 'scale.data',
-      new.data = rbind(
-        GetAssayData(object = object, slot = 'scale.data', assay = assay),
-        new_residual
-      ),
-      assay = assay
-    )
-  }
-  return(object)
 }
 
 #' Update Seurat v2 Internal Objects

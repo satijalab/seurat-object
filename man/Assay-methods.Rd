@@ -6,8 +6,10 @@
 \alias{[[.Assay}
 \alias{dim.Assay}
 \alias{dimnames.Assay}
+\alias{head.Assay}
 \alias{merge.Assay}
 \alias{subset.Assay}
+\alias{tail.Assay}
 \alias{[[<-,Assay-method}
 \alias{colMeans,Assay-method}
 \alias{colSums,Assay-method}
@@ -24,9 +26,13 @@
 
 \method{dimnames}{Assay}(x)
 
+\method{head}{Assay}(x, n = 10L, ...)
+
 \method{merge}{Assay}(x = NULL, y = NULL, add.cell.ids = NULL, merge.data = TRUE, ...)
 
 \method{subset}{Assay}(x, cells = NULL, features = NULL, ...)
+
+\method{tail}{Assay}(x, n = 10L, ...)
 
 \S4method{[[}{Assay}(x, i, j, ...) <- value
 
@@ -51,6 +57,16 @@ feature names or indices}
 \item{...}{Arguments passed to other methods}
 
 \item{drop}{See \code{\link[base]{drop}}}
+
+\item{n}{an integer vector of length up to \code{dim(x)} (or 1,
+    for non-dimensioned objects). Values specify the indices to be
+    selected in the corresponding dimension (or along the length) of the
+    object. A positive value of \code{n[i]} includes the first/last
+    \code{n[i]} indices in that dimension, while a negative value
+    excludes the last/first \code{abs(n[i])}, including all remaining
+    indices. \code{NA} or non-specified values (when \code{length(n) <
+      length(dim(x))}) select all indices in that dimension. Must
+    contain at least one non-missing value.}
 
 \item{y}{A vector or list of one or more objects to merge}
 
@@ -82,9 +98,13 @@ means/sums on}
 
 \code{dimnames}: Feature (row) and cell (column) names
 
+\code{head}: The first \code{n} rows of feature-level metadata
+
 \code{merge}: Merged object
 
 \code{subset}: A subsetted \code{Assay}
+
+\code{tail}: The last \code{n} rows of feature-level metadata
 
 \code{[[<-}: \code{x} with metadata \code{value} added as \code{i}
 
@@ -113,9 +133,13 @@ other packages
 
 \item \code{dimnames.Assay}: Cell- and feature-names for an \code{Assay}
 
+\item \code{head.Assay}: Get the first rows of feature-level metadata
+
 \item \code{merge.Assay}: Merge \code{Assay} objects
 
 \item \code{subset.Assay}: Subset an \code{Assay}
+
+\item \code{tail.Assay}: Get the last rows of feature-level metadata
 
 \item \code{[[<-,Assay-method}: Add feature-level metadata
 
