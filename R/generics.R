@@ -636,7 +636,8 @@ Loadings <- function(object, ...) {
 #' @param orig A vector of existing cells
 #' @param ordered Sort the result to the same order as \code{orig}
 #'
-#' @return A numeric vector with new cells in order of the original cells
+#' @return A numeric vector with new cells in order of the original cells; if
+#' no match can be found, returns \code{NULL}
 #'
 #' @export
 #'

@@ -54,11 +54,21 @@ Key.character <- function(object, quiet = FALSE, ...) {
 #'
 MatchCells.character <- function(new, orig, ordered = FALSE) {
   cmatch <- as.vector(x = na.omit(object = match(x = orig, table = new)))
+  if (!length(x = cmatch)) {
+    return(NULL)
+  }
   if (!isTRUE(x = ordered)) {
     cmatch <- sort(x = cmatch)
   }
-  # return(as.vector(x = na.omit(object = )))
   return(cmatch)
+}
+
+#' @rdname MatchCells
+#' @method MatchCells NULL
+#' @export
+#'
+MatchCells.NULL <- function(new, orig, ordered = FALSE) {
+  return(NULL)
 }
 
 #' @rdname MatchCells
@@ -67,6 +77,9 @@ MatchCells.character <- function(new, orig, ordered = FALSE) {
 #'
 MatchCells.numeric <- function(new, orig, ordered = FALSE) {
   new <- unique(x = new[new <= length(x = orig)])
+  if (!length(x = new)) {
+    return(NULL)
+  }
   if (isTRUE(x = ordered)) {
     new <- sort(x = new)
   }

@@ -3,12 +3,15 @@
 \name{MatchCells}
 \alias{MatchCells}
 \alias{MatchCells.character}
+\alias{MatchCells.NULL}
 \alias{MatchCells.numeric}
 \title{Match Cells}
 \usage{
 MatchCells(new, orig, ordered = FALSE)
 
 \method{MatchCells}{character}(new, orig, ordered = FALSE)
+
+\method{MatchCells}{`NULL`}(new, orig, ordered = FALSE)
 
 \method{MatchCells}{numeric}(new, orig, ordered = FALSE)
 }
@@ -20,7 +23,8 @@ MatchCells(new, orig, ordered = FALSE)
 \item{ordered}{Sort the result to the same order as \code{orig}}
 }
 \value{
-A numeric vector with new cells in order of the original cells
+A numeric vector with new cells in order of the original cells; if
+no match can be found, returns \code{NULL}
 }
 \description{
 Match Cells
