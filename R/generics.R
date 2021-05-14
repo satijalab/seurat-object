@@ -630,6 +630,23 @@ Loadings <- function(object, ...) {
   UseMethod(generic = 'Loadings<-', object = object)
 }
 
+#' Match Cells
+#'
+#' @param new A vector of new cells
+#' @param orig A vector of existing cells
+#' @param ordered Sort the result to the same order as \code{orig}
+#'
+#' @return A numeric vector with new cells in order of the original cells
+#'
+#' @export
+#'
+MatchCells <- function(new, orig, ordered = FALSE) {
+  if (!is.character(x = orig)) {
+    stop("'orig' must be a character vector")
+  }
+  UseMethod(generic = 'MatchCells', object = new)
+}
+
 #' Get and set miscellaneous data
 #'
 #' @param object An object

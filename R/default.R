@@ -45,3 +45,30 @@ Key.character <- function(object, quiet = FALSE, ...) {
   f <- ifelse(test = isTRUE(x = quiet), yes = suppressWarnings, no = identity)
   return(f(UpdateKey(key = object)))
 }
+
+#' @importFrom stats na.omit
+#'
+#' @rdname MatchCells
+#' @method MatchCells character
+#' @export
+#'
+MatchCells.character <- function(new, orig, ordered = FALSE) {
+  cmatch <- as.vector(x = na.omit(object = match(x = orig, table = new)))
+  if (!isTRUE(x = ordered)) {
+    cmatch <- sort(x = cmatch)
+  }
+  # return(as.vector(x = na.omit(object = )))
+  return(cmatch)
+}
+
+#' @rdname MatchCells
+#' @method MatchCells numeric
+#' @export
+#'
+MatchCells.numeric <- function(new, orig, ordered = FALSE) {
+  new <- unique(x = new[new <= length(x = orig)])
+  if (isTRUE(x = ordered)) {
+    new <- sort(x = new)
+  }
+  return(new)
+}
