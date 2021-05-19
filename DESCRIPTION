@@ -1,12 +1,12 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.0.0.9007
-Date: 2021-03-05
+Version: 4.0.1.9901
+Date: 2021-05-07
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
   person(given = 'Andrew', family = 'Butler', email = 'abutler@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0003-3608-0463')),
-  person(given = 'Paul', family = 'Hoffman', email = 'nygcSatijalab@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0002-7693-8957')),
+  person(given = 'Paul', family = 'Hoffman', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0002-7693-8957')),
   person(given = 'Tim', family = 'Stuart', email = 'tstuart@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0002-3044-0897')),
   person(given = 'Jeff', family = 'Farrell', email = 'jfarrell@g.harvard.edu', role = 'ctb'),
   person(given = 'Shiwei', family = 'Zheng', email = 'szheng@nygenome.org', role = 'ctb', comment = c(ORCID = '0000-0001-6682-6743')),
@@ -31,11 +31,11 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 Depends:
-  R (>= 3.5.0)
+  R (>= 4.0.0)
 Imports:
     grDevices,
     grid,
-    Matrix (>= 1.2.18),
+    Matrix (>= 1.3.3),
     methods,
     Rcpp (>= 1.0.5),
     rlang (>= 0.4.7),
@@ -43,8 +43,8 @@ Imports:
     tools,
     utils
 Suggests:
-    tinytest
-Collate: 
+    testthat
+Collate:
     'RcppExports.R'
     'utils.R'
     'zzz.R'

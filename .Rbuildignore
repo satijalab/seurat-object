@@ -8,6 +8,7 @@
 ^doc$
 ^Meta$
 ^README\.Rmd$
+^README\.md$
 ^cran-comments\.md$
 ^.*\.loom$
 ^.*\.h5ad$
