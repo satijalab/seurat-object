@@ -58,6 +58,16 @@ feature names or indices}
 
 \item{drop}{See \code{\link[base]{drop}}}
 
+\item{n}{an integer vector of length up to \code{dim(x)} (or 1,
+    for non-dimensioned objects). Values specify the indices to be
+    selected in the corresponding dimension (or along the length) of the
+    object. A positive value of \code{n[i]} includes the first/last
+    \code{n[i]} indices in that dimension, while a negative value
+    excludes the last/first \code{abs(n[i])}, including all remaining
+    indices. \code{NA} or non-specified values (when \code{length(n) <
+      length(dim(x))}) select all indices in that dimension. Must
+    contain at least one non-missing value.}
+
 \item{y}{A vector or list of one or more objects to merge}
 
 \item{add.cell.ids}{A character vector of \code{length(x = c(x, y))};
