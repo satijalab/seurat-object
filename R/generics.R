@@ -243,6 +243,33 @@ DefaultAssay <- function(object, ...) {
   UseMethod(generic = 'DefaultAssay<-', object = object)
 }
 
+#' Default Layer
+#'
+#' Get and set the default layer
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @return \code{DefaultLayer}: The name of the default layer
+#'
+#' @rdname DefaultLayer
+#' @export DefaultLayer
+#'
+DefaultLayer <- function(object, ...) {
+  UseMethod(generic = 'DefaultLayer', object = object)
+}
+
+#' @param value Name of layer to set as default
+#'
+#' @return \code{DefaultLayer<-}: An object with the default layer updated
+#'
+#' @rdname DefaultLayer
+#' @export DefaultLayer<-
+#'
+"DefaultLayer<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultLayer<-', object = object)
+}
+
 #' Get the Neighbor nearest neighbors distance matrix
 #'
 #' @param object An object
@@ -576,16 +603,19 @@ Key <- function(object, ...) {
 #' @param layer Name of layer to fetch or set
 #' @param ... Arguments passed to other methods
 #'
-#' @return ...
+#' @return \code{LayerData}: the layer data for \code{layer} from \code{object}
 #'
 #' @rdname Layers
 #' @export LayerData
 #'
-LayerData <- function(object, layer = 'data', ...) {
+LayerData <- function(object, layer, ...) {
   UseMethod(generic = 'LayerData', object = object)
 }
 
-#' @param value ...
+#' @param value New two-dimensional data to be added as a layer
+#'
+#' @return \code{Layer<-}: \code{object} with \code{value} added as a layer
+#' named \code{layer}
 #'
 #' @rdname Layers
 #' @export LayerData<-
@@ -594,6 +624,8 @@ LayerData <- function(object, layer = 'data', ...) {
   UseMethod(generic = 'LayerData<-', object = object)
 }
 
+#' @return \code{Layers}: the names of the layers present in \code{object}
+#'
 #' @rdname Layers
 #' @export Layers
 #'
