@@ -1,4 +1,5 @@
 #' @include zzz.R
+#' @include logmap.R
 #' @importFrom methods setAs
 #'
 NULL
@@ -51,12 +52,11 @@ setClass(
   Class = 'StdAssay',
   contains = 'VIRTUAL',
   slots = c(
-    data = 'ANY',
     layers = 'list',
     key = 'character',
-    cells = 'matrix',
+    cells = 'LogMap',
     assay.orig = 'character',
-    features = 'matrix',
+    features = 'LogMap',
     # var.features = 'character',
     meta.data = 'data.frame',
     misc = 'list'
@@ -80,54 +80,145 @@ setClass(
 #'
 setClass(
   Class = 'Assay5',
-  contains = 'StdAssay',
-  slots = c(
-    data = 'AnyMatrix'
-  )
+  contains = 'StdAssay'
 )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Generic Assay Creation
+#'
+#' Create an assay object; runs a standardized filtering scheme that
+#' works regardless of the direction of the data (eg. cells as columns
+#' and features as rows or vice versa) and creates an assay object based
+#' on the  initialization scheme defined for \code{\link{StdAssay}}-derived
+#' class \code{type}
+#'
+#' @param counts A two-dimensional expression matrix
+#' @param min.cells Include features detected in at least this many cells;
+#' will subset the counts matrix as well. To reintroduce excluded features,
+#' create a new object with a lower cutoff
+#' @param min.features Include cells where at least this many features
+#' are detected
+#' @param cells Vector of cell names
+#' @param features Vector of feature names
+#' @param layer Name of layer to store \code{counts} as
+#' @param type Type of assay object to create; must be the name of a class
+#' that's derived from \code{\link{StdAssay}}
+#' @param csum Function for calculating cell sums
+#' @param fsum Function for calculating feature sums
+#' @param ... Extra parameters passed to \code{\link[methods]{new}} for
+#' assay creation; used to set slots not defined by \code{\link{StdAssay}}
+#'
+#' @return An object of class \code{type} with a layer named \code{layer}
+#' containing the data found in \code{counts}
+#'
+#' @importFrom methods getClass
+#' @importFrom utils getS3method methods
+#'
+#' @export
+#'
+#' @keywords internal
+#'
+.CreateStdAssay <- function(
+  counts,
+  min.cells = 0,
+  min.features = 0,
+  cells = NULL,
+  features = NULL,
+  layer = 'counts',
+  type = 'Assay5',
+  csum = Matrix::colSums,
+  fsum = Matrix::rowSums,
+  ...
+) {
+  cdef <- getClass(Class = type)
+  if (!'StdAssay' %in% names(x = slot(object = cdef, name = 'contains'))) {
+    stop("Class '", type, "' does not inherit from StdAssay")
+  }
+  fmargin <- getS3method(
+    f = '.MARGIN',
+    class = unlist(x = strsplit(
+      x = methods(generic.function = '.MARGIN', class = type)[1],
+      split = '\\.'
+    ))[3]
+  )
+  cdim <- fmargin(object = type, type = 'cells')
+  fdim <- fmargin(object = type, type = 'features')
+  cells <- cells %||% paste0(
+    'Cell_',
+    seq_len(length.out = dim(x = counts)[cdim])
+  )
+  features <- features %||% paste0(
+    'Feature',
+    seq_len(length.out = dim(x = counts)[fdim])
+  )
+  # Filter based on min.features
+  if (min.features > 0) {
+    cells.use <- which(x = csum(counts > 0) >= min.features)
+    counts <- if (cdim == 1) {
+      counts[cells.use, ]
+    } else {
+      counts[, cells.use]
+    }
+    cells <- cells[cells.use]
+  }
+  # Filter based on min.cells
+  if (min.cells > 0) {
+    features.use <- which(x = fsum(counts > 0) >= min.cells)
+    counts <- if (fdim == 1) {
+      counts[features.use, ]
+    } else {
+      counts[, features.use]
+    }
+    features <- features[features.use]
+  }
+  # Create the object
+  object <- new(
+    Class = type,
+    layers = list(),
+    features = LogMap(y = features),
+    cells = LogMap(y = cells),
+    meta.data = EmptyDF(n = length(x = features)),
+    ...
+  )
+  LayerData(object = object, layer = layer) <- counts
+  return(object)
+}
+
+#' Create a v5 Assay object
+#'
+#' Create an \code{\link{Assay5}} object from a feature expression matrix;
+#' the expected format of the matrix is features x cells
+#'
+#' @inheritParams .CreateStdAssay
+#' @param ... Extra parameters passed to \code{\link{as.sparse}}
+#'
+#' @return An \code{\link{Assay5}} object
+#'
+#' @export
+#'
 CreateAssay5Object <- function(
   counts,
   min.cells = 0,
   min.features = 0,
+  layer = 'counts',
   ...
 ) {
   if (!inherits(x = counts, what = 'AnyMatrix')) {
     counts <- as.sparse(x = counts, ...)
   }
-  # Filter based on min.features
-  if (min.features > 0) {
-    nfeatures <- Matrix::colSums(x = counts > 0)
-    counts <- counts[, which(x = nfeatures >= min.features)]
-  }
-  # Filter features based on the number of cells expressing
-  if (min.cells > 0) {
-    num.cells <- Matrix::rowSums(x = counts > 0)
-    counts <- counts[which(x = num.cells >= min.cells),]
-  }
-  features <- rownames(x = counts)
   cells <- colnames(x = counts)
+  features <- rownames(x = counts)
   dimnames(x = counts) <- list(NULL, NULL)
-  return(new(
-    Class = 'Assay5',
-    data = counts,
-    layers = list(),
-    features = matrix(
-      nrow = nrow(x = counts),
-      ncol = 0,
-      dimnames = list(features, NULL)
-    ),
-    # cells = cells,
-    cells = matrix(
-      nrow = ncol(x = counts),
-      ncol = 0,
-      dimnames = list(cells, NULL)
-    ),
-    meta.data = EmptyDF(n = nrow(x = counts))
+  return(.CreateStdAssay(
+    counts = counts,
+    min.cells =  min.cells,
+    min.features = min.features,
+    cells = cells,
+    features = features,
+    layer = layer
   ))
 }
 
@@ -145,9 +236,9 @@ AddMetaData.StdAssay <- .AddMetaData
 #' @method Cells StdAssay
 #' @export
 #'
-Cells.StdAssay <- function(x, ...) {
-  # return(slot(object = x, name = 'cells'))
-  return(rownames(x = slot(object = x, name = 'cells')))
+Cells.StdAssay <- function(x, layer = NULL, ...) {
+  layer <- layer %||% DefaultLayer(object = x)
+  return(slot(object = x, name = 'cells')[[layer]])
 }
 
 #' @rdname DefaultAssay
@@ -169,21 +260,39 @@ DefaultAssay.StdAssay <- function(object, ...) {
   return(object)
 }
 
+#' @rdname DefaultLayer
+#' @export
+#' @method DefaultLayer StdAssay
+#'
+DefaultLayer.StdAssay <- function(object, ...) {
+  return(Layers(object = object)[1])
+}
+
+#' @rdname DefaultLayer
+#' @export
+#' @method DefaultLayer<- StdAssay
+#'
+"DefaultLayer<-.StdAssay" <- function(object, ..., value) {
+  value <- value[1]
+  layers <- Layers(object = object)
+  value <- match.arg(arg = value, choices = layers)
+  idx <- which(x = layers == value)
+  slot(object = object, name = 'layers') <- c(
+    slot(object = object, name = 'layers')[idx],
+    slot(object = object, name = 'layers')[-idx]
+  )
+  return(object)
+}
+
 #' @param layer
 #'
 #' @rdname Cells
 #' @export
 #' @method Features StdAssay
 #'
-Features.StdAssay <- function(x, layer = 'data', ...) {
-  layer <- layer[1]
-  layer <- match.arg(arg = layer, choices = Layers(object = x))
-  fmat <- slot(object = x, name = 'features')
-  return(switch(
-    EXPR = layer,
-    'data' = rownames(x = fmat),
-    rownames(x = fmat)[fmat[, layer]]
-  ))
+Features.StdAssay <- function(x, layer = NULL, ...) {
+  layer <- layer %||% DefaultLayer(object = x)
+  return(slot(object = x, name = 'features')[[layer]])
 }
 
 #' @rdname AssayData
@@ -196,11 +305,7 @@ Features.StdAssay <- function(x, layer = 'data', ...) {
 #' GetAssayData(pbmc_small[["RNA"]], slot = "data")[1:5,1:5]
 #' }
 #'
-GetAssayData.StdAssay <- function(
-  object,
-  slot = 'data',
-  ...
-) {
+GetAssayData.StdAssay <- function(object, slot = 'data', ...) {
   CheckDots(..., fxns = LayerData)
   return(LayerData(object = object, layer = slot, ...))
 }
@@ -287,104 +392,130 @@ Key.StdAssay <- function(object, ...) {
 #' @method LayerData StdAssay
 #' @export
 #'
-LayerData.StdAssay <- function(object, layer = 'data', ...) {
-  layer <- layer[1]
+LayerData.StdAssay <- function(object, layer = NULL, ...) {
+  layer <- layer[1] %||% DefaultLayer(object = object)
   layer <- match.arg(arg = layer, choices = Layers(object = object))
-  return(switch(
-    EXPR = layer,
-    'data' = slot(object = object, name = layer),
-    slot(object = object, name = 'layers')[[layer]]
-  ))
+  return(slot(object = object, name = 'layers')[[layer]])
 }
 
 #' @method LayerData Assay5
 #' @export
 #'
-LayerData.Assay5 <- function(object, layer = 'data', dnames = TRUE, ...) {
+LayerData.Assay5 <- function(object, layer = NULL, dnames = TRUE, ...) {
   ldat <- NextMethod()
   if (isTRUE(x = dnames)) {
     dimnames(x = ldat) <- list(
       Features(x = object, layer = layer),
-      Cells(x = object)
+      Cells(x = object, layer = layer)
     )
   }
   return(ldat)
 }
 
+#' @param features,cells Vectors of features/cells to include ...
+#'
+#' @rdname Layers
 #' @method LayerData<- StdAssay
 #' @export
 #'
-"LayerData<-.StdAssay" <- function(object, layer, features = NULL, ..., value) {
-  features <- features %||% rownames(x = value)
-  if (layer == 'data') {
-    # Modifying data
-    if (!identical(x = dim(x = value), y = dim(x = object))) {
-      stop("'data' cannot change dimensions")
+"LayerData<-.StdAssay" <- function(
+  object,
+  layer,
+  features = NULL,
+  cells = NULL,
+  ...,
+  value
+) {
+  # Remove a layer
+  if (is.null(x = value)) {
+    if (length(x = Layers(object = object)) == 1L) {
+      stop("Cannot remove only layer")
+    } else if (layer == DefaultLayer(object = object)) {
+      DefaultLayer(object = object) <- Layers(object = object)[2]
+      warning(
+        "Removing default layer, setting default to ",
+        DefaultLayer(object = object),
+        call. = FALSE,
+        immediate. = TRUE
+      )
     }
-    if (!is.null(x = features)) {
-      fmatch <- if (is.numeric(x = features)) {
-        features
-      } else {
-        match(x = features, table = Features(x = object))
-      }
-      if (any(is.na(x = fmatch))) {
-        stop("Mismatched features between value and current")
-      }
-      value <- value[fmatch, ]
-    }
-    # TODO: check cell order
-    try(
-      expr = dimnames(x = value) <- list(NULL, NULL),
-      silent = TRUE
-    )
-    slot(object = object, name = 'data') <- value
-  } else if (is.null(x = value)) {
-    # Removing a layer
     slot(object = object, name = 'layers')[[layer]] <- NULL
-    fmat <- slot(object = object, name = 'features')
-    fidx <- which(x = colnames(x = fmat) == layer)
-    if (length(x = fidx)) {
-      fmat <- fmat[, -fidx]
-    }
-    slot(object = object, name = 'features') <- fmat
-  } else {
-    # Adding a layer
-    # if (!identical(x = ncol(x = value), y = ncol(x = object))) {
-    #   stop("Layers must have the same cells as currently present")
-    # }
-    if (is.null(x = features)) {
-      # if (nrow(x = value) != nrow(x = object)) {
-      #   stop("If features are not provided, then layers must have the same features as 'data'")
-      # }
-      fmatch <- seq_len(length.out = nrow(x = value))
-    } else {
-      fmatch <- if (is.numeric(x = features)) {
-        features
-      } else {
-        as.vector(x = na.omit(object = match(
-          x = features,
-          table = Features(x = object)
-        )))
-      }
-      value <- value[order(fmatch), ]
-    }
-    # TODO: check cell order
-    try(
-      expr = dimnames(x = value) <- list(NULL, NULL),
-      silent = TRUE
+    maps <- c(
+      'cells',
+      'features'
     )
-    slot(object = object, name = 'layers')[[layer]] <- value
-    fmat <- cbind(
-      slot(object = object, name = 'features'),
-      matrix(data = FALSE, nrow = nrow(x = object), dimnames = list(NULL, layer))
-    )
-    fmat[fmatch, layer] <- TRUE
-    slot(object = object, name = 'features') <- fmat
+    for (i in maps) {
+      slot(object = object, name = i)[[layer]] <- NULL
+    }
+    validObject(object = object)
+    return(object)
   }
+  # Add a layer
+  fdim <- .MARGIN(object = object)
+  cdim <- .MARGIN(object = object, type = 'cells')
+  features <- features %||% rownames(x = value) %||% seq_len(
+    length.out = dim(x = value)[fdim]
+  )
+  cells <- cells %||% colnames(x = value) %||% seq_len(
+    length.out = dim(x = value)[cdim]
+  )
+  # Check features and cells
+  fmatch <- MatchCells(
+    new = features,
+    orig = rownames(x = slot(object = object, name = 'features')),
+    ordered = TRUE
+  )
+  cmatch <- MatchCells(
+    new = cells,
+    orig = rownames(x = slot(object = object, name = 'cells')),
+    ordered = TRUE
+  )
+  if (is.null(x = fmatch)) {
+    stop(
+      "No feature overlap between existing object and new layer data",
+      call. = FALSE
+    )
+  } else if (is.null(x = cmatch)) {
+    stop(
+      "No cell overlap between existing object and new layer data",
+      call. = FALSE
+    )
+  }
+  features <- features[fmatch]
+  cells <- cells[cmatch]
+  # Check for existing layer data
+  if (layer %in% Layers(object = object)) {
+    if (!identical(x = features, y = Features(x = object, layer = layer))) {
+      warning(
+        "Different features in new layer data than already exists for ",
+        layer,
+        call. = FALSE,
+        immediate. = TRUE
+      )
+    }
+    if (!identical(x = cells, y = Cells(x = object, layer = layer))) {
+      warning(
+        "Different cells in new layer data than already exists for ",
+        layer,
+        call. = FALSE,
+        immediate. = TRUE
+      )
+    }
+  }
+  # Reorder the layer data
+  vdims <- list(fmatch, cmatch)
+  names(x = vdims) <- c('i', 'j')[c(fdim, cdim)]
+  value <- do.call(what = '[', args = c(list(x = value), vdims))
+  # Add the layer
+  slot(object = object, name = 'layers')[[layer]] <- value
+  # Update the maps
+  slot(object = object, name = 'features')[[layer]] <- features
+  slot(object = object, name = 'cells')[[layer]] <- cells
   validObject(object = object)
   return(object)
 }
 
+#' @rdname Layers
 #' @method LayerData<- Assay5
 #' @export
 #'
@@ -397,17 +528,12 @@ LayerData.Assay5 <- function(object, layer = 'data', dnames = TRUE, ...) {
   return(object)
 }
 
-#' @param data Include \dQuote{data} as a layer
-#'
 #' @rdname Layers
 #' @method Layers StdAssay
 #' @export
 #'
-Layers.StdAssay <- function(object, data = TRUE, ...) {
+Layers.StdAssay <- function(object, ...) {
   layers <- names(x = slot(object = object, name = 'layers'))
-  if (isTRUE(x = data)) {
-    layers <- c('data', layers)
-  }
   return(layers)
 }
 
@@ -439,12 +565,7 @@ Misc.StdAssay <- .Misc
 #' new.assay <- SetAssayData(pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
 #' }
 #'
-SetAssayData.StdAssay <- function(
-  object,
-  slot,
-  new.data,
-  ...
-) {
+SetAssayData.StdAssay <- function(object, slot, new.data, ...) {
   .NotYetImplemented()
   LayerData(object = object, layer = slot) <- new.data
   return(object)
@@ -648,7 +769,6 @@ NULL
 #' @method dim StdAssay
 #'
 dim.StdAssay <- function(x) {
-  # return(dim(x = LayerData(object = x)))
   return(vapply(
     X = c('features', 'cells'),
     FUN = function(s) {
@@ -707,14 +827,6 @@ CalcN5 <- function(object) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-# setAs(
-#   from = 'Assay',
-#   to = 'Assay5',
-#   def = function(from, to, ...) {
-#     .NotYetImplemented()
-#   }
-# )
 
 #' @describeIn StdAssay-methods Add feature-level metadata
 #'
@@ -896,77 +1008,73 @@ setValidity(
   Class = 'StdAssay',
   method = function(object) {
     valid <- NULL
-    # Check data
-    data.dims <- na.dims <- c(NA_integer_, NA_integer_)
-    if (IsMatrixEmpty(x = GetAssayData(object = object, slot = 'data'))) {
-      valid <- c(valid, "'data' cannot be empty")
-    } else {
-      data.dims <- dim(x = GetAssayData(object = object, slot = 'data'))
-      if (length(x = data.dims) != 2) {
-        valid <- c(valid, "'data' must be a two-dimensional object")
-        data.dims <- na.dims
-      }
-    }
     # Check layers
-    if (length(x = slot(object = object, name = 'layers'))) {
-      if (!IsNamedList(x = slot(object = object, name = 'layers'))) {
-        valid <- c(valid, "'layers' must be a named list")
+    dorder <- c(
+      features = .MARGIN(object = object, type = 'features'),
+      cells = .MARGIN(object = object, type = 'cells')
+    )
+    adims <- dim(x = object) # c(features, cells)
+    if (!IsNamedList(x = slot(object = object, name = 'layers'), pass.zero = TRUE)) {
+      valid <- c(valid, "'layers' must be a named list")
+    }
+    for (layer in Layers(object = object)) {
+      # Reorder dimensions of layer to c(features, cells)
+      ldims <- dim(x = slot(object = object, name = 'layers')[[layer]])[dorder]
+      if (length(x = ldims) != 2L) {
+        valid <- c(valid, "Layers must be two-dimensional objects")
+        break
       }
-      for (layer in Layers(object = object, data = FALSE)) {
-        ldat <- LayerData(object = object, layer = layer, dnames = FALSE)
-        if (ncol(x = ldat) != data.dims[2]) {
+      # Check that we have the correct features and cells
+      if (ldims[1] > adims[1]) {
+        valid <- c(
+          valid,
+          paste0(
+            "Layers may not have more features than present in the assay ",
+            "(offending layer: ",
+            layer,
+            ")"
+          )
+        )
+      }
+      if (ldims[2] != adims[2]) {
+        valid <- c(
+          valid,
+          paste0(
+            "Layers must have the same cells as present in the assay ",
+            "(offending layer: ",
+            layer,
+            ")"
+          )
+        )
+      }
+      for (i in c('cells', 'features')) {
+        didx <- c(features = 1L, cells = 2L)[i]
+        if (!layer %in% colnames(x = slot(object = object, name = i))) {
           valid <- c(
             valid,
             paste0(
-              "All layers must have the same cells as 'data' (offending: ",
+              "All layers must have a record in the ",
+              i,
+              " map (offending layer: ",
               layer,
               ")"
             )
           )
-          break
-        } else if (nrow(x = ldat) > data.dims[1]) {
-          valid <- c(
-            valid,
-            paste0(
-              "All layers must have the same or a subset of features as 'data' (offending: ",
-              layer,
-              ")"
+        } else {
+          nmap <- length(x = slot(object = object, name = i)[[layer]])
+          if (nmap != ldims[didx]) {
+            valid <- c(
+              valid,
+              paste0(
+                "Layers must have the same ",
+                i,
+                " as present in the map (offending layer: ",
+                layer,
+                ")"
+              )
             )
-          )
-          break
+          }
         }
-      }
-    }
-    # Check features
-    fmat <- slot(object = object, name = 'features')
-    if (nrow(x = fmat) != data.dims[1]) {
-      valid <- c(valid, "'features' must have the same features as 'data'")
-    } else if (is.null(x = rownames(x = fmat))) {
-      valid <- c(valid, "'features' must have rownames assigned")
-    } else if (!is.logical(x = fmat)) {
-      valid <- c(valid, "'features' must be a logical matrix")
-    }
-    for (layer in Layers(object = object, data = FALSE)) {
-      if (!layer %in% colnames(x = fmat)) {
-        valid <- c(
-          valid,
-          paste0(
-            "All layers must have a column in the feature matrix (offending: ",
-            layer,
-            ")"
-          )
-        )
-        break
-      } else if (sum(fmat[, layer], na.rm = TRUE) < 1L) {
-        valid <- c(
-          valid,
-          paste0(
-            "All layers must have at least one feature present (offending: ",
-            layer,
-            ")"
-          )
-        )
-        break
       }
     }
     # TODO: Check variable features
@@ -981,6 +1089,7 @@ setValidity(
   Class = 'Assay5',
   method = function(object) {
     valid <- NULL
+    return(TRUE)
     # Check class of layers
     for (layer in Layers(object = object, data = FALSE)) {
       cls <- inherits(
