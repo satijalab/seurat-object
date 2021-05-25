@@ -885,9 +885,7 @@ setMethod(
 setMethod(
   f = 'colMeans',
   signature = c(x = 'StdAssay'),
-  definition = function(x, na.rm = FALSE, dims = 1, layer = 'data', ...) {
-    layer <- layer[1L]
-    layer <- match.arg(arg = layer, choices = Layers(object = x))
+  definition = function(x, na.rm = FALSE, dims = 1, layer = NULL, ...) {
     return(Matrix::colMeans(
       x = LayerData(object = x, layer = layer),
       na.rm = na.rm,
@@ -899,9 +897,7 @@ setMethod(
 setMethod(
   f = 'colSums',
   signature = c(x = 'StdAssay'),
-  definition = function(x, na.rm = FALSE, dims = 1, layer = 'data', ...) {
-    layer <- layer[1L]
-    layer <- match.arg(arg = layer, choices = Layers(object = x))
+  definition = function(x, na.rm = FALSE, dims = 1, layer = NULL, ...) {
     return(Matrix::colSums(
       x = LayerData(object = x, layer = layer),
       na.rm = na.rm,
@@ -913,9 +909,7 @@ setMethod(
 setMethod(
   f = 'rowMeans',
   signature = c(x = 'StdAssay'),
-  definition = function(x, na.rm = FALSE, dims = 1, layer = 'data', ...) {
-    layer <- layer[1L]
-    layer <- match.arg(arg = layer, choices = Layers(object = x))
+  definition = function(x, na.rm = FALSE, dims = 1, layer = NULL, ...) {
     return(Matrix::rowMeans(
       x = LayerData(object = x, layer = layer),
       na.rm = na.rm,
@@ -927,9 +921,7 @@ setMethod(
 setMethod(
   f = 'rowSums',
   signature = c(x = 'StdAssay'),
-  definition = function(x, na.rm = FALSE, dims = 1, layer = 'data', ...) {
-    layer <- layer[1L]
-    layer <- match.arg(arg = layer, choices = Layers(object = x))
+  definition = function(x, na.rm = FALSE, dims = 1, layer = NULL, ...) {
     return(Matrix::rowSums(
       x = LayerData(object = x, layer = layer),
       na.rm = na.rm,
