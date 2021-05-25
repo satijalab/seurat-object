@@ -50,6 +50,7 @@ Collate:
     'zzz.R'
     'generics.R'
     'assay.R'
+    'logmap.R'
     'assay5.R'
     'command.R'
     'data.R'

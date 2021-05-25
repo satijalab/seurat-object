@@ -4,16 +4,22 @@
 \alias{LayerData}
 \alias{LayerData<-}
 \alias{Layers}
+\alias{LayerData<-.StdAssay}
+\alias{LayerData<-.Assay5}
 \alias{Layers.StdAssay}
 \title{Query and Manipulate Assay Layers}
 \usage{
-LayerData(object, layer = "data", ...)
+LayerData(object, layer, ...)
 
 LayerData(object, layer, ...) <- value
 
 Layers(object, ...)
 
-\method{Layers}{StdAssay}(object, data = TRUE, ...)
+\method{LayerData}{StdAssay}(object, layer, features = NULL, cells = NULL, ...) <- value
+
+\method{LayerData}{Assay5}(object, layer, ...) <- value
+
+\method{Layers}{StdAssay}(object, ...)
 }
 \arguments{
 \item{object}{An object}
@@ -22,12 +28,17 @@ Layers(object, ...)
 
 \item{...}{Arguments passed to other methods}
 
-\item{value}{...}
+\item{value}{New two-dimensional data to be added as a layer}
 
-\item{data}{Include \dQuote{data} as a layer}
+\item{features, cells}{Vectors of features/cells to include ...}
 }
 \value{
-...
+\code{LayerData}: the layer data for \code{layer} from \code{object}
+
+\code{Layer<-}: \code{object} with \code{value} added as a layer
+named \code{layer}
+
+\code{Layers}: the names of the layers present in \code{object}
 }
 \description{
 Query and Manipulate Assay Layers

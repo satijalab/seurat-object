@@ -15,9 +15,9 @@ Cells(x, ...)
 
 Features(x, ...)
 
-\method{Cells}{StdAssay}(x, ...)
+\method{Cells}{StdAssay}(x, layer = NULL, ...)
 
-\method{Features}{StdAssay}(x, layer = "data", ...)
+\method{Features}{StdAssay}(x, layer = NULL, ...)
 
 \method{Cells}{default}(x, ...)
 
