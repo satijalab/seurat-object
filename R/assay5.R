@@ -485,7 +485,17 @@ LayerData.Assay5 <- function(object, layer = NULL, dnames = TRUE, ...) {
   cells <- cells[cmatch]
   # Check for existing layer data
   if (layer %in% Layers(object = object)) {
-    if (!identical(x = features, y = Features(x = object, layer = layer))) {
+    fcheck <- if (is.numeric(x = features)) {
+      Features(object = object, layer = layer)[features]
+    } else {
+      features
+    }
+    ccheck <- if (is.numeric(x = cells)) {
+      Cells(object = object, layer = layer)[cells]
+    } else {
+      cells
+    }
+    if (!identical(x = fcheck, y = Features(x = object, layer = layer))) {
       warning(
         "Different features in new layer data than already exists for ",
         layer,
@@ -493,7 +503,7 @@ LayerData.Assay5 <- function(object, layer = NULL, dnames = TRUE, ...) {
         immediate. = TRUE
       )
     }
-    if (!identical(x = cells, y = Cells(x = object, layer = layer))) {
+    if (!identical(x = ccheck, y = Cells(x = object, layer = layer))) {
       warning(
         "Different cells in new layer data than already exists for ",
         layer,
@@ -979,17 +989,17 @@ setMethod(
       paste(strwrap(x = paste(top.ten, collapse = ', ')), collapse = '\n'),
       '\n'
     )
+    cat("Default layer:", DefaultLayer(object = object) %||% "NULL")
     # Layer information
-    if (length(x = Layers(object = object, data = FALSE))) {
+    layers <- setdiff(
+      x = Layers(object = object),
+      y = DefaultLayer(object = object)
+    )
+    if (length(x = layers)) {
       cat(
         "Additional layers:\n",
-        paste(
-          strwrap(x = paste(
-            Layers(object = object, data = FALSE),
-            collapse = ', '
-          )),
-          collapse = '\n'
-        )
+        paste(strwrap(x = paste(layers, collapse = ', ')), collapse = '\n'),
+        "\n"
       )
     }
     return(invisible(x = NULL))
