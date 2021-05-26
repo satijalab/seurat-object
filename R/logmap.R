@@ -112,9 +112,6 @@ setMethod(
     value = 'character'
   ),
   definition = function(x, i, ..., value) {
-    if (i %in% colnames(x = x)) {
-      x[[i]] <- NULL
-    }
     value <- MatchCells(new = rownames(x = x), orig = value)
     x[[i]] <- value
     return(x)
@@ -134,6 +131,9 @@ setMethod(
     value = 'integer'
   ),
   definition = function(x, i, ..., value) {
+    if (i %in% colnames(x = x)) {
+      x[[i]] <- NULL
+    }
     value <- MatchCells(new = value, rownames(x = x))
     mat <- slot(object = x, name = '.Data')
     if (length(x = value)) {
