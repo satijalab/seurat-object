@@ -73,7 +73,7 @@ packages" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
       </span>
     </div>
 
@@ -87,6 +87,9 @@ packages" />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -141,6 +144,9 @@ dim(x)
 dimnames(x)
 
 # S3 method for Seurat
+head(x, n = 10L, ...)
+
+# S3 method for Seurat
 merge(
   x = NULL,
   y = NULL,
@@ -155,7 +161,18 @@ merge(
 names(x)
 
 # S3 method for Seurat
-subset(x, subset, cells = NULL, features = NULL, idents = NULL, ...)
+subset(
+  x,
+  subset,
+  cells = NULL,
+  features = NULL,
+  idents = NULL,
+  return.null = FALSE,
+  ...
+)
+
+# S3 method for Seurat
+tail(x, n = 10L, ...)
 
 # S4 method for Seurat
 [[(x, i, j, ...) &lt;- value
@@ -217,6 +234,10 @@ can pass <code>NULL</code> to remove metadata or an associated object</p></td>
       <td><p>See <code><a href='https://rdrr.io/r/base/drop.html'>drop</a></code></p></td>
     </tr>
     <tr>
+      <th>n</th>
+      <td><p>The number of rows of metadata to return</p></td>
+    </tr>
+    <tr>
       <th>y</th>
       <td><p>A single <code>Seurat</code> object or a list of <code>Seurat</code> objects</p></td>
     </tr>
@@ -248,6 +269,11 @@ are shared across all objects.</p></td>
     <tr>
       <th>idents</th>
       <td><p>A vector of identity classes to keep</p></td>
+    </tr>
+    <tr>
+      <th>return.null</th>
+      <td><p>If no cells are request, return a <code>NULL</code>;
+by default, throws an error</p></td>
     </tr>
     <tr>
       <th>na.rm</th>
@@ -283,11 +309,13 @@ the same across all assays</p>
 <p><code>dimnames</code>: The feature (row) and cell (column) names;
 <strong>note</strong>: while the features change depending on the active assay, the
 cell names remain the same across all assays</p>
+<p><code>head</code>: The first <code>n</code> rows of cell-level metadata</p>
 <p><code>merge</code>: Merged object</p>
 <p><code>names</code>: The names of all <code><a href='Assay-class.html'>Assay</a></code>,
 <code><a href='DimReduc-class.html'>DimReduc</a></code>, <code><a href='Graph-class.html'>Graph</a></code>, and <code><a href='SpatialImage-class.html'>SpatialImage</a></code>
 objects in the <code>Seurat</code> object</p>
 <p><code>subset</code>: A subsetted <code>Seurat</code> object</p>
+<p><code>tail</code>: The last <code>n</code> rows of cell-level metadata</p>
 <p><code>[[&lt;-</code>: <code>x</code> with the metadata or associated objects added
 as <code>i</code>; if <code>value</code> is <code>NULL</code>, removes metadata or associated
 object <code>i</code> from object <code>x</code></p>
@@ -305,9 +333,11 @@ invisibly returns <code>NULL</code></p>
 <li><p><code>[[.Seurat</code>: Metadata and associated object accessor</p></li>
 <li><p><code>dim.Seurat</code>: Number of cells and features for the active assay</p></li>
 <li><p><code>dimnames.Seurat</code>: The cell and feature names for the active assay</p></li>
+<li><p><code>head.Seurat</code>: Get the first rows of cell-level metadata</p></li>
 <li><p><code>merge.Seurat</code>: Merge two or more <code>Seurat</code> objects together</p></li>
 <li><p><code>names.Seurat</code>: Common associated objects</p></li>
 <li><p><code>subset.Seurat</code>: Subset a <code><a href='Seurat-class.html'>Seurat</a></code> object</p></li>
+<li><p><code>tail.Seurat</code>: Get the last rows of cell-level metadata</p></li>
 <li><p><code>[[&lt;-,Seurat-method</code>: Add cell-level metadata or associated objects</p></li>
 <li><p><code>colMeans,Seurat-method</code>: Calculate <code><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></code> on a
 <code>Seurat</code> object</p></li>
@@ -495,6 +525,30 @@ with _X, where X is the numeric index of the object in c(x, y).</p>
 #&gt; [69] "AATGCGTGGACGGA" "GCGTAAACACGGTT" "ATTCAGCTCATTGG" "GGCATATGGGGAGT"
 #&gt; [73] "ATCATCTGACACCA" "GTCATACTTCGCCT" "TTACGTACGTTCAG" "GAGTTGTGGTAGCT"
 #&gt; [77] "GACGCTCTCTCTCG" "AGTCTTACTTCGGA" "GGAACACTTCAGAC" "CTTGATTGATCTTC"</div><div class='input'>
+<span class='co'># Get the first 10 rows of cell-level metadata</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                   orig.ident nCount_RNA nFeature_RNA RNA_snn_res.0.8
+#&gt; ATGCCAGAACGACT SeuratProject         70           47               0
+#&gt; CATGGCCTGTGCAT SeuratProject         85           52               0
+#&gt; GAACCTGATGAACC SeuratProject         87           50               1
+#&gt; TGACTGGATTCTCA SeuratProject        127           56               0
+#&gt; AGTCAGACTGCACA SeuratProject        173           53               0
+#&gt; TCTGATACACGTGT SeuratProject         70           48               0
+#&gt; TGGTATCTAAACAG SeuratProject         64           36               0
+#&gt; GCAGCTCTGTTTCT SeuratProject         72           45               0
+#&gt; GATATAACACGCAT SeuratProject         52           36               0
+#&gt; AATGTTGACAGTCA SeuratProject        100           41               0
+#&gt;                letter.idents groups RNA_snn_res.1 value
+#&gt; ATGCCAGAACGACT             A     g2             0     1
+#&gt; CATGGCCTGTGCAT             A     g1             0     1
+#&gt; GAACCTGATGAACC             B     g2             0     1
+#&gt; TGACTGGATTCTCA             A     g2             0     1
+#&gt; AGTCAGACTGCACA             A     g2             0     2
+#&gt; TCTGATACACGTGT             A     g1             0     2
+#&gt; TGGTATCTAAACAG             A     g1             0     2
+#&gt; GCAGCTCTGTTTCT             A     g1             0     1
+#&gt; GATATAACACGCAT             A     g1             0     3
+#&gt; AATGTTGACAGTCA             A     g1             0     3</div><div class='input'>
 <span class='co'># `merge' examples</span>
 <span class='co'># merge two objects</span>
 <span class='fu'>merge</span><span class='op'>(</span><span class='va'>pbmc_small</span>, y <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
@@ -529,6 +583,30 @@ with _X, where X is the numeric index of the object in c(x, y).</p>
 #&gt; 20 features across 80 samples within 1 assay 
 #&gt; Active assay: RNA (20 features, 20 variable features)
 #&gt;  2 dimensional reductions calculated: pca, tsne</div><div class='input'>
+<span class='co'># Get the last 10 rows of cell-level metadata</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                   orig.ident nCount_RNA nFeature_RNA RNA_snn_res.0.8
+#&gt; ATTCAGCTCATTGG SeuratProject        212           38               0
+#&gt; GGCATATGGGGAGT SeuratProject        172           29               0
+#&gt; ATCATCTGACACCA SeuratProject        168           37               0
+#&gt; GTCATACTTCGCCT SeuratProject        210           33               0
+#&gt; TTACGTACGTTCAG SeuratProject        228           39               0
+#&gt; GAGTTGTGGTAGCT SeuratProject        527           47               0
+#&gt; GACGCTCTCTCTCG SeuratProject        202           30               0
+#&gt; AGTCTTACTTCGGA SeuratProject        157           29               0
+#&gt; GGAACACTTCAGAC SeuratProject        150           30               0
+#&gt; CTTGATTGATCTTC SeuratProject        233           76               1
+#&gt;                letter.idents groups RNA_snn_res.1 value
+#&gt; ATTCAGCTCATTGG             A     g2             0     2
+#&gt; GGCATATGGGGAGT             A     g1             0     1
+#&gt; ATCATCTGACACCA             A     g2             0     2
+#&gt; GTCATACTTCGCCT             A     g2             0     2
+#&gt; TTACGTACGTTCAG             A     g1             0     2
+#&gt; GAGTTGTGGTAGCT             A     g1             0     1
+#&gt; GACGCTCTCTCTCG             A     g2             0     2
+#&gt; AGTCTTACTTCGGA             A     g1             0     1
+#&gt; GGAACACTTCAGAC             A     g2             0     2
+#&gt; CTTGATTGATCTTC             B     g1             1     3</div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'>colMeans</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA 
 #&gt;       1.070119       1.156175       1.102886       1.200849       1.051583 

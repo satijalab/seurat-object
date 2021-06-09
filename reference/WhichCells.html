@@ -73,7 +73,7 @@ identity class, high/low values for particular PCs, etc." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
       </span>
     </div>
 
@@ -87,6 +87,9 @@ identity class, high/low values for particular PCs, etc." />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -146,7 +149,11 @@ identity class, high/low values for particular PCs, etc.</p>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Arguments passed to other methods</p></td>
+      <td><p>Arguments passed on to <code><a href='CellsByIdentities.html'>CellsByIdentities</a></code></p><dl>
+    <dt><code>return.null</code></dt><dd><p>If no cells are request, return a <code>NULL</code>;
+by default, throws an error</p></dd>
+  
+</dl></td>
     </tr>
     <tr>
       <th>cells</th>
@@ -173,9 +180,9 @@ between numbers are present in the feature name</p></td>
     </tr>
     <tr>
       <th>downsample</th>
-      <td><p>Maximum number of cells per identity class, default is <code>Inf</code>;
-downsampling will happen after all other operations, including inverting the
-cell selection</p></td>
+      <td><p>Maximum number of cells per identity class, default is
+<code>Inf</code>; downsampling will happen after all other operations, including
+inverting the cell selection</p></td>
     </tr>
     <tr>
       <th>seed</th>

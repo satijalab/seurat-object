@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
       </span>
     </div>
 
@@ -86,6 +86,9 @@
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -137,6 +140,7 @@
   meta.data <span class='op'>=</span> <span class='cn'>NULL</span>,
   min.cells <span class='op'>=</span> <span class='fl'>0</span>,
   min.features <span class='op'>=</span> <span class='fl'>0</span>,
+  row.names <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
 <span class='op'>)</span>
 
@@ -203,6 +207,12 @@ new object with a lower cutoff.</p></td>
       <th>min.features</th>
       <td><p>Include cells where at least this many features are
 detected.</p></td>
+    </tr>
+    <tr>
+      <th>row.names</th>
+      <td><p>When <code>counts</code> is a <code>data.frame</code> or
+<code>data.frame</code>-derived object: an optional vector of feature names to be
+used</p></td>
     </tr>
     </table>
 

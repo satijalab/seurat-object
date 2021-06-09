@@ -73,7 +73,7 @@ other packages" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
       </span>
     </div>
 
@@ -87,6 +87,9 @@ other packages" />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -132,10 +135,16 @@ dim(x)
 dimnames(x)
 
 # S3 method for Assay
+head(x, n = 10L, ...)
+
+# S3 method for Assay
 merge(x = NULL, y = NULL, add.cell.ids = NULL, merge.data = TRUE, ...)
 
 # S3 method for Assay
 subset(x, cells = NULL, features = NULL, ...)
+
+# S3 method for Assay
+tail(x, n = 10L, ...)
 
 # S4 method for Assay
 [[(x, i, j, ...) &lt;- value
@@ -180,6 +189,18 @@ feature names or indices</p></td>
       <td><p>See <code><a href='https://rdrr.io/r/base/drop.html'>drop</a></code></p></td>
     </tr>
     <tr>
+      <th>n</th>
+      <td><p>an integer vector of length up to <code><a href='https://rdrr.io/r/base/dim.html'>dim(x)</a></code> (or 1,
+    for non-dimensioned objects). Values specify the indices to be
+    selected in the corresponding dimension (or along the length) of the
+    object. A positive value of <code>n[i]</code> includes the first/last
+    <code>n[i]</code> indices in that dimension, while a negative value
+    excludes the last/first <code><a href='https://rdrr.io/r/base/MathFun.html'>abs(n[i])</a></code>, including all remaining
+    indices. <code>NA</code> or non-specified values (when <code>length(n) &lt;
+      length(dim(x))</code>) select all indices in that dimension. Must
+    contain at least one non-missing value.</p></td>
+    </tr>
+    <tr>
       <th>y</th>
       <td><p>A vector or list of one or more objects to merge</p></td>
     </tr>
@@ -222,8 +243,10 @@ means/sums on</p></td>
 <p><code>dim</code>: The number of features (<code>nrow</code>) and cells
 (<code>ncol</code>)</p>
 <p><code>dimnames</code>: Feature (row) and cell (column) names</p>
+<p><code>head</code>: The first <code>n</code> rows of feature-level metadata</p>
 <p><code>merge</code>: Merged object</p>
 <p><code>subset</code>: A subsetted <code>Assay</code></p>
+<p><code>tail</code>: The last <code>n</code> rows of feature-level metadata</p>
 <p><code>[[&lt;-</code>: <code>x</code> with metadata <code>value</code> added as <code>i</code></p>
 <p><code>colMeans</code>: The column (cell-wise) means of <code>slot</code></p>
 <p><code>colSums</code>: The column (cell-wise) sums of <code>slot</code></p>
@@ -239,8 +262,10 @@ invisibly returns <code>NULL</code></p>
 <li><p><code>[[.Assay</code>: Get feature-level metadata</p></li>
 <li><p><code>dim.Assay</code>: Number of cells and features for an <code>Assay</code></p></li>
 <li><p><code>dimnames.Assay</code>: Cell- and feature-names for an <code>Assay</code></p></li>
+<li><p><code>head.Assay</code>: Get the first rows of feature-level metadata</p></li>
 <li><p><code>merge.Assay</code>: Merge <code>Assay</code> objects</p></li>
 <li><p><code>subset.Assay</code>: Subset an <code>Assay</code></p></li>
+<li><p><code>tail.Assay</code>: Get the last rows of feature-level metadata</p></li>
 <li><p><code>[[&lt;-,Assay-method</code>: Add feature-level metadata</p></li>
 <li><p><code>colMeans,Assay-method</code>: Calculate <code><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></code> on an
 <code>Assay</code></p></li>

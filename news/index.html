@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SeuratCommand Methods — SeuratCommand-methods • SeuratObject</title>
+<title>Changelog • SeuratObject</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,7 @@
 
 
 
-<meta property="og:title" content="SeuratCommand Methods — SeuratCommand-methods" />
-<meta property="og:description" content="Methods for SeuratCommand objects for generics defined in
-other packages" />
+<meta property="og:title" content="Changelog" />
 
 
 
@@ -60,7 +58,7 @@ other packages" />
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-topic">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -112,87 +110,76 @@ other packages" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1><code>SeuratCommand</code> Methods</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/R/command.R'><code>R/command.R</code></a></small>
-    <div class="hidden name"><code>SeuratCommand-methods.Rd</code></div>
+      <h1 data-toc-skip>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="ref-description">
-    <p>Methods for <code><a href='SeuratCommand-class.html'>SeuratCommand</a></code> objects for generics defined in
-other packages</p>
-    </div>
-
-    <pre class="usage"># S3 method for SeuratCommand
-.DollarNames(x, pattern = "")
-
-# S3 method for SeuratCommand
-$(x, i, ...)
-
-# S3 method for SeuratCommand
-[(x, i, ...)
-
-# S3 method for SeuratCommand
-as.list(x, complete = FALSE, ...)
-
-# S4 method for SeuratCommand
-show(object)</pre>
-
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>x, object</th>
-      <td><p>A <code><a href='SeuratCommand-class.html'>SeuratCommand</a></code> object</p></td>
-    </tr>
-    <tr>
-      <th>pattern</th>
-      <td><p>A regular expression.  Only matching names are
-    returned.</p></td>
-    </tr>
-    <tr>
-      <th>i</th>
-      <td><p>For a <code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code>, a parameter name; for <code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>, a
-<code>SeuratCommand</code> slot name</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed to other methods</p></td>
-    </tr>
-    <tr>
-      <th>complete</th>
-      <td><p>Include slots besides just parameters
-(eg. call string, name, timestamp)</p></td>
-    </tr>
-    </table>
-
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p><code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code>: The value for parameter <code>i</code></p>
-<p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>: Slot <code>i</code> from <code>x</code></p>
-<p><code>as.list</code>: A list with the parameters and, if
-<code>complete = TRUE</code>, the call string, name, and timestamp</p>
-<p><code>show</code>: Prints summary to <code><a href='https://rdrr.io/r/base/showConnections.html'>stdout</a></code> and
-invisibly returns <code>NULL</code></p>
-    <h2 class="hasAnchor" id="functions"><a class="anchor" href="#functions"></a>Functions</h2>
-
-    
+    <div id="seuratobject-402" class="section level1">
+<h1 class="page-header" data-toc-text="4.0.2">
+<a href="#seuratobject-402" class="anchor"></a>SeuratObject 4.0.2<small> 2021-06-09 </small>
+</h1>
+<div id="changed" class="section level2">
+<h2 class="hasAnchor">
+<a href="#changed" class="anchor"></a>Changed</h2>
 <ul>
-<li><p><code>.DollarNames.SeuratCommand</code>: Autocompletion for <code><a href='https://rdrr.io/r/base/Extract.html'>$</a></code> access on a
-<code>SeuratCommand</code> object</p></li>
-<li><p><code>$.SeuratCommand</code>: Access a parameter from a
-<code>SeuratCommand</code> object</p></li>
-<li><p><code>[.SeuratCommand</code>: Access data from a <code>SeuratCommand</code>
-object</p></li>
-<li><p><code>as.list.SeuratCommand</code>: Coerce a <code>SeuratCommand</code> to a list</p></li>
-<li><p><code>show,SeuratCommand-method</code>: Overview of a <code>SeuratCommand</code> object</p></li>
+<li>Provide default option for <code>Seurat.checkdots</code> option if option is not set (<a href='https://github.com/mojaveazure/seurat-object/issues/16'>#16</a>)</li>
 </ul>
-
+</div>
+</div>
+    <div id="seuratobject-401" class="section level1">
+<h1 class="page-header" data-toc-text="4.0.1">
+<a href="#seuratobject-401" class="anchor"></a>SeuratObject 4.0.1<small> 2021-05-08 </small>
+</h1>
+<div id="added" class="section level2">
+<h2 class="hasAnchor">
+<a href="#added" class="anchor"></a>Added</h2>
+<ul>
+<li>
+<code>head</code> and <code>tail</code> methods for <code>Seurat</code> and <code>Assay</code> objects (<a href='https://github.com/mojaveazure/seurat-object/issues/5'>#5</a>)</li>
+<li>New utility functions (<a href='https://github.com/mojaveazure/seurat-object/issues/6'>#6</a>):
+<ul>
+<li>
+<code>AttachDeps</code> to attach required imported dependencies on package attachment</li>
+<li>
+<code>IsMatrixEmpty</code> to test if a matrix is empty or not</li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="changed-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#changed-1" class="anchor"></a>Changed</h2>
+<ul>
+<li>Allow super classes to replace child classes (<a href='https://github.com/mojaveazure/seurat-object/issues/1'>#1</a>). For example, allows <code>Assay</code> objects to replace <code>Seurat::SCTAssay</code> or <code>Signac::ChromatinAssay</code> objects of the same name</li>
+<li>Better support for creating sparse matrices from <code>data.table</code>/<code>tibble</code> objects (<a href='https://github.com/mojaveazure/seurat-object/issues/4'>#4</a>)</li>
+<li>Improved error messages for clashing object names (<a href='https://github.com/mojaveazure/seurat-object/issues/7'>#7</a>)</li>
+<li>Allow returning a <code>NULL</code> if a subset results in zero cells (<a href='https://github.com/mojaveazure/seurat-object/issues/9'>#9</a>)</li>
+</ul>
+</div>
+<div id="removed" class="section level2">
+<h2 class="hasAnchor">
+<a href="#removed" class="anchor"></a>Removed</h2>
+<ul>
+<li>SCT-specific code (<a href='https://github.com/mojaveazure/seurat-object/issues/2'>#2</a>)</li>
+</ul>
+</div>
+</div>
+    <div id="seuratobject-400" class="section level1">
+<h1 class="page-header" data-toc-text="4.0.0">
+<a href="#seuratobject-400" class="anchor"></a>SeuratObject 4.0.0<small> 2021-01-15 </small>
+</h1>
+<ul>
+<li>Initial release of SeuratObject</li>
+</ul>
+</div>
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
+
 </div>
 
 

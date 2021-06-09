@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
       </span>
     </div>
 
@@ -86,6 +86,9 @@
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -117,7 +120,7 @@
     <p>Get cell names grouped by identity class</p>
     </div>
 
-    <pre class="usage"><span class='fu'>CellsByIdentities</span><span class='op'>(</span><span class='va'>object</span>, idents <span class='op'>=</span> <span class='cn'>NULL</span>, cells <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>CellsByIdentities</span><span class='op'>(</span><span class='va'>object</span>, idents <span class='op'>=</span> <span class='cn'>NULL</span>, cells <span class='op'>=</span> <span class='cn'>NULL</span>, return.null <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -134,6 +137,11 @@ defaults to all identity class levels</p></td>
     <tr>
       <th>cells</th>
       <td><p>A vector of cells to grouping to</p></td>
+    </tr>
+    <tr>
+      <th>return.null</th>
+      <td><p>If no cells are request, return a <code>NULL</code>;
+by default, throws an error</p></td>
     </tr>
     </table>
 
