@@ -308,7 +308,7 @@ HVFInfo.Assay <- function(object, selection.method, status = FALSE, ...) {
   vars <- switch(
     EXPR = selection.method,
     'vst' = c('mean', 'variance', 'variance.standardized'),
-    'mvp' = c('mean', 'dispersion', 'dispersion.scaled'),
+    'mvp' = c('mean', 'dispersion.scaled', 'dispersion' ),
     'sct' = c('gmean', 'variance', 'residual_variance'),
     stop("Unknown method: '", selection.method, "'", call. = FALSE)
   )
