@@ -5,6 +5,19 @@
 #'
 NULL
 
+#' @section Package Options:
+#'
+#' Seurat defines the following \code{\link[base]{options}} to configure
+#' behavior:
+#'
+#' \subsection{Storage options (v5)}{
+#'  The following options define options for storage of data within a
+#'  \code{Seurat} object
+#'  \describe{
+#'   \item{\code{Seurat.}}{}
+#'  }
+#' }
+#'
 #' @docType package
 #' @name SeuratObject-package
 #' @rdname SeuratObject-package
@@ -12,28 +25,17 @@ NULL
 "_PACKAGE"
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Reexports
+# Package options
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# @importFrom Matrix colMeans
-# @export
-#
-# Matrix::colMeans
+default.options <- list(
+  'Seurat.assay.mode.prioritize_spam' = FALSE,
+  'Seurat.assay.mode.prioritize_spam_t' = TRUE
+)
 
-# @importFrom Matrix colSums
-# @export
-#
-# Matrix::colSums
-
-# @importFrom Matrix rowMeans
-# @export
-#
-# Matrix::rowMeans
-
-# @importFrom Matrix rowSums
-# @export
-#
-# Matrix::rowSums
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Reexports
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Class definitions
@@ -165,55 +167,6 @@ setOldClass(Classes = 'package_version')
   return(subobjects)
 }
 
-EmptyDF <- function(n) {
-  return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
-}
-
-#' Check List Names
-#'
-#' Check to see if a list has names; also check to enforce that all names are
-#' present and unique
-#'
-#' @param x A list
-#' @param all.unique Require that all names are unique from one another
-#' @param allow.empty Allow empty (\code{nchar = 0}) names
-#' @param pass.zero Pass on zero-length lists
-#'
-#' @return \code{TRUE} if ..., otherwise \code{FALSE}
-#'
-#' @importFrom rlang is_bare_list
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-IsNamedList <- function(
-  x,
-  all.unique = TRUE,
-  allow.empty = FALSE,
-  pass.zero = FALSE
-) {
-  if (!is_bare_list(x = x)) {
-    return(FALSE)
-  }
-  if (isTRUE(x = pass.zero) && !length(x = x)) {
-    return(TRUE)
-  }
-  n <- names(x = x)
-  named <- !is.null(x = n)
-  if (!isTRUE(x = allow.empty)) {
-    named <- named && all(vapply(
-      X = n,
-      FUN = nchar,
-      FUN.VALUE = integer(length = 1L)
-    ))
-  }
-  if (isTRUE(x = all.unique)) {
-    named <- named && (length(x = n) == length(x = unique(x = n)))
-  }
-  return(named)
-}
-
 #' Head and Tail Object Metadata
 #'
 #' Internal \code{\link[utils]{head}} and \code{\link[utils]{tail}} definitions
@@ -284,4 +237,118 @@ IsNamedList <- function(
     slot(object = object, name = 'misc')[[slot]] <- value
   }
   return(object)
+}
+
+#' Get An Option
+#'
+#' @inheritParams base::getOption
+#' @param choices A named list of default options; has higher priority
+#' than \code{default}
+#'
+#' @return ...
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.Opt <- function(x, choices = default.options, default = NULL) {
+  return(getOption(x = x, default = choices[[x]] %||% default))
+}
+
+EmptyDF <- function(n) {
+  return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
+}
+
+#' Check List Names
+#'
+#' Check to see if a list has names; also check to enforce that all names are
+#' present and unique
+#'
+#' @param x A list
+#' @param all.unique Require that all names are unique from one another
+#' @param allow.empty Allow empty (\code{nchar = 0}) names
+#' @param pass.zero Pass on zero-length lists
+#'
+#' @return \code{TRUE} if ..., otherwise \code{FALSE}
+#'
+#' @importFrom rlang is_bare_list
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+IsNamedList <- function(
+  x,
+  all.unique = TRUE,
+  allow.empty = FALSE,
+  pass.zero = FALSE
+) {
+  if (!is_bare_list(x = x)) {
+    return(FALSE)
+  }
+  if (isTRUE(x = pass.zero) && !length(x = x)) {
+    return(TRUE)
+  }
+  n <- names(x = x)
+  named <- !is.null(x = n)
+  if (!isTRUE(x = allow.empty)) {
+    named <- named && all(vapply(
+      X = n,
+      FUN = nchar,
+      FUN.VALUE = integer(length = 1L)
+    ))
+  }
+  if (isTRUE(x = all.unique)) {
+    named <- named && (length(x = n) == length(x = unique(x = n)))
+  }
+  return(named)
+}
+
+RandomKey <- function(n = 7L, ...) {
+  x <- c(letters, LETTERS, seq.int(from = 0, to = 9))
+  return(paste0(
+    paste(
+      sample(x = x, size = n, ...),
+      collapse = ''
+    ),
+    '_'
+  ))
+}
+
+#' Update a Key
+#'
+#' @param key A character to become a Seurat Key
+#'
+#' @return An updated Key that's valid for Seurat
+#'
+#' @section \code{Seurat} Object Keys:
+#' blah
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+UpdateKey <- function(key) {
+  if (grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
+    return(key)
+  } else {
+    new.key <- regmatches(
+      x = key,
+      m = gregexpr(pattern = '[[:alnum:]]+', text = key)
+    )
+    new.key <- paste0(paste(unlist(x = new.key), collapse = ''), '_')
+    if (new.key == '_') {
+      new.key <- paste0(RandomName(length = 3), '_')
+    }
+    warning(
+      key.msg,
+      ", setting key from ",
+      key,
+      " to ",
+      new.key,
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    return(new.key)
+  }
 }
