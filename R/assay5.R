@@ -1,4 +1,5 @@
 #' @include zzz.R
+#' @include layers.R
 #' @include logmap.R
 #' @importFrom methods setAs
 #'
@@ -83,6 +84,11 @@ setClass(
   contains = 'StdAssay'
 )
 
+setClass(
+  Class = 'Assay5T',
+  contains = 'StdAssay'
+)
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -128,32 +134,32 @@ setClass(
   cells = NULL,
   features = NULL,
   layer = 'counts',
+  transpose = FALSE,
   type = 'Assay5',
   csum = Matrix::colSums,
   fsum = Matrix::rowSums,
   ...
 ) {
+  # Figure out feature/cell MARGINs
   cdef <- getClass(Class = type)
-  if (!'StdAssay' %in% names(x = slot(object = cdef, name = 'contains'))) {
+  contains <- names(x = slot(object = cdef, name = 'contains'))
+  if (!'StdAssay' %in% contains) {
     stop("Class '", type, "' does not inherit from StdAssay")
   }
-  fmargin <- getS3method(
-    f = '.MARGIN',
-    class = unlist(x = strsplit(
-      x = methods(generic.function = '.MARGIN', class = type)[1],
-      split = '\\.'
-    ))[3]
-  )
+  for (i in c(contains, 'default')) {
+    fmargin <- getS3method(f = '.MARGIN', class = i, optional = TRUE)
+    if (is.function(x = fmargin)) {
+      break
+    }
+  }
   cdim <- fmargin(object = type, type = 'cells')
   fdim <- fmargin(object = type, type = 'features')
-  cells <- cells %||% paste0(
-    'Cell_',
-    seq_len(length.out = dim(x = counts)[cdim])
-  )
-  features <- features %||% paste0(
-    'Feature',
-    seq_len(length.out = dim(x = counts)[fdim])
-  )
+  cells <- cells %||%
+    dimnames(x = counts)[[cdim]] %||%
+    paste0('Cell_', seq_len(length.out = dim(x = counts)[cdim]))
+  features <- features %||%
+    dimnames(x = counts)[[fdim]] %||%
+    paste0('Feature', seq_len(length.out = dim(x = counts)[fdim]))
   # Filter based on min.features
   if (min.features > 0) {
     cells.use <- which(x = csum(counts > 0) >= min.features)
@@ -183,7 +189,13 @@ setClass(
     meta.data = EmptyDF(n = length(x = features)),
     ...
   )
-  LayerData(object = object, layer = layer) <- counts
+  LayerData(
+    object = object,
+    layer = layer,
+    features = features,
+    cells = cells,
+    transpose = transpose
+  ) <- counts
   return(object)
 }
 
@@ -193,7 +205,7 @@ setClass(
 #' the expected format of the matrix is features x cells
 #'
 #' @inheritParams .CreateStdAssay
-#' @param ... Extra parameters passed to \code{\link{as.sparse}}
+#' @param ... Extra parameters passed to \code{\link{.CreateStdAssay}}
 #'
 #' @return An \code{\link{Assay5}} object
 #'
@@ -204,27 +216,59 @@ CreateAssay5Object <- function(
   min.cells = 0,
   min.features = 0,
   layer = 'counts',
+  transpose = FALSE,
   ...
 ) {
-  if (!inherits(x = counts, what = 'AnyMatrix')) {
-    counts <- as.sparse(x = counts, ...)
+  type <- ifelse(test = isTRUE(x = transpose), yes = 'Assay5T', no = 'Assay5')
+  if (inherits(x = counts, what = 'spam')) {
+    if (isTRUE(x = transpose)) {
+      csum <- spam::rowSums
+      fsum <- spam::colSums
+    } else {
+      csum <- spam::colSums
+      fsum <- spam::rowSums
+    }
+  } else {
+    if (isTRUE(x = transpose)) {
+      csum <- Matrix::rowSums
+      fsum <- Matrix::colSums
+    } else {
+      csum <- Matrix::colSums
+      fsum <- Matrix::rowSums
+    }
   }
-  cells <- colnames(x = counts)
-  features <- rownames(x = counts)
-  dimnames(x = counts) <- list(NULL, NULL)
   return(.CreateStdAssay(
     counts = counts,
     min.cells =  min.cells,
     min.features = min.features,
-    cells = cells,
-    features = features,
-    layer = layer
+    layer = layer,
+    transpose = transpose,
+    type = type,
+    csum = csum,
+    fsum = fsum,
+    ...
   ))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @method .AssayClass Assay5T
+#' @export
+#'
+.AssayClass.Assay5T <- function(object) {
+  return('Transposed Assay (v5)')
+}
+
+#' @method .MARGIN Assay5T
+#' @export
+#'
+.MARGIN.Assay5T <- function(object, type = c('features', 'cells')) {
+  type <- type[1]
+  type <- match.arg(arg = type)
+  return(unname(obj = c(features = 2L, cells = 1L)[type]))
+}
 
 #' @rdname AddMetaData
 #' @export
@@ -246,7 +290,6 @@ Cells.StdAssay <- function(x, layer = NULL, ...) {
 #' @method DefaultAssay StdAssay
 #'
 DefaultAssay.StdAssay <- function(object, ...) {
-  # object <- UpdateSlots(object = object)
   return(slot(object = object, name = 'assay.orig'))
 }
 
@@ -255,7 +298,6 @@ DefaultAssay.StdAssay <- function(object, ...) {
 #' @method DefaultAssay<- StdAssay
 #'
 "DefaultAssay<-.StdAssay" <- function(object, ..., value) {
-  # object <- UpdateSlots(object = object)
   slot(object = object, name = 'assay.orig') <- value
   return(object)
 }
@@ -385,7 +427,7 @@ Key.StdAssay <- function(object, ...) {
 #'
 "Key<-.StdAssay" <- function(object, ..., value) {
   CheckDots(...)
-  slot(object = object, name = 'key') <- value
+  slot(object = object, name = 'key') <- UpdateKey(key = value)
   return(object)
 }
 
@@ -451,15 +493,35 @@ LayerData.Assay5 <- function(object, layer = NULL, dnames = TRUE, ...) {
     return(object)
   }
   # Add a layer
-  fdim <- .MARGIN(object = object)
+  fdim <- .MARGIN(object = object, type = 'features')
   cdim <- .MARGIN(object = object, type = 'cells')
-  features <- features %||% rownames(x = value) %||% seq_len(
-    length.out = dim(x = value)[fdim]
+  # Assume input matrix is features x cells
+  dnames <- list(
+    # features %||% dimnames(x = value)[[fdim]],
+    features %||% dimnames(x = value)[[1L]],
+    # cells %||% dimnames(x = value)[[cdim]]
+    cells %||% dimnames(x = value)[[2L]]
   )
-  cells <- cells %||% colnames(x = value) %||% seq_len(
-    length.out = dim(x = value)[cdim]
+  didx <- match(
+    x = vapply(
+      X = dnames,
+      FUN = length,
+      FUN.VALUE = numeric(length = 1L),
+      USE.NAMES = FALSE
+    ),
+    table = dim(x = value)
+  )
+  dnames <- dnames[didx]
+  value <- .PrepLayerData(
+    x = value,
+    target = dim(x = object),
+    dnames = dnames,
+    fmargin = fdim,
+    ...
   )
   # Check features and cells
+  features <- attr(x = value, which = 'features') %||% seq_len(length.out = dim(x = value)[fdim])
+  cells <- attr(x = value, which = 'cells') %||% seq_len(length.out = dim(x = value)[cdim])
   fmatch <- MatchCells(
     new = features,
     orig = rownames(x = slot(object = object, name = 'features')),
@@ -521,19 +583,6 @@ LayerData.Assay5 <- function(object, layer = NULL, dnames = TRUE, ...) {
   # Update the maps
   slot(object = object, name = 'features')[[layer]] <- features
   slot(object = object, name = 'cells')[[layer]] <- cells
-  validObject(object = object)
-  return(object)
-}
-
-#' @rdname Layers
-#' @method LayerData<- Assay5
-#' @export
-#'
-"LayerData<-.Assay5" <- function(object, layer, ..., value) {
-  if (!inherits(x = value, what = c('AnyMatrix', 'NULL'))) {
-    value <- as.sparse(x = value)
-  }
-  object <- NextMethod()
   validObject(object = object)
   return(object)
 }
@@ -997,7 +1046,7 @@ setMethod(
     )
     if (length(x = layers)) {
       cat(
-        "Additional layers:\n",
+        "\nAdditional layers:\n",
         paste(strwrap(x = paste(layers, collapse = ', ')), collapse = '\n'),
         "\n"
       )
@@ -1049,6 +1098,7 @@ setValidity(
           )
         )
       }
+      # Check that we've recorded the cells and features in the maps
       for (i in c('cells', 'features')) {
         didx <- c(features = 1L, cells = 2L)[i]
         if (!layer %in% colnames(x = slot(object = object, name = i))) {
@@ -1083,26 +1133,6 @@ setValidity(
     # TODO: Check meta features
     # TODO: Check key
     # TODO: Check misc
-    return(valid %||% TRUE)
-  }
-)
-
-setValidity(
-  Class = 'Assay5',
-  method = function(object) {
-    valid <- NULL
-    return(TRUE)
-    # Check class of layers
-    for (layer in Layers(object = object, data = FALSE)) {
-      cls <- inherits(
-        x = LayerData(object = object, layer = layer, dnames = FALSE),
-        what = 'AnyMatrix'
-      )
-      if (!isTRUE(x = cls)) {
-        valid <- c(valid, "layers must be either a 'matrix' or 'dgCMatrix'")
-        break
-      }
-    }
     return(valid %||% TRUE)
   }
 )

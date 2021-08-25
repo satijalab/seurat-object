@@ -11,6 +11,7 @@
   cells = NULL,
   features = NULL,
   layer = "counts",
+  transpose = FALSE,
   type = "Assay5",
   csum = Matrix::colSums,
   fsum = Matrix::rowSums,

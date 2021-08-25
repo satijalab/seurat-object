@@ -5,7 +5,6 @@
 \alias{LayerData<-}
 \alias{Layers}
 \alias{LayerData<-.StdAssay}
-\alias{LayerData<-.Assay5}
 \alias{Layers.StdAssay}
 \title{Query and Manipulate Assay Layers}
 \usage{
@@ -16,8 +15,6 @@ LayerData(object, layer, ...) <- value
 Layers(object, ...)
 
 \method{LayerData}{StdAssay}(object, layer, features = NULL, cells = NULL, ...) <- value
-
-\method{LayerData}{Assay5}(object, layer, ...) <- value
 
 \method{Layers}{StdAssay}(object, ...)
 }

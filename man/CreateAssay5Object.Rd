@@ -9,6 +9,7 @@ CreateAssay5Object(
   min.cells = 0,
   min.features = 0,
   layer = "counts",
+  transpose = FALSE,
   ...
 )
 }
@@ -24,7 +25,7 @@ are detected}
 
 \item{layer}{Name of layer to store \code{counts} as}
 
-\item{...}{Extra parameters passed to \code{\link{as.sparse}}}
+\item{...}{Extra parameters passed to \code{\link{.CreateStdAssay}}}
 }
 \value{
 An \code{\link{Assay5}} object
