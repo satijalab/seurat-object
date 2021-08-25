@@ -10,7 +10,7 @@ NULL
 #'
 #' A simple container for storing mappings of values using logical matrices.
 #' Keeps track of which values (rows) are present in which observations
-#' (columns). \code{LogMap} objects can be created with \code{LogMap}; queries
+#' (columns). \code{LogMap} objects can be created with \code{LogMap()}; queries
 #' can be performed with \code{[[} and observations can be added or removed
 #' with \code{[[<-}
 #'
