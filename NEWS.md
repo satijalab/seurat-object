@@ -1,3 +1,8 @@
+# SeuratObject 4.0.2
+
+## Changed
+- Provide default option for `Seurat.checkdots` option if option is not set (#16)
+
 # SeuratObject 4.0.1
 
 ## Added

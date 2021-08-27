@@ -504,7 +504,7 @@ CheckDots <- function(..., fxns = NULL) {
         paste(unused, collapse = ', ')
       )
       switch(
-        EXPR = getOption(x = "Seurat.checkdots"),
+        EXPR = getOption(x = "Seurat.checkdots", default = 'warn'),
         "warn" = warning(msg, call. = FALSE, immediate. = TRUE),
         "stop" = stop(msg),
         "silent" = NULL,

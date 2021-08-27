@@ -1,4 +1,4 @@
-# SeuratObject v4.0.1
+# SeuratObject v4.0.2
 
 ## Test environments
 * local ubuntu 20.04 install, R 4.0.5
@@ -7,19 +7,7 @@
 
 ## R CMD check results
 
-There were no ERRORs, WARNINGs
-
-There was one NOTE:
-
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: ‘Paul Hoffman <seurat@nygenome.org>’
-
-New maintainer:
-  Paul Hoffman <seurat@nygenome.org>
-Old maintainer(s):
-  Paul Hoffman <nygcSatijalab@nygenome.org>
-
-We are switching email addresses for the maintainer
+There were no ERRORs, WARNINGs, or NOTEs
 
 ## Downstream dependencies
 
