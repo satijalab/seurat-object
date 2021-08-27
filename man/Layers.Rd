@@ -4,6 +4,7 @@
 \alias{LayerData}
 \alias{LayerData<-}
 \alias{Layers}
+\alias{LayerData.StdAssay}
 \alias{LayerData<-.StdAssay}
 \alias{Layers.StdAssay}
 \title{Query and Manipulate Assay Layers}
@@ -13,6 +14,8 @@ LayerData(object, layer, ...)
 LayerData(object, layer, ...) <- value
 
 Layers(object, ...)
+
+\method{LayerData}{StdAssay}(object, layer = NULL, fast = FALSE, ...)
 
 \method{LayerData}{StdAssay}(object, layer, features = NULL, cells = NULL, ...) <- value
 
@@ -26,6 +29,16 @@ Layers(object, ...)
 \item{...}{Arguments passed to other methods}
 
 \item{value}{New two-dimensional data to be added as a layer}
+
+\item{fast}{Determine how to return the layer data; choose from:
+\describe{
+ \item{\code{FALSE}}{Apply any transpositions and attempt to add feature/cell
+  names (if supported) back to the layer data}
+ \item{\code{NA}}{Attempt to add feature/cell names back to the layer data,
+  skip any transpositions}
+ \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell names
+  to the layer data}
+}}
 
 \item{features, cells}{Vectors of features/cells to include ...}
 }

@@ -39,9 +39,107 @@ setGeneric(
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+.CheckDimnames <- function(dnames, dims) {
+  if (is.null(x = dnames)) {
+    return(NULL)
+  }
+  if (!is.numeric(x = dims)) {
+    stop("'dims' must be a numeric vector", call. = FALSE)
+  } else if (!is.list(x = dnames) || length(x = dnames) != length(x = dims)) {
+    stop("'dnames' must be a list of length ", length(x = dims), call. = FALSE)
+  }
+  dims <- dims %/% 1L
+  didx <- match(
+    x = vapply(
+      X = dnames,
+      FUN = length,
+      FUN.VALUE = numeric(length = 1L),
+      USE.NAMES = FALSE
+    ),
+    table = dims
+  )
+  didx[duplicated(x = didx)] <- NA
+  didx[is.na(x = didx)] <- setdiff(
+    x = seq_along(along.with = dims),
+    y = didx
+  )
+  return(dnames[didx])
+}
+
+.CheckFmargin <- function(fmargin) {
+  fmargin <- fmargin %/% 1L
+  if (!fmargin %in% seq.int(from = 1L, to = 2L)) {
+    stop("'fmargin' must be either 1 or 2", call. = FALSE)
+  }
+  return(fmargin)
+}
+
+.Cmargin <- function(fmargin) {
+  fmargin <- .CheckFmargin(fmargin = fmargin)
+  cmargin <- setdiff(x = seq.int(from = 1L, to = 2L), y = fmargin)
+  return(cmargin)
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+setMethod(
+  f = '.GetLayerData',
+  signature = c(x = 'ANY'),
+  definition = function(x, dnames = NULL, fmargin = 1L, ...) {
+    dnames <- .CheckDimnames(dnames = dnames, dims = dim(x = x))
+    fmargin <- .CheckFmargin(fmargin = fmargin)
+    if (fmargin == 2L) {
+      x <- base::t(x = x)
+      dnames <- rev(x = dnames)
+    }
+    dimnames(x = x) <- dnames
+    return(x)
+  }
+)
+
+setMethod(
+  f = '.GetLayerData',
+  signature = c(x = 'data.frame'),
+  definition = function(x, dnames = NULL, fmargin = 1L, ...) {
+    x <- callNextMethod()
+    return(as.data.frame(x = x))
+  }
+)
+
+#' @importFrom Matrix t
+#' @importClassesFrom Matrix Matrix
+#'
+setMethod(
+  f = '.GetLayerData',
+  signature = c(x = 'Matrix'),
+  definition = function(x, dnames = NULL, fmargin = 1L, ...) {
+    dnames <- .CheckDimnames(dnames = dnames, dims = dim(x = x))
+    fmargin <- .CheckFmargin(fmargin = fmargin)
+    if (fmargin == 2L) {
+      x <- Matrix::t(x = x)
+      dnames <- rev(x = dnames)
+    }
+    dimnames(x = x) <- dnames
+    return(x)
+  }
+)
+
+#' @importFrom spam t
+#' @importClassesFrom spam spam
+#'
+setMethod(
+  f = '.GetLayerData',
+  signature = c(x = 'spam'),
+  definition = function(x, fmargin = 1L, ...) {
+    fmargin <- .CheckFmargin(fmargin = fmargin)
+    if (fmargin == 2L) {
+      x <- spam::t(x = x)
+    }
+    return(x)
+  }
+)
 
 setMethod(
   f = '.PrepLayerData',
@@ -61,11 +159,8 @@ setMethod(
     }
     # If transpose is NULL, try to determine if we should transpose
     if (is.null(x = transpose)) {
-      fmargin <- fmargin %/% 1L
-      if (!fmargin %in% seq.int(from = 1L, to = 2L)) {
-        stop("'fmargin' must be either 1 or 2", call. = FALSE)
-      }
-      cmargin <- setdiff(x = seq.int(from = 1L, to = 2L), y = fmargin)
+      fmargin <- .CheckFmargin(fmargin = fmargin)
+      cmargin <- .Cmargin(fmargin = fmargin)
       xdim <- dim(x = x)[c(fmargin, cmargin)]
       if (all(rev(x = xdim) == target)) {
         transpose <- TRUE
@@ -94,11 +189,8 @@ setMethod(
     tf = base::t,
     ...
   ) {
-    fmargin <- fmargin %/% 1L
-    if (!fmargin %in% seq.int(from = 1L, to = 2L)) {
-      stop("'fmargin' must be either 1 or 2", call. = FALSE)
-    }
-    cmargin <- setdiff(x = seq.int(from = 1L, to = 2L), y = fmargin)
+    fmargin <- .CheckFmargin(fmargin = fmargin)
+    cmargin <- .Cmargin(fmargin = fmargin)
     if (isTRUE(x = transpose)) {
       x <- tf(x)
       dnames <- rev(x = dnames)

@@ -431,24 +431,43 @@ Key.StdAssay <- function(object, ...) {
   return(object)
 }
 
+#' @param fast Determine how to return the layer data; choose from:
+#' \describe{
+#'  \item{\code{FALSE}}{Apply any transpositions and attempt to add feature/cell
+#'   names (if supported) back to the layer data}
+#'  \item{\code{NA}}{Attempt to add feature/cell names back to the layer data,
+#'   skip any transpositions}
+#'  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell names
+#'   to the layer data}
+#' }
+#'
+#' @rdname Layers
 #' @method LayerData StdAssay
 #' @export
 #'
-LayerData.StdAssay <- function(object, layer = NULL, ...) {
+LayerData.StdAssay <- function(object, layer = NULL, fast = FALSE, ...) {
   layer <- layer[1] %||% DefaultLayer(object = object)
   layer <- match.arg(arg = layer, choices = Layers(object = object))
-  return(slot(object = object, name = 'layers')[[layer]])
-}
-
-#' @method LayerData Assay5
-#' @export
-#'
-LayerData.Assay5 <- function(object, layer = NULL, dnames = TRUE, ...) {
-  ldat <- NextMethod()
-  if (isTRUE(x = dnames)) {
-    dimnames(x = ldat) <- list(
-      Features(x = object, layer = layer),
-      Cells(x = object, layer = layer)
+  ldat <- slot(object = object, name = 'layers')[[layer]]
+  dnames <- list(
+    Features(x = object, layer = layer),
+    Cells(x = object, layer = layer)
+  )
+  ldat <- if (isTRUE(x = fast)) {
+    ldat
+  } else if (is.na(x = fast)) {
+    .GetLayerData(
+      x = ldat,
+      dnames = dnames,
+      fmargin = 1L,
+      ...
+    )
+  } else {
+    .GetLayerData(
+      x = ldat,
+      dnames = dnames,
+      fmargin = .MARGIN(object = object, type = 'features'),
+      ...
     )
   }
   return(ldat)
@@ -502,16 +521,18 @@ LayerData.Assay5 <- function(object, layer = NULL, dnames = TRUE, ...) {
     # cells %||% dimnames(x = value)[[cdim]]
     cells %||% dimnames(x = value)[[2L]]
   )
-  didx <- match(
-    x = vapply(
-      X = dnames,
-      FUN = length,
-      FUN.VALUE = numeric(length = 1L),
-      USE.NAMES = FALSE
-    ),
-    table = dim(x = value)
-  )
-  dnames <- dnames[didx]
+  if (length(x = unique(x = dim(x = value))) > 1L) {
+    didx <- match(
+      x = vapply(
+        X = dnames,
+        FUN = length,
+        FUN.VALUE = numeric(length = 1L),
+        USE.NAMES = FALSE
+      ),
+      table = dim(x = value)
+    )
+    dnames <- dnames[didx]
+  }
   value <- .PrepLayerData(
     x = value,
     target = dim(x = object),
@@ -1076,27 +1097,19 @@ setValidity(
         break
       }
       # Check that we have the correct features and cells
-      if (ldims[1] > adims[1]) {
-        valid <- c(
-          valid,
-          paste0(
-            "Layers may not have more features than present in the assay ",
-            "(offending layer: ",
-            layer,
-            ")"
+      for (i in seq.int(from = 1L, to = 2L)) {
+        if (ldims[i] > adims[i]) {
+          valid <- c(
+            valid,
+            paste0(
+              "Layers may not have more ",
+              names(x = dorder)[i],
+              " than present in the assay (offending layer",
+              layer,
+              ")"
+            )
           )
-        )
-      }
-      if (ldims[2] != adims[2]) {
-        valid <- c(
-          valid,
-          paste0(
-            "Layers must have the same cells as present in the assay ",
-            "(offending layer: ",
-            layer,
-            ")"
-          )
-        )
+        }
       }
       # Check that we've recorded the cells and features in the maps
       for (i in c('cells', 'features')) {
