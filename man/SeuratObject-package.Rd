@@ -15,21 +15,6 @@ Defines S4 classes for single-cell genomic data and associated
   and Stuart T, Butler A, et al (2019) <doi:10.1016/j.cell.2019.05.031> for
   more details.
 }
-\section{Package Options}{
-
-
-Seurat defines the following \code{\link[base]{options}} to configure
-behavior:
-
-\subsection{Storage options (v5)}{
- The following options define options for storage of data within a
- \code{Seurat} object
- \describe{
-  \item{\code{Seurat.}}{}
- }
-}
-}
-
 \seealso{
 Useful links:
 \itemize{

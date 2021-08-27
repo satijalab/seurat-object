@@ -5,19 +5,6 @@
 #'
 NULL
 
-#' @section Package Options:
-#'
-#' Seurat defines the following \code{\link[base]{options}} to configure
-#' behavior:
-#'
-#' \subsection{Storage options (v5)}{
-#'  The following options define options for storage of data within a
-#'  \code{Seurat} object
-#'  \describe{
-#'   \item{\code{Seurat.}}{}
-#'  }
-#' }
-#'
 #' @docType package
 #' @name SeuratObject-package
 #' @rdname SeuratObject-package
@@ -28,10 +15,7 @@ NULL
 # Package options
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-default.options <- list(
-  'Seurat.assay.mode.prioritize_spam' = FALSE,
-  'Seurat.assay.mode.prioritize_spam_t' = TRUE
-)
+default.options <- list()
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Reexports
@@ -255,6 +239,20 @@ setOldClass(Classes = 'package_version')
   return(getOption(x = x, default = choices[[x]] %||% default))
 }
 
+#' Empty Data Frames
+#'
+#' Create an empty \link[base:data.frame]{data frame} with no row names and
+#' zero columns
+#'
+#' @param n Number of rows for the data frame
+#'
+#' @return A \link[base:data.frame]{data frame} with \code{n} rows and
+#' zero columns
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
 EmptyDF <- function(n) {
   return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
 }
