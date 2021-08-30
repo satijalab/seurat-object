@@ -1,5 +1,6 @@
 #' @include zzz.R
 #' @include assay5.R
+#' @include logmap.R
 #'
 #' @importFrom methods setGeneric
 #'
@@ -14,7 +15,7 @@ setClass(
   slots = c(
     assays = 'list',
     reductions = 'list',
-    cells = 'matrix',
+    cells = 'LogMap',
     meta.data = 'data.frame',
     version = 'package_version'
   )
@@ -228,14 +229,16 @@ names.Seurat5 <- function(x) {
     if (!all(Cells(x = value) %in% Cells(x = object))) {
       stop("new cells")
     }
-    cmat <- cbind(
-      slot(object = object, name = 'cells'),
-      matrix(data = FALSE, nrow = ncol(x = object), dimnames = list(NULL, name))
-    )
-    cmatch <- as.vector(x = na.omit(object = match(
-      x = Cells(x = value),
-      table = Cells(x = object)
-    )))
+    slot(object = object, name = 'cells')[[name]] <- Cells(object = value)
+    cmatch <- MatchCells(new = Cells(x = value), orig = Cells(x = object))
+    # cmat <- cbind(
+    #   slot(object = object, name = 'cells'),
+    #   matrix(data = FALSE, nrow = ncol(x = object), dimnames = list(NULL, name))
+    # )
+    # cmatch <- as.vector(x = na.omit(object = match(
+    #   x = Cells(x = value),
+    #   table = Cells(x = object)
+    # )))
     # TODO: implement cell ordering
     if (is.unsorted(x = cmatch)) {
       stop("wrong cell order")
@@ -270,7 +273,7 @@ names.Seurat5 <- function(x) {
     )
   }
   slot(object = object, name = 'assays')[[name]] <- value
-  # validObject(object = object)
+  validObject(object = object)
   return(object)
 }
 
