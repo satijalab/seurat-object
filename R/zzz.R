@@ -327,6 +327,7 @@ RandomKey <- function(n = 7L, ...) {
 #' @noRd
 #'
 UpdateKey <- function(key) {
+  key.msg <- 'Keys should be one or more alphanumeric characters followed by an underscore'
   if (grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
     return(key)
   } else {
