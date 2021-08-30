@@ -69,10 +69,6 @@ setClass(
 #' The v5 \code{Assay} is the typical \code{Assay} class used in \pkg{Seurat}
 #' v5; ...
 #'
-#' @slot data A \code{\link[base]{matrix}} or
-#' \code{\link[Matrix:dgCMatrix-class]{dgCMatrix}} with single-cell expression
-#' data
-#'
 #' @exportClass Assay5
 #'
 #' @aliases Assay5
@@ -830,9 +826,9 @@ NULL
 #'
 "[[.StdAssay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
-    i <- colnames(x = slot(object = x, name = 'meta.features'))
+    i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
-  data.return <- slot(object = x, name = 'meta.features')[, i, drop = FALSE, ...]
+  data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
   if (drop) {
     data.return <- unlist(x = data.return, use.names = FALSE)
     names(x = data.return) <- rep.int(x = rownames(x = x), times = length(x = i))
@@ -932,7 +928,7 @@ setMethod(
         }
       )
     }
-    err.msg <- "Cannot add more or fewer meta.features information without values being named with feature names"
+    err.msg <- "Cannot add more or fewer meta.data information without values being named with feature names"
     if (length(x = i) > 1) {
       # Add multiple bits of feature-level metadata
       value <- rep_len(x = value, length.out = length(x = i))
@@ -957,7 +953,7 @@ setMethod(
         stop(err.msg, call. = FALSE)
       }
     }
-    slot(object = x, name = 'meta.features') <- meta.data
+    slot(object = x, name = 'meta.data') <- meta.data
     return(x)
   }
 )

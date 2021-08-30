@@ -9,14 +9,6 @@
 The v5 \code{Assay} is the typical \code{Assay} class used in \pkg{Seurat}
 v5; ...
 }
-\section{Slots}{
-
-\describe{
-\item{\code{data}}{A \code{\link[base]{matrix}} or
-\code{\link[Matrix:dgCMatrix-class]{dgCMatrix}} with single-cell expression
-data}
-}}
-
 \seealso{
 \code{\link{StdAssay-class}}
 }
