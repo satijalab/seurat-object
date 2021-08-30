@@ -34,6 +34,32 @@ setClass(
 #'
 #' @export
 #'
+#' @examples
+#' # Create a LogMap
+#' map <- LogMap(letters[1:10])
+#' map
+#'
+#' # Get the names of values in the LogMap
+#' map[[NULL]]
+#' rownames(map)
+#'
+#' # Add an observation to the LogMap
+#' map[['obs']] <- c(1, 3, 7)
+#' map
+#'
+#' # Get the names of observations in the LogMap
+#' colnames(map)
+#'
+#' # Fetch an observation from the LogMap
+#' map[['obs']]
+#'
+#' # Get the full logical matrix
+#' map[[]]
+#'
+#' # Remove an observation from the LogMap
+#' map[['obs']] <- NULL
+#' map
+#'
 LogMap <- function(y) {
   if (!is.character(x = y)) {
     y <- as.character(x = y)
@@ -63,7 +89,8 @@ LogMap <- function(y) {
 #' @rdname LogMap-class
 #'
 #' @param x A \code{LogMap} object
-#' @param i A character vector of length 1, or (for \code{[[}) \code{NULL}
+#' @param i A character vector of length 1, or \code{NULL}
+#' @param j Not used
 #'
 #' @return \code{[[}: if \code{i} is a character vector, the rownames that are
 #' mapped to \code{i}; otherwise the rownames of \code{x}
@@ -77,6 +104,18 @@ setMethod(
     i <- i[1]
     i <- match.arg(arg = i, choices = colnames(x = x))
     return(rownames(x = x)[x[, i, drop = TRUE]])
+  }
+)
+
+#' @rdname LogMap-class
+#'
+#' @export
+#'
+setMethod(
+  f = '[[',
+  signature = c(x = 'LogMap', i = 'missing', j = 'missing'),
+  definition = function(x, ...) {
+    return(slot(object = x, name = '.Data'))
   }
 )
 
@@ -215,7 +254,8 @@ setValidity(
     # Check rownames
     if (is.null(x = rownames(x = object))) {
       valid <- c(valid, "Rownames must be supplied")
-    } else if (anyDuplicated(x = rownames(x = object))) {
+    }
+    if (anyDuplicated(x = rownames(x = object))) {
       valid <- c(valid, "Duplicate rownames not allowed")
     }
     # Check colnames

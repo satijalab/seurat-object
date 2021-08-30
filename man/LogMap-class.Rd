@@ -5,6 +5,7 @@
 \alias{LogMap-class}
 \alias{LogMap}
 \alias{[[,LogMap,character,missing-method}
+\alias{[[,LogMap,missing,missing-method}
 \alias{[[,LogMap,NULL,missing-method}
 \alias{[[<-,LogMap,character,missing,character-method}
 \alias{[[<-,LogMap,character,missing,integer-method}
@@ -15,6 +16,8 @@
 LogMap(y)
 
 \S4method{[[}{LogMap,character,missing}(x, i, j, ...)
+
+\S4method{[[}{LogMap,missing,missing}(x, i, j, ...)
 
 \S4method{[[}{LogMap,`NULL`,missing}(x, i, j, ...)
 
@@ -31,7 +34,9 @@ LogMap(y)
 
 \item{x}{A \code{LogMap} object}
 
-\item{i}{A character vector of length 1, or (for \code{[[}) \code{NULL}}
+\item{i}{A character vector of length 1, or \code{NULL}}
+
+\item{j}{Not used}
 
 \item{value}{A character or integer vector of values to record in the map
 for \code{i}, or \code{NULL} to remove the record for \code{i}}
@@ -60,3 +65,30 @@ with \code{[[<-}
 \item{\code{.Data}}{A logical matrix with at least one row}
 }}
 
+\examples{
+# Create a LogMap
+map <- LogMap(letters[1:10])
+map
+
+# Get the names of values in the LogMap
+map[[NULL]]
+rownames(map)
+
+# Add an observation to the LogMap
+map[['obs']] <- c(1, 3, 7)
+map
+
+# Get the names of observations in the LogMap
+colnames(map)
+
+# Fetch an observation from the LogMap
+map[['obs']]
+
+# Get the full logical matrix
+map[[]]
+
+# Remove an observation from the LogMap
+map[['obs']] <- NULL
+map
+
+}
