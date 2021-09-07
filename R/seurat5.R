@@ -72,14 +72,13 @@ CreateSeurat5Object.default <- function(
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
-  row.names = NULL,
   ...
 ) {
   assay.data <- CreateAssay5Object(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
-    row.names = row.names
+   ...
   )
   return(CreateSeurat5Object(
     counts = assay.data,
@@ -101,14 +100,15 @@ CreateSeurat5Object.StdAssay <- function(
   meta.data = NULL,
   ...
 ) {
-  cells <- matrix(
-    data = TRUE,
-    nrow = ncol(x = counts),
-    dimnames = list(
-      Cells(x = counts),
-      assay
-    )
-  )
+  # cells <- matrix(
+  #   data = TRUE,
+  #   nrow = ncol(x = counts),
+  #   dimnames = list(
+  #     Cells(x = counts),
+  #     assay
+  #   )
+  # )
+  cells <- LogMap(y = Cells(x = counts))
   if (IsCharEmpty(x = Key(object = counts))) {
     Key(object = counts) <- Key(object = tolower(x = assay), quiet = TRUE)
   }
