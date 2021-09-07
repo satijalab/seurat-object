@@ -100,14 +100,6 @@ CreateSeurat5Object.StdAssay <- function(
   meta.data = NULL,
   ...
 ) {
-  # cells <- matrix(
-  #   data = TRUE,
-  #   nrow = ncol(x = counts),
-  #   dimnames = list(
-  #     Cells(x = counts),
-  #     assay
-  #   )
-  # )
   cells <- LogMap(y = Cells(x = counts))
   cells[[assay]] <- Cells(x = counts)
   if (IsCharEmpty(x = Key(object = counts))) {
@@ -231,21 +223,6 @@ names.Seurat5 <- function(x) {
       stop("new cells")
     }
     slot(object = object, name = 'cells')[[name]] <- Cells(x = value)
-    # cmatch <- MatchCells(new = Cells(x = value), orig = Cells(x = object))
-    # # cmat <- cbind(
-    # #   slot(object = object, name = 'cells'),
-    # #   matrix(data = FALSE, nrow = ncol(x = object), dimnames = list(NULL, name))
-    # # )
-    # # cmatch <- as.vector(x = na.omit(object = match(
-    # #   x = Cells(x = value),
-    # #   table = Cells(x = object)
-    # # )))
-    # # TODO: implement cell ordering
-    # if (is.unsorted(x = cmatch)) {
-    #   stop("wrong cell order")
-    # }
-    # cmat[cmatch, name] <- TRUE
-    # slot(object = object, name = 'cells') <- cmat
   }
   if (IsCharEmpty(x = Key(object = value))) {
     Key(object = value) <- Key(object = tolower(x = name))
