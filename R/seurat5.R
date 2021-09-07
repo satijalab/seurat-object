@@ -72,14 +72,13 @@ CreateSeurat5Object.default <- function(
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
-  row.names = NULL,
   ...
 ) {
   assay.data <- CreateAssay5Object(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
-    row.names = row.names
+   ...
   )
   return(CreateSeurat5Object(
     counts = assay.data,
@@ -101,14 +100,8 @@ CreateSeurat5Object.StdAssay <- function(
   meta.data = NULL,
   ...
 ) {
-  cells <- matrix(
-    data = TRUE,
-    nrow = ncol(x = counts),
-    dimnames = list(
-      Cells(x = counts),
-      assay
-    )
-  )
+  cells <- LogMap(y = Cells(x = counts))
+  cells[[assay]] <- Cells(x = counts)
   if (IsCharEmpty(x = Key(object = counts))) {
     Key(object = counts) <- Key(object = tolower(x = assay), quiet = TRUE)
   }
@@ -229,27 +222,12 @@ names.Seurat5 <- function(x) {
     if (!all(Cells(x = value) %in% Cells(x = object))) {
       stop("new cells")
     }
-    slot(object = object, name = 'cells')[[name]] <- Cells(object = value)
-    cmatch <- MatchCells(new = Cells(x = value), orig = Cells(x = object))
-    # cmat <- cbind(
-    #   slot(object = object, name = 'cells'),
-    #   matrix(data = FALSE, nrow = ncol(x = object), dimnames = list(NULL, name))
-    # )
-    # cmatch <- as.vector(x = na.omit(object = match(
-    #   x = Cells(x = value),
-    #   table = Cells(x = object)
-    # )))
-    # TODO: implement cell ordering
-    if (is.unsorted(x = cmatch)) {
-      stop("wrong cell order")
-    }
-    cmat[cmatch, name] <- TRUE
-    slot(object = object, name = 'cells') <- cmat
+    slot(object = object, name = 'cells')[[name]] <- Cells(x = value)
   }
   if (IsCharEmpty(x = Key(object = value))) {
     Key(object = value) <- Key(object = tolower(x = name))
   }
-  if (Key(object = value) %in% Key(object = object)) {
+  if (Key(object = value) %in% Key(object = object) && !name %in% names(x = object)) {
     old <- Key(object = value)
     Key(object = value) <- Key(object = tolower(x = name), quiet = TRUE)
     i <- 1L
