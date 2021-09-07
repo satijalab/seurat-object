@@ -499,6 +499,52 @@ FetchData <- function(object, vars, cells = NULL, slot = 'data') {
   return(data.fetched)
 }
 
+#' Find Sub-objects of a Certain Class
+#'
+#' Get the names of objects within a \code{Seurat} object that are of a
+#' certain class
+#'
+#' @param object A \code{\link{Seurat}} object
+#' @param classes.keep A vector of names of classes to get
+#'
+#' @return A vector with the names of objects within the \code{Seurat} object
+#' that are of class \code{classes.keep}
+#'
+#' @export
+#'
+#' @examples
+#' FilterObjects(pbmc_small)
+#'
+FilterObjects <- function(object, classes.keep = c('Assay', 'DimReduc')) {
+  object <- UpdateSlots(object = object)
+  slots <- na.omit(object = Filter(
+    f = function(x) {
+      sobj <- slot(object = object, name = x)
+      return(is.list(x = sobj) && !is.data.frame(x = sobj) && !is.package_version(x = sobj))
+    },
+    x = slotNames(x = object)
+  ))
+  slots <- grep(pattern = 'tools', x = slots, value = TRUE, invert = TRUE)
+  slots <- grep(pattern = 'misc', x = slots, value = TRUE, invert = TRUE)
+  slots.objects <- unlist(
+    x = lapply(
+      X = slots,
+      FUN = function(x) {
+        return(names(x = slot(object = object, name = x)))
+      }
+    ),
+    use.names = FALSE
+  )
+  object.classes <- sapply(
+    X = slots.objects,
+    FUN = function(i) {
+      return(inherits(x = object[[i]], what = classes.keep))
+    }
+  )
+  object.classes <- which(x = object.classes, useNames = TRUE)
+  return(names(x = object.classes))
+}
+
 #' @rdname ObjectAccess
 #' @export
 #'
@@ -3080,48 +3126,6 @@ DefaultImage <- function(object) {
     images <- Images(object = object)
   }
   return(images[[1]])
-}
-
-#' Get the names of objects within a Seurat object that are of a certain class
-#'
-#' @param object A \code{\link{Seurat}} object
-#' @param classes.keep A vector of names of classes to get
-#'
-#' @return A vector with the names of objects within the Seurat object that are
-#' of class \code{classes.keep}
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-FilterObjects <- function(object, classes.keep = c('Assay', 'DimReduc')) {
-  object <- UpdateSlots(object = object)
-  slots <- na.omit(object = Filter(
-    f = function(x) {
-      sobj <- slot(object = object, name = x)
-      return(is.list(x = sobj) && !is.data.frame(x = sobj) && !is.package_version(x = sobj))
-    },
-    x = slotNames(x = object)
-  ))
-  slots <- grep(pattern = 'tools', x = slots, value = TRUE, invert = TRUE)
-  slots <- grep(pattern = 'misc', x = slots, value = TRUE, invert = TRUE)
-  slots.objects <- unlist(
-    x = lapply(
-      X = slots,
-      FUN = function(x) {
-        return(names(x = slot(object = object, name = x)))
-      }
-    ),
-    use.names = FALSE
-  )
-  object.classes <- sapply(
-    X = slots.objects,
-    FUN = function(i) {
-      return(inherits(x = object[[i]], what = classes.keep))
-    }
-  )
-  object.classes <- which(x = object.classes, useNames = TRUE)
-  return(names(x = object.classes))
 }
 
 #' Find the collection of an object within a Seurat object
