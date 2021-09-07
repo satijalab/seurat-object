@@ -109,6 +109,7 @@ CreateSeurat5Object.StdAssay <- function(
   #   )
   # )
   cells <- LogMap(y = Cells(x = counts))
+  cells[[assay]] <- Cells(x = counts)
   if (IsCharEmpty(x = Key(object = counts))) {
     Key(object = counts) <- Key(object = tolower(x = assay), quiet = TRUE)
   }
