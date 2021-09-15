@@ -214,7 +214,7 @@ names.Seurat5 <- function(x) {
     if (!identical(x = dim(x = value), y = dim(x = object[[name]]))) {
       stop("different cells/features from existing")
     }
-    if (!all(Cells(x = value) == Cells(x = object, assay = name))) {
+    if (!all(Cells(x = value) %in% Cells(x = object, assay = name))) {
       stop("different cells")
     }
   } else {
@@ -423,3 +423,4 @@ setValidity(
     return(valid %||% TRUE)
   }
 )
+
