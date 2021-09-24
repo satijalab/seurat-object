@@ -55,10 +55,9 @@ Cells.Seurat5 <- function(x, assay = NULL, ...) {
   if (is.null(x = assay)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
-  assay <- assay[1]
+  assay <- assay[1L]
   assay <- match.arg(arg = assay, choices = Assays(object = x))
-  cmat <- slot(object = x, name = 'cells')
-  return(rownames(x = cmat)[cmat[, assay]])
+  return(slot(object = x, name = 'cells')[[assay]])
 }
 
 #' @method CreateSeurat5Object default
@@ -127,14 +126,14 @@ CreateSeurat5Object.StdAssay <- function(
 #' @export
 #'
 DefaultAssay.Seurat5 <- function(object, ...) {
-  return(Assays(object = object)[1])
+  return(Assays(object = object)[1L])
 }
 
 #' @method DefaultAssay<- Seurat5
 #' @export
 #'
 "DefaultAssay<-.Seurat5" <- function(object, ..., value) {
-  value <- value[1]
+  value <- value[1L]
   assays <- Assays(object = object)
   value <- match.arg(arg = value, choices = assays)
   idx <- which(x = assays == value)
@@ -143,6 +142,15 @@ DefaultAssay.Seurat5 <- function(object, ...) {
     slot(object = object, name = 'assays')[-idx]
   )
   return(object)
+}
+
+#' @method Features Seurat5
+#' @export
+#'
+Features.Seurat5 <- function(x, assay = NULL, ...) {
+  assay <- assay[1L] %||% DefaultAssay(object = x)
+  assay <- match.arg(arg = assay, choices = Assays(object = x))
+  return(Features(x = x[[assay]]))
 }
 
 #' @method Key Seurat5
@@ -168,6 +176,9 @@ Key.Seurat5 <- function(object, ...) {
 #' @export
 #'
 "[[.Seurat5" <- function(x, i, ..., drop = FALSE) {
+  if (missing(x = i)) {
+    return(slot(object = x, name = 'meta.data'))
+  }
   slot.use <- .FindObject(object = x, name = i)
   if (is.null(x = slot.use)) {
     stop("Cannot find '", i, "' in this Seurat object", call. = FALSE)
@@ -298,10 +309,12 @@ setMethod(
       warning(
         "More values provided than names, using only first ",
         length(x = i),
-        " values"
+        " values",
+        call. = FALSE,
+        immediate. = TRUE
       )
     } else if (!length(x = value)) {
-      stop("At least one value must be supplied")
+      stop("At least one value must be supplied", call. = FALSE)
     }
     value <- rep_len(x = value, length.out = length(x = i))
     for (idx in seq_along(along.with = i)) {
