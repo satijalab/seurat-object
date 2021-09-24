@@ -178,6 +178,35 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
   return(invisible(x = NULL))
 }
 
+
+#' Generate a Class Key
+#'
+#' Generate class keys for S4 classes. A class key follows the following
+#' structure: \dQuote{\code{package:class}}
+#'
+#' @param class Class name
+#' @param package Optional name of package; by default, will search namespaces
+#' of loaded packages to determine the providing package
+#'
+#' @return The class key (\dQuote{\code{package:class}})
+#'
+#' @importFrom methods getClass slot
+#'
+#' @export
+#'
+#' @examples
+#' ClassKey("Seurat")
+#'
+ClassKey <- function(class, package = NULL) {
+  class <- class[1L]
+  package <- package %||% slot(
+    object = getClass(Class = class),
+    name = 'package'
+  )
+  return(paste(package, class, sep = ':'))
+}
+
+
 #' @name s4list
 #' @rdname s4list
 #'
@@ -381,6 +410,31 @@ S4ToList.list <- function(object) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Get Parent S4 Classes
+#'
+#' @param object An \link[methods:Classes_Details]{S4} object
+#'
+#' @return A vector of class names that \code{object} inherits from
+#'
+#' @importFrom methods getClass
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' .Contains(pbmc_small)
+#'
+.Contains <- function(object) {
+  if (!isS4(object)) {
+    stop("'object' not an S4 object")
+  }
+  return(names(x = slot(
+    object = getClass(Class = class(x = object)),
+    name = 'contains'
+  )))
+}
 
 #' Check the use of dots
 #'
