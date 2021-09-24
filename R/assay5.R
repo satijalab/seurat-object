@@ -260,7 +260,7 @@ CreateAssay5Object <- function(
 #' @method .MARGIN Assay5T
 #' @export
 #'
-.MARGIN.Assay5T <- function(object, type = c('features', 'cells')) {
+.MARGIN.Assay5T <- function(object, type = c('features', 'cells'), ...) {
   type <- type[1]
   type <- match.arg(arg = type)
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
