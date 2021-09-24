@@ -64,4 +64,5 @@ Collate:
     'spatial.R'
     'seurat.R'
     'seurat5.R'
+    'sparse.R'
 LinkingTo: Rcpp, RcppEigen
