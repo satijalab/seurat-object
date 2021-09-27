@@ -1,6 +1,6 @@
 #' @include utils.R
 #' @importFrom methods new setClass setClassUnion setGeneric setOldClass
-#' setValidity slot slot<-
+#' setValidity slot slot<- validObject
 #' @importClassesFrom Matrix dgCMatrix
 #'
 NULL

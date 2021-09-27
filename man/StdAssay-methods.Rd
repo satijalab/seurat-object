@@ -8,7 +8,13 @@
 \alias{dimnames.StdAssay}
 \alias{head.StdAssay}
 \alias{tail.StdAssay}
-\alias{[[<-,StdAssay,ANY,ANY,ANY-method}
+\alias{[[<-,StdAssay,character,missing,data.frame-method}
+\alias{[[<-,StdAssay,character,missing,factor-method}
+\alias{[[<-,StdAssay,character,missing,NULL-method}
+\alias{[[<-,StdAssay,character,missing,vector-method}
+\alias{[[<-,StdAssay,numeric,missing,ANY-method}
+\alias{[[<-,StdAssay,missing,missing,data.frame-method}
+\alias{[[<-,StdAssay,missing,missing,NULL-method}
 \alias{show,StdAssay-method}
 \title{\code{StdAssay} Methods}
 \usage{
@@ -24,7 +30,19 @@
 
 \method{tail}{StdAssay}(x, n = 10L, ...)
 
-\S4method{[[}{StdAssay,ANY,ANY,ANY}(x, i, j, ...) <- value
+\S4method{[[}{StdAssay,character,missing,data.frame}(x, i, j, ...) <- value
+
+\S4method{[[}{StdAssay,character,missing,factor}(x, i, j, ...) <- value
+
+\S4method{[[}{StdAssay,character,missing,`NULL`}(x, i, j, ...) <- value
+
+\S4method{[[}{StdAssay,character,missing,vector}(x, i, j, ...) <- value
+
+\S4method{[[}{StdAssay,numeric,missing,ANY}(x, i, j, ...) <- value
+
+\S4method{[[}{StdAssay,missing,missing,data.frame}(x, i, j, ...) <- value
+
+\S4method{[[}{StdAssay,missing,missing,`NULL`}(x, i, j, ...) <- value
 
 \S4method{show}{StdAssay}(object)
 }
@@ -39,8 +57,6 @@ feature names or indices}
 \item{...}{Arguments passed to other methods}
 
 \item{drop}{See \code{\link[base]{drop}}}
-
-\item{value}{Additional metadata to add}
 }
 \value{
 \code{[}: The \code{data} slot for features \code{i} and cells
@@ -51,13 +67,13 @@ feature names or indices}
 \code{dim}: The number of features (\code{nrow}) and cells
 (\code{ncol})
 
-\code{dimnames}: Feature (row) and cell (column) names
+\code{dimnames}: A list with feature (row) and cell (column) names
 
 \code{head}: The first \code{n} rows of feature-level metadata
 
 \code{tail}: The last \code{n} rows of feature-level metadata
 
-\code{[[<-}: \code{x} with metadata \code{value} added as \code{i}
+\code{[[<-}: \code{x} with the metadata updated
 
 \code{show}: Prints summary to \code{\link[base]{stdout}} and
 invisibly returns \code{NULL}
@@ -66,23 +82,26 @@ invisibly returns \code{NULL}
 Methods for \code{\link{StdAssay}} objects for generics defined in
 other packages
 }
-\section{Functions}{
-\itemize{
-\item \code{[.StdAssay}: Get expression data from an \code{StdAssay}
+\details{
+The following methods are provided for interacting with a
+\code{StdAssay} object
 
-\item \code{[[.StdAssay}: Get feature-level metadata
+\code{[}: Get expression data from an \code{StdAssay}
 
-\item \code{dim.StdAssay}: Number of cells and features for an \code{StdAssay}
+\code{[[}: Get feature-level metadata
 
-\item \code{dimnames.StdAssay}: Cell- and feature-names for an \code{StdAssay}
+\code{dim}: Number of cells and features for an \code{StdAssay}
 
-\item \code{head.StdAssay}: Get the first rows of feature-level metadata
+\code{dimnames}: Get the feature and cell names
 
-\item \code{tail.StdAssay}: Get the last rows of feature-level metadata
+\code{head} and \code{tail}: Get the first or last rows of feature
+level meta data
 
-\item \code{[[<-,StdAssay,ANY,ANY,ANY-method}: Add feature-level metadata
+\code{[[<-}: Add or remove pieces of meta data
 
-\item \code{show,StdAssay-method}: Overview of an \code{StdAssay} object
-}}
-
+\code{show}: Overview of an \code{StdAssay} object
+}
+\seealso{
+\code{\link{Cells}} \code{\link{Features}}
+}
 \concept{assay}
