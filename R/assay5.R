@@ -959,7 +959,9 @@ subset.StdAssay <- function(x, cells = NULL, features = NULL, ...) {
     stop("Cannot find the features provided")
   }
   # Check to see if we actually need to subset, allow reordering
-  if (all(cells == colnames(x = x)) && all(features == rownames(x = x))) {
+  skip <- identical(x = cells, y = colnames(x = x)) &&
+    identical(x = features, y = rownames(x = x))
+  if (skip) {
     return(x)
   }
   # browser()

@@ -261,6 +261,12 @@ names.Seurat5 <- function(x) {
       immediate. = TRUE
     )
   }
+  cmatch <- MatchCells(
+    new = colnames(x = object),
+    orig = colnames(x = value),
+    ordered = TRUE
+  )
+  value <- subset(x = value, cells = cmatch)
   slot(object = object, name = 'assays')[[name]] <- value
   validObject(object = object)
   return(object)
