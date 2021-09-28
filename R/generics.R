@@ -10,7 +10,7 @@ NULL
 
 #' @export
 #'
-.MARGIN <- function(object, type = c('features', 'cells')) {
+.MARGIN <- function(object, ...) {
   UseMethod(generic = '.MARGIN', object = object)
 }
 

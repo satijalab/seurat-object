@@ -16,7 +16,7 @@ NULL
 #' @method .MARGIN default
 #' @export
 #'
-.MARGIN.default <- function(object, type = c('features', 'cells')) {
+.MARGIN.default <- function(object, type = c('features', 'cells'), ...) {
   type <- type[1]
   type <- match.arg(arg = type)
   return(unname(obj = c(features = 1L, cells = 2L)[type]))

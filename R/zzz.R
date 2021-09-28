@@ -1,6 +1,6 @@
 #' @include utils.R
 #' @importFrom methods new setClass setClassUnion setGeneric setOldClass
-#' setValidity slot slot<-
+#' setValidity slot slot<- validObject
 #' @importClassesFrom Matrix dgCMatrix
 #'
 NULL
@@ -16,6 +16,12 @@ NULL
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 default.options <- list()
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Environments
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+sparse.classes <- new.env()
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Reexports
@@ -349,5 +355,15 @@ UpdateKey <- function(key) {
       immediate. = TRUE
     )
     return(new.key)
+  }
+}
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Hooks
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+.onLoad <- function(libname, pkgname) {
+  for (i in c('CsparseMatrix', 'RsparseMatrix', 'spam')) {
+    RegisterSparseMatrix(class = i)
   }
 }

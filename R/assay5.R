@@ -260,7 +260,7 @@ CreateAssay5Object <- function(
 #' @method .MARGIN Assay5T
 #' @export
 #'
-.MARGIN.Assay5T <- function(object, type = c('features', 'cells')) {
+.MARGIN.Assay5T <- function(object, type = c('features', 'cells'), ...) {
   type <- type[1]
   type <- match.arg(arg = type)
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
@@ -277,6 +277,9 @@ AddMetaData.StdAssay <- .AddMetaData
 #' @export
 #'
 Cells.StdAssay <- function(x, layer = NULL, ...) {
+  if (isTRUE(x = is.na(x = layer))) {
+    return(rownames(x = slot(object = x, name = 'cells')))
+  }
   layer <- layer %||% DefaultLayer(object = x)
   return(slot(object = x, name = 'cells')[[layer]])
 }
@@ -329,6 +332,9 @@ DefaultLayer.StdAssay <- function(object, ...) {
 #' @method Features StdAssay
 #'
 Features.StdAssay <- function(x, layer = NULL, ...) {
+  if (isTRUE(x = is.na(x = layer))) {
+    return(rownames(x = slot(object = x, name = 'features')))
+  }
   layer <- layer %||% DefaultLayer(object = x)
   return(slot(object = x, name = 'features')[[layer]])
 }
@@ -565,7 +571,7 @@ LayerData.StdAssay <- function(object, layer = NULL, fast = FALSE, ...) {
   # Check for existing layer data
   if (layer %in% Layers(object = object)) {
     fcheck <- if (is.numeric(x = features)) {
-      Features(object = object, layer = layer)[features]
+      Features(x = object, layer = layer)[features]
     } else {
       features
     }
@@ -790,6 +796,9 @@ VariableFeatures.StdAssay <- function(object, selection.method = NULL, ...) {
 #' @param j,cells Cell names or indices
 #' @param ... Arguments passed to other methods
 #'
+#' @details The following methods are provided for interacting with a
+#' \code{StdAssay} object
+#'
 #' @name StdAssay-methods
 #' @rdname StdAssay-methods
 #'
@@ -797,13 +806,15 @@ VariableFeatures.StdAssay <- function(object, selection.method = NULL, ...) {
 #'
 NULL
 
-#' @describeIn StdAssay-methods Get expression data from an \code{StdAssay}
+#' @details \code{[}: Get expression data from an \code{StdAssay}
 #'
 #' @return \code{[}: The \code{data} slot for features \code{i} and cells
 #' \code{j}
 #'
-#' @export
+#' @rdname StdAssay-methods
+#'
 #' @method [ StdAssay
+#' @export
 #'
 "[.StdAssay" <- function(x, i, j, ...) {
   if (missing(x = i)) {
@@ -815,20 +826,23 @@ NULL
   return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
 }
 
-#' @describeIn StdAssay-methods Get feature-level metadata
+#' @details \code{[[}: Get feature-level metadata
 #'
 #' @param drop See \code{\link[base]{drop}}
 #'
 #' @return \code{[[}: The feature-level metadata for \code{i}
 #'
-#' @export
+#' @rdname StdAssay-methods
+#'
 #' @method [[ StdAssay
+#' @export
 #'
 "[[.StdAssay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
   data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
+  row.names(x = data.return) <- Features(x = x, layer = NA)
   if (drop) {
     data.return <- unlist(x = data.return, use.names = FALSE)
     names(x = data.return) <- rep.int(x = rownames(x = x), times = length(x = i))
@@ -836,13 +850,15 @@ NULL
   return(data.return)
 }
 
-#' @describeIn StdAssay-methods Number of cells and features for an \code{StdAssay}
+#' @details \code{dim}: Number of cells and features for an \code{StdAssay}
 #'
 #' @return \code{dim}: The number of features (\code{nrow}) and cells
 #' (\code{ncol})
 #'
-#' @export
+#' @rdname StdAssay-methods
+#'
 #' @method dim StdAssay
+#' @export
 #'
 dim.StdAssay <- function(x) {
   return(vapply(
@@ -855,34 +871,43 @@ dim.StdAssay <- function(x) {
   ))
 }
 
-#' @describeIn StdAssay-methods Cell- and feature-names for an \code{StdAssay}
+#' @details \code{dimnames}: Get the feature and cell names
 #'
-#' @return \code{dimnames}: Feature (row) and cell (column) names
+#' @return \code{dimnames}: A list with feature (row) and cell (column) names
 #'
-#' @export
+#' @rdname StdAssay-methods
+#'
 #' @method dimnames StdAssay
+#' @export
+#'
+#' @seealso \code{\link{Cells}} \code{\link{Features}}
 #'
 dimnames.StdAssay <- function(x) {
   return(list(Features(x = x), Cells(x = x)))
 }
 
-#' @describeIn StdAssay-methods Get the first rows of feature-level metadata
+#' @details \code{head} and \code{tail}: Get the first or last rows of feature
+#' level meta data
 #'
 #' @return \code{head}: The first \code{n} rows of feature-level metadata
 #'
-#' @export
+#' @importFrom utils head
+#'
+#' @rdname StdAssay-methods
+#'
 #' @method head StdAssay
+#' @export
 #'
 head.StdAssay <- .head
 
-#' @describeIn StdAssay-methods Get the last rows of feature-level metadata
-#'
 #' @return \code{tail}: The last \code{n} rows of feature-level metadata
 #'
 #' @importFrom utils tail
 #'
-#' @export
+#' @rdname StdAssay-methods
+#'
 #' @method tail StdAssay
+#' @export
 #'
 tail.StdAssay <- .tail
 
@@ -904,56 +929,163 @@ CalcN5 <- function(object) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @describeIn StdAssay-methods Add feature-level metadata
+#' @details \code{[[<-}: Add or remove pieces of meta data
 #'
-#' @param value Additional metadata to add
+#' @return \code{[[<-}: \code{x} with the metadata updated
 #'
-#' @return \code{[[<-}: \code{x} with metadata \code{value} added as \code{i}
-#'
-#' @export
+#' @rdname StdAssay-methods
 #'
 setMethod(
   f = '[[<-',
-  signature = c('x' = 'StdAssay'),
+  signature = c(
+    x = 'StdAssay',
+    i = 'character',
+    j = 'missing',
+    value = 'data.frame'
+  ),
   definition = function(x, i, ..., value) {
-    meta.data <- x[[]]
-    feature.names <- rownames(x = meta.data)
-    if (is.data.frame(x = value)) {
-      value <- lapply(
-        X = 1:ncol(x = value),
-        FUN = function(index) {
-          v <- value[[index]]
-          names(x = v) <- rownames(x = value)
-          return(v)
-        }
+    i <- match.arg(arg = i, choices = colnames(x = value), several.ok = TRUE)
+    names.intersect <- intersect(
+      x = row.names(x = value),
+      y = Features(x = x, layer = NA)
+    )
+    if (length(x = names.intersect)) {
+      value <- value[names.intersect, , drop = FALSE]
+    } else if (nrow(x = value) == nrow(x = x)) {
+      row.names(x = value) <- Features(x = x, layer = NA)
+    } else {
+      stop(
+        "Cannot add more or less meta data without feature names",
+        call. = FALSE
       )
     }
-    err.msg <- "Cannot add more or fewer meta.data information without values being named with feature names"
-    if (length(x = i) > 1) {
-      # Add multiple bits of feature-level metadata
-      value <- rep_len(x = value, length.out = length(x = i))
-      for (index in 1:length(x = i)) {
-        names.intersect <- intersect(x = names(x = value[[index]]), feature.names)
-        if (length(x = names.intersect) > 0) {
-          meta.data[names.intersect, i[index]] <- value[[index]][names.intersect]
-        } else if (length(x = value) %in% c(nrow(x = meta.data), 1) %||% is.null(x = value)) {
-          meta.data[i[index]] <- value[index]
-        } else {
-          stop(err.msg, call. = FALSE)
-        }
+    for (n in i) {
+      v <- value[[n]]
+      names(x = v) <- row.names(value)
+      x[[n]] <- v
+    }
+    return(x)
+  }
+)
+
+#' @importFrom methods selectMethod
+#'
+#' @rdname StdAssay-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'factor'),
+  definition = function(x, i, ..., value) {
+    f <- slot(
+      object = selectMethod(
+        f = '[[<-',
+        signature = c(
+          x = 'StdAssay',
+          i = 'character',
+          j = 'missing',
+          value = 'vector'
+        )
+      ),
+      name = '.Data'
+    )
+    return(f(x = x, i = i, value = value))
+  }
+)
+
+#' @rdname StdAssay-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'NULL'),
+  definition = function(x, i, ..., value) {
+    for (name in i) {
+      slot(object = x, name = 'meta.data')[[name]] <- NULL
+    }
+    return(x)
+  }
+)
+
+#' @rdname StdAssay-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'vector'),
+  definition = function(x, i, ..., value) {
+    # Add multiple bits of metadata
+    if (length(x = i) > 1L) {
+      value <- rep_len(x = value)
+      for (idx in seq_along(along.with = i)) {
+        x[i[idx]] <- value[[idx]]
       }
     } else {
-      # Add a single column to feature-level metadata
-      value <- unlist(x = value)
-      if (length(x = intersect(x = names(x = value), y = feature.names)) > 0) {
-        meta.data[, i] <- value[feature.names]
-      } else if (length(x = value) %in% c(nrow(x = meta.data), 1) || is.null(x = value)) {
-        meta.data[, i] <- value
+      # Add a single column of metadata
+      if (is.null(x = names(x = value))) {
+        value <- rep_len(x = value, length.out = nrow(x = x))
+        names(x = value) <- Features(x = x, layer = NA)
       } else {
-        stop(err.msg, call. = FALSE)
+        names.intersect <- intersect(
+          x = names(x = value),
+          y = Features(x = x, layer = NA)
+        )
+        if (!length(x = names.intersect)) {
+          stop(
+            "No feature overlap between new meta data and assay",
+            call. = FALSE
+          )
+        }
+        value <- value[names.intersect]
+      }
+      df <- EmptyDF(n = nrow(x = x))
+      rownames(x = df) <- Features(x = x, layer = NA)
+      df[[i]] <- NA
+      df[names(x = value), i] <- value
+      slot(object = x, name = 'meta.data')[, i] <- df[[i]]
+    }
+    validObject(object = x)
+    return(x)
+  }
+)
+
+#' @rdname StdAssay-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'numeric', j = 'missing', value = 'ANY'),
+  definition = function(x, i, ..., value) {
+    if (ncol(x = x[[]])) {
+      i <- colnames(x = x[[]])[as.integer(x = i)]
+      i <- i[!is.na(x = i)]
+      if (length(x = i)) {
+        x[[i]] <- value
       }
     }
-    slot(object = x, name = 'meta.data') <- meta.data
+    return(x)
+  }
+)
+
+#' @rdname StdAssay-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'StdAssay',
+    i = 'missing',
+    j = 'missing',
+    value = 'data.frame'
+  ),
+  definition = function(x, ..., value) {
+    x[[colnames(x = value)]] <- value
+    return(x)
+  }
+)
+
+#' @rdname StdAssay-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'missing', j = 'missing', value = 'NULL'),
+  definition = function(x, ..., value) {
+    slot(object = x, name = 'meta.data') <- EmptyDF(n = nrow(x = x))
     return(x)
   }
 )
@@ -1006,7 +1138,7 @@ setMethod(
   }
 )
 
-#' @describeIn StdAssay-methods Overview of an \code{StdAssay} object
+#' @details \code{show}: Overview of an \code{StdAssay} object
 #'
 #' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
 #' invisibly returns \code{NULL}
@@ -1014,7 +1146,7 @@ setMethod(
 #' @importFrom utils head
 #' @importFrom methods show
 #'
-#' @export
+#' @rdname StdAssay-methods
 #'
 setMethod(
   f = 'show',
