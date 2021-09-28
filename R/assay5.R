@@ -571,7 +571,7 @@ LayerData.StdAssay <- function(object, layer = NULL, fast = FALSE, ...) {
   # Check for existing layer data
   if (layer %in% Layers(object = object)) {
     fcheck <- if (is.numeric(x = features)) {
-      Features(object = object, layer = layer)[features]
+      Features(x = object, layer = layer)[features]
     } else {
       features
     }
