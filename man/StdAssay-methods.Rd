@@ -8,6 +8,7 @@
 \alias{dimnames.StdAssay}
 \alias{head.StdAssay}
 \alias{tail.StdAssay}
+\alias{subset.StdAssay}
 \alias{[[<-,StdAssay,character,missing,data.frame-method}
 \alias{[[<-,StdAssay,character,missing,factor-method}
 \alias{[[<-,StdAssay,character,missing,NULL-method}
@@ -29,6 +30,8 @@
 \method{head}{StdAssay}(x, n = 10L, ...)
 
 \method{tail}{StdAssay}(x, n = 10L, ...)
+
+\method{subset}{StdAssay}(x, cells = NULL, features = NULL, ...)
 
 \S4method{[[}{StdAssay,character,missing,data.frame}(x, i, j, ...) <- value
 
@@ -73,6 +76,8 @@ feature names or indices}
 
 \code{tail}: The last \code{n} rows of feature-level metadata
 
+\code{subset}: A subsetted version of \code{x}
+
 \code{[[<-}: \code{x} with the metadata updated
 
 \code{show}: Prints summary to \code{\link[base]{stdout}} and
@@ -90,12 +95,14 @@ The following methods are provided for interacting with a
 
 \code{[[}: Get feature-level metadata
 
-\code{dim}: Number of cells and features for an \code{StdAssay}
+\code{dim}: Number of cells and features for a \code{StdAssay}
 
 \code{dimnames}: Get the feature and cell names
 
 \code{head} and \code{tail}: Get the first or last rows of feature
 level meta data
+
+\code{subset}: Subset a \code{StdAssay}
 
 \code{[[<-}: Add or remove pieces of meta data
 

@@ -850,7 +850,7 @@ NULL
   return(data.return)
 }
 
-#' @details \code{dim}: Number of cells and features for an \code{StdAssay}
+#' @details \code{dim}: Number of cells and features for a \code{StdAssay}
 #'
 #' @return \code{dim}: The number of features (\code{nrow}) and cells
 #' (\code{ncol})
@@ -883,7 +883,7 @@ dim.StdAssay <- function(x) {
 #' @seealso \code{\link{Cells}} \code{\link{Features}}
 #'
 dimnames.StdAssay <- function(x) {
-  return(list(Features(x = x), Cells(x = x)))
+  return(list(Features(x = x, layer = NA), Cells(x = x, layer = NA)))
 }
 
 #' @details \code{head} and \code{tail}: Get the first or last rows of feature
@@ -910,6 +910,109 @@ head.StdAssay <- .head
 #' @export
 #'
 tail.StdAssay <- .tail
+
+#' @details \code{subset}: Subset a \code{StdAssay}
+#'
+#' @return \code{subset}: A subsetted version of \code{x}
+#'
+#' @importFrom methods as
+#'
+#' @rdname StdAssay-methods
+#'
+#' @method subset StdAssay
+#' @export
+#'
+subset.StdAssay <- function(x, cells = NULL, features = NULL, ...) {
+  # Prepare cells and features for subsetting
+  cells <- cells %||% colnames(x = x)
+  features <- features %||% rownames(x = x)
+  if (all(is.na(x = cells))) {
+    cells <- colnames(x = x)
+  } else if (any(is.na(x = cells))) {
+    warning("NAs passed in cells vector, removing NAs", immediate. = TRUE)
+    cells <- cells[!is.na(x = cells)]
+  }
+  if (all(is.na(x = features))) {
+    features <- rownames(x = x)
+  } else if (any(is.na(x = features))) {
+    warning("NAs passed in features vector, removing NAs", immediate. = TRUE)
+    features <- features[!is.na(x = features)]
+  }
+  if (is.numeric(x = cells)) {
+    cells <- colnames(x = x)[cells]
+    cells <- cells[!is.na(x = cells)]
+  }
+  if (is.numeric(x = features)) {
+    features <- rownames(x = x)[features]
+    features <- features[!is.na(x = features)]
+  }
+  features <- gsub(
+    pattern = paste0('^', Key(object = x)),
+    replacement = '',
+    x = features
+  )
+  cells <- intersect(x = cells, y = colnames(x = x))
+  features <- intersect(x = features, y = rownames(x = x))
+  if (!length(x = cells)) {
+    stop("Cannot find the cells provided")
+  } else if (!length(x = features)) {
+    stop("Cannot find the features provided")
+  }
+  # Check to see if we actually need to subset, allow reordering
+  if (all(cells == colnames(x = x)) && all(features == rownames(x = x))) {
+    return(x)
+  }
+  # browser()
+  # Subset logmaps
+  slot(object = x, name = 'cells') <- as(
+    object = slot(object = x, name = 'cells')[cells, , drop = FALSE],
+    Class = 'LogMap'
+  )
+  slot(object = x, name = 'features') <- as(
+    object = slot(object = x, name = 'features')[features, , drop = FALSE],
+    Class = 'LogMap'
+  )
+  # Subset layers
+  ccheck <- sum(slot(object = x, name = 'cells'))
+  fcheck <- sum(slot(object = x, name = 'features'))
+  if (!ccheck || !fcheck) {
+    stop("All cells/features removed by subset")
+  }
+  for (layer in Layers(object = x)) {
+    cmatch <- MatchCells(
+      new = Cells(x = x, layer = layer),
+      orig = cells,
+      ordered = TRUE
+    )
+    fmatch <- MatchCells(
+      new = Features(x = x, layer = layer),
+      orig = features,
+      ordered = TRUE
+    )
+    if (is.null(x = cmatch) || is.null(x = fmatch)) {
+      warning("Losing layer ", layer, " due to subset", immediate. = TRUE)
+      if (layer == DefaultLayer(object = x)) {
+        default <- Layers(object = x)[2L]
+        warning("Losing default layer, setting to ", default, immediate. = TRUE)
+        DefaultLayer(object = x) <- default
+      }
+      LayerData(object = x, layer = layer) <- NULL
+      next
+    }
+    slot(object = x, name = 'layers')[[layer]] <- if (.MARGIN(object = x, type = 'features') == 1L) {
+      LayerData(object = x, layer = layer, fast = TRUE)[fmatch, cmatch, drop = FALSE]
+    } else {
+      LayerData(object = x, layer = layer, fast = TRUE)[cmatch, fmatch, drop = FALSE]
+    }
+  }
+  # Subset meta data
+  fmatch <- MatchCells(new = rownames(x = x), orig = features, ordered = TRUE)
+  meta.data <- slot(object = x, name = 'meta.data')
+  slot(object = x, name = 'meta.data') <- meta.data[fmatch, , drop = FALSE]
+  # TODO: Subset variable features
+  validObject(object = x)
+  return(x)
+}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
