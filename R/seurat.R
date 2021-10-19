@@ -1359,12 +1359,16 @@ Key.Seurat <- function(object, ...) {
     object = object,
     classes.keep = c('Assay', 'DimReduc', 'SpatialImage')
   )
-  return(sapply(
+  keys <- vapply(
     X = keyed.objects,
     FUN = function(x) {
       return(Key(object = object[[x]]))
-    }
-  ))
+    },
+    FUN.VALUE = character(length = 1L),
+    USE.NAMES = FALSE
+  )
+  names(x = keys) <- keyed.objects
+  return(keys)
 }
 
 #' @param reduction Name of reduction to pull feature loadings for
@@ -2812,30 +2816,43 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
         }
         Key(object = value) <- UpdateKey(key = Key(object = value))
         # Check for duplicate keys
-        object.keys <- sapply(
-          X = FilterObjects(object = x),
-          FUN = function(i) {
-            return(Key(object = x[[i]]))
-          }
-        )
-        if (Key(object = value) %in% object.keys && is.null(x = FindObject(object = x, name = i))) {
-          # Attempt to create a duplicate key based off the name of the object being added
-          new.keys <- c(paste0(tolower(x = i), c('_', paste0(RandomName(length = 2L), '_'))))
-          # Select new key to use
-          key.use <- min(which(x = !new.keys %in% object.keys))
-          new.key <- if (is.infinite(x = key.use)) {
-            RandomName(length = 17L)
+        object.keys <- Key(object = x)
+        vkey <- Key(object = value)
+        if (vkey %in% object.keys && !isTRUE(x = object.keys[i] == vkey)) {
+          new.key <- if (is.na(x = object.keys[i])) {
+            # Attempt to create a duplicate key based off the name of the object being added
+            new.keys <- paste0(
+              paste0(tolower(x = i), c('', RandomName(length = 2L))),
+              '_'
+            )
+            # Select new key to use
+            key.use <- min(which(x = !new.keys %in% object.keys))
+            new.key <- if (is.infinite(x = key.use)) {
+              RandomName(length = 17L)
+            } else {
+              new.keys[key.use]
+            }
+            warning(
+              "Cannot add objects with duplicate keys (offending key: ",
+              Key(object = value),
+              "), setting key to '",
+              new.key,
+              "'",
+              call. = FALSE
+            )
+            new.key
           } else {
-            new.keys[key.use]
+            # Use existing key
+            warning(
+              "Cannot add objects with duplicate keys (offending key: ",
+              Key(object = value),
+              ") setting key to original value '",
+              object.keys[i],
+              "'",
+              call. = FALSE
+            )
+            object.keys[i]
           }
-          warning(
-            "Cannot add objects with duplicate keys (offending key: ",
-            Key(object = value),
-            "), setting key to '",
-            new.key,
-            "'",
-            call. = FALSE
-          )
           # Set new key
           Key(object = value) <- new.key
         }
@@ -2843,7 +2860,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       # For Assays, run CalcN
       if (inherits(x = value, what = 'Assay')) {
         if ((!i %in% Assays(object = x)) |
-            (i %in% Assays(object = x) && ! identical(
+            (i %in% Assays(object = x) && !identical(
               x = GetAssayData(object = x, assay = i, slot = "counts"),
               y = GetAssayData(object = value, slot = "counts"))
             )) {
