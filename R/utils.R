@@ -156,6 +156,67 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
   return(invisible(x = NULL))
 }
 
+#' Find the default \code{\link{DimReduc}}
+#'
+#' Searches for \code{\link{DimReduc}s} matching \dQuote{umap}, \dQuote{tsne},
+#' or \dQuote{pca}, case-insensitive, and in that order. Priority given to
+#' \code{\link{DimReduc}s} matching the \code{DefaultAssay} or assay specified
+#' (eg. \dQuote{pca} for the default assay weights higher than \dQuote{umap}
+#' for a non-default assay)
+#'
+#' @param object A \code{\link{Seurat}} object
+#' @param assay Name of assay to use; defaults to the default assay of the object
+#'
+#' @return The default \code{\link{DimReduc}}, if possible
+#'
+#' @export
+#'
+#' @examples
+#' DefaultDimReduc(pbmc_small)
+#'
+DefaultDimReduc <- function(object, assay = NULL) {
+  object <- UpdateSlots(object = object)
+  assay <- assay %||% DefaultAssay(object = object)
+  drs.use <- c('umap', 'tsne', 'pca')
+  dim.reducs <- FilterObjects(object = object, classes.keep = 'DimReduc')
+  drs.assay <- Filter(
+    f = function(x) {
+      return(DefaultAssay(object = object[[x]]) == assay)
+    },
+    x = dim.reducs
+  )
+  if (length(x = drs.assay) > 0) {
+    index <- lapply(
+      X = drs.use,
+      FUN = grep,
+      x = drs.assay,
+      ignore.case = TRUE
+    )
+    index <- Filter(f = length, x = index)
+    if (length(x = index) > 0) {
+      return(drs.assay[min(index[[1]])])
+    }
+  }
+  index <- lapply(
+    X = drs.use,
+    FUN = grep,
+    x = dim.reducs,
+    ignore.case = TRUE
+  )
+  index <- Filter(f = length, x = index)
+  if (length(x = index) < 1) {
+    stop(
+      "Unable to find a DimReduc matching one of '",
+      paste(drs.use[1:(length(x = drs.use) - 1)], collapse = "', '"),
+      "', or '",
+      drs.use[length(x = drs.use)],
+      "', please specify a dimensional reduction to use",
+      call. = FALSE
+    )
+  }
+  return(dim.reducs[min(index[[1]])])
+}
+
 #' Check if a matrix is empty
 #'
 #' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
@@ -230,6 +291,60 @@ ListToS4 <- function(x) {
   cls <- classdef[2]
   formal <- getClassDef(Class = cls, package = pkg, inherits = FALSE)
   return(do.call(what = new, args = c(list(Class = formal), x)))
+}
+
+#' Check the existence of a package
+#'
+#' @param ... Package names
+#' @param error If true, throw an error if the package doesn't exist
+#'
+#' @return Invisibly returns boolean denoting if the package is installed
+#'
+#' @export
+#'
+#' @examples
+#' PackageCheck("SeuratObject", error = FALSE)
+#'
+PackageCheck <- function(..., error = TRUE) {
+  pkgs <- unlist(x = c(...), use.names = FALSE)
+  package.installed <- vapply(
+    X = pkgs,
+    FUN = requireNamespace,
+    FUN.VALUE = logical(length = 1L),
+    quietly = TRUE
+  )
+  if (error && any(!package.installed)) {
+    stop(
+      "Cannot find the following packages: ",
+      paste(pkgs[!package.installed], collapse = ', '),
+      ". Please install"
+    )
+  }
+  invisible(x = package.installed)
+}
+
+#' Generate a random name
+#'
+#' Make a name from randomly sampled lowercase letters, pasted together with no
+#' spaces or other characters
+#'
+#' @param length How long should the name be
+#' @param ... Extra parameters passed to \code{\link[base]{sample}}
+#'
+#' @return A character with \code{nchar == length} of randomly sampled letters
+#'
+#' @seealso \code{\link[base]{sample}}
+#'
+#' @export
+#'
+#' @examples
+#' set.seed(42L)
+#' RandomName()
+#' RandomName(7L, replace = TRUE)
+#'
+RandomName <- function(length = 5L, ...) {
+  CheckDots(..., fxns = 'sample')
+  return(paste(sample(x = letters, size = length, ...), collapse = ''))
 }
 
 #' Merge Sparse Matrices by Row
@@ -373,18 +488,47 @@ S4ToList.list <- function(object) {
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' Check the use of dots
+#' Check the Use of Dots
+#'
+#' Function to check the use of unused arguments passed to \code{...}; this
+#' function is designed to be called from another function to see if an
+#' argument passed to \code{...} remains unused and alert the user if so. Also
+#' accepts a vector of function or function names to see if \code{...} can be
+#' used in a downstream function
+#'
+#' Behavior of \code{CheckDots} can be controlled by the following option(s):
+#' \describe{
+#'  \item{\dQuote{\code{Seurat.checkdots}}}{Control how to alert the presence
+#'  of unused arguments in \code{...}; choose from
+#'  \itemize{
+#'   \item \dQuote{\code{warn}}: emit a warning (default)
+#'   \item \dQuote{\code{error}}: throw an error
+#'   \item \dQuote{\code{silent}}: no not alert the presence of unused
+#'   arguments in \code{...}
+#'  }
+#'  }
+#' }
 #'
 #' @param ... Arguments passed to a function that fall under \code{...}
 #' @param fxns A list/vector of functions or function names
 #'
-#' @return ...
+#' @return Emits either an error or warning if an argument passed is unused;
+#' invisibly returns \code{NULL}
 #'
 #' @importFrom utils isS3stdGeneric methods argsAnywhere isS3method
 #'
 #' @keywords internal
 #'
-#' @noRd
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' f <- function(x, ...) {
+#'   CheckDots(...)
+#'   return(x ^ 2)
+#' }
+#' f(x = 3, y = 9)
+#' }
 #'
 CheckDots <- function(..., fxns = NULL) {
   args.names <- names(x = list(...))
@@ -513,6 +657,7 @@ CheckDots <- function(..., fxns = NULL) {
       # }
     }
   }
+  return(invisible(x = NULL))
 }
 
 #' Check a list of objects for duplicate cell names
@@ -604,34 +749,6 @@ ExtractField <- function(string, field = 1, delim = "_") {
 IsNullPtr <- function(x) {
   stopifnot(is(object = x, class2 = 'externalptr'))
   return(.Call('isnull', x))
-}
-
-#' Generate a random name
-#'
-#' Make a name from randomly sampled lowercase letters, pasted together with no
-#' spaces or other characters
-#'
-#' @param length How long should the name be
-#' @param ... Extra parameters passed to \code{\link[base]{sample}}
-#'
-#' @return A character with \code{nchar == length} of randomly sampled letters
-#'
-#' @seealso \code{\link[base]{sample}}
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-#' @examples
-#' \dontrun{
-#' set.seed(42L)
-#' SeuratObject:::RandomName()
-#' SeuratObject:::RandomName(7L, replace = TRUE)
-#' }
-#'
-RandomName <- function(length = 5L, ...) {
-  CheckDots(..., fxns = 'sample')
-  return(paste(sample(x = letters, size = length, ...), collapse = ''))
 }
 
 #' Update a Class's Package
