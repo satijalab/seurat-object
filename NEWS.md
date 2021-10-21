@@ -2,6 +2,8 @@
 
 ## Changed
 - Export utility functions (#22)
+- Bug fix in names with `Key.Seurat` (#26)
+- Improved duplicate key checking and resolution
 
 # SeuratObject 4.0.2
 
