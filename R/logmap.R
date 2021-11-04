@@ -16,6 +16,8 @@ NULL
 #'
 #' @slot .Data A logical matrix with at least one row
 #'
+#' @exportClass LogMap
+#'
 setClass(
   Class = 'LogMap',
   contains = 'matrix'
