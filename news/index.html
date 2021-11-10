@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
       </span>
     </div>
 
@@ -114,13 +114,27 @@
       <small>Source: <a href='https://github.com/mojaveazure/seurat-object/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="seuratobject-402" class="section level1">
-<h1 class="page-header" data-toc-text="4.0.2">
-<a href="#seuratobject-402" class="anchor"></a>SeuratObject 4.0.2<small> 2021-06-09 </small>
+    <div id="seuratobject-403" class="section level1">
+<h1 class="page-header" data-toc-text="4.0.3">
+<a href="#seuratobject-403" class="anchor"></a>SeuratObject 4.0.3<small> Unreleased </small>
 </h1>
 <div id="changed" class="section level2">
 <h2 class="hasAnchor">
 <a href="#changed" class="anchor"></a>Changed</h2>
+<ul>
+<li>Export utility functions (<a href='https://github.com/mojaveazure/seurat-object/issues/22'>#22</a>)</li>
+<li>Bug fix in names with <code>Key.Seurat</code> (<a href='https://github.com/mojaveazure/seurat-object/issues/26'>#26</a>)</li>
+<li>Improved duplicate key checking and resolution</li>
+</ul>
+</div>
+</div>
+    <div id="seuratobject-402" class="section level1">
+<h1 class="page-header" data-toc-text="4.0.2">
+<a href="#seuratobject-402" class="anchor"></a>SeuratObject 4.0.2<small> 2021-06-09 </small>
+</h1>
+<div id="changed-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#changed-1" class="anchor"></a>Changed</h2>
 <ul>
 <li>Provide default option for <code>Seurat.checkdots</code> option if option is not set (<a href='https://github.com/mojaveazure/seurat-object/issues/16'>#16</a>)</li>
 </ul>
@@ -146,9 +160,9 @@
 </li>
 </ul>
 </div>
-<div id="changed-1" class="section level2">
+<div id="changed-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changed-1" class="anchor"></a>Changed</h2>
+<a href="#changed-2" class="anchor"></a>Changed</h2>
 <ul>
 <li>Allow super classes to replace child classes (<a href='https://github.com/mojaveazure/seurat-object/issues/1'>#1</a>). For example, allows <code>Assay</code> objects to replace <code>Seurat::SCTAssay</code> or <code>Signac::ChromatinAssay</code> objects of the same name</li>
 <li>Better support for creating sparse matrices from <code>data.table</code>/<code>tibble</code> objects (<a href='https://github.com/mojaveazure/seurat-object/issues/4'>#4</a>)</li>

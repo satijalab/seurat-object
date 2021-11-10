@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
       </span>
     </div>
 
@@ -151,35 +151,36 @@ by default, throws an error</p></td>
 of cells belonging to that class</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>CellsByIdentities</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; $`0`
-#&gt;  [1] "ATGCCAGAACGACT" "CATGGCCTGTGCAT" "GAACCTGATGAACC" "TGACTGGATTCTCA"
-#&gt;  [5] "AGTCAGACTGCACA" "TCTGATACACGTGT" "TGGTATCTAAACAG" "GCAGCTCTGTTTCT"
-#&gt;  [9] "GATATAACACGCAT" "AATGTTGACAGTCA" "CTAAACCTCTGACA" "CTAACGGAACCGAT"
-#&gt; [13] "AGATATACCCGTAA" "TACTCTGAATCGAC" "GCGCATCTTGCTCC" "GTTGACGATATCGG"
-#&gt; [17] "ACAGGTACTGGTGT" "GGCATATGCTTATC" "CATTACACCAACTG" "TAGGGACTGAACTC"
-#&gt; [21] "TACAATGATGCTAG" "CTTCATGACCGAAT" "AAGCAAGAGCTTAG" "CGGCACGAACTCAG"
-#&gt; [25] "GGTGGAGATTACTC" "GGCCGATGTACTCT" "CATGCGCTAGTCAC" "ATTCAGCTCATTGG"
-#&gt; [29] "GGCATATGGGGAGT" "ATCATCTGACACCA" "GTCATACTTCGCCT" "TTACGTACGTTCAG"
-#&gt; [33] "GAGTTGTGGTAGCT" "GACGCTCTCTCTCG" "AGTCTTACTTCGGA" "GGAACACTTCAGAC"
-#&gt; 
-#&gt; $`1`
-#&gt;  [1] "TTACCATGAATCGC" "ATAGGAGAAACAGA" "GCGCACGACTTTAC" "ACTCGCACGAAAGT"
-#&gt;  [5] "ATTACCTGCCTTAT" "CCCAACTGCAATCG" "AAATTCGAATCACG" "CCATCCGATTCGCC"
-#&gt;  [9] "TCCACTCTGAGCTT" "CATCAGGATGCACA" "CGTAGCCTGTATGC" "TGAGCTGAATGCTG"
-#&gt; [13] "ATAAGTTGGTACGT" "AAGCGACTTTGACG" "ACCAGTGAATACCG" "ATTGCACTTGCTTT"
-#&gt; [17] "CTAGGTGATGGTTG" "GCACTAGACCTTTA" "ATACCACTCTAAGC" "TTTAGCTGTACTCT"
-#&gt; [21] "ACGTGATGCCATGA" "ATTGTAGATTCCCG" "GATAGAGATCACGA" "AATGCGTGGACGGA"
-#&gt; [25] "CTTGATTGATCTTC"
-#&gt; 
-#&gt; $`2`
-#&gt;  [1] "AGGTCATGAGTGTC" "AGAGATGATCTCGC" "GGGTAACTCTAGTG" "CATGAGACACGGGA"
-#&gt;  [5] "TACGCCACTCCGAA" "CTAAACCTGTGCAT" "GTAAGCACTCATTC" "TTGGTACTGAATCC"
-#&gt;  [9] "CATCATACGGAGCA" "TACATCACGCTAAC" "GATAGAGAAGGGTG" "GCTCCATGAGAAGT"
-#&gt; [13] "CTGCCAACAGGAGC" "TTGCATTGAGCTAC" "CCTATAACGAGACG" "TTGAGGACTACGCA"
-#&gt; [17] "CATATAGACTAAGC" "GACATTCTCCACCT" "GCGTAAACACGGTT"
-#&gt; </div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'>CellsByIdentities</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $`0`</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [1] "ATGCCAGAACGACT" "CATGGCCTGTGCAT" "GAACCTGATGAACC" "TGACTGGATTCTCA"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [5] "AGTCAGACTGCACA" "TCTGATACACGTGT" "TGGTATCTAAACAG" "GCAGCTCTGTTTCT"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [9] "GATATAACACGCAT" "AATGTTGACAGTCA" "CTAAACCTCTGACA" "CTAACGGAACCGAT"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [13] "AGATATACCCGTAA" "TACTCTGAATCGAC" "GCGCATCTTGCTCC" "GTTGACGATATCGG"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [17] "ACAGGTACTGGTGT" "GGCATATGCTTATC" "CATTACACCAACTG" "TAGGGACTGAACTC"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [21] "TACAATGATGCTAG" "CTTCATGACCGAAT" "AAGCAAGAGCTTAG" "CGGCACGAACTCAG"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [25] "GGTGGAGATTACTC" "GGCCGATGTACTCT" "CATGCGCTAGTCAC" "ATTCAGCTCATTGG"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [29] "GGCATATGGGGAGT" "ATCATCTGACACCA" "GTCATACTTCGCCT" "TTACGTACGTTCAG"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [33] "GAGTTGTGGTAGCT" "GACGCTCTCTCTCG" "AGTCTTACTTCGGA" "GGAACACTTCAGAC"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $`1`</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [1] "TTACCATGAATCGC" "ATAGGAGAAACAGA" "GCGCACGACTTTAC" "ACTCGCACGAAAGT"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [5] "ATTACCTGCCTTAT" "CCCAACTGCAATCG" "AAATTCGAATCACG" "CCATCCGATTCGCC"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [9] "TCCACTCTGAGCTT" "CATCAGGATGCACA" "CGTAGCCTGTATGC" "TGAGCTGAATGCTG"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [13] "ATAAGTTGGTACGT" "AAGCGACTTTGACG" "ACCAGTGAATACCG" "ATTGCACTTGCTTT"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [17] "CTAGGTGATGGTTG" "GCACTAGACCTTTA" "ATACCACTCTAAGC" "TTTAGCTGTACTCT"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [21] "ACGTGATGCCATGA" "ATTGTAGATTCCCG" "GATAGAGATCACGA" "AATGCGTGGACGGA"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [25] "CTTGATTGATCTTC"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> $`2`</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [1] "AGGTCATGAGTGTC" "AGAGATGATCTCGC" "GGGTAACTCTAGTG" "CATGAGACACGGGA"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [5] "TACGCCACTCCGAA" "CTAAACCTGTGCAT" "GTAAGCACTCATTC" "TTGGTACTGAATCC"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [9] "CATCATACGGAGCA" "TACATCACGCTAAC" "GATAGAGAAGGGTG" "GCTCCATGAGAAGT"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [13] "CTGCCAACAGGAGC" "TTGCATTGAGCTAC" "CCTATAACGAGACG" "TTGAGGACTACGCA"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [17] "CATATAGACTAAGC" "GACATTCTCCACCT" "GCGTAAACACGGTT"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

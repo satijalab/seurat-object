@@ -73,7 +73,7 @@ spaces or other characters" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="Unreleased version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
       </span>
     </div>
 
@@ -87,6 +87,9 @@ spaces or other characters" />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -142,13 +145,13 @@ spaces or other characters</p>
     <div class='dont-index'><p><code><a href='https://rdrr.io/r/base/sample.html'>sample</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>42L</span><span class='op'>)</span>
-<span class='fu'>SeuratObject</span><span class='fu'>:::</span><span class='fu'>RandomName</span><span class='op'>(</span><span class='op'>)</span>
-<span class='fu'>SeuratObject</span><span class='fu'>:::</span><span class='fu'>RandomName</span><span class='op'>(</span><span class='fl'>7L</span>, replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-<span class='op'>}</span>
-
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>42L</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>RandomName</span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "qeajd"</span>
+<span class='r-in'><span class='fu'>RandomName</span><span class='op'>(</span><span class='fl'>7L</span>, replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "rzqoxgd"</span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

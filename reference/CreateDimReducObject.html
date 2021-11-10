@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
       </span>
     </div>
 
@@ -180,17 +180,19 @@ with the dimensional reduction</p></td>
     <p>A <code><a href='DimReduc-class.html'>DimReduc</a></code> object</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='AssayData.html'>GetAssayData</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"RNA"</span><span class='op'>]</span><span class='op'>]</span>, slot <span class='op'>=</span> <span class='st'>"scale.data"</span><span class='op'>)</span>
-<span class='va'>pcs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>data</span><span class='op'>)</span>
-<span class='va'>pca.dr</span> <span class='op'>&lt;-</span> <span class='fu'>CreateDimReducObject</span><span class='op'>(</span>
-  embeddings <span class='op'>=</span> <span class='va'>pcs</span><span class='op'>$</span><span class='va'>rotation</span>,
-  loadings <span class='op'>=</span> <span class='va'>pcs</span><span class='op'>$</span><span class='va'>x</span>,
-  stdev <span class='op'>=</span> <span class='va'>pcs</span><span class='op'>$</span><span class='va'>sdev</span>,
-  key <span class='op'>=</span> <span class='st'>"PC"</span>,
-  assay <span class='op'>=</span> <span class='st'>"RNA"</span>
-<span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='warning'>Warning: Keys should be one or more alphanumeric characters followed by an underscore, setting key from PC to PC_</span></div><div class='output co'>#&gt; <span class='warning'>Warning: All keys should be one or more alphanumeric characters followed by an underscore '_', setting key to PC_</span></div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='AssayData.html'>GetAssayData</a></span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"RNA"</span><span class='op'>]</span><span class='op'>]</span>, slot <span class='op'>=</span> <span class='st'>"scale.data"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>pcs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/prcomp.html'>prcomp</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>data</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>pca.dr</span> <span class='op'>&lt;-</span> <span class='fu'>CreateDimReducObject</span><span class='op'>(</span></span>
+<span class='r-in'>  embeddings <span class='op'>=</span> <span class='va'>pcs</span><span class='op'>$</span><span class='va'>rotation</span>,</span>
+<span class='r-in'>  loadings <span class='op'>=</span> <span class='va'>pcs</span><span class='op'>$</span><span class='va'>x</span>,</span>
+<span class='r-in'>  stdev <span class='op'>=</span> <span class='va'>pcs</span><span class='op'>$</span><span class='va'>sdev</span>,</span>
+<span class='r-in'>  key <span class='op'>=</span> <span class='st'>"PC"</span>,</span>
+<span class='r-in'>  assay <span class='op'>=</span> <span class='st'>"RNA"</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from PC to PC_</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>All keys should be one or more alphanumeric characters followed by an underscore '_', setting key to PC_</span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

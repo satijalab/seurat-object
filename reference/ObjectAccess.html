@@ -73,7 +73,7 @@ Graph, Neighbor objects" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
       </span>
     </div>
 
@@ -149,13 +149,16 @@ Graph, Neighbor objects" />
 in this <code>Seurat</code> object. Otherwise, the specific object specified</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>Assays</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "RNA"</div><div class='input'>
-<span class='fu'>Graphs</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "RNA_snn"</div><div class='input'>
-<span class='fu'>Reductions</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "pca"  "tsne"</div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'>Assays</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "RNA"</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='fu'>Graphs</span><span class='op'>(</span><span class='va'>pbmc_small</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "RNA_snn"</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='fu'>Reductions</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "pca"  "tsne"</span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

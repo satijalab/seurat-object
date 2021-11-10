@@ -73,7 +73,7 @@ other packages" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
       </span>
     </div>
 
@@ -173,7 +173,7 @@ show(object)</pre>
     </tr>
     <tr>
       <th>i, features</th>
-      <td><p>For <code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code>: metadata names; for all other methods,
+      <td><p>For <code>[[</code>: metadata names; for all other methods,
 feature names or indices</p></td>
     </tr>
     <tr>
@@ -190,12 +190,12 @@ feature names or indices</p></td>
     </tr>
     <tr>
       <th>n</th>
-      <td><p>an integer vector of length up to <code><a href='https://rdrr.io/r/base/dim.html'>dim(x)</a></code> (or 1,
+      <td><p>an integer vector of length up to <code>dim(x)</code> (or 1,
     for non-dimensioned objects). Values specify the indices to be
     selected in the corresponding dimension (or along the length) of the
     object. A positive value of <code>n[i]</code> includes the first/last
     <code>n[i]</code> indices in that dimension, while a negative value
-    excludes the last/first <code><a href='https://rdrr.io/r/base/MathFun.html'>abs(n[i])</a></code>, including all remaining
+    excludes the last/first <code>abs(n[i])</code>, including all remaining
     indices. <code>NA</code> or non-specified values (when <code>length(n) &lt;
       length(dim(x))</code>) select all indices in that dimension. Must
     contain at least one non-missing value.</p></td>
@@ -206,7 +206,7 @@ feature names or indices</p></td>
     </tr>
     <tr>
       <th>add.cell.ids</th>
-      <td><p>A character vector of <code><a href='https://rdrr.io/r/base/length.html'>length(x = c(x, y))</a></code>;
+      <td><p>A character vector of <code>length(x = c(x, y))</code>;
 appends the corresponding values to the start of each objects' cell names</p></td>
     </tr>
     <tr>
@@ -237,9 +237,9 @@ means/sums on</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>: The <code>data</code> slot for features <code>i</code> and cells
+    <p><code>[</code>: The <code>data</code> slot for features <code>i</code> and cells
 <code>j</code></p>
-<p><code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code>: The feature-level metadata for <code>i</code></p>
+<p><code>[[</code>: The feature-level metadata for <code>i</code></p>
 <p><code>dim</code>: The number of features (<code>nrow</code>) and cells
 (<code>ncol</code>)</p>
 <p><code>dimnames</code>: Feature (row) and cell (column) names</p>

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
       </span>
     </div>
 
@@ -150,23 +150,25 @@
     <p>The embeddings matrix</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Get the embeddings directly from a DimReduc object</span>
-<span class='fu'>Embeddings</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"pca"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>]</span>
-</div><div class='output co'>#&gt;                       PC_1       PC_2       PC_3      PC_4       PC_5
-#&gt; ATGCCAGAACGACT -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838
-#&gt; CATGGCCTGTGCAT -0.02602702 -0.3466795  0.6651668 0.4182900  0.5853204
-#&gt; GAACCTGATGAACC -0.45650250  0.1795811  1.3175907 2.0137210 -0.4818851
-#&gt; TGACTGGATTCTCA -0.81163243 -1.3795340 -1.0019320 0.1390503 -1.5982232
-#&gt; AGTCAGACTGCACA -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</div><div class='input'>
-<span class='co'># Get the embeddings from a specific DimReduc in a Seurat object</span>
-<span class='fu'>Embeddings</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, reduction <span class='op'>=</span> <span class='st'>"pca"</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>]</span>
-</div><div class='output co'>#&gt;                       PC_1       PC_2       PC_3      PC_4       PC_5
-#&gt; ATGCCAGAACGACT -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838
-#&gt; CATGGCCTGTGCAT -0.02602702 -0.3466795  0.6651668 0.4182900  0.5853204
-#&gt; GAACCTGATGAACC -0.45650250  0.1795811  1.3175907 2.0137210 -0.4818851
-#&gt; TGACTGGATTCTCA -0.81163243 -1.3795340 -1.0019320 0.1390503 -1.5982232
-#&gt; AGTCAGACTGCACA -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='co'># Get the embeddings directly from a DimReduc object</span></span>
+<span class='r-in'><span class='fu'>Embeddings</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span><span class='op'>[[</span><span class='st'>"pca"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>]</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                       PC_1       PC_2       PC_3      PC_4       PC_5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ATGCCAGAACGACT -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CATGGCCTGTGCAT -0.02602702 -0.3466795  0.6651668 0.4182900  0.5853204</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> GAACCTGATGAACC -0.45650250  0.1795811  1.3175907 2.0137210 -0.4818851</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> TGACTGGATTCTCA -0.81163243 -1.3795340 -1.0019320 0.1390503 -1.5982232</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> AGTCAGACTGCACA -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Get the embeddings from a specific DimReduc in a Seurat object</span></span>
+<span class='r-in'><span class='fu'>Embeddings</span><span class='op'>(</span>object <span class='op'>=</span> <span class='va'>pbmc_small</span>, reduction <span class='op'>=</span> <span class='st'>"pca"</span><span class='op'>)</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>]</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                       PC_1       PC_2       PC_3      PC_4       PC_5</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> ATGCCAGAACGACT -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CATGGCCTGTGCAT -0.02602702 -0.3466795  0.6651668 0.4182900  0.5853204</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> GAACCTGATGAACC -0.45650250  0.1795811  1.3175907 2.0137210 -0.4818851</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> TGACTGGATTCTCA -0.81163243 -1.3795340 -1.0019320 0.1390503 -1.5982232</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> AGTCAGACTGCACA -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

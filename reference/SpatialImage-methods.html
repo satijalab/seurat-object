@@ -76,7 +76,7 @@ should only be overridden if necessary" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
       </span>
     </div>
 
@@ -222,7 +222,7 @@ global</p>
 <p><code>Radius</code>: The spot radius size; by default, returns <code>NULL</code></p>
 <p><strong>[Override]</strong> <code>RenameCells</code>: <code>object</code> with the new
 cell names</p>
-<p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>, <code>subset</code>: <code>x</code>/<code>object</code> for only the cells
+<p><code>[</code>, <code>subset</code>: <code>x</code>/<code>object</code> for only the cells
 requested</p>
 <p><strong>[Override]</strong> <code>dim</code>: The dimensions of the image data in
 (Y, X) format</p>
@@ -275,7 +275,7 @@ be overridden without careful thought</p><ul>
   provide a spot radius for image objects</p></li>
 <li><p><code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>; this method <em>can</em> be overridden
   to change default subset behavior, normally returns
-  <code><a href='Seurat-methods.html'>subset(x = x, cells = i)</a></code>. If overridden, should only accept <code>i</code></p></li>
+  <code>subset(x = x, cells = i)</code>. If overridden, should only accept <code>i</code></p></li>
 </ul>
 
     <h2 class="hasAnchor" id="required-methods"><a class="anchor" href="#required-methods"></a>Required methods</h2>
