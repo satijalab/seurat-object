@@ -1,3 +1,10 @@
+# SeuratObject 4.0.3
+
+## Changed
+- Export utility functions (#22)
+- Bug fix in names with `Key.Seurat` (#26)
+- Improved duplicate key checking and resolution
+
 # SeuratObject 4.0.2
 
 ## Changed
@@ -15,7 +22,7 @@
 - Allow super classes to replace child classes (#1). For example, allows `Assay`
   objects to replace `Seurat::SCTAssay` or `Signac::ChromatinAssay` objects of
   the same name
-- Better support for creating sparse matrices from `data.table`/`tibble` 
+- Better support for creating sparse matrices from `data.table`/`tibble`
   objects (#4)
 - Improved error messages for clashing object names (#7)
 - Allow returning a `NULL` if a subset results in zero cells (#9)
