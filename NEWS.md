@@ -1,4 +1,4 @@
-# Unreleased
+# SeuratObject 4.0.3
 
 ## Changed
 - Export utility functions (#22)
