@@ -16,7 +16,6 @@
 ^.*\.h5Seurat$
 ^.*\.rds$
 ^.*\.Rds$
-^LICENSE$
 ^data-raw$
 ^inst$
 ^tests$
