@@ -92,11 +92,14 @@ as.Seurat <- function(x, ...) {
   UseMethod(generic = 'as.Seurat', object = x)
 }
 
-#' Get cells present in an object
+#' Cell and Feature Names
+#'
+#' Get the cell and feature names of an object
 #'
 #' @param x An object
+#' @param ... Arguments passed to other methods
 #'
-#' @return A vector of cell names
+#' @return \code{Cell}: A vector of cell names
 #'
 #' @rdname Cells
 #' @export Cells
@@ -106,7 +109,7 @@ as.Seurat <- function(x, ...) {
 #' @examples
 #' Cells(x = pbmc_small)
 #'
-Cells <- function(x) {
+Cells <- function(x, ...) {
   UseMethod(generic = 'Cells', object = x)
 }
 
@@ -247,6 +250,32 @@ Distances <- function(object, ...) {
 #'
 Embeddings <- function(object, ...) {
   UseMethod(generic = 'Embeddings', object = object)
+}
+
+#' Access cellular data
+#'
+#' Retrieves data (feature expression, PCA scores, metrics, etc.) for a set
+#' of cells in a Seurat object
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @export FetchData
+#'
+#' @concept data-access
+#'
+#'
+FetchData <- function(object, ...) {
+  UseMethod(generic = 'FetchData', object = object)
+}
+
+#' @return \code{Features}: A vector of feature names
+#'
+#' @rdname Cells
+#' @export Features
+#'
+Features <- function(x, ...) {
+  UseMethod(generic = 'Features', object = x)
 }
 
 #' Get and Set Assay Data
@@ -560,6 +589,24 @@ Loadings <- function(object, ...) {
 #'
 "Loadings<-" <- function(object, ..., value) {
   UseMethod(generic = 'Loadings<-', object = object)
+}
+
+#' Match Cells
+#'
+#' @param new A vector of new cells
+#' @param orig A vector of existing cells
+#' @param ordered Sort the result to the same order as \code{orig}
+#'
+#' @return A numeric vector with new cells in order of the original cells; if
+#' no match can be found, returns \code{NULL}
+#'
+#' @export
+#'
+MatchCells <- function(new, orig, ordered = FALSE) {
+  if (!is.character(x = orig)) {
+    stop("'orig' must be a character vector")
+  }
+  UseMethod(generic = 'MatchCells', object = new)
 }
 
 #' Get and set miscellaneous data

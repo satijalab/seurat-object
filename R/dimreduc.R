@@ -189,7 +189,7 @@ CreateDimReducObject <- function(
 #' @export
 #' @method Cells DimReduc
 #'
-Cells.DimReduc <- function(x) {
+Cells.DimReduc <- function(x, ...) {
   return(rownames(x = x))
 }
 

@@ -63,7 +63,7 @@ as.Neighbor.Graph <- function(x, ...) {
 #' @method Cells Neighbor
 #' @export
 #'
-Cells.Neighbor <- function(x) {
+Cells.Neighbor <- function(x, ...) {
   return(slot(object = x, name = "cell.names"))
 }
 

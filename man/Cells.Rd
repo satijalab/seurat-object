@@ -3,27 +3,34 @@
 %   R/neighbor.R
 \name{Cells}
 \alias{Cells}
+\alias{Features}
 \alias{Cells.default}
 \alias{Cells.DimReduc}
 \alias{Cells.Neighbor}
-\title{Get cells present in an object}
+\title{Cell and Feature Names}
 \usage{
-Cells(x)
+Cells(x, ...)
 
-\method{Cells}{default}(x)
+Features(x, ...)
 
-\method{Cells}{DimReduc}(x)
+\method{Cells}{default}(x, ...)
 
-\method{Cells}{Neighbor}(x)
+\method{Cells}{DimReduc}(x, ...)
+
+\method{Cells}{Neighbor}(x, ...)
 }
 \arguments{
 \item{x}{An object}
+
+\item{...}{Arguments passed to other methods}
 }
 \value{
-A vector of cell names
+\code{Cell}: A vector of cell names
+
+\code{Features}: A vector of feature names
 }
 \description{
-Get cells present in an object
+Get the cell and feature names of an object
 }
 \examples{
 Cells(x = pbmc_small)

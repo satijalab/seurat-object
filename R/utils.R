@@ -488,6 +488,31 @@ S4ToList.list <- function(object) {
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Get Parent S4 Classes
+#'
+#' @param object An \link[methods:Classes_Details]{S4} object
+#'
+#' @return A vector of class names that \code{object} inherits from
+#'
+#' @importFrom methods getClass slot
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' .Contains(pbmc_small)
+#'
+.Contains <- function(object) {
+  if (!isS4(object)) {
+    stop("'object' not an S4 object")
+  }
+  return(names(x = slot(
+    object = getClass(Class = class(x = object)),
+    name = 'contains'
+  )))
+}
+
 #' Check the Use of Dots
 #'
 #' Function to check the use of unused arguments passed to \code{...}; this

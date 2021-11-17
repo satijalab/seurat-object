@@ -125,7 +125,7 @@ NULL
 #' @method Cells SpatialImage
 #' @export
 #'
-Cells.SpatialImage <- function(x) {
+Cells.SpatialImage <- function(x, ...) {
   stop(
     "'Cells' must be implemented for all subclasses of 'SpatialImage'",
     call. = FALSE
