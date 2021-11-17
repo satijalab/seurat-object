@@ -1,7 +1,7 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.0.999.9000
+Version: 4.0.999.9001
 Date: 2021-11-17
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
@@ -56,6 +56,7 @@ Collate:
     'jackstraw.R'
     'dimreduc.R'
     'graph.R'
+    'key.R'
     'logmap.R'
     'neighbor.R'
     'spatial.R'
