@@ -56,7 +56,7 @@ Collate:
     'jackstraw.R'
     'dimreduc.R'
     'graph.R'
-    'key.R'
+    'keymixin.R'
     'logmap.R'
     'neighbor.R'
     'spatial.R'
