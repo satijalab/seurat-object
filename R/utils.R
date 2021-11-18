@@ -240,6 +240,49 @@ IsMatrixEmpty <- function(x) {
   return(all(matrix.dims == 0) || matrix.na)
 }
 
+#' Check List Names
+#'
+#' Check to see if a list has names; also check to enforce that all names are
+#' present and unique
+#'
+#' @param x A list
+#' @param all.unique Require that all names are unique from one another
+#' @param allow.empty Allow empty (\code{nchar = 0}) names
+#' @param pass.zero Pass on zero-length lists
+#'
+#' @return \code{TRUE} if ..., otherwise \code{FALSE}
+#'
+#' @importFrom rlang is_bare_list
+#'
+#' @export
+#'
+IsNamedList <- function(
+  x,
+  all.unique = TRUE,
+  allow.empty = FALSE,
+  pass.zero = FALSE
+) {
+  if (!is_bare_list(x = x)) {
+    return(FALSE)
+  }
+  if (isTRUE(x = pass.zero) && !length(x = x)) {
+    return(TRUE)
+  }
+  n <- names(x = x)
+  named <- !is.null(x = n)
+  if (!isTRUE(x = allow.empty)) {
+    named <- named && all(vapply(
+      X = n,
+      FUN = nchar,
+      FUN.VALUE = integer(length = 1L)
+    ))
+  }
+  if (isTRUE(x = all.unique)) {
+    named <- named && (length(x = n) == length(x = unique(x = n)))
+  }
+  return(named)
+}
+
 #' @name s4list
 #' @rdname s4list
 #'
