@@ -502,6 +502,19 @@ CheckMatrix.dMatrix <- function(
   return(invisible(x = NULL))
 }
 
+#' @rdname CheckMatrix
+#' @method CheckMatrix lMatrix
+#' @export
+#'
+CheckMatrix.lMatrix <- function(
+  object,
+  checks = c('infinite', 'logical', 'integer', 'na'),
+  ...
+) {
+  warning("Input matrix contains logical values")
+  return(invisible(x = NULL))
+}
+
 #' @importFrom methods slotNames
 #'
 #' @rdname s4list

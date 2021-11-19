@@ -4,6 +4,7 @@
 \alias{CheckMatrix}
 \alias{CheckMatrix.default}
 \alias{CheckMatrix.dMatrix}
+\alias{CheckMatrix.lMatrix}
 \title{Check Matrix Validity}
 \usage{
 CheckMatrix(object, checks, ...)
@@ -11,6 +12,8 @@ CheckMatrix(object, checks, ...)
 \method{CheckMatrix}{default}(object, checks, ...)
 
 \method{CheckMatrix}{dMatrix}(object, checks = c("infinite", "logical", "integer", "na"), ...)
+
+\method{CheckMatrix}{lMatrix}(object, checks = c("infinite", "logical", "integer", "na"), ...)
 }
 \arguments{
 \item{object}{A matrix}
