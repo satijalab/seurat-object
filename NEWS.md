@@ -1,3 +1,7 @@
+# Unreleased
+## Changed
+- `CreateSeuratObject.Assay` sets Assay key when not present (#29)
+
 # SeuratObject 4.0.3
 
 ## Changed
