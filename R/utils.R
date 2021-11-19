@@ -156,6 +156,46 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
   return(invisible(x = NULL))
 }
 
+# check for infinite, logical, non-integer, NA, NaN in a matrix
+CheckMatrix <- function(
+  object,
+  check.infinite = TRUE,
+  check.logical = TRUE,
+  check.integer = TRUE,
+  check.na = TRUE
+) {
+  if (inherits(x = object, what = "Matrix")) {
+    if (check.infinite) {
+      if (any(is.infinite(x = slot(object = object, name = "x")))) {
+        warning("Input matrix contains infinite values")
+      }
+    }
+    if (check.logical) {
+      if (any(is.logical(x = slot(object = object, name = "x")))) {
+        warning("Input matrix contains logical values")
+      }
+    }
+    if (check.integer) {
+      if (!all(
+        round(
+          x = slot(
+            object = object,
+            name = "x"
+            )) == slot(
+              object = object,
+              name = "x"
+              ))) {
+        warning("Input matrix contains non-integer values")
+      }
+    }
+    if (check.na) {
+      if (anyNA(x = slot(object = object, name = "x"))) {
+        warning("Input matrix contains NA or NaN values")
+      }
+    }
+  }
+}
+
 #' Find the default \code{\link{DimReduc}}
 #'
 #' Searches for \code{\link{DimReduc}s} matching \dQuote{umap}, \dQuote{tsne},
