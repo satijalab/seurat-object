@@ -2,10 +2,13 @@
 % Please edit documentation in R/utils.R
 \name{CheckMatrix}
 \alias{CheckMatrix}
+\alias{CheckMatrix.default}
 \alias{CheckMatrix.dMatrix}
 \title{Check Matrix Validity}
 \usage{
 CheckMatrix(object, checks, ...)
+
+\method{CheckMatrix}{default}(object, checks, ...)
 
 \method{CheckMatrix}{dMatrix}(object, checks = c("infinite", "logical", "integer", "na"), ...)
 }

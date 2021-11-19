@@ -464,6 +464,14 @@ as.sparse.Matrix <- function(x, ...) {
 as.sparse.matrix <- as.sparse.Matrix
 
 #' @rdname CheckMatrix
+#' @method CheckMatrix default
+#' @export
+#'
+CheckMatrix.default <- function(object, checks, ...) {
+  return(invisible(x = NULL))
+}
+
+#' @rdname CheckMatrix
 #' @method CheckMatrix dMatrix
 #' @export
 #'
