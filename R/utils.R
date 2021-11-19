@@ -491,7 +491,7 @@ CheckMatrix.dMatrix <- function(
       'logical' = if (any(is.logical(x = x))) {
         warning("Input matrix contains logical values")
       },
-      'integer' = if (!all(round(x = x) == x)) {
+      'integer' = if (!all(round(x = x) == x, na.rm = TRUE)) {
         warning("Input matrix contains non-integer values")
       },
       'na' = if (anyNA(x = x)) {
