@@ -131,7 +131,7 @@ CreateAssayObject <- function(
     if (!inherits(x = counts, what = 'dgCMatrix')) {
       counts <- as.sparse(x = counts, ...)
     }
-    if (check.matrix) {
+    if (isTRUE(x = check.matrix)) {
       CheckMatrix(object = counts)
     }
     # Filter based on min.features
