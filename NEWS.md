@@ -2,6 +2,9 @@
 ## Changed
 - `CreateSeuratObject.Assay` sets Assay key when not present (#29)
 
+## Added
+- New `CheckMatrix` generic for validating expression matrices
+
 # SeuratObject 4.0.3
 
 ## Changed
