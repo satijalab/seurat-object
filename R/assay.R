@@ -129,7 +129,11 @@ CreateAssayObject <- function(
       stop("No feature names (rownames) names present in the input matrix")
     }
     if (!inherits(x = counts, what = 'dgCMatrix')) {
-      counts <- as.sparse(x = counts, ...)
+      if (inherits(x = counts, what = "data.frame")) {
+        counts <- as.sparse(x = counts, ...)
+      } else {
+        counts <- as.sparse(x = counts)
+      }
     }
     if (isTRUE(x = check.matrix)) {
       CheckMatrix(object = counts)
