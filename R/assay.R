@@ -67,6 +67,7 @@ Assay <- setClass(
 #' new object with a lower cutoff.
 #' @param min.features Include cells where at least this many features are
 #' detected.
+#' @param check.matrix Check counts matrix for NA, NaN, Inf, and non-integer values
 #' @param ... Arguments passed to \code{\link{as.sparse}}
 #'
 #' @return A \code{\link{Assay}} object
@@ -93,6 +94,7 @@ CreateAssayObject <- function(
   data,
   min.cells = 0,
   min.features = 0,
+  check.matrix = FALSE,
   ...
 ) {
   if (missing(x = counts) && missing(x = data)) {
@@ -132,6 +134,9 @@ CreateAssayObject <- function(
       } else {
         counts <- as.sparse(x = counts)
       }
+    }
+    if (isTRUE(x = check.matrix)) {
+      CheckMatrix(object = counts)
     }
     # Filter based on min.features
     if (min.features > 0) {

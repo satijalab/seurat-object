@@ -25,6 +25,33 @@ as.sparse <- function(x, ...) {
   UseMethod(generic = 'as.sparse', object = x)
 }
 
+#' Check Matrix Validity
+#'
+#' @param object A matrix
+#' @param checks Type of checks to perform, choose one or more from:
+#' \itemize{
+#'  \item \dQuote{\code{infinite}}: Emit a warning if any value is infinite
+#'  \item \dQuote{\code{logical}}: Emit a warning if any value is a logical
+#'  \item \dQuote{\code{integer}}: Emit a warning if any value is \emph{not}
+#'   an integer
+#'  \item \dQuote{\code{na}}: Emit a warning if any value is an \code{NA}
+#'   or \code{NaN}
+#' }
+#' @param ... Arguments passed to other methods
+#'
+#' @return Emits warnings for each test and invisibly returns \code{NULL}
+#'
+#' @name CheckMatrix
+#' @rdname CheckMatrix
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+CheckMatrix <- function(object, checks, ...) {
+  UseMethod(generic = 'CheckMatrix', object = object)
+}
+
 #' S4/List Conversion
 #'
 #' Convert S4 objects to lists and vice versa. Useful for declassing an S4
@@ -435,6 +462,58 @@ as.sparse.Matrix <- function(x, ...) {
 #' @method as.sparse matrix
 #'
 as.sparse.matrix <- as.sparse.Matrix
+
+#' @rdname CheckMatrix
+#' @method CheckMatrix default
+#' @export
+#'
+CheckMatrix.default <- function(object, checks, ...) {
+  return(invisible(x = NULL))
+}
+
+#' @rdname CheckMatrix
+#' @method CheckMatrix dMatrix
+#' @export
+#'
+CheckMatrix.dMatrix <- function(
+  object,
+  checks = c('infinite', 'logical', 'integer', 'na'),
+  ...
+) {
+  checks <- match.arg(arg = checks, several.ok = TRUE)
+  x <- slot(object = object, name = 'x')
+  for (i in checks) {
+    switch(
+      EXPR = i,
+      'infinite' = if (any(is.infinite(x = x))) {
+        warning("Input matrix contains infinite values")
+      },
+      'logical' = if (any(is.logical(x = x))) {
+        warning("Input matrix contains logical values")
+      },
+      'integer' = if (!all(round(x = x) == x, na.rm = TRUE)) {
+        warning("Input matrix contains non-integer values")
+      },
+      'na' = if (anyNA(x = x)) {
+        warning("Input matrix contains NA/NaN values")
+      },
+    )
+  }
+  return(invisible(x = NULL))
+}
+
+#' @rdname CheckMatrix
+#' @method CheckMatrix lMatrix
+#' @export
+#'
+CheckMatrix.lMatrix <- function(
+  object,
+  checks = c('infinite', 'logical', 'integer', 'na'),
+  ...
+) {
+  warning("Input matrix contains logical values")
+  return(invisible(x = NULL))
+}
 
 #' @importFrom methods slotNames
 #'
