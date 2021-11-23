@@ -73,7 +73,7 @@ expected format of the input matrix is features x cells." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
       </span>
     </div>
 
@@ -122,7 +122,14 @@ expected format of the input matrix is features x cells." />
 expected format of the input matrix is features x cells.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>CreateAssayObject</span><span class='op'>(</span><span class='va'>counts</span>, <span class='va'>data</span>, min.cells <span class='op'>=</span> <span class='fl'>0</span>, min.features <span class='op'>=</span> <span class='fl'>0</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>CreateAssayObject</span><span class='op'>(</span>
+  <span class='va'>counts</span>,
+  <span class='va'>data</span>,
+  min.cells <span class='op'>=</span> <span class='fl'>0</span>,
+  min.features <span class='op'>=</span> <span class='fl'>0</span>,
+  check.matrix <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,6 +152,10 @@ new object with a lower cutoff.</p></td>
       <th>min.features</th>
       <td><p>Include cells where at least this many features are
 detected.</p></td>
+    </tr>
+    <tr>
+      <th>check.matrix</th>
+      <td><p>Check counts matrix for NA, NaN, Inf, and non-integer values</p></td>
     </tr>
     <tr>
       <th>...</th>
