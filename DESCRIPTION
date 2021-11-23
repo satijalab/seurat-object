@@ -1,8 +1,8 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.0.999.9001
-Date: 2021-11-17
+Version: 4.0.999.9002
+Date: 2021-11-23
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
   person(given = 'Andrew', family = 'Butler', email = 'abutler@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0003-3608-0463')),
@@ -22,7 +22,7 @@ Description: Defines S4 classes for single-cell genomic data and associated
   Macosko E, Basu A, Satija R, et al (2015) <doi:10.1016/j.cell.2015.05.002>,
   and Stuart T, Butler A, et al (2019) <doi:10.1016/j.cell.2019.05.031> for
   more details.
-URL: https://satijalab.org/seurat,
+URL: https://mojaveazure.github.io/seurat-object/,
       https://github.com/mojaveazure/seurat-object
 BugReports:
       https://github.com/mojaveazure/seurat-object/issues
@@ -44,7 +44,7 @@ Imports:
     utils
 Suggests:
     testthat
-Collate: 
+Collate:
     'RcppExports.R'
     'utils.R'
     'zzz.R'

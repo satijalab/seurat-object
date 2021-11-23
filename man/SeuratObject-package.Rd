@@ -11,7 +11,7 @@ Defines S4 classes for single-cell genomic data and associated information, such
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://satijalab.org/seurat}
+  \item \url{https://mojaveazure.github.io/seurat-object/}
   \item \url{https://github.com/mojaveazure/seurat-object}
   \item Report bugs at \url{https://github.com/mojaveazure/seurat-object/issues}
 }

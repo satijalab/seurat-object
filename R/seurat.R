@@ -1052,6 +1052,10 @@ CreateSeuratObject.Assay <- function(
       meta.data <- new.meta.data
     }
   }
+  # Check assay key
+  if (!length(x = Key(object = counts)) || !nchar(x = Key(object = counts))) {
+    Key(object = counts) <- UpdateKey(key = tolower(x = assay))
+  }
   assay.list <- list(counts)
   names(x = assay.list) <- assay
   # Set idents

@@ -1,3 +1,11 @@
+# SeuratObject 4.0.4
+## Changed
+- `CreateSeuratObject.Assay` sets Assay key when not present (#29)
+- Ignore warnings when creating an `Assay` from a data frame (#32)
+
+## Added
+- New `CheckMatrix` generic for validating expression matrices
+
 # SeuratObject 4.0.3
 
 ## Changed
