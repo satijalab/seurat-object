@@ -841,6 +841,25 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
   return(object.list)
 }
 
+#' Empty Data Frames
+#'
+#' Create an empty \link[base:data.frame]{data frame} with no row names and
+#' zero columns
+#'
+#' @param n Number of rows for the data frame
+#'
+#' @return A \link[base:data.frame]{data frame} with \code{n} rows and
+#' zero columns
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#'
+EmptyDF <- function(n) {
+  return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
+}
+
 #' Extract delimiter information from a string.
 #'
 #' Parses a string (usually a cell name) and extracts fields based
