@@ -564,6 +564,12 @@ Key <- function(object, ...) {
   UseMethod(generic = 'Key<-', object = object)
 }
 
+#' @export
+#'
+Keys <- function(object, ...) {
+  UseMethod(generic = 'Keys', object = object)
+}
+
 #' Get and set feature loadings
 #'
 #' @param object An object
