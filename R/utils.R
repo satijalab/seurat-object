@@ -198,6 +198,8 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
 #'
 #' @export
 #'
+#' @concept utils
+#'
 #' @examples
 #' DefaultDimReduc(pbmc_small)
 #'
@@ -372,6 +374,8 @@ ListToS4 <- function(x) {
 #'
 #' @export
 #'
+#' @concept utils
+#'
 #' @examples
 #' PackageCheck("SeuratObject", error = FALSE)
 #'
@@ -406,6 +410,8 @@ PackageCheck <- function(..., error = TRUE) {
 #' @seealso \code{\link[base]{sample}}
 #'
 #' @export
+#'
+#' @concept utils
 #'
 #' @examples
 #' set.seed(42L)

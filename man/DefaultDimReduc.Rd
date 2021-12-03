@@ -25,3 +25,4 @@ for a non-default assay)
 DefaultDimReduc(pbmc_small)
 
 }
+\concept{utils}

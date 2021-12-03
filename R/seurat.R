@@ -116,6 +116,8 @@ Seurat <- setClass(
 #'
 #' @concept unsorted
 #'
+#' @keywords internal
+#'
 seurat <- setClass(
   Class = "seurat",
   slots = c(
@@ -507,6 +509,8 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
 #' that are of class \code{classes.keep}
 #'
 #' @export
+#'
+#' @concept utils
 #'
 #' @examples
 #' FilterObjects(pbmc_small)
