@@ -21,3 +21,4 @@ Check the existence of a package
 PackageCheck("SeuratObject", error = FALSE)
 
 }
+\concept{utils}

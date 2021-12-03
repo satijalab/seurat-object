@@ -27,3 +27,4 @@ RandomName(7L, replace = TRUE)
 \seealso{
 \code{\link[base]{sample}}
 }
+\concept{utils}
