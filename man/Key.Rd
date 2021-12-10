@@ -3,16 +3,20 @@
 \name{Key}
 \alias{Key}
 \alias{Key<-}
+\alias{Keys}
 \alias{Key.Assay}
 \alias{Key<-.Assay}
 \alias{Key.DimReduc}
 \alias{Key<-.DimReduc}
 \alias{Key.Seurat}
+\alias{Keys.Seurat}
 \title{Get and set object keys}
 \usage{
 Key(object, ...)
 
 Key(object, ...) <- value
+
+Keys(object, ...)
 
 \method{Key}{Assay}(object, ...)
 
@@ -23,6 +27,8 @@ Key(object, ...) <- value
 \method{Key}{DimReduc}(object, ...) <- value
 
 \method{Key}{Seurat}(object, ...)
+
+\method{Keys}{Seurat}(object, ...)
 }
 \arguments{
 \item{object}{An object}
@@ -35,6 +41,8 @@ Key(object, ...) <- value
 \code{Key}: the object key
 
 \code{Key<-}: \code{object} with an updated key
+
+\code{Keys}: a named vector of keys of sub-objects
 }
 \description{
 Get and set object keys
@@ -56,6 +64,7 @@ Key(object = pbmc_small[["pca"]])
 
 # Show all keys associated with a Seurat object
 Key(object = pbmc_small)
+Keys(object = pbmc_small)
 
 }
 \concept{data-access}

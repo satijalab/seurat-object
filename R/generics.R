@@ -564,6 +564,9 @@ Key <- function(object, ...) {
   UseMethod(generic = 'Key<-', object = object)
 }
 
+#' @return \code{Keys}: a named vector of keys of sub-objects
+#'
+#' @rdname Key
 #' @export
 #'
 Keys <- function(object, ...) {
