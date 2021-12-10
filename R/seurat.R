@@ -953,6 +953,11 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
   if (is.numeric(x = cells)) {
     cells <- colnames(x = object)[cells]
   }
+  if (is.null(x = vars)) {
+    df <- EmptyDF(n = length(x = cells))
+    rownames(x = df) <- cells
+    return(df)
+  }
   # Get a list of all objects to search through and their keys
   object.keys <- Key(object = object)
   # Find all vars that are keyed
