@@ -133,6 +133,24 @@ rlang::`%||%`
   return(x)
 }
 
+#' @importFrom rlang is_na
+#'
+`%na%` <- `%NA%` <- function(x, y) {
+  if (is_na(x = x)) {
+    return(y)
+  }
+  return(x)
+}
+
+#' @importFrom rlang is_na
+#'
+`%!na%` <- `%!NA%` <- function(x, y) {
+  if (is_na(x = x)) {
+    return(x)
+  }
+  return(y)
+}
+
 #' Attach Required Packages
 #'
 #' Helper function to attach required packages. Detects if a package is already
