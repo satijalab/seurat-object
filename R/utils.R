@@ -743,6 +743,36 @@ S4ToList.list <- function(object) {
   )))
 }
 
+#' Find the Default SpatialCoords Image
+#'
+#' Attempts to find the \dQuote{default} spatial image using the revamped
+#' spatial framework
+#'
+#' @param object A \code{{Seurat}} object
+#'
+#' @return ...
+#'
+#' @export
+#'
+#' @keywords internal
+#'
+.DefaultSpatialCoords <- function(object, assay = NULL) {
+  images <- FilterObjects(object = object, classes.keep = 'SpatialCoords')
+  if (!is.null(x = assay)) {
+    assays <- c(assay, DefaultAssay(object = object[[assay]]))
+    images <- Filter(
+      f = function(x) {
+        return(DefaultAssay(object = object[[x]]) %in% assays)
+      },
+      x = images
+    )
+  }
+  if (!length(x = images)) {
+    return(NULL)
+  }
+  return(images)
+}
+
 #' Check the Use of Dots
 #'
 #' Function to check the use of unused arguments passed to \code{...}; this

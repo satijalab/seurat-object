@@ -243,36 +243,6 @@ setOldClass(Classes = 'package_version')
   return(Overlay(x = object, y = CreateSegmentation(coords = df)))
 }
 
-#' Find the Default SpatialCoords Image
-#'
-#' Attempts to find the \dQuote{default} spatial image using the revamped
-#' spatial framework
-#'
-#' @param object A \code{{Seurat}} object
-#'
-#' @return ...
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.DefaultSpatialCoords <- function(object, assay = NULL) {
-  images <- FilterObjects(object = object, classes.keep = 'SpatialCoords')
-  if (!is.null(x = assay)) {
-    assays <- c(assay, DefaultAssay(object = object[[assay]]))
-    images <- Filter(
-      f = function(x) {
-        return(DefaultAssay(object = object[[x]]) %in% assays)
-      },
-      x = images
-    )
-  }
-  if (!length(x = images)) {
-    return(NULL)
-  }
-  return(images)
-}
-
 #' Test Finiteness of Centroids
 #'
 #' Determines if a \code{\link{Centroids}} object should be finite; for
