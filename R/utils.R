@@ -133,23 +133,66 @@ rlang::`%||%`
   return(x)
 }
 
+#' Set if \code{NA}
+#'
+#' Set a default value depending on if an object is \code{\link[base]{NA}}
+#'
+#' @inheritParams set-if-null
+#'
+#' @return For \code{\%NA\%}: \code{y} if \code{x} is \code{\link[base]{NA}};
+#' otherwise \code{x}
+#'
+#' @name set-if-na
+#' @rdname set-if-na
+#'
 #' @importFrom rlang is_na
 #'
-`%na%` <- `%NA%` <- function(x, y) {
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' 1 %NA% 2
+#' NA %NA% 2
+#'
+`%NA%` <- function(x, y) {
   if (is_na(x = x)) {
     return(y)
   }
   return(x)
 }
 
+#' @rdname set-if-na
+#'
+#' @export
+#'
+`%na%` <- `%NA%`
+
+#' @return For \code{\%!NA\%}: \code{y} if \code{x} is \strong{not}
+#' \code{\link[base]{NA}}; otherwise \code{x}
+#'
+#' @rdname set-if-na
+#'
 #' @importFrom rlang is_na
 #'
-`%!na%` <- `%!NA%` <- function(x, y) {
+#' @export
+#'
+#' @examples
+#' 1 %!NA% 2
+#' NA %!NA% 2
+#'
+`%!NA%` <- function(x, y) {
   if (is_na(x = x)) {
     return(x)
   }
   return(y)
 }
+
+#' @rdname set-if-na
+#'
+#' @export
+#'
+`%!na%` <- `%!NA%`
 
 #' Attach Required Packages
 #'
