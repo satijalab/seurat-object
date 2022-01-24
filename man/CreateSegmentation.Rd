@@ -4,7 +4,7 @@
 \alias{CreateSegmentation}
 \alias{CreateSegmentation.data.frame}
 \alias{CreateSegmentation.Segmentation}
-\title{Create a \code{\link{Segmentation}} Objects}
+\title{Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects}
 \usage{
 CreateSegmentation(coords)
 
@@ -16,8 +16,8 @@ CreateSegmentation(coords)
 \item{coords}{The coordinates of cell segmentations}
 }
 \value{
-A \code{\link{Segmentation}} object
+A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 }
 \description{
-Create a \code{\link{Segmentation}} Objects
+Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects
 }

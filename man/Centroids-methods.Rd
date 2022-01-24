@@ -41,7 +41,8 @@
 \S4method{show}{Centroids}(object)
 }
 \arguments{
-\item{x, object}{A \code{\link{Centroids}} object}
+\item{x, object}{A \code{\link[SeuratObject:Centroids-class]{Centroids}}
+object}
 
 \item{...}{Arguments passed to other methods}
 
@@ -52,7 +53,7 @@
 \item{i, cells}{A vector of cells to keep; if \code{NULL}, defaults
 to all cells}
 
-\item{j}{Ignored}
+\item{j, drop}{Ignored}
 }
 \value{
 \code{GetTissueCoordinates}: A data frame with three columns:
@@ -85,7 +86,7 @@ by \code{cells}/\code{i}
 \code{show}: Invisibly returns \code{NULL}
 }
 \description{
-Methods for \code{\link{Centroids}} objects
+Methods for \code{\link[SeuratObject:Centroids-class]{Centroids}} objects
 }
 \details{
 \code{GetTissueCoordinates}: Get cell spatial coordinates

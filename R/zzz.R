@@ -14,8 +14,23 @@ NULL
 "_PACKAGE"
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Options
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Seurat.options <- list(
+  Seurat.input.sparse_ratio = 0.4,
+  Seurat.coords.short_range = 'max',
+  progressr.clear = FALSE
+)
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Reexports
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @importFrom future plan
+#' @export
+#'
+future::plan
 
 #' @importFrom Matrix colMeans
 #' @export
@@ -36,6 +51,16 @@ Matrix::rowMeans
 #' @export
 #'
 Matrix::rowSums
+
+#' @importFrom progressr handlers
+#' @export
+#'
+progressr::handlers
+
+#' @importFrom progressr with_progress
+#' @export
+#'
+progressr::with_progress
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Class definitions
@@ -196,8 +221,8 @@ setOldClass(Classes = 'package_version')
   x <- range(x %||% bbox(obj = object)[cx, , drop = TRUE])
   y <- range(y %||% bbox(obj = object)[cy, , drop = TRUE])
   idx <- c(max = 1L, min = 2L)[[getOption(
-    x = 'Spirula.coords.short_range',
-    default = spirula.options$Spirula.coords.short_range
+    x = 'Seurat.coords.short_range',
+    default = Seurat.options$Seurat.coords.short_range
   )]]
   if (x[1L] == x[2L]) {
     x[idx] <- bbox(obj = object)[cx, idx]
@@ -218,12 +243,12 @@ setOldClass(Classes = 'package_version')
   return(Overlay(x = object, y = CreateSegmentation(coords = df)))
 }
 
-#' Find the Default SpirulaCoords Image
+#' Find the Default SpatialCoords Image
 #'
 #' Attempts to find the \dQuote{default} spatial image using the revamped
-#' spatial framework (Spirula)
+#' spatial framework
 #'
-#' @param object A \code{\link[SeuratObject]{Seurat}} object
+#' @param object A \code{{Seurat}} object
 #'
 #' @return ...
 #'
@@ -231,8 +256,8 @@ setOldClass(Classes = 'package_version')
 #'
 #' @noRd
 #'
-.DefaultSpirulaCoords <- function(object, assay = NULL) {
-  images <- FilterObjects(object = object, classes.keep = 'SpirulaCoords')
+.DefaultSpatialCoords <- function(object, assay = NULL) {
+  images <- FilterObjects(object = object, classes.keep = 'SpatialCoords')
   if (!is.null(x = assay)) {
     assays <- c(assay, DefaultAssay(object = object[[assay]]))
     images <- Filter(

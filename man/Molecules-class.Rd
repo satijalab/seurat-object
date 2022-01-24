@@ -3,7 +3,6 @@
 \docType{class}
 \name{Molecules-class}
 \alias{Molecules-class}
-\alias{Molecules}
 \title{The Spatial Molecules Class}
 \description{
 The Spatial Molecules Class

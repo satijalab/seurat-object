@@ -3,7 +3,6 @@
 \docType{class}
 \name{Segmentation-class}
 \alias{Segmentation-class}
-\alias{Segmentation}
 \title{The \code{Segmentation} Class}
 \description{
 The \code{Segmentation} Class

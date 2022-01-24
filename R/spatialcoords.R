@@ -12,7 +12,7 @@ NULL
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' The Spirula Coordinates Object
+#' The Spatial Coordinates Object
 #'
 #' A modern container for storing coordinates of spatially-resolved single
 #' cells. Capable of storing multiple layers of centroid/voxel- and
@@ -26,13 +26,15 @@ NULL
 #' \code{\link{Molecules}} objects defining spatially-resolved
 #' molecular coordinates
 #' @slot segmentations (\code{[named]\link[base]{list}}
-#' \{\code{\link{Segmentation}}, \code{\link{Centroids}}\}) A named list of
-#' \code{\link{Segmentation}} and \code{\link{Centroids}} objects defining
+#' \{\code{\link[SeuratObject:Segmentation-class]{Segmentation}},
+#' \code{\link[SeuratObject:Centroids-class]{Centroids}}\}) A named list of
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
+#' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 #' spatially-resolved cellular segmentations or centroids
-#' @slot assay (\code{\link[base:character]{character [1L]}}) A character naming
-#' the associated assay of the spatial coordinates
-#' @slot key (\code{\link[base:character]{character [1L]}}) The key for the
-#' spatial coordinates
+#' @slot assay (\code{\link[base:character]{character [1L]}}) A character
+#' naming the associated assay of the spatial coordinates
+#' @slot key (\code{\link[base:character]{character [1L]}}) The key
+#' for the spatial coordinates
 #'
 #' @exportClass SpatialCoords
 #'
@@ -74,8 +76,9 @@ setClass(
 #' @param j,features For \code{subset} and \code{[}, a vector of features to
 #' keep; for \code{[[<-}, not used
 #' @param value For \code{[[<-}, a replacement \code{\link{Molecules}},
-#' \code{\link{Centroids}}, or \code{\link{Segmentations}} object or \code{NULL}
-#' to remove the layer stored at \code{i}
+#' \code{\link[SeuratObject:Centroids-class]{Centroids}}, or
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object;
+#' otherwise \code{NULL} to remove the layer stored at \code{i}
 #' @param ... Arguments passed to other methods
 #'
 #' @name SpatialCoords-methods
@@ -127,15 +130,16 @@ CreateSpatialCoords.Centroids <- function(
 }
 
 #' @inheritParams CreateCentroids
-#' @param type When providing a \code{\link[base]{data.frame}}, specify if the
-#' coordinates represent a cell segmentation or voxel centroids
+#' @param type When providing a \code{\link[base]{data.frame}}, specify if
+#' the coordinates represent a cell segmentation or voxel centroids
 #' @param molecules A \code{\link[base]{data.frame}} with spatially-resolved
 #' molecule information or a \code{\link{Molecules}} object
 #' @param assay Name of associated assay
 #' @param key Key for these spatial coordinates
 #' @param name When \code{coords} is a \code{\link[base]{data.frame}},
-#' \code{\link{Centroids}}, or \code{\link{Segmentation}}, name to store
-#' coordinates as
+#' \code{\link[SeuratObject:Centroids-class]{Centroids}}, or
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}}, name
+#' to store coordinates as
 #'
 #' @rdname CreateSpatialCoords
 #' @method CreateSpatialCoords data.frame
@@ -418,6 +422,8 @@ FetchData.SpatialCoords <- function(
   return(data.fetched)
 }
 
+#' @param which Name of segmentation layer or molecule set
+#'
 #' @details \code{GetTissueCoordinates}: Get cell or molecule  coordinates from
 #' a \code{SpatialCoords} object
 #'
@@ -541,7 +547,8 @@ dim.SpatialCoords <- function(x) {
 #' \code{SpatialCoords} object
 #'
 #' @return \code{length}: The number of segmentation layers
-#' (\code{\link{Segmentation}} or \code{\link{Centroids}} objects)
+#' (\code{\link[SeuratObject:Segmentation-class]{Segmentation}} or
+#' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects)
 #'
 #' @rdname SpatialCoords-methods
 #' @method length SpatialCoords
@@ -552,7 +559,7 @@ length.SpatialCoords <- function(x) {
 }
 
 #' @details \code{names}: Get the names of segmentation layers, equivalent to
-#' \code{\link[Spirula:Segmentations]{Segmentations(x, molecules = FALSE)}}
+#' \code{\link[SeuratObject:Segmentations]{Segmentations(x, molecules = FALSE)}}
 #'
 #' @return \code{names}: A vector of segmentation layer names
 #'
@@ -571,8 +578,6 @@ names.SpatialCoords <- function(x) {
 #' @rdname SpatialCoords-methods
 #' @method subset SpatialCoords
 #' @export
-#'
-#' @noRd
 #'
 subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
   features <- Features(x = x) %iff% features
@@ -602,7 +607,8 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
 #' @param x A \code{\link{SpatialCoords}} object
 #' @param i Name to store segmentation layer as
 #' @param ... Ignored
-#' @param value A \code{\link{Segmentation}} or \code{\link{Centroids}} object
+#' @param value A \code{\link[SeuratObject:Segmentation-class]{Segmentation}}
+#' or [SeuratObject:Centroids-class]\code{\link{Centroids}} object
 #' to add
 #'
 #' @return \code{x} with \code{value} saved as \code{i}

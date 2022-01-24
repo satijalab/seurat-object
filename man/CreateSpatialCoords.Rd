@@ -52,6 +52,8 @@ CreateSpatialCoords(coords, ...)
 \arguments{
 \item{coords}{Spatial coordinates}
 
+\item{...}{Arguments passed to other methods}
+
 \item{molecules}{A \code{\link[base]{data.frame}} with spatially-resolved
 molecule information or a \code{\link{Molecules}} object}
 
@@ -60,11 +62,12 @@ molecule information or a \code{\link{Molecules}} object}
 \item{key}{Key for these spatial coordinates}
 
 \item{name}{When \code{coords} is a \code{\link[base]{data.frame}},
-\code{\link{Centroids}}, or \code{\link{Segmentation}}, name to store
-coordinates as}
+\code{\link[SeuratObject:Centroids-class]{Centroids}}, or
+\code{\link[SeuratObject:Segmentation-class]{Segmentation}}, name
+to store coordinates as}
 
-\item{type}{When providing a \code{\link[base]{data.frame}}, specify if the
-coordinates represent a cell segmentation or voxel centroids}
+\item{type}{When providing a \code{\link[base]{data.frame}}, specify if
+the coordinates represent a cell segmentation or voxel centroids}
 
 \item{nsides}{The number of sides to represent cells/spots; pass
 \code{\link[base]{Inf}} to plot as circles}
@@ -74,11 +77,11 @@ coordinates represent a cell segmentation or voxel centroids}
 \item{theta}{Angle to adjust shapes when plotting}
 }
 \value{
-A \code{\link{SpirulaCoords}} object
+A \code{\link{SpatialCoords}} object
 }
 \description{
 Create Spatial Coordinates
 }
 \seealso{
-\code{\link{SpirulaCoords-class}}
+\code{\link{SpatialCoords-class}}
 }

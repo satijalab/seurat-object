@@ -1,6 +1,7 @@
 #' @include zzz.R
 #' @include generics.R
 #' @include keymixin.R
+#' @importFrom progressr progressor
 #' @importFrom future.apply future_lapply
 #' @importClassesFrom sp CRS SpatialPoints
 #'
@@ -14,8 +15,6 @@ NULL
 #'
 #' @slot .Data A list of \code{\link[sp]{SpatialPoints}} objects
 #' @slot key The key for the \code{Molecules}
-#'
-#' @aliases Molecules
 #'
 #' @family segmentation
 #' @templateVar cls Molecules
@@ -135,13 +134,38 @@ Features.Molecules <- function(x, ...) {
 #' @method FetchData Molecules
 #' @export
 #'
-FetchData.Molecules <- function(object, vars, ...) {
+FetchData.Molecules <- function(
+  object,
+  vars,
+  nmols = NULL,
+  seed = NA_integer_,
+  ...
+) {
   vars <- gsub(
     pattern = paste0('^', Key(object = object)),
     replacement = '',
     x = vars
   )
-  return(fortify(model = object, data = vars, ...))
+  coords <- GetTissueCoordinates(object = object, features = vars)
+  if (!is.null(x = nmols)) {
+    if (!is.na(x = seed)) {
+      set.seed(seed = seed)
+    }
+    coords <- lapply(
+      X = unique(x = coords$molecule),
+      FUN = function(m) {
+        df <- coords[coords$molecule == m, , drop = FALSE]
+        if (nrow(x = df) > nmols) {
+          idx <- sample(x = seq_len(length.out = nrow(x = df)), size = nmols)
+          df <- df[idx, , drop = FALSE]
+        }
+        return(df)
+      }
+    )
+    coords <- do.call(what = 'rbind', args = coords)
+  }
+  return(coords)
+  # return(fortify(model = object, data = vars, ...))
 }
 
 #' @details \code{GetTissueCoordinates}: Get spatially-resolved

@@ -2,7 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{CreateCentroids}
 \alias{CreateCentroids}
-\title{Create a \code{\link{Centroids}} Objects}
+\title{Create a \code{\link[SeuratObject:Centroids-class]{Centroids}} Objects}
 \usage{
 CreateCentroids(coords, nsides, radius, theta)
 }
@@ -17,8 +17,8 @@ CreateCentroids(coords, nsides, radius, theta)
 \item{theta}{Angle to adjust shapes when plotting}
 }
 \value{
-A \code{\link{Centroids}} object
+A \code{\link[SeuratObject:Centroids-class]{Centroids}} object
 }
 \description{
-Create a \code{\link{Centroids}} Objects
+Create a \code{\link[SeuratObject:Centroids-class]{Centroids}} Objects
 }

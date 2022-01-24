@@ -4,7 +4,7 @@
 \name{SpatialCoords-class}
 \alias{SpatialCoords-class}
 \alias{SpatialCoords}
-\title{The Spirula Coordinates Object}
+\title{The Spatial Coordinates Object}
 \description{
 A modern container for storing coordinates of spatially-resolved single
 cells. Capable of storing multiple layers of centroid/voxel- and
@@ -23,15 +23,17 @@ in each segmentation layer}
 molecular coordinates}
 
 \item{\code{segmentations}}{(\code{[named]\link[base]{list}}
-\{\code{\link{Segmentation}}, \code{\link{Centroids}}\}) A named list of
-\code{\link{Segmentation}} and \code{\link{Centroids}} objects defining
+\{\code{\link[SeuratObject:Segmentation-class]{Segmentation}},
+\code{\link[SeuratObject:Centroids-class]{Centroids}}\}) A named list of
+\code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
+\code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 spatially-resolved cellular segmentations or centroids}
 
-\item{\code{assay}}{(\code{\link[base:character]{character [1L]}}) A character naming
-the associated assay of the spatial coordinates}
+\item{\code{assay}}{(\code{\link[base:character]{character [1L]}}) A character
+naming the associated assay of the spatial coordinates}
 
-\item{\code{key}}{(\code{\link[base:character]{character [1L]}}) The key for the
-spatial coordinates}
+\item{\code{key}}{(\code{\link[base:character]{character [1L]}}) The key
+for the spatial coordinates}
 }}
 
 \seealso{

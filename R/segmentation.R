@@ -12,8 +12,6 @@ NULL
 
 #' The \code{Segmentation} Class
 #'
-#' @aliases Segmentation
-#'
 #' @family segmentation
 #' @templateVar cls Segmentation
 #' @template seealso-methods
@@ -33,11 +31,12 @@ setClass(
 
 #' \code{Segmentation} Methods
 #'
-#' Methods for \code{\link{Segmentation}} objects
+#' Methods for \code{\link[SeuratObject:Segmentation-class]{Segmentation}}
+#' objects
 #'
-#' @param x,object A \code{\link{Segmentation}} object
-#' @param i,cells A vector of cells to keep; if \code{NULL}, defaults
-#' to all cells
+#' @inheritParams Centroids-methods
+#' @param x,object,obj A
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 #'
 #' @name Segmentation-methods
 #' @rdname Segmentation-methods

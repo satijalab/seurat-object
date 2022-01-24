@@ -3,7 +3,6 @@
 \docType{class}
 \name{Centroids-class}
 \alias{Centroids-class}
-\alias{Centroids}
 \title{The \code{Centroids} Class}
 \description{
 The \code{Centroids} Class

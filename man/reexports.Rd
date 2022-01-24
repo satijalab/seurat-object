@@ -3,10 +3,13 @@
 \docType{import}
 \name{reexports}
 \alias{reexports}
+\alias{plan}
 \alias{colMeans}
 \alias{colSums}
 \alias{rowMeans}
 \alias{rowSums}
+\alias{handlers}
+\alias{with_progress}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -14,6 +17,10 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
+  \item{future}{\code{\link[future]{plan}}}
+
   \item{Matrix}{\code{\link[Matrix:colSums]{colMeans}}, \code{\link[Matrix]{colSums}}, \code{\link[Matrix:colSums]{rowMeans}}, \code{\link[Matrix:colSums]{rowSums}}}
+
+  \item{progressr}{\code{\link[progressr]{handlers}}, \code{\link[progressr]{with_progress}}}
 }}
 

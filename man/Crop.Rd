@@ -19,7 +19,7 @@ Crop(object, x = NULL, y = NULL, coords = c("plot", "tissue"), ...)
 \itemize{
  \item \dQuote{\code{plot}}: Coordinates as shown when plotting
  \item \dQuote{\code{tissue}}: Coordinates from
-  \code{\link[SeuratObject]{GetTissueCoordinates}}
+  \code{\link{GetTissueCoordinates}}
 }}
 
 \item{...}{...}

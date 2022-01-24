@@ -60,8 +60,10 @@ as.Graph <- function(x, ...) {
 #'
 #' @inheritParams CreateCentroids
 #' @param x An object
+#' @param ... Arguments passed to other methods
 #'
-#' @return \code{as.Centroids}: A \code{\link{Centroids}} object
+#' @return \code{as.Centroids}: A
+#' \code{\link[SeuratObject:Centroids-class]{Centroids}} object
 #'
 #' @export
 #'
@@ -87,7 +89,8 @@ as.Neighbor <- function(x, ...) {
   UseMethod(generic = 'as.Neighbor', object = x)
 }
 
-#' @return \code{as.Segmentation}: A \code{\link{Segmentation}} object
+#' @return \code{as.Segmentation}: A
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 #'
 #' @rdname as.Centroids
 #' @export
@@ -153,7 +156,7 @@ Command <- function(object, ...) {
   UseMethod(generic = 'Command', object = object)
 }
 
-#' Create a \code{\link{Centroids}} Objects
+#' Create a \code{\link[SeuratObject:Centroids-class]{Centroids}} Objects
 #'
 #' @param coords The coordinates of cell/spot centroids
 #' @param nsides The number of sides to represent cells/spots; pass
@@ -161,7 +164,7 @@ Command <- function(object, ...) {
 #' @param radius Radius of shapes when plotting
 #' @param theta Angle to adjust shapes when plotting
 #'
-#' @return A \code{\link{Centroids}} object
+#' @return A \code{\link[SeuratObject:Centroids-class]{Centroids}} object
 #'
 #' @export
 #'
@@ -188,11 +191,11 @@ CreateMolecules <- function(coords, ...) {
   UseMethod(generic = 'CreateMolecules', object = coords)
 }
 
-#' Create a \code{\link{Segmentation}} Objects
+#' Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects
 #'
 #' @param coords The coordinates of cell segmentations
 #'
-#' @return A \code{\link{Segmentation}} object
+#' @return A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 #'
 #' @export
 #'
@@ -263,12 +266,13 @@ CreateSeuratObject <- function(
 #' Create Spatial Coordinates
 #'
 #' @param coords Spatial coordinates
+#' @param ... Arguments passed to other methods
 #'
-#' @return A \code{\link{SpirulaCoords}} object
+#' @return A \code{\link{SpatialCoords}} object
 #'
 #' @export
 #'
-#' @seealso \code{\link{SpirulaCoords-class}}
+#' @seealso \code{\link{SpatialCoords-class}}
 #'
 CreateSpatialCoords <- function(coords, ...) {
   UseMethod(generic = 'CreateSpatialCoords', object = coords)
@@ -283,7 +287,7 @@ CreateSpatialCoords <- function(coords, ...) {
 #' \itemize{
 #'  \item \dQuote{\code{plot}}: Coordinates as shown when plotting
 #'  \item \dQuote{\code{tissue}}: Coordinates from
-#'   \code{\link[SeuratObject]{GetTissueCoordinates}}
+#'   \code{\link{GetTissueCoordinates}}
 #' }
 #' @param ... ...
 #'

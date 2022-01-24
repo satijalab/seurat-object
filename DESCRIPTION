@@ -33,10 +33,13 @@ RoxygenNote: 7.1.2
 Depends:
   R (>= 4.0.0)
 Imports:
+    future,
+    future.apply,
     grDevices,
     grid,
     Matrix (>= 1.3.3),
     methods,
+    progressr,
     Rcpp (>= 1.0.5),
     sp,
     rlang (>= 0.4.7),
@@ -44,6 +47,7 @@ Imports:
     tools,
     utils
 Suggests:
+    ggplot2,
     testthat
 Collate:
     'RcppExports.R'

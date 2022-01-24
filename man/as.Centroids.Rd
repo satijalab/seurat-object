@@ -18,11 +18,15 @@ as.Segmentation(x, ...)
 \item{radius}{Radius of shapes when plotting}
 
 \item{theta}{Angle to adjust shapes when plotting}
+
+\item{...}{Arguments passed to other methods}
 }
 \value{
-\code{as.Centroids}: A \code{\link{Centroids}} object
+\code{as.Centroids}: A
+\code{\link[SeuratObject:Centroids-class]{Centroids}} object
 
-\code{as.Segmentation}: A \code{\link{Segmentation}} object
+\code{as.Segmentation}: A
+\code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 }
 \description{
 Convert Segmentation Layers

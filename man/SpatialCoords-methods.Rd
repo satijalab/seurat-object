@@ -12,6 +12,7 @@
 \alias{[[.SpatialCoords}
 \alias{length.SpatialCoords}
 \alias{names.SpatialCoords}
+\alias{subset.SpatialCoords}
 \alias{[[<-,SpatialCoords,character,missing,Centroids-method}
 \alias{[[<-,SpatialCoords,character,missing,Molecules-method}
 \alias{[[<-,SpatialCoords,character,missing,NULL-method}
@@ -39,6 +40,8 @@
 
 \method{names}{SpatialCoords}(x)
 
+\method{subset}{SpatialCoords}(x, cells = NULL, features = NULL, ...)
+
 \S4method{[[}{SpatialCoords,character,missing,Centroids}(x, i, j, ...) <- value
 
 \S4method{[[}{SpatialCoords,character,missing,Molecules}(x, i, j, ...) <- value
@@ -64,6 +67,8 @@ to get molecule coordinates}
 \item{simplify}{If only returning either tissue or molecule coordinates,
 return a single data frame instead of a list}
 
+\item{which}{Name of segmentation layer or molecule set}
+
 \item{i, cells}{For \code{[[} and \code{[[<-}, the name of a segmentation or
 \dQuote{molecules}; for \code{FetchData}, \code{subset}. and \code{[}, a
 vector of cells to keep}
@@ -72,8 +77,9 @@ vector of cells to keep}
 keep; for \code{[[<-}, not used}
 
 \item{value}{For \code{[[<-}, a replacement \code{\link{Molecules}},
-\code{\link{Centroids}}, or \code{\link{Segmentations}} object or \code{NULL}
-to remove the layer stored at \code{i}}
+\code{\link[SeuratObject:Centroids-class]{Centroids}}, or
+\code{\link[SeuratObject:Segmentation-class]{Segmentation}} object;
+otherwise \code{NULL} to remove the layer stored at \code{i}}
 }
 \value{
 \code{Cells}: A vector of cell names
@@ -104,9 +110,12 @@ molecule set
 molecule information stored at \code{i}
 
 \code{length}: The number of segmentation layers
-(\code{\link{Segmentation}} or \code{\link{Centroids}} objects)
+(\code{\link[SeuratObject:Segmentation-class]{Segmentation}} or
+\code{\link[SeuratObject:Centroids-class]{Centroids}} objects)
 
 \code{names}: A vector of segmentation layer names
+
+\code{subset}: \code{x} with just the cells and features specified
 
 \code{[[<-}: Varies depending on the class of \code{value}:
 \itemize{
@@ -147,7 +156,9 @@ a \code{SpatialCoords} object
 \code{SpatialCoords} object
 
 \code{names}: Get the names of segmentation layers, equivalent to
-\code{\link[Spirula:Segmentations]{Segmentations(x, molecules = FALSE)}}
+\code{\link[SeuratObject:Segmentations]{Segmentations(x, molecules = FALSE)}}
+
+\code{subset}, \code{[}: Subset a \code{SpatialCoords} object
 
 \code{[[<-}: Add or remove segmentation layers and molecule
 information to/from a \code{SpatialCoords} object

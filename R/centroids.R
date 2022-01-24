@@ -22,8 +22,6 @@ NULL
 #' @slot theta (\code{\link[base:numeric]{numeric [1L]}}) The angle in degrees
 #' to adjust the shape when plotting the centroids
 #'
-#' @aliases Centroids
-#'
 #' @family segmentation
 #' @templateVar cls Centroids
 #' @template seealso-methods
@@ -49,12 +47,13 @@ setClass(
 
 #' \code{Centroids} Methods
 #'
-#' Methods for \code{\link{Centroids}} objects
+#' Methods for \code{\link[SeuratObject:Centroids-class]{Centroids}} objects
 #'
-#' @param x,object A \code{\link{Centroids}} object
+#' @param x,object A \code{\link[SeuratObject:Centroids-class]{Centroids}}
+#' object
 #' @param i,cells A vector of cells to keep; if \code{NULL}, defaults
 #' to all cells
-#' @param j Ignored
+#' @param j,drop Ignored
 #' @param ... Arguments passed to other methods
 #'
 #' @name Centroids-methods

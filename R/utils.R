@@ -906,6 +906,28 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
   return(object.list)
 }
 
+#' Radian/Degree Conversions
+#'
+#' Convert degrees to radians and vice versa
+#'
+#' @param rad Angle in radians
+#'
+#' @return \code{Degrees}: \code{rad} in degrees
+#'
+#' @name Angles
+#' @rdname Angles
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' Degrees(pi)
+#'
+Degrees <- function(rad) {
+  return(rad * (180 / pi))
+}
+
 #' Empty Data Frames
 #'
 #' Create an empty \link[base:data.frame]{data frame} with no row names and
@@ -980,6 +1002,75 @@ ExtractField <- function(string, field = 1, delim = "_") {
 IsNullPtr <- function(x) {
   stopifnot(is(object = x, class2 = 'externalptr'))
   return(.Call('isnull', x))
+}
+
+#' Polygon Vertices
+#'
+#' Calculate the vertices of a regular polygon given the number of sides and
+#' its radius (distance from center to vertex). Also permits transforming the
+#' resulting coordinates by moving the origin and altering the initial angle
+#'
+#' @param n Number of sides of the polygon
+#' @param r Radius of the polygon
+#' @param xc,yc X/Y coordinates for the center of the polygon
+#' @param t1 Angle of the first vertex in degrees
+#'
+#' @return A \code{\link[base]{data.frame}} with \code{n} rows and two columns:
+#' \describe{
+#'  \item{\code{x}}{X positions of each coordinate}
+#'  \item{\code{y}}{Y positions of each coordinate}
+#' }
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @references \url{https://stackoverflow.com/questions/3436453/calculate-coordinates-of-a-regular-polygons-vertices}
+#'
+#' @examples
+#' coords <- PolyVtx(5, t1 = 90)
+#' coords
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   ggplot2::ggplot(coords, ggplot2::aes(x = x, y = y)) + ggplot2::geom_polygon()
+#' }
+#'
+PolyVtx <- function(n, r = 1L, xc = 0L, yc = 0L, t1 = 0) {
+  n <- n[1]
+  r <- r[1]
+  xc <- xc[1]
+  yc <- yc[1]
+  t1 <- t1[1]
+  if (n < 3) {
+    stop("'n' must be greater than or equal to 3", call. = FALSE)
+  }
+  t1 <- Radians(deg = t1)
+  coords <- matrix(data = 0, nrow = n, ncol = 2)
+  colnames(x = coords) <- c('x', 'y')
+  for (i in seq_len(length.out = n)) {
+    theta <- 2 * pi * (i - 1) / n + t1
+    coords[i, ] <- c(
+      xc + r * cos(x = theta),
+      yc + r * sin(x = theta)
+    )
+  }
+  return(as.data.frame(x = coords))
+}
+
+#' @param deg Angle in degrees
+#'
+#' @return \code{Radians}: \code{deg} in radians
+#'
+#' @rdname Angles
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' Radians(180)
+#'
+Radians <- function(deg) {
+  return(deg * (pi / 180))
 }
 
 #' Update a Class's Package

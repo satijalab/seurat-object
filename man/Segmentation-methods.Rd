@@ -26,7 +26,8 @@
 \S4method{show}{Segmentation}(object)
 }
 \arguments{
-\item{x, object}{A \code{\link{Segmentation}} object}
+\item{x, object, obj}{A
+\code{\link[SeuratObject:Segmentation-class]{Segmentation}} object}
 
 \item{...}{Arguments passed to other methods}
 
@@ -34,10 +35,15 @@
 
 \item{use.names}{Ignored}
 
-\item{i, cells}{A vector of cells to keep; if \code{NULL}, defaults
+\item{cells}{A vector of cells to keep; if \code{NULL}, defaults
+to all cells}
+
+\item{i}{A vector of cells to keep; if \code{NULL}, defaults
 to all cells}
 
 \item{j}{Ignored}
+
+\item{drop}{Ignored}
 }
 \value{
 \code{Cells}: A vector of cell names
@@ -61,7 +67,8 @@ by \code{cells}/\code{i}
 \code{show}: Invisibly returns \code{NULL}
 }
 \description{
-Methods for \code{\link{Segmentation}} objects
+Methods for \code{\link[SeuratObject:Segmentation-class]{Segmentation}}
+objects
 }
 \details{
 \code{Cells}: Get cell names
