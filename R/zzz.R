@@ -1,5 +1,6 @@
-#' @importFrom utils head tail
 #' @importFrom sp bbox over
+#' @importFrom Rcpp evalCpp
+#' @importFrom utils head tail
 #' @importFrom methods new setClass setClassUnion setMethod setOldClass
 #' setValidity slot slot<- validObject
 #' @importClassesFrom Matrix dgCMatrix

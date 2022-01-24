@@ -1,6 +1,8 @@
 #' @include zzz.R
 #' @include generics.R
-#' @importFrom Rcpp evalCpp
+#' @include centroids.R
+#' @include segmentation.R
+#' @importFrom methods as setAs
 #'
 NULL
 
@@ -1296,3 +1298,32 @@ UpdateKey <- function(key) {
     return(new.key)
   }
 }
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# S4 methods
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+setAs(
+  from = 'Centroids',
+  to = 'Segmentation',
+  def = function(from) {
+    if (is.infinite(x = from)) {
+      stop("Cannot convert shapeless Centroids", call. = FALSE)
+    }
+    return(CreateSegmentation(coords = GetTissueCoordinates(
+      object = from,
+      full = TRUE
+    )))
+  }
+)
+
+setAs(
+  from = 'Segmentation',
+  to = 'Centroids',
+  def = function(from) {
+    return(CreateCentroids(coords = GetTissueCoordinates(
+      object = from,
+      full = FALSE
+    )))
+  }
+)
