@@ -1,90 +1,8 @@
+#' @include zzz.R
+#' @include generics.R
 #' @importFrom Rcpp evalCpp
-#' @useDynLib SeuratObject
 #'
 NULL
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Generics
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#' Cast to Sparse
-#'
-#' Convert dense objects to sparse representations
-#'
-#' @param x An object
-#' @param ... Arguments passed to other methods
-#'
-#' @return A sparse representation of the input data
-#'
-#' @rdname as.sparse
-#' @export as.sparse
-#'
-#' @concept utils
-#'
-as.sparse <- function(x, ...) {
-  UseMethod(generic = 'as.sparse', object = x)
-}
-
-#' Check Matrix Validity
-#'
-#' @param object A matrix
-#' @param checks Type of checks to perform, choose one or more from:
-#' \itemize{
-#'  \item \dQuote{\code{infinite}}: Emit a warning if any value is infinite
-#'  \item \dQuote{\code{logical}}: Emit a warning if any value is a logical
-#'  \item \dQuote{\code{integer}}: Emit a warning if any value is \emph{not}
-#'   an integer
-#'  \item \dQuote{\code{na}}: Emit a warning if any value is an \code{NA}
-#'   or \code{NaN}
-#' }
-#' @param ... Arguments passed to other methods
-#'
-#' @return Emits warnings for each test and invisibly returns \code{NULL}
-#'
-#' @name CheckMatrix
-#' @rdname CheckMatrix
-#'
-#' @keywords internal
-#'
-#' @export
-#'
-CheckMatrix <- function(object, checks, ...) {
-  UseMethod(generic = 'CheckMatrix', object = object)
-}
-
-#' S4/List Conversion
-#'
-#' Convert S4 objects to lists and vice versa. Useful for declassing an S4
-#' object while keeping track of it's class using attributes (see section
-#' \strong{S4 Class Definition Attributes} below for more details). Both
-#' \code{ListToS4} and \code{S4ToList} are recursive functions, affecting all
-#' lists/S4 objects contained as sub-lists/sub-objects.
-#'
-#' @param x A list with an S4 class definition attribute
-#' @param object An S4 object
-#'
-#' @return \code{S4ToList}: A list with an S4 class definition attribute
-#'
-#' @section S4 Class Definition Attributes:
-#' S4 classes are scoped to the package and class name. In order to properly
-#' track which class a list is generated from in order to build a new one,
-#' these function use an \code{\link[base:attr]{attribute}} to denote the
-#' class name and package of origin. This attribute is stored as
-#' \dQuote{classDef} and takes the form of \dQuote{\code{package:class}}.
-#'
-#' @name s4list
-#' @rdname s4list
-#'
-#' @concept utils
-#'
-#' @export
-#'
-S4ToList <- function(object) {
-  if (!(isS4(object) || inherits(x = object, what = 'list'))) {
-    return(object)
-  }
-  UseMethod(generic = 'S4ToList', object = object)
-}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
@@ -578,6 +496,71 @@ UpdateSlots <- function(object) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @rdname as.Centroids
+#' @method as.Centroids Segmentation
+#' @export
+#'
+as.Centroids.Segmentation <- function(
+  x,
+  nsides = NULL,
+  radius = NULL,
+  theta = NULL,
+  ...
+) {
+  coords <- as(object = x, Class = 'Centroids')
+  if (!is.null(x = nsides)) {
+    slot(object = coords, name = 'nsides') <- nsides
+  }
+  if (!is.null(x = theta)) {
+    slot(object = coords, name = 'theta') <- theta
+  }
+  if (is.null(x = radius)) {
+    radius <- vapply(
+      X = Cells(x = x),
+      FUN = function(i) {
+        area <- slot(
+          object = slot(object = x, name = 'polygons')[[i]],
+          name = 'area'
+        )
+        return(sqrt(x = area / pi))
+      },
+      FUN.VALUE = numeric(length = 1L),
+      USE.NAMES = FALSE
+    )
+  }
+  slot(object = coords, name = 'radius') <- radius
+  validObject(object = coords)
+  return(coords)
+  # x <- c()
+  # y <- c()
+  # radius <- c()
+  # nsides <- 0
+  # for (cell in Cells(x)) {
+  #   a <- x@polygons[[cell]]@area
+  #   radius <- c(radius, sqrt(a / pi))
+  #   x <- c(x, x@polygons[[cell]]@labpt[1])
+  #   y <- c(y, x@polygons[[cell]]@labpt[2])
+  # }
+  # coords <- data.frame(x, y)
+  # rownames(x = coords) = Cells(x)
+  # return(
+  #   CreateCentroids(
+  #     coords,
+  #     radius = radius,
+  #     theta = rep(0, length(radius)),
+  #     nsides = rep(0, length(radius))
+  #   )
+  # )
+}
+
+#' @rdname as.Centroids
+#' @method as.Segmentation Centroids
+#' @export
+#'
+as.Segmentation.Centroids <- function(x, ...) {
+  return(as(object = x, Class = 'Segmentation'))
+}
 
 #' @param row.names \code{NULL} or a character vector giving the row names for
 #' the data; missing values are not allowed

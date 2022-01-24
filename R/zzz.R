@@ -1,9 +1,9 @@
-#' @include utils.R
 #' @importFrom utils head tail
 #' @importFrom sp bbox over
 #' @importFrom methods new setClass setClassUnion setMethod setOldClass
 #' setValidity slot slot<- validObject
 #' @importClassesFrom Matrix dgCMatrix
+#' @useDynLib SeuratObject
 #'
 NULL
 

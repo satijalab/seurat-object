@@ -117,6 +117,24 @@ as.Seurat <- function(x, ...) {
   UseMethod(generic = 'as.Seurat', object = x)
 }
 
+#' Cast to Sparse
+#'
+#' Convert dense objects to sparse representations
+#'
+#' @param x An object
+#' @param ... Arguments passed to other methods
+#'
+#' @return A sparse representation of the input data
+#'
+#' @rdname as.sparse
+#' @export as.sparse
+#'
+#' @concept utils
+#'
+as.sparse <- function(x, ...) {
+  UseMethod(generic = 'as.sparse', object = x)
+}
+
 #' Cell and Feature Names
 #'
 #' Get the cell and feature names of an object
@@ -136,6 +154,33 @@ as.Seurat <- function(x, ...) {
 #'
 Cells <- function(x, ...) {
   UseMethod(generic = 'Cells', object = x)
+}
+
+#' Check Matrix Validity
+#'
+#' @param object A matrix
+#' @param checks Type of checks to perform, choose one or more from:
+#' \itemize{
+#'  \item \dQuote{\code{infinite}}: Emit a warning if any value is infinite
+#'  \item \dQuote{\code{logical}}: Emit a warning if any value is a logical
+#'  \item \dQuote{\code{integer}}: Emit a warning if any value is \emph{not}
+#'   an integer
+#'  \item \dQuote{\code{na}}: Emit a warning if any value is an \code{NA}
+#'   or \code{NaN}
+#' }
+#' @param ... Arguments passed to other methods
+#'
+#' @return Emits warnings for each test and invisibly returns \code{NULL}
+#'
+#' @name CheckMatrix
+#' @rdname CheckMatrix
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+CheckMatrix <- function(object, checks, ...) {
+  UseMethod(generic = 'CheckMatrix', object = object)
 }
 
 #' Get SeuratCommands
@@ -914,6 +959,40 @@ RenameIdents <- function(object, ...) {
 #'
 ReorderIdent <- function(object, var, ...) {
   UseMethod(generic = 'ReorderIdent', object = object)
+}
+
+#' S4/List Conversion
+#'
+#' Convert S4 objects to lists and vice versa. Useful for declassing an S4
+#' object while keeping track of it's class using attributes (see section
+#' \strong{S4 Class Definition Attributes} below for more details). Both
+#' \code{ListToS4} and \code{S4ToList} are recursive functions, affecting all
+#' lists/S4 objects contained as sub-lists/sub-objects.
+#'
+#' @param x A list with an S4 class definition attribute
+#' @param object An S4 object
+#'
+#' @return \code{S4ToList}: A list with an S4 class definition attribute
+#'
+#' @section S4 Class Definition Attributes:
+#' S4 classes are scoped to the package and class name. In order to properly
+#' track which class a list is generated from in order to build a new one,
+#' these function use an \code{\link[base:attr]{attribute}} to denote the
+#' class name and package of origin. This attribute is stored as
+#' \dQuote{classDef} and takes the form of \dQuote{\code{package:class}}.
+#'
+#' @name s4list
+#' @rdname s4list
+#'
+#' @concept utils
+#'
+#' @export
+#'
+S4ToList <- function(object) {
+  if (!(isS4(object) || inherits(x = object, what = 'list'))) {
+    return(object)
+  }
+  UseMethod(generic = 'S4ToList', object = object)
 }
 
 #' @return \code{Segmentations}: The names of all segmentation layers present
