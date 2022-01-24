@@ -971,20 +971,20 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
     }
   )
   keyed.vars <- Filter(f = length, x = keyed.vars)
-  ret.spirula <- vapply(
+  ret.spatial2 <- vapply(
     X = names(x = keyed.vars),
     FUN = function(x) {
-      return(inherits(x = object[[x]], what = 'SpirulaCoords'))
+      return(inherits(x = object[[x]], what = 'SpatialCoords'))
     },
     FUN.VALUE = logical(length = 1L)
   )
-  if (any(ret.spirula) && !all(ret.spirula)) {
+  if (any(ret.spatial2) && !all(ret.spatial2)) {
     warning(
-      "Data returned from Spirula coordinates are incompatible with other data, returning only Spirula coordinates",
+      "Data returned from spatial coordinates are incompatible with other data, returning only spatial coordinates",
       call. = FALSE,
       immediate. = TRUE
     )
-    keyed.vars <- keyed.vars[ret.spirula]
+    keyed.vars <- keyed.vars[ret.spatial2]
   }
   data.fetched <- lapply(
     X = names(x = keyed.vars),
@@ -1011,7 +1011,7 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
           colnames(x = data.vars) <- paste0(key.use, vars.use)
         }
         data.vars
-      } else if (inherits(x = object[[x]], what = 'SpirulaCoords')) {
+      } else if (inherits(x = object[[x]], what = 'SpatialCoords')) {
         vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
         FetchData(object = object[[x]], vars = vars.use, cells = cells)
       } else if (inherits(x = object[[x]], what = 'SpatialImage')) {
@@ -1026,7 +1026,7 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
     }
   )
   data.fetched <- unlist(x = data.fetched, recursive = FALSE)
-  if (any(ret.spirula)) {
+  if (any(ret.spatial2)) {
     return(as.data.frame(x = data.fetched))
   }
   # Pull vars from object metadata
