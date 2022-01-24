@@ -444,3 +444,15 @@ NameIndex <- function(x, names, MARGIN) {
   }
   return(idx)
 }
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Hooks
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+.onLoad <- function(libname, pkgname) {
+  toset <- setdiff(x = names(x = Seurat.options), y = names(x = options()))
+  if (length(x = toset)) {
+    options(Seurat.options[toset])
+  }
+  return(invisible(x = NULL))
+}
