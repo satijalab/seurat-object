@@ -691,6 +691,37 @@ S4ToList.list <- function(object) {
   return(object)
 }
 
+#' @importFrom rgeos gSimplify
+#'
+#' @rdname Simplify
+#' @method Simplify Spatial
+#' @export
+#'
+Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
+  class.orig <- class(x = coords)
+  dest <- ifelse(
+    test = grepl(pattern = '^Spatial', x = class.orig),
+    yes = class.orig,
+    no = grep(
+      pattern = '^Spatial',
+      x = .Contains(object = coords),
+      value = TRUE
+    )[1L]
+  )
+  coords <- gSimplify(
+    spgeom = as(object = coords, Class = dest),
+    tol = as.numeric(x = tol),
+    topologyPreserve = isTRUE(x = topologyPreserve)
+  )
+  coords <- tryCatch(
+    expr = as(object = coords, Class = class.orig),
+    error = function(...) {
+      return(coords)
+    }
+  )
+  return(coords)
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
