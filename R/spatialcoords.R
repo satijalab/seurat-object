@@ -232,7 +232,7 @@ Crop.SpatialCoords <- function(
   if (is.null(x = x) && is.null(x = y)) {
     return(object)
   }
-  for (s in Segmentations(object = object, molecules = TRUE)) {
+  for (s in names(x = object)) {
     object[[s]] <- Crop(object = object[[s]], x = x, y = y, coords = coords)
   }
   return(object)
@@ -243,7 +243,7 @@ Crop.SpatialCoords <- function(
 #' @export
 #'
 DefaultSegmentation.SpatialCoords <- function(object) {
-  return(names(x = object)[1])
+  return(Segmentations(object = object)[1])
 }
 
 #' @rdname Segmentations
@@ -382,7 +382,7 @@ FetchData.SpatialCoords <- function(
   # Find all coordinates for the cells requested
   coords <- Filter(
     f = function(x) {
-      return(x %in% Segmentations(object = object, molecules = FALSE))
+      return(x %in% Segmentations(object = object))
     },
     x = vars
   )
@@ -435,10 +435,7 @@ FetchData.SpatialCoords <- function(
 #'
 GetTissueCoordinates.SpatialCoords <- function(object, which = NULL, ...) {
   which <- which %||% DefaultSegmentation(object = object)
-  which <- match.arg(
-    arg = which,
-    choices = Segmentations(object = object, molecules = TRUE)
-  )
+  which <- match.arg(arg = which, choices = names(x = object))
   return(GetTissueCoordinates(object = object[[which]], ...))
 }
 
@@ -465,19 +462,12 @@ Molecules.SpatialCoords <- function(object, ...) {
   return(names(x = slot(object = object, name = 'molecules')))
 }
 
-#' @param molecules Include \dQuote{molecules} as a segmentation layer, if
-#' molecule information is present
-#'
 #' @rdname Segmentations
 #' @method Segmentations SpatialCoords
 #' @export
 #'
-Segmentations.SpatialCoords <- function(object, molecules = FALSE, ...) {
-  segmentations <- names(x = object)
-  if (isTRUE(x = molecules)) {
-    segmentations <- c(segmentations, Molecules(object = object))
-  }
-  return(segmentations)
+Segmentations.SpatialCoords <- function(object, ...) {
+  return(names(x = slot(object = object, name = 'segmentations')))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -490,7 +480,7 @@ Segmentations.SpatialCoords <- function(object, molecules = FALSE, ...) {
 #' @export
 #'
 .DollarNames.SpatialCoords <- function(x, pattern = '') {
-  segmentations <- as.list(x = Segmentations(object = x, molecules = TRUE))
+  segmentations <- as.list(x = names(x = x))
   names(x = segmentations) <- unlist(x = segmentations)
   return(.DollarNames(x = segmentations, pattern = pattern))
 }
@@ -527,7 +517,7 @@ Segmentations.SpatialCoords <- function(object, molecules = FALSE, ...) {
 #' @export
 #'
 "[[.SpatialCoords" <- function(x, i, ...) {
-  i <- match.arg(arg = i, choices = Segmentations(object = x, molecules = TRUE))
+  i <- match.arg(arg = i, choices = names(x = x))
   slot.use <- ifelse(
     test = i %in% Molecules(object = x),
     yes = 'molecules',
@@ -558,17 +548,16 @@ length.SpatialCoords <- function(x) {
   return(length(x = slot(object = x, name = 'segmentations')))
 }
 
-#' @details \code{names}: Get the names of segmentation layers, equivalent to
-#' \code{\link[SeuratObject:Segmentations]{Segmentations(x, molecules = FALSE)}}
+#' @details \code{names}: Get the names of segmentation layers and molecule sets
 #'
-#' @return \code{names}: A vector of segmentation layer names
+#' @return \code{names}: A vector of segmentation layer and molecule set names
 #'
 #' @rdname SpatialCoords-methods
 #' @method names SpatialCoords
 #' @export
 #'
 names.SpatialCoords <- function(x) {
-  return(names(x = slot(object = x, name = 'segmentations')))
+  return(c(Segmentations(object = x), Molecules(object = x)))
 }
 
 #' @details \code{subset}, \code{[}: Subset a \code{SpatialCoords} object
@@ -587,7 +576,7 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
   for (i in Molecules(object = x)) {
     x[[i]] <- subset(x = x[[i]], features = features)
   }
-  for (i in Segmentations(object = x, molecules = FALSE)) {
+  for (i in Segmentations(object = x)) {
     x[[i]] <- subset(x = x[[i]], cells = cells)
   }
   slot(object = x, name = 'cells') <- .PruneLogMap(x = slot(
@@ -642,7 +631,7 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
   )
   value <- value[vcells]
   # Check class
-  if (i %in% names(x = x)) {
+  if (i %in% Segmentations(object = x)) {
     same.class <- vapply(
       X = list(x[[i]], value),
       FUN = inherits,
@@ -663,7 +652,7 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
   # Add segmentation layer
   slot(object = x, name = 'segmentations')[[i]] <- value
   # Update cells LogMap
-  if (i %in% names(x = x)) {
+  if (i %in% Segmentations(object = x)) {
     slot(object = x, name = 'cells')[[i]] <- Cells(x = value)
     slot(object = x, name = 'segmentations')[[i]] <- subset(
       x = x[[i]],
@@ -730,7 +719,7 @@ setMethod(
     value = 'Molecules'
   ),
   definition = function(x, i, ..., value) {
-    if (i %in% Segmentations(object = x, molecules = FALSE)) {
+    if (i %in% Segmentations(object = x)) {
       stop("'", i, "' already present as a segmentation layer")
     }
     check.key <- TRUE
@@ -778,7 +767,7 @@ setMethod(
     value = 'NULL'
   ),
   definition = function(x, i, ..., value) {
-    i <- match.arg(arg = i, choices = Segmentations(object = x, molecules = TRUE))
+    i <- match.arg(arg = i, choices = names(x = x))
     if (inherits(x = x[[i]], what = 'Molecules')) {
       slot(object = x, name = 'molecules')[[i]] <- NULL
     } else if (i == DefaultSegmentation(object = x)) {
@@ -817,6 +806,31 @@ setMethod(
     boxes <- do.call(what = 'cbind', args = boxes)
     return(bbox(obj = t(x = boxes)))
   }
+)
+
+#' @importClassesFrom sp Spatial
+#'
+setMethod(
+  f = 'Overlay',
+  signature = c(x = 'SpatialCoords', y = 'Spatial'),
+  definition = .OverBbox
+)
+
+setMethod(
+  f = 'Overlay',
+  signature = c(x = 'SpatialCoords', y = 'SpatialPolygons'),
+  definition = function(x, y, invert = FALSE, ...) {
+    for (i in names(x = x)) {
+      x[[i]] <- Overlay(x = x[[i]], y = y, invert = invert, ...)
+    }
+    return(x)
+  }
+)
+
+setMethod(
+  f = 'Overlay',
+  signature = c(x = 'SpatialCoords', y = 'SpatialCoords'),
+  definition = .OverBbox
 )
 
 #' @template method-show
@@ -882,7 +896,7 @@ setValidity(
     cmap <- slot(object = object, name = 'cells')
     if (ncol(x = cmap) != length(x = slot(object = object, name = 'segmentations'))) {
       valid <- c(valid, "'cells' must have the same length as 'segmentations'")
-    } else if (all(sort(x = colnames(x = cmap)) != sort(x = names(x = object)))) {
+    } else if (all(sort(x = colnames(x = cmap)) != sort(x = Segmentations(object = object)))) {
       valid <- c(valid, "'cells' must have the same names as 'segmentations'")
     }
     # Check segmentations

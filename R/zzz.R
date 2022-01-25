@@ -334,6 +334,17 @@ setOldClass(Classes = 'package_version')
   return(object)
 }
 
+.OverBbox <- function(x, y, invert = FALSE, ...) {
+  df <- .BboxDF(x = bbox(obj = y))
+  df$cell <- 'cell'
+  return(Overlay(
+    x = x,
+    y = CreateSegmentation(coords = df),
+    invert = invert,
+    ...
+  ))
+}
+
 .Overlay <- function(x, y, ...) {
   idx <- over(x = x, y = y)
   idx <- idx[!is.na(x = idx)]
@@ -449,6 +460,11 @@ NameIndex <- function(x, names, MARGIN) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Hooks
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+.onAttach <- function(libname, pkgname) {
+  AttachDeps(deps = 'sp')
+  return(invisible(x = NULL))
+}
 
 .onLoad <- function(libname, pkgname) {
   toset <- setdiff(x = names(x = Seurat.options), y = names(x = options()))

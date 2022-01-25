@@ -113,7 +113,7 @@ molecule information stored at \code{i}
 (\code{\link[SeuratObject:Segmentation-class]{Segmentation}} or
 \code{\link[SeuratObject:Centroids-class]{Centroids}} objects)
 
-\code{names}: A vector of segmentation layer names
+\code{names}: A vector of segmentation layer and molecule set names
 
 \code{subset}: \code{x} with just the cells and features specified
 
@@ -155,8 +155,7 @@ a \code{SpatialCoords} object
 \code{length}: Get the number of segmentation layers in a
 \code{SpatialCoords} object
 
-\code{names}: Get the names of segmentation layers, equivalent to
-\code{\link[SeuratObject:Segmentations]{Segmentations(x, molecules = FALSE)}}
+\code{names}: Get the names of segmentation layers and molecule sets
 
 \code{subset}, \code{[}: Subset a \code{SpatialCoords} object
 

@@ -25,7 +25,7 @@ Segmentations(object, ...)
 
 \method{Molecules}{SpatialCoords}(object, ...)
 
-\method{Segmentations}{SpatialCoords}(object, molecules = FALSE, ...)
+\method{Segmentations}{SpatialCoords}(object, ...)
 }
 \arguments{
 \item{object}{An object}
@@ -33,9 +33,6 @@ Segmentations(object, ...)
 \item{...}{Arguments passed to other methods}
 
 \item{value}{The name of a segmentation layer to set as default}
-
-\item{molecules}{Include \dQuote{molecules} as a segmentation layer, if
-molecule information is present}
 }
 \value{
 \code{DefaultSegmentation}: The name of the default
