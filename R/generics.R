@@ -398,7 +398,7 @@ DefaultAssay <- function(object, ...) {
 #' @export
 #'
 DefaultBoundary <- function(object) {
-  UseMethod(generic = 'DefaultSegmentation', object = object)
+  UseMethod(generic = 'DefaultBoundary', object = object)
 }
 
 #' @param value The name of a segmentation boundary to set as default
@@ -411,7 +411,7 @@ DefaultBoundary <- function(object) {
 #' @export
 #'
 "DefaultBoundary<-" <- function(object, ..., value) {
-  UseMethod(generic = 'DefaultSegmentation<-', object = object)
+  UseMethod(generic = 'DefaultBoundary<-', object = object)
 }
 
 #' Get the Neighbor nearest neighbors distance matrix
