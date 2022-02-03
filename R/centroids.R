@@ -95,14 +95,10 @@ CreateCentroids.default <- function(
   }
   coords <- as.matrix(x = coords[, idx[c('x', 'y'), drop = FALSE]])
   colnames(x = coords) <- c('x', 'y')
+  rownames(x = coords) <- NULL
   if (is.infinite(x = nsides)) {
     nsides <- 0L
   }
-  # radius <- radius %||% (0.01 * mean(x = apply(
-  #   X = apply(X = coords, MARGIN = 2L, FUN = range),
-  #   MARGIN = 2L,
-  #   FUN = diff
-  # )))
   radius <- radius %||% .AutoRadius(coords = coords)
   obj <- as(object = SpatialPoints(coords = coords), Class = 'Centroids')
   slot(object = obj, name = 'cells') <- cells
@@ -404,8 +400,10 @@ setValidity(
         "the length of 'cells' must equal the number of rows in 'coords'"
       )
     }
+    if (!is.null(x = rownames(x = slot(object = object, name = 'coords')))) {
+      valid <- c(valid, "'coords' must not have any rownames")
+    }
     # Check nsides
-    # nsides <- slot(object = object, name = 'nsides')
     nsides <- length(x = object)
     if (nsides < 0L || nsides %in% seq.int(from = 1L, to = 2L)) {
       valid <- c(
