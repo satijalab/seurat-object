@@ -974,7 +974,7 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
   ret.spatial2 <- vapply(
     X = names(x = keyed.vars),
     FUN = function(x) {
-      return(inherits(x = object[[x]], what = 'SpatialCoords'))
+      return(inherits(x = object[[x]], what = 'FOV'))
     },
     FUN.VALUE = logical(length = 1L)
   )
@@ -1011,7 +1011,7 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
           colnames(x = data.vars) <- paste0(key.use, vars.use)
         }
         data.vars
-      } else if (inherits(x = object[[x]], what = 'SpatialCoords')) {
+      } else if (inherits(x = object[[x]], what = 'FOV')) {
         vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
         FetchData(object = object[[x]], vars = vars.use, cells = cells)
       } else if (inherits(x = object[[x]], what = 'SpatialImage')) {

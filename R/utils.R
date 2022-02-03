@@ -759,9 +759,9 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
   )))
 }
 
-#' Find the Default SpatialCoords Image
+#' Find the Default FOV
 #'
-#' Attempts to find the \dQuote{default} spatial image using the revamped
+#' Attempts to find the \dQuote{default} FOV using the revamped
 #' spatial framework
 #'
 #' @param object A \code{{Seurat}} object
@@ -772,8 +772,8 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
 #'
 #' @keywords internal
 #'
-.DefaultSpatialCoords <- function(object, assay = NULL) {
-  images <- FilterObjects(object = object, classes.keep = 'SpatialCoords')
+.DefaultFOV <- function(object, assay = NULL) {
+  images <- FilterObjects(object = object, classes.keep = 'FOV')
   if (!is.null(x = assay)) {
     assays <- c(assay, DefaultAssay(object = object[[assay]]))
     images <- Filter(
