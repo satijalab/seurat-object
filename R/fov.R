@@ -12,43 +12,42 @@ NULL
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' The Spatial Coordinates Object
+#' The Field of View Object
 #'
 #' A modern container for storing coordinates of spatially-resolved single
-#' cells. Capable of storing multiple layers of centroid/voxel- and
-#' polygon/segmentation-based coordinate systems. Supports coordinates for
-#' spatially-resolved molecule (FISH) data. Compatible with Seurat's
-#' \code{\link{SpatialImage}}
+#' cells. Capable of storing multiple cell segmentation boundary masks.
+#' Supports coordinates for spatially-resolved molecule (FISH) data.
+#' Compatible with \code{\link{SpatialImage}}
 #'
 #' @slot cells (\code{\link{LogMap}}) A map of the cells present
 #' in each segmentation layer
 #' @slot molecules (\code{\link[base]{list}}) A named list of
-#' \code{\link{Molecules}} objects defining spatially-resolved
-#' molecular coordinates
-#' @slot segmentations (\code{[named]\link[base]{list}}
+#' \code{\link[SeuratObject:Molecules-class]{Molecules}} objects defining
+#' spatially-resolved molecular coordinates
+#' @slot boundaries (\code{[named]\link[base]{list}}
 #' \{\code{\link[SeuratObject:Segmentation-class]{Segmentation}},
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}}\}) A named list of
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
-#' spatially-resolved cellular segmentations or centroids
+#' spatially-resolved boundaries
 #' @slot assay (\code{\link[base:character]{character [1L]}}) A character
 #' naming the associated assay of the spatial coordinates
 #' @slot key (\code{\link[base:character]{character [1L]}}) The key
 #' for the spatial coordinates
 #'
-#' @exportClass SpatialCoords
+#' @exportClass FOV
 #'
-#' @aliases SpatialCoords
+#' @aliases FOV
 #'
-#' @seealso \code{\link{SpatialCoords-methods}}
+#' @seealso \code{\link{FOV-methods}}
 #'
 setClass(
-  Class = 'SpatialCoords',
+  Class = 'FOV',
   contains = 'SpatialImage',
   slots = list(
     cells = 'LogMap',
     molecules = 'list',
-    segmentations = 'list'
+    boundaries = 'list'
   )
 )
 
@@ -60,14 +59,14 @@ setClass(
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' \code{SpatialCoords} Methods
+#' \code{FOV} Methods
 #'
-#' Methods for \code{\link{SpatialCoords}} objects
+#' Methods for \code{\link{FOV}} objects
 #'
 #' @details The following methods are defined for interacting with a
-#' \code{SpatialCoords} object:
+#' \code{FOV} object:
 #'
-#' @param x,object A \code{\link{SpatialCoords}} object
+#' @param x,object A \code{\link{FOV}} object
 #' @param layer Name of segmentation or molecular layer to extract cell or
 #' feature names for; pass \code{NA} to return all cells or feature names
 #' @param i,cells For \code{[[} and \code{[[<-}, the name of a segmentation or
@@ -75,42 +74,43 @@ setClass(
 #' vector of cells to keep
 #' @param j,features For \code{subset} and \code{[}, a vector of features to
 #' keep; for \code{[[<-}, not used
-#' @param value For \code{[[<-}, a replacement \code{\link{Molecules}},
+#' @param value For \code{[[<-}, a replacement
+#' \code{\link[SeuratObject:Molecules-class]{Molecules}},
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}}, or
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object;
 #' otherwise \code{NULL} to remove the layer stored at \code{i}
 #' @param ... Arguments passed to other methods
 #'
-#' @name SpatialCoords-methods
-#' @rdname SpatialCoords-methods
+#' @name FOV-methods
+#' @rdname FOV-methods
 #'
-#' @seealso \code{\link{SpatialCoords-class}}
+#' @seealso \code{\link{FOV-class}}
 #'
 NULL
 
 #' @template method-cells
 #'
-#' @rdname SpatialCoords-methods
-#' @method Cells SpatialCoords
+#' @rdname FOV-methods
+#' @method Cells FOV
 #' @export
 #'
-Cells.SpatialCoords <- function(x, layer = NULL, ...) {
-  layer <- layer[1L] %||% DefaultSegmentation(object = x)
+Cells.FOV <- function(x, layer = NULL, ...) {
+  layer <- layer[1L] %||% DefaultBoundary(object = x)
   if (is.na(x = layer)) {
     return(Reduce(
       f = union,
-      x = lapply(X = slot(object = x, name = 'segmentations'), FUN = Cells)
+      x = lapply(X = slot(object = x, name = 'boundaries'), FUN = Cells)
     ))
   }
-  layer <- match.arg(arg = layer, choices = Segmentations(object = x))
+  layer <- match.arg(arg = layer, choices = Boundaries(object = x))
   return(Cells(x = x[[layer]]))
 }
 
-#' @rdname CreateSpatialCoords
-#' @method CreateSpatialCoords Centroids
+#' @rdname CreateFOV
+#' @method CreateFOV Centroids
 #' @export
 #'
-CreateSpatialCoords.Centroids <- function(
+CreateFOV.Centroids <- function(
   coords,
   molecules = NULL,
   assay = 'Spatial',
@@ -121,7 +121,7 @@ CreateSpatialCoords.Centroids <- function(
   name <- name %||% as.character(x = tolower(x = class(x = coords)[1L]))
   coords <- list(coords)
   names(x = coords) <- name
-  return(CreateSpatialCoords(
+  return(CreateFOV(
     coords = coords,
     molecules = molecules,
     assay = assay,
@@ -133,7 +133,8 @@ CreateSpatialCoords.Centroids <- function(
 #' @param type When providing a \code{\link[base]{data.frame}}, specify if
 #' the coordinates represent a cell segmentation or voxel centroids
 #' @param molecules A \code{\link[base]{data.frame}} with spatially-resolved
-#' molecule information or a \code{\link{Molecules}} object
+#' molecule information or a
+#' \code{\link[SeuratObject:Molecules-class]{Molecules}} object
 #' @param assay Name of associated assay
 #' @param key Key for these spatial coordinates
 #' @param name When \code{coords} is a \code{\link[base]{data.frame}},
@@ -141,11 +142,11 @@ CreateSpatialCoords.Centroids <- function(
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}}, name
 #' to store coordinates as
 #'
-#' @rdname CreateSpatialCoords
-#' @method CreateSpatialCoords data.frame
+#' @rdname CreateFOV
+#' @method CreateFOV data.frame
 #' @export
 #'
-CreateSpatialCoords.data.frame <- function(
+CreateFOV.data.frame <- function(
   coords,
   type = c('segmentation', 'centroids'),
   nsides = Inf,
@@ -169,7 +170,7 @@ CreateSpatialCoords.data.frame <- function(
       theta = theta
     )
   )
-  return(CreateSpatialCoords(
+  return(CreateFOV(
     coords = coords,
     molecules = molecules,
     assay = assay,
@@ -178,11 +179,11 @@ CreateSpatialCoords.data.frame <- function(
 }
 
 #'
-#' @rdname CreateSpatialCoords
-#' @method CreateSpatialCoords list
+#' @rdname CreateFOV
+#' @method CreateFOV list
 #' @export
 #'
-CreateSpatialCoords.list <- function(
+CreateFOV.list <- function(
   coords,
   molecules = NULL,
   assay = 'Spatial',
@@ -198,9 +199,9 @@ CreateSpatialCoords.list <- function(
     coords[[i]] <- subset(x = coords[[i]], cells = cells[[i]])
   }
   obj <- new(
-    Class = 'SpatialCoords',
+    Class = 'FOV',
     cells = cells,
-    segmentations = coords,
+    boundaries = coords,
     molecules = molecules %iff% list(molecules = CreateMolecules(
       coords = molecules,
       key = 'mols_'
@@ -212,17 +213,17 @@ CreateSpatialCoords.list <- function(
   return(obj)
 }
 
-#' @rdname CreateSpatialCoords
-#' @method CreateSpatialCoords Segmentation
+#' @rdname CreateFOV
+#' @method CreateFOV Segmentation
 #' @export
 #'
-CreateSpatialCoords.Segmentation <- CreateSpatialCoords.Centroids
+CreateFOV.Segmentation <- CreateFOV.Centroids
 
 #' @rdname Crop
-#' @method Crop SpatialCoords
+#' @method Crop FOV
 #' @export
 #'
-Crop.SpatialCoords <- function(
+Crop.FOV <- function(
   object,
   x = NULL,
   y = NULL,
@@ -238,39 +239,39 @@ Crop.SpatialCoords <- function(
   return(object)
 }
 
-#' @rdname Segmentations
-#' @method DefaultSegmentation SpatialCoords
+#' @rdname Boundaries
+#' @method DefaultBoundary FOV
 #' @export
 #'
-DefaultSegmentation.SpatialCoords <- function(object) {
-  return(Segmentations(object = object)[1])
+DefaultBoundary.FOV <- function(object) {
+  return(Boundaries(object = object)[1])
 }
 
-#' @rdname Segmentations
-#' @method DefaultSegmentation<- SpatialCoords
+#' @rdname Boundaries
+#' @method DefaultBoundary<- FOV
 #' @export
 #'
-"DefaultSegmentation<-.SpatialCoords" <- function(object, ..., value) {
-  value <- match.arg(arg = value, choices = Segmentations(object = object))
-  idx <- which(x = Segmentations(object = object) == value)
+"DefaultBoundary<-.FOV" <- function(object, ..., value) {
+  value <- match.arg(arg = value, choices = Boundaries(object = object))
+  idx <- which(x = Boundaries(object = object) == value)
   norder <- c(
     idx,
     setdiff(x = seq_len(length.out = length(x = object)), y = idx)
   )
-  slot(object = object, name = 'segmentations') <- slot(
+  slot(object = object, name = 'boundaries') <- slot(
     object = object,
-    name = 'segmentations'
+    name = 'boundaries'
   )[norder]
   return(object)
 }
 
 #' @template method-features
 #'
-#' @rdname SpatialCoords-methods
-#' @method Features SpatialCoords
+#' @rdname FOV-methods
+#' @method Features FOV
 #' @export
 #'
-Features.SpatialCoords <- function(x, layer = NULL, ...) {
+Features.FOV <- function(x, layer = NULL, ...) {
   if (!length(x = Molecules(object = x))) {
     return(NULL)
   }
@@ -292,7 +293,7 @@ Features.SpatialCoords <- function(x, layer = NULL, ...) {
 #' return a single data frame instead of a list
 #'
 #' @details \code{FetchData}: Fetch tissue and/or molecule coordinates from
-#' a \code{SpatialCoords} object
+#' a \code{FOV} object
 #'
 #' @return \code{FetchData}: If both molecule and tissue coordinates are
 #' requested, then a two-length list:
@@ -307,11 +308,11 @@ Features.SpatialCoords <- function(x, layer = NULL, ...) {
 #' only the data frame is returned. Otherwise, a one-length list is returned
 #' with the single data frame generated
 #'
-#' @rdname SpatialCoords-methods
-#' @method FetchData SpatialCoords
+#' @rdname FOV-methods
+#' @method FetchData FOV
 #' @export
 #'
-FetchData.SpatialCoords <- function(
+FetchData.FOV <- function(
   object,
   vars,
   cells = NULL,
@@ -382,7 +383,7 @@ FetchData.SpatialCoords <- function(
   # Find all coordinates for the cells requested
   coords <- Filter(
     f = function(x) {
-      return(x %in% Segmentations(object = object))
+      return(x %in% Boundaries(object = object))
     },
     x = vars
   )
@@ -425,49 +426,49 @@ FetchData.SpatialCoords <- function(
 #' @param which Name of segmentation layer or molecule set
 #'
 #' @details \code{GetTissueCoordinates}: Get cell or molecule  coordinates from
-#' a \code{SpatialCoords} object
+#' a \code{FOV} object
 #'
 #' @return \code{GetTissueCoordinates}: ...
 #'
-#' @rdname SpatialCoords-methods
-#' @method GetTissueCoordinates SpatialCoords
+#' @rdname FOV-methods
+#' @method GetTissueCoordinates FOV
 #' @export
 #'
-GetTissueCoordinates.SpatialCoords <- function(object, which = NULL, ...) {
-  which <- which %||% DefaultSegmentation(object = object)
+GetTissueCoordinates.FOV <- function(object, which = NULL, ...) {
+  which <- which %||% DefaultBoundary(object = object)
   which <- match.arg(arg = which, choices = names(x = object))
   return(GetTissueCoordinates(object = object[[which]], ...))
 }
 
 #' @details \code{Keys}: Get the keys of molecule sets contained within a
-#' \code{SpatialCoords} object
+#' \code{FOV} object
 #'
 #' @return \code{Keys}: A named vector of molecule set keys; names are the
 #' names of the molecule sets and values are the keys for the respective
 #' molecule set
 #'
-#' @rdname SpatialCoords-methods
-#' @method Keys SpatialCoords
+#' @rdname FOV-methods
+#' @method Keys FOV
 #' @export
 #'
-Keys.SpatialCoords <- function(object, ...) {
+Keys.FOV <- function(object, ...) {
   return(sapply(X = slot(object = object, name = 'molecules'), FUN = Key))
 }
 
-#' @rdname Segmentations
-#' @method Molecules SpatialCoords
+#' @rdname Boundaries
+#' @method Molecules FOV
 #' @export
 #'
-Molecules.SpatialCoords <- function(object, ...) {
+Molecules.FOV <- function(object, ...) {
   return(names(x = slot(object = object, name = 'molecules')))
 }
 
-#' @rdname Segmentations
-#' @method Segmentations SpatialCoords
+#' @rdname Boundaries
+#' @method Boundaries FOV
 #' @export
 #'
-Segmentations.SpatialCoords <- function(object, ...) {
-  return(names(x = slot(object = object, name = 'segmentations')))
+Boundaries.FOV <- function(object, ...) {
+  return(names(x = slot(object = object, name = 'boundaries')))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -476,28 +477,28 @@ Segmentations.SpatialCoords <- function(object, ...) {
 
 #' @importFrom utils .DollarNames
 #'
-#' @method .DollarNames SpatialCoords
+#' @method .DollarNames FOV
 #' @export
 #'
-.DollarNames.SpatialCoords <- function(x, pattern = '') {
-  segmentations <- as.list(x = names(x = x))
-  names(x = segmentations) <- unlist(x = segmentations)
-  return(.DollarNames(x = segmentations, pattern = pattern))
+.DollarNames.FOV <- function(x, pattern = '') {
+  layers <- as.list(x = names(x = x))
+  names(x = layers) <- unlist(x = layers)
+  return(.DollarNames(x = layers, pattern = pattern))
 }
 
-#' @rdname SpatialCoords-methods
-#' @method $ SpatialCoords
+#' @rdname FOV-methods
+#' @method $ FOV
 #' @export
 #'
-"$.SpatialCoords" <- function(x, i, ...) {
+"$.FOV" <- function(x, i, ...) {
   return(x[[i]])
 }
 
-#' @rdname SpatialCoords-methods
-#' @method [ SpatialCoords
+#' @rdname FOV-methods
+#' @method [ FOV
 #' @export
 #'
-"[.SpatialCoords" <- function(x, i, j, ...) {
+"[.FOV" <- function(x, i, j, ...) {
   if (missing(x = i)) {
     i <- NULL
   }
@@ -512,63 +513,63 @@ Segmentations.SpatialCoords <- function(object, ...) {
 #' @return \code{$}, \code{[[}: The segmentation layer or spatially-resolved
 #' molecule information stored at \code{i}
 #'
-#' @rdname SpatialCoords-methods
-#' @method [[ SpatialCoords
+#' @rdname FOV-methods
+#' @method [[ FOV
 #' @export
 #'
-"[[.SpatialCoords" <- function(x, i, ...) {
+"[[.FOV" <- function(x, i, ...) {
   i <- match.arg(arg = i, choices = names(x = x))
   slot.use <- ifelse(
     test = i %in% Molecules(object = x),
     yes = 'molecules',
-    no = 'segmentations'
+    no = 'boundaries'
   )
   return(slot(object = x, name = slot.use)[[i]])
 }
 
-#' @method dim SpatialCoords
+#' @method dim FOV
 #' @export
 #'
-dim.SpatialCoords <- function(x) {
+dim.FOV <- function(x) {
   return(c(0, 0))
 }
 
 #' @details \code{length}: Get the number of segmentation layers in a
-#' \code{SpatialCoords} object
+#' \code{FOV} object
 #'
 #' @return \code{length}: The number of segmentation layers
 #' (\code{\link[SeuratObject:Segmentation-class]{Segmentation}} or
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects)
 #'
-#' @rdname SpatialCoords-methods
-#' @method length SpatialCoords
+#' @rdname FOV-methods
+#' @method length FOV
 #' @export
 #'
-length.SpatialCoords <- function(x) {
-  return(length(x = slot(object = x, name = 'segmentations')))
+length.FOV <- function(x) {
+  return(length(x = slot(object = x, name = 'boundaries')))
 }
 
 #' @details \code{names}: Get the names of segmentation layers and molecule sets
 #'
 #' @return \code{names}: A vector of segmentation layer and molecule set names
 #'
-#' @rdname SpatialCoords-methods
-#' @method names SpatialCoords
+#' @rdname FOV-methods
+#' @method names FOV
 #' @export
 #'
-names.SpatialCoords <- function(x) {
-  return(c(Segmentations(object = x), Molecules(object = x)))
+names.FOV <- function(x) {
+  return(c(Boundaries(object = x), Molecules(object = x)))
 }
 
-#' @details \code{subset}, \code{[}: Subset a \code{SpatialCoords} object
+#' @details \code{subset}, \code{[}: Subset a \code{FOV} object
 #'
 #' @return \code{subset}: \code{x} with just the cells and features specified
 #'
-#' @rdname SpatialCoords-methods
-#' @method subset SpatialCoords
+#' @rdname FOV-methods
+#' @method subset FOV
 #' @export
 #'
-subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
+subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   features <- Features(x = x) %iff% features
   if (is.null(x = cells) && is.null(x = features)) {
     return(x)
@@ -576,7 +577,7 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
   for (i in Molecules(object = x)) {
     x[[i]] <- subset(x = x[[i]], features = features)
   }
-  for (i in Segmentations(object = x)) {
+  for (i in Boundaries(object = x)) {
     x[[i]] <- subset(x = x[[i]], cells = cells)
   }
   slot(object = x, name = 'cells') <- .PruneLogMap(x = slot(
@@ -593,7 +594,7 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
 
 #' Add a Segmentation Layer
 #'
-#' @param x A \code{\link{SpatialCoords}} object
+#' @param x A \code{\link{FOV}} object
 #' @param i Name to store segmentation layer as
 #' @param ... Ignored
 #' @param value A \code{\link[SeuratObject:Segmentation-class]{Segmentation}}
@@ -631,7 +632,7 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
   )
   value <- value[vcells]
   # Check class
-  if (i %in% Segmentations(object = x)) {
+  if (i %in% Boundaries(object = x)) {
     same.class <- vapply(
       X = list(x[[i]], value),
       FUN = inherits,
@@ -650,11 +651,11 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
     }
   }
   # Add segmentation layer
-  slot(object = x, name = 'segmentations')[[i]] <- value
+  slot(object = x, name = 'boundaries')[[i]] <- value
   # Update cells LogMap
-  if (i %in% Segmentations(object = x)) {
+  if (i %in% Boundaries(object = x)) {
     slot(object = x, name = 'cells')[[i]] <- Cells(x = value)
-    slot(object = x, name = 'segmentations')[[i]] <- subset(
+    slot(object = x, name = 'boundaries')[[i]] <- subset(
       x = x[[i]],
       cells = slot(object = x, name = 'cells')[[i]]
     )
@@ -682,7 +683,7 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @details \code{[[<-}: Add or remove segmentation layers and molecule
-#' information to/from a \code{SpatialCoords} object
+#' information to/from a \code{FOV} object
 #'
 #' @return \code{[[<-}: Varies depending on the class of \code{value}:
 #' \itemize{
@@ -695,12 +696,12 @@ subset.SpatialCoords <- function(x, cells = NULL, features = NULL, ...) {
 #'  \item Otherwise, stores \code{value} as a segmentation layer named \code{i}
 #' }
 #'
-#' @rdname SpatialCoords-methods
+#' @rdname FOV-methods
 #'
 setMethod(
   f = '[[<-',
   signature = c(
-    x = 'SpatialCoords',
+    x = 'FOV',
     i = 'character',
     j = 'missing',
     value = 'Centroids'
@@ -708,18 +709,18 @@ setMethod(
   definition = .AddSegmentation
 )
 
-#' @rdname SpatialCoords-methods
+#' @rdname FOV-methods
 #'
 setMethod(
   f = '[[<-',
   signature = c(
-    x = 'SpatialCoords',
+    x = 'FOV',
     i = 'character',
     j = 'missing',
     value = 'Molecules'
   ),
   definition = function(x, i, ..., value) {
-    if (i %in% Segmentations(object = x)) {
+    if (i %in% Boundaries(object = x)) {
       stop("'", i, "' already present as a segmentation layer")
     }
     check.key <- TRUE
@@ -756,12 +757,12 @@ setMethod(
 
 #' @importFrom methods as
 #'
-#' @rdname SpatialCoords-methods
+#' @rdname FOV-methods
 #'
 setMethod(
   f = '[[<-',
   signature = c(
-    x = 'SpatialCoords',
+    x = 'FOV',
     i = 'character',
     j = 'missing',
     value = 'NULL'
@@ -770,10 +771,10 @@ setMethod(
     i <- match.arg(arg = i, choices = names(x = x))
     if (inherits(x = x[[i]], what = 'Molecules')) {
       slot(object = x, name = 'molecules')[[i]] <- NULL
-    } else if (i == DefaultSegmentation(object = x)) {
+    } else if (i == DefaultBoundary(object = x)) {
       stop("Cannot remove default segmentation", call. = FALSE)
     } else {
-      slot(object = x, name = 'segmentations')[[i]] <- NULL
+      slot(object = x, name = 'boundaries')[[i]] <- NULL
       slot(object = x, name = 'cells')[[i]] <- NULL
       slot(object = x, name = 'cells') <- .PruneLogMap(x = slot(
         object = x,
@@ -785,12 +786,12 @@ setMethod(
   }
 )
 
-#' @rdname SpatialCoords-methods
+#' @rdname FOV-methods
 #'
 setMethod(
   f = '[[<-',
   signature = c(
-    x = 'SpatialCoords',
+    x = 'FOV',
     i = 'character',
     j = 'missing',
     value = 'Segmentation'
@@ -800,9 +801,9 @@ setMethod(
 
 setMethod(
   f = 'bbox',
-  signature = 'SpatialCoords',
+  signature = 'FOV',
   definition = function(obj) {
-    boxes <- lapply(X = slot(object = obj, name = 'segmentations'), FUN = bbox)
+    boxes <- lapply(X = slot(object = obj, name = 'boundaries'), FUN = bbox)
     boxes <- do.call(what = 'cbind', args = boxes)
     return(bbox(obj = t(x = boxes)))
   }
@@ -812,13 +813,13 @@ setMethod(
 #'
 setMethod(
   f = 'Overlay',
-  signature = c(x = 'SpatialCoords', y = 'Spatial'),
+  signature = c(x = 'FOV', y = 'Spatial'),
   definition = .OverBbox
 )
 
 setMethod(
   f = 'Overlay',
-  signature = c(x = 'SpatialCoords', y = 'SpatialPolygons'),
+  signature = c(x = 'FOV', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
     for (i in names(x = x)) {
       x[[i]] <- Overlay(x = x[[i]], y = y, invert = invert, ...)
@@ -829,17 +830,17 @@ setMethod(
 
 setMethod(
   f = 'Overlay',
-  signature = c(x = 'SpatialCoords', y = 'SpatialCoords'),
+  signature = c(x = 'FOV', y = 'FOV'),
   definition = .OverBbox
 )
 
 #' @template method-show
 #'
-#' @rdname SpatialCoords-methods
+#' @rdname FOV-methods
 #'
 setMethod(
   f = 'show',
-  signature = c(object = 'SpatialCoords'),
+  signature = c(object = 'FOV'),
   definition = function(object) {
     # Show cell information
     cat(
@@ -860,22 +861,20 @@ setMethod(
     }
     cat("\n")
     # Show segmentation information
-    cat("Default segmentation:", DefaultSegmentation(object = object), "\n")
-    if (length(x = Segmentations(object = object)) > 1L) {
+    cat(
+      "Default segmentation boundary:",
+      DefaultBoundary(object = object),
+      "\n"
+    )
+    if (length(x = Boundaries(object = object)) > 1L) {
       segs <- setdiff(
-        x = Segmentations(object = object),
-        y = DefaultSegmentation(object = object)
+        x = Boundaries(object = object),
+        y = DefaultBoundary(object = object)
       )
       cat(
         character(),
         length(x = segs),
-        "other",
-        ifelse(
-          test = length(x = segs) == 1L,
-          yes = "segmentation",
-          no = "segmentations"
-        ),
-        "present:",
+        "other segmentation boundaries present:",
         strwrap(x = paste(segs, collapse = ', ')),
         "\n"
       )
@@ -889,35 +888,35 @@ setMethod(
 )
 
 setValidity(
-  Class = 'SpatialCoords',
+  Class = 'FOV',
   method = function(object) {
     valid <- NULL
     # Check cells
     cmap <- slot(object = object, name = 'cells')
-    if (ncol(x = cmap) != length(x = slot(object = object, name = 'segmentations'))) {
-      valid <- c(valid, "'cells' must have the same length as 'segmentations'")
-    } else if (all(sort(x = colnames(x = cmap)) != sort(x = Segmentations(object = object)))) {
-      valid <- c(valid, "'cells' must have the same names as 'segmentations'")
+    if (ncol(x = cmap) != length(x = slot(object = object, name = 'boundaries'))) {
+      valid <- c(valid, "'cells' must have the same length as 'boundaries'")
+    } else if (all(sort(x = colnames(x = cmap)) != sort(x = Boundaries(object = object)))) {
+      valid <- c(valid, "'cells' must have the same names as 'boundaries'")
     }
-    # Check segmentations
+    # Check boundaries
     nlist <- IsNamedList(
-      x = slot(object = object, name = 'segmentations'),
+      x = slot(object = object, name = 'boundaries'),
       pass.zero = TRUE
     )
     if (!isTRUE(x = nlist)) {
-      valid <- c(valid, "'segmentations' must be a named list")
+      valid <- c(valid, "'boundaries' must be a named list")
     } else {
-      for (s in Segmentations(object = object)) {
+      for (s in Boundaries(object = object)) {
         if (!inherits(x = object[[s]], what = c('Segmentation', 'Centroids'))) {
           valid <- c(
             valid,
-            "All segmentations must be either either a 'Segmentation' or 'Centroids' object"
+            "All segmentation boundaries must be either either a 'Segmentation' or 'Centroids' object"
           )
           break
         } else if (!identical(x = Cells(x = object[[s]]), y = cmap[[s]])) {
           valid <- c(
             valid,
-            "All segmentations must have the cells specified in 'cells'"
+            "All segmentation boundaries  must have the cells specified in 'cells'"
           )
           break
         }

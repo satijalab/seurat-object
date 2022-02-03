@@ -135,6 +135,22 @@ as.sparse <- function(x, ...) {
   UseMethod(generic = 'as.sparse', object = x)
 }
 
+#' Get, Set, and Query Segmentation Boundaries
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @name Boundaries
+#' @return \code{Boundaries}: The names of all segmentation boundaries present
+#' within \code{object}
+#'
+#' @rdname Boundaries
+#' @export
+#'
+Boundaries <- function(object, ...) {
+  UseMethod(generic = 'Boundaries', object = object)
+}
+
 #' Cell and Feature Names
 #'
 #' Get the cell and feature names of an object
@@ -313,14 +329,14 @@ CreateSeuratObject <- function(
 #' @param coords Spatial coordinates
 #' @param ... Arguments passed to other methods
 #'
-#' @return A \code{\link{SpatialCoords}} object
+#' @return A \code{\link{FOV}} object
 #'
 #' @export
 #'
-#' @seealso \code{\link{SpatialCoords-class}}
+#' @seealso \code{\link{FOV-class}}
 #'
-CreateSpatialCoords <- function(coords, ...) {
-  UseMethod(generic = 'CreateSpatialCoords', object = coords)
+CreateFOV <- function(coords, ...) {
+  UseMethod(generic = 'CreateFOV', object = coords)
 }
 
 #' Crop Coordinates
@@ -374,33 +390,27 @@ DefaultAssay <- function(object, ...) {
   UseMethod(generic = 'DefaultAssay<-', object = object)
 }
 
-#' Get, Set, and Query Segmentation Layers
+#' @return \code{DefaultBoundary}: The name of the default
+#' segmentation boundary
 #'
-#' @param object An object
-#' @param ... Arguments passed to other methods
-#'
-#' @return \code{DefaultSegmentation}: The name of the default
-#' segmentation layer
-#'
-#' @name Segmentations
-#' @rdname Segmentations
+#' @rdname Boundaries
 #'
 #' @export
 #'
-DefaultSegmentation <- function(object) {
+DefaultBoundary <- function(object) {
   UseMethod(generic = 'DefaultSegmentation', object = object)
 }
 
-#' @param value The name of a segmentation layer to set as default
+#' @param value The name of a segmentation boundary to set as default
 #'
-#' @return \code{DefaultSegmentations<-}: \code{object} with the default
-#' segmentation layer set to \code{value}
+#' @return \code{DefaultBoundary<-}: \code{object} with the default
+#' segmentation boundary set to \code{value}
 #'
-#' @rdname Segmentations
+#' @rdname Boundaries
 #'
 #' @export
 #'
-"DefaultSegmentation<-" <- function(object, ..., value) {
+"DefaultBoundary<-" <- function(object, ..., value) {
   UseMethod(generic = 'DefaultSegmentation<-', object = object)
 }
 
@@ -832,7 +842,7 @@ Misc <- function(object, ...) {
 #' @return \code{Molecules}: The names of all molecule sets present within
 #' \code{object}
 #'
-#' @rdname Segmentations
+#' @rdname Boundaries
 #' @export
 #'
 Molecules <- function(object, ...) {
@@ -993,16 +1003,6 @@ S4ToList <- function(object) {
     return(object)
   }
   UseMethod(generic = 'S4ToList', object = object)
-}
-
-#' @return \code{Segmentations}: The names of all segmentation layers present
-#' within \code{object}
-#'
-#' @rdname Segmentations
-#' @export
-#'
-Segmentations <- function(object, ...) {
-  UseMethod(generic = 'Segmentations', object = object)
 }
 
 #' @param new.data New assay data to add
