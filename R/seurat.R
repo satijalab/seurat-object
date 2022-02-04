@@ -3213,12 +3213,11 @@ FindObject <- function(object, name) {
 #' @noRd
 #'
 UpdateAssay <- function(old.assay, assay) {
-  if (!is.null(x=old.assay@data)){
+  if (!is.null(x = old.assay@data)) {
     cells <- colnames(x = old.assay@data)
   } else {
     cells <- colnames(x = old.assay@raw.data)
   }
-
   counts <- old.assay@raw.data
   data <- old.assay@data
   if (!inherits(x = counts, what = 'dgCMatrix')) {
@@ -3229,15 +3228,21 @@ UpdateAssay <- function(old.assay, assay) {
       data <- as(object = as.matrix(x = data), Class = 'dgCMatrix')
     }
   } else {
-    data <- as(Matrix(data=0, nrow=nrow(counts), ncol=ncol(counts), dimnames=dimnames(counts)), "dgCMatrix")
+    data <- as(
+      object = Matrix(
+        data = 0,
+        nrow = nrow(x = counts),
+        ncol = ncol(x = counts),
+        dimnames = dimnames(x = counts)
+      ),
+      Class = "dgCMatrix"
+    )
   }
-
-  if (!inherits(x = old.assay@scale.data, what = 'matrix')){
+  if (!inherits(x = old.assay@scale.data, what = 'matrix')) {
     scale.data <- new(Class = 'matrix')
   } else {
     scale.data <- old.assay@scale.data
   }
-
   new.assay <- new(
     Class = 'Assay',
     counts = counts[, cells],
@@ -3247,9 +3252,8 @@ UpdateAssay <- function(old.assay, assay) {
     var.features = old.assay@var.genes,
     key = paste0(assay, "_")
   )
-  new.assay
+  return(new.assay)
 }
-
 
 #' @param assay.used Name of assay used to compute dimension reduction
 #'
