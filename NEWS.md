@@ -1,3 +1,7 @@
+# Unreleased
+## Changed
+- Allow `UpdateSeuratObject` to work when `data` is `NULL` (#38)
+
 # SeuratObject 4.0.4
 ## Changed
 - `CreateSeuratObject.Assay` sets Assay key when not present (#29)

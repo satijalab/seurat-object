@@ -3213,20 +3213,41 @@ FindObject <- function(object, name) {
 #' @noRd
 #'
 UpdateAssay <- function(old.assay, assay) {
-  cells <- colnames(x = old.assay@data)
+  if (!is.null(x = old.assay@data)) {
+    cells <- colnames(x = old.assay@data)
+  } else {
+    cells <- colnames(x = old.assay@raw.data)
+  }
   counts <- old.assay@raw.data
   data <- old.assay@data
   if (!inherits(x = counts, what = 'dgCMatrix')) {
     counts <- as(object = as.matrix(x = counts), Class = 'dgCMatrix')
   }
-  if (!inherits(x = data, what = 'dgCMatrix')) {
-    data <- as(object = as.matrix(x = data), Class = 'dgCMatrix')
+  if (!is.null(x = data)) {
+    if (!inherits(x = data, what = 'dgCMatrix')) {
+      data <- as(object = as.matrix(x = data), Class = 'dgCMatrix')
+    }
+  } else {
+    data <- as(
+      object = Matrix(
+        data = 0,
+        nrow = nrow(x = counts),
+        ncol = ncol(x = counts),
+        dimnames = dimnames(x = counts)
+      ),
+      Class = "dgCMatrix"
+    )
+  }
+  if (!inherits(x = old.assay@scale.data, what = 'matrix')) {
+    scale.data <- new(Class = 'matrix')
+  } else {
+    scale.data <- old.assay@scale.data
   }
   new.assay <- new(
     Class = 'Assay',
     counts = counts[, cells],
     data = data,
-    scale.data = old.assay@scale.data %||% new(Class = 'matrix'),
+    scale.data = scale.data,
     meta.features = data.frame(row.names = rownames(x = counts)),
     var.features = old.assay@var.genes,
     key = paste0(assay, "_")
