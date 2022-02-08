@@ -14,9 +14,6 @@ Compatible with \code{\link{SpatialImage}}
 \section{Slots}{
 
 \describe{
-\item{\code{cells}}{(\code{\link{LogMap}}) A map of the cells present
-in each segmentation layer}
-
 \item{\code{molecules}}{(\code{\link[base]{list}}) A named list of
 \code{\link[SeuratObject:Molecules-class]{Molecules}} objects defining
 spatially-resolved molecular coordinates}

@@ -1,10 +1,9 @@
 #' @include zzz.R
 #' @include generics.R
 #' @include centroids.R
+#' @include spatial.R
 #' @include molecules.R
 #' @include segmentation.R
-#' @include spatial.R
-#' @include logmap.R
 #'
 NULL
 
@@ -19,8 +18,6 @@ NULL
 #' Supports coordinates for spatially-resolved molecule (FISH) data.
 #' Compatible with \code{\link{SpatialImage}}
 #'
-#' @slot cells (\code{\link{LogMap}}) A map of the cells present
-#' in each segmentation layer
 #' @slot molecules (\code{\link[base]{list}}) A named list of
 #' \code{\link[SeuratObject:Molecules-class]{Molecules}} objects defining
 #' spatially-resolved molecular coordinates
@@ -45,7 +42,6 @@ setClass(
   Class = 'FOV',
   contains = 'SpatialImage',
   slots = list(
-    cells = 'LogMap',
     molecules = 'list',
     boundaries = 'list'
   )
@@ -67,8 +63,9 @@ setClass(
 #' \code{FOV} object:
 #'
 #' @param x,object A \code{\link{FOV}} object
-#' @param layer Name of segmentation or molecular layer to extract cell or
-#' feature names for; pass \code{NA} to return all cells or feature names
+#' @param boundary,set Name of segmentation boundary or molecule set  to
+#' extract cell or feature names for; pass \code{NA} to return all
+#' cells or feature names
 #' @param i,cells For \code{[[} and \code{[[<-}, the name of a segmentation or
 #' \dQuote{molecules}; for \code{FetchData}, \code{subset}. and \code{[}, a
 #' vector of cells to keep
@@ -78,7 +75,7 @@ setClass(
 #' \code{\link[SeuratObject:Molecules-class]{Molecules}},
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}}, or
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object;
-#' otherwise \code{NULL} to remove the layer stored at \code{i}
+#' otherwise \code{NULL} to remove the boundary stored at \code{i}
 #' @param ... Arguments passed to other methods
 #'
 #' @name FOV-methods
@@ -88,22 +85,30 @@ setClass(
 #'
 NULL
 
+#' @rdname Boundaries
+#' @method Boundaries FOV
+#' @export
+#'
+Boundaries.FOV <- function(object, ...) {
+  return(names(x = slot(object = object, name = 'boundaries')))
+}
+
 #' @template method-cells
 #'
 #' @rdname FOV-methods
 #' @method Cells FOV
 #' @export
 #'
-Cells.FOV <- function(x, layer = NULL, ...) {
-  layer <- layer[1L] %||% DefaultBoundary(object = x)
-  if (is.na(x = layer)) {
+Cells.FOV <- function(x, boundary = NULL, ...) {
+  boundary <- boundary[1L] %||% DefaultBoundary(object = x)
+  if (is.na(x = boundary)) {
     return(Reduce(
       f = union,
       x = lapply(X = slot(object = x, name = 'boundaries'), FUN = Cells)
     ))
   }
-  layer <- match.arg(arg = layer, choices = Boundaries(object = x))
-  return(Cells(x = x[[layer]]))
+  boundary <- match.arg(arg = boundary, choices = Boundaries(object = x))
+  return(Cells(x = x[[boundary]]))
 }
 
 #' @rdname CreateFOV
@@ -190,17 +195,8 @@ CreateFOV.list <- function(
   key = NULL,
   ...
 ) {
-  cells <- LogMap(y = unname(obj = unique(x = unlist(x = lapply(
-    X = coords,
-    FUN = Cells
-  )))))
-  for (i in names(x = coords)) {
-    cells[[i]] <- Cells(x = coords[[i]])
-    coords[[i]] <- subset(x = coords[[i]], cells = cells[[i]])
-  }
   obj <- new(
     Class = 'FOV',
-    cells = cells,
     boundaries = coords,
     molecules = molecules %iff% list(molecules = CreateMolecules(
       coords = molecules,
@@ -271,38 +267,38 @@ DefaultBoundary.FOV <- function(object) {
 #' @method Features FOV
 #' @export
 #'
-Features.FOV <- function(x, layer = NULL, ...) {
+Features.FOV <- function(x, set = NULL, ...) {
   if (!length(x = Molecules(object = x))) {
     return(NULL)
   }
-  layer <- layer[1L] %||% Molecules(object = x)[1L]
-  if (is.na(x = layer)) {
+  set <- set[1L] %||% Molecules(object = x)[1L]
+  if (is.na(x = set)) {
     return(Reduce(
       f = union,
       x = lapply(X = slot(object = x, name = 'molecules'), FUN = Features)
     ))
   }
-  layer <- match.arg(arg = layer, choices = Molecules(object = x))
-  return(Features(x = x[[layer]]))
+  set <- match.arg(arg = set, choices = Molecules(object = x))
+  return(Features(x = x[[set]]))
 }
 
 #' @param vars A vector of variables to fetch; can be the name of a
-#' segmentation layer, to get tissue coordinates, or molecule names,
+#' segmentation boundary, to get tissue coordinates, or molecule names,
 #' to get molecule coordinates
-#' @param simplify If only returning either tissue or molecule coordinates,
+#' @param simplify If only returning either boundary or molecule coordinates,
 #' return a single data frame instead of a list
 #'
-#' @details \code{FetchData}: Fetch tissue and/or molecule coordinates from
+#' @details \code{FetchData}: Fetch boundary and/or molecule coordinates from
 #' a \code{FOV} object
 #'
-#' @return \code{FetchData}: If both molecule and tissue coordinates are
+#' @return \code{FetchData}: If both molecule and boundary coordinates are
 #' requested, then a two-length list:
 #' \itemize{
 #'  \item \dQuote{\code{molecules}}: A data frame with the molecule coordinates
 #'   requested. If molecules requested are keyed, the keys are preserved in the
 #'   data frame
 #'  \item \dQuote{\code{coordinates}}: A data frame with coordinates from the
-#'   segmentation layers requested
+#'   segmentation boundaries requested
 #' }
 #' If \code{simplify} is \code{TRUE} and only one data frame is generated, then
 #' only the data frame is returned. Otherwise, a one-length list is returned
@@ -356,7 +352,7 @@ FetchData.FOV <- function(
   # Find all other molecules
   unkeyed.mols <- Filter(
     f = function(x) {
-      return(x %in% Features(x = object, layer = NA))
+      return(x %in% Features(x = object, set = NA))
     },
     x = vars
   )
@@ -390,11 +386,11 @@ FetchData.FOV <- function(
   coords.fetched <- sapply(
     X = coords,
     FUN = function(x) {
-      if (!is.null(x = cells) && !any(cells %in% Cells(x = object, layer = coords))) {
+      if (!is.null(x = cells) && !any(cells %in% Cells(x = object, boundary = coords))) {
         return(NULL)
       }
       df <- GetTissueCoordinates(object = subset(x = object[[x]], cells = cells))
-      df$layer <- x
+      df$boundary <- x
       return(df)
     },
     simplify = FALSE,
@@ -402,7 +398,7 @@ FetchData.FOV <- function(
   )
   coords.fetched <- do.call(what = 'rbind', args = coords.fetched)
   rownames(x = coords.fetched) <- NULL
-  vars <- setdiff(x = vars, y = unique(x = coords.fetched$layer))
+  vars <- setdiff(x = vars, y = unique(x = coords.fetched$boundary))
   # Warn/error about missing vars
   if (identical(x = vars, y = vars.orig)) {
     stop("Unable to find any of the provided vars", call. = FALSE)
@@ -423,10 +419,10 @@ FetchData.FOV <- function(
   return(data.fetched)
 }
 
-#' @param which Name of segmentation layer or molecule set
+#' @param which Name of segmentation boundary or molecule set
 #'
-#' @details \code{GetTissueCoordinates}: Get cell or molecule  coordinates from
-#' a \code{FOV} object
+#' @details \code{GetTissueCoordinates}: Get boundary or molecule
+#' coordinates from a \code{FOV} object
 #'
 #' @return \code{GetTissueCoordinates}: ...
 #'
@@ -463,12 +459,41 @@ Molecules.FOV <- function(object, ...) {
   return(names(x = slot(object = object, name = 'molecules')))
 }
 
-#' @rdname Boundaries
-#' @method Boundaries FOV
+#' @details \code{RenameCells}: Update cell names
+#'
+#' @inheritParams RenameCells
+#'
+#' @return \code{RenameCells}: \code{object} with the cells renamed to
+#' \code{new.names}
+#'
+#' @rdname FOV-methods
+#' @method RenameCells FOV
 #' @export
 #'
-Boundaries.FOV <- function(object, ...) {
-  return(names(x = slot(object = object, name = 'boundaries')))
+RenameCells.FOV <- function(object, new.names = NULL, ...) {
+  if (is.null(x = new.names)) {
+    return(object)
+  }
+  new.names <- make.unique(names = new.names)
+  all.cells <- Cells(x = object, boundary = NA)
+  if (length(x = new.names) != length(x = all.cells)) {
+    stop("Cannot partially rename cells", call. = FALSE)
+  }
+  for (boundary in Boundaries(object = object)) {
+    idx <- MatchCells(
+      new = all.cells,
+      orig = Cells(x = object[[boundary]]),
+      ordered = TRUE
+    )
+    if (!length(x = idx)) {
+      next
+    }
+    object[[boundary]] <- RenameCells(
+      object = object[[boundary]],
+      new.names = new.names[idx]
+    )
+  }
+  return(object)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -508,9 +533,9 @@ Boundaries.FOV <- function(object, ...) {
   return(subset(x = x, cells = i, features = j, ...))
 }
 
-#' @details \code{$}, \code{[[}: Extract a segmentation layer
+#' @details \code{$}, \code{[[}: Extract a segmentation boundary
 #'
-#' @return \code{$}, \code{[[}: The segmentation layer or spatially-resolved
+#' @return \code{$}, \code{[[}: The segmentation boundary or spatially-resolved
 #' molecule information stored at \code{i}
 #'
 #' @rdname FOV-methods
@@ -551,7 +576,7 @@ length.FOV <- function(x) {
 
 #' @details \code{names}: Get the names of segmentation layers and molecule sets
 #'
-#' @return \code{names}: A vector of segmentation layer and molecule set names
+#' @return \code{names}: A vector of segmentation boundary and molecule set names
 #'
 #' @rdname FOV-methods
 #' @method names FOV
@@ -580,10 +605,6 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   for (i in Boundaries(object = x)) {
     x[[i]] <- subset(x = x[[i]], cells = cells)
   }
-  slot(object = x, name = 'cells') <- .PruneLogMap(x = slot(
-    object = x,
-    name = 'cells'
-  ))
   validObject(object = x)
   return(x)
 }
@@ -592,10 +613,10 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' Add a Segmentation Layer
+#' Add a Segmentation Boundary
 #'
 #' @param x A \code{\link{FOV}} object
-#' @param i Name to store segmentation layer as
+#' @param i Name to store segmentation boundary as
 #' @param ... Ignored
 #' @param value A \code{\link[SeuratObject:Segmentation-class]{Segmentation}}
 #' or [SeuratObject:Centroids-class]\code{\link{Centroids}} object
@@ -611,16 +632,19 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
 #'
 .AddSegmentation <- function(x, i, ..., value) {
   if (i %in% Molecules(object = x)) {
-    stop("'", i, "' already present as molecules")
+    stop("'", i, "' already present as molecules", call. = FALSE)
   }
   # Check bounding box
   if (!.BboxIntersect(i = bbox(obj = value), j = bbox(obj = x), constraint = 'overlap')) {
-    stop("New segmentation layer does not overlap with existing bounds")
+    stop(
+      "New segmentation boundary does not overlap with existing bounds",
+      call. = FALSE
+    )
   }
   # Reorder cells
   vcells <- MatchCells(
     new = Cells(x = value),
-    orig = Cells(x = x),
+    orig = Cells(x = x, boundary = NA),
     ordered = TRUE
   )
   vcells <- c(
@@ -650,29 +674,8 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
       )
     }
   }
-  # Add segmentation layer
+  # Add segmentation boundary
   slot(object = x, name = 'boundaries')[[i]] <- value
-  # Update cells LogMap
-  if (i %in% Boundaries(object = x)) {
-    slot(object = x, name = 'cells')[[i]] <- Cells(x = value)
-    slot(object = x, name = 'boundaries')[[i]] <- subset(
-      x = x[[i]],
-      cells = slot(object = x, name = 'cells')[[i]]
-    )
-  } else {
-    vmap <- LogMap(y = Cells(x = value))
-    vmap[[i]] <- Cells(x = value)
-    cells <- merge(
-      x = slot(object = x, name = 'cells'),
-      y = vmap,
-      by = 0,
-      all = TRUE
-    )
-    rownames(x = cells) <- cells$Row.names
-    cells <- cells[, setdiff(x = colnames(x = cells), y = 'Row.names')]
-    cells <- as(object = as.matrix(x = cells), Class = 'LogMap')
-    slot(object = x, name = 'cells') <- cells
-  }
   # Validate and return
   validObject(object = x)
   return(x)
@@ -687,13 +690,13 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
 #'
 #' @return \code{[[<-}: Varies depending on the class of \code{value}:
 #' \itemize{
-#'  \item If \code{value} is \code{NULL}, returns \code{x} with the layer
+#'  \item If \code{value} is \code{NULL}, returns \code{x} with the boundary
 #'  \code{i} removed; also allows removing \code{molecules}; does not allow
 #'  removing the default segmentation
 #'  \item If \code{value} is a \code{Molecules}, returns \code{x} with
 #'  \code{value} stored in \code{molecules}; requires that \code{i} is
 #'  \dQuote{molecules}
-#'  \item Otherwise, stores \code{value} as a segmentation layer named \code{i}
+#'  \item Otherwise, stores \code{value} as a segmentation boundary named \code{i}
 #' }
 #'
 #' @rdname FOV-methods
@@ -721,7 +724,7 @@ setMethod(
   ),
   definition = function(x, i, ..., value) {
     if (i %in% Boundaries(object = x)) {
-      stop("'", i, "' already present as a segmentation layer")
+      stop("'", i, "' already present as a segmentation boundary")
     }
     check.key <- TRUE
     # Check bounding box for incoming molecules
@@ -775,11 +778,6 @@ setMethod(
       stop("Cannot remove default segmentation", call. = FALSE)
     } else {
       slot(object = x, name = 'boundaries')[[i]] <- NULL
-      slot(object = x, name = 'cells')[[i]] <- NULL
-      slot(object = x, name = 'cells') <- .PruneLogMap(x = slot(
-        object = x,
-        name = 'cells'
-      ))
     }
     validObject(object = x)
     return(x)
@@ -845,16 +843,16 @@ setMethod(
     # Show cell information
     cat(
       "Spatial coordinates for",
-      length(x = Cells(x = object, layer = NA)),
+      length(x = Cells(x = object, boundary = NA)),
       "cells"
     )
     # Show molecule information
-    if (length(x = Features(x = object, layer = NA))) {
-      cat(" and", length(x = Features(x = object, layer = NA)), "molecules\n")
+    if (length(x = Features(x = object, boundary = NA))) {
+      cat(" and", length(x = Features(x = object, boundary = NA)), "molecules\n")
       cat(
         " First 10 molecules:",
         strwrap(x = paste(
-          head(x = Features(x = object, layer = NA)),
+          head(x = Features(x = object, boundary = NA)),
           collapse = ', '
         ))
       )
@@ -891,13 +889,6 @@ setValidity(
   Class = 'FOV',
   method = function(object) {
     valid <- NULL
-    # Check cells
-    cmap <- slot(object = object, name = 'cells')
-    if (ncol(x = cmap) != length(x = slot(object = object, name = 'boundaries'))) {
-      valid <- c(valid, "'cells' must have the same length as 'boundaries'")
-    } else if (all(sort(x = colnames(x = cmap)) != sort(x = Boundaries(object = object)))) {
-      valid <- c(valid, "'cells' must have the same names as 'boundaries'")
-    }
     # Check boundaries
     nlist <- IsNamedList(
       x = slot(object = object, name = 'boundaries'),
@@ -906,6 +897,7 @@ setValidity(
     if (!isTRUE(x = nlist)) {
       valid <- c(valid, "'boundaries' must be a named list")
     } else {
+      all.cells <- Cells(x = object, boundary = NA)
       for (s in Boundaries(object = object)) {
         if (!inherits(x = object[[s]], what = c('Segmentation', 'Centroids'))) {
           valid <- c(
@@ -913,12 +905,25 @@ setValidity(
             "All segmentation boundaries must be either either a 'Segmentation' or 'Centroids' object"
           )
           break
-        } else if (!identical(x = Cells(x = object[[s]]), y = cmap[[s]])) {
-          valid <- c(
-            valid,
-            "All segmentation boundaries  must have the cells specified in 'cells'"
+        } else {
+          matched.cells <- MatchCells(
+            new = all.cells,
+            orig = Cells(x = object[[s]]),
+            ordered = TRUE
           )
-          break
+          if (length(x = matched.cells) != length(x = Cells(x = object[[s]]))) {
+            valid <- c(
+              valid,
+              "All segmentation boundaries must have cells"
+            )
+            break
+          } else if (is.unsorted(x = matched.cells)) {
+            valid <- c(
+              valid,
+              "All segmentation boundaries must be ordered"
+            )
+            break
+          }
         }
       }
     }

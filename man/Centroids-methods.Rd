@@ -5,6 +5,7 @@
 \alias{Cells.Centroids}
 \alias{GetTissueCoordinates.Centroids}
 \alias{Radius.Centroids}
+\alias{RenameCells.Centroids}
 \alias{Theta.Centroids}
 \alias{is.finite.Centroids}
 \alias{is.infinite.Centroids}
@@ -21,6 +22,8 @@
 \method{GetTissueCoordinates}{Centroids}(object, full = TRUE, ...)
 
 \method{Radius}{Centroids}(object)
+
+\method{RenameCells}{Centroids}(object, new.names = NULL, ...)
 
 \method{Theta}{Centroids}(object)
 
@@ -48,6 +51,8 @@ object}
 
 \item{full}{Expand the coordinates to the full polygon}
 
+\item{new.names}{vector of new cell names}
+
 \item{use.names}{Ignored}
 
 \item{i, cells}{A vector of cells to keep; if \code{NULL}, defaults
@@ -67,6 +72,9 @@ for the cell polygon; otherwise, each coordinate will indicate a centroid
 for the cell
 
 \code{Radius} The radius of the centroids
+
+\code{RenameCells}: \code{object} with the cells renamed to
+\code{new.names}
 
 \code{Theta}: The offset angle in degrees
 
@@ -92,6 +100,8 @@ Methods for \code{\link[SeuratObject:Centroids-class]{Centroids}} objects
 \code{GetTissueCoordinates}: Get cell spatial coordinates
 
 \code{Radius}: Get the centroid radius
+
+\code{RenameCells}: Update cell names
 
 \code{Theta}: Get the offset angle
 

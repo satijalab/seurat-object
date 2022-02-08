@@ -202,7 +202,7 @@ setOldClass(Classes = 'package_version')
 #'
 #' @noRd
 #'
-.Crop <- function(object, x = NULL, y = NULL, coords = c('plot',' tissue'), ...) {
+.Crop <- function(object, x = NULL, y = NULL, coords = c('plot','tissue'), ...) {
   if (is.null(x = x) && is.null(x = y)) {
     return(object)
   }

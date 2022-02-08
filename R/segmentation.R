@@ -41,6 +41,39 @@ setClass(
 #' @name Segmentation-methods
 #' @rdname Segmentation-methods
 #'
+#' @section Progress Updates with \pkg{progressr}:
+#' The following methods use
+#' \href{https://cran.r-project.org/package=progressr}{\pkg{progressr}} to
+#' render status updates and progress bars:
+#' \itemize{
+#'  \item \code{RenameCells}
+#' }
+#' To enable progress updates, wrap
+#' the function call in \code{\link[progressr]{with_progress}} or run
+#' \code{\link[progressr:handlers]{handlers(global = TRUE)}} before running
+#' this function. For more details about \pkg{progressr}, please read
+#' \href{https://progressr.futureverse.org/articles/progressr-intro.html}{\code{vignette("progressr-intro")}}
+
+#'
+#' @section Parallelization with \pkg{future}:
+#' The following methods use
+#' \href{https://cran.r-project.org/package=future}{\pkg{future}} to enable
+#' parallelization:
+#' \itemize{
+#'  \item \code{RenameCells}
+#' }
+#' Parallelization strategies can be set using
+#' \code{\link[future]{plan}}. Common plans include \dQuote{\code{sequential}}
+#' for non-parallelized processing or \dQuote{\code{multisession}} for parallel
+#' evaluation using multiple \R sessions; for other plans, see the
+#' \dQuote{Implemented evaluation strategies} section of
+#' \code{\link[future:plan]{?future::plan}}. For a more thorough introduction
+#' to \pkg{future}, see
+#' \href{https://future.futureverse.org/articles/future-1-overview.html}{\code{vignette("future-1-overview")}}
+#'
+#' @concept future
+
+#'
 #' @seealso \code{\link{Segmentation-class}}
 #'
 NULL
@@ -120,6 +153,43 @@ GetTissueCoordinates.Segmentation <- function(object, full = TRUE, ...) {
   colnames(x = coords) <- c('x', 'y', 'cell')
   rownames(x = coords) <- NULL
   return(coords)
+}
+
+#' @details \code{RenameCells}: Update cell names
+#'
+#' @inheritParams RenameCells
+#'
+#' @return \code{RenameCells}: \code{object} with the cells renamed to
+#' \code{new.names}
+#'
+#' @importFrom future.apply future_mapply
+#'
+#' @rdname Segmentation-methods
+#' @method RenameCells Segmentation
+#' @export
+#'
+RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
+  if (is.null(x = new.names)) {
+    return(object)
+  }
+  new.names <- make.unique(names = new.names)
+  if (length(x = new.names) != length(x = Cells(x = object))) {
+    stop("Cannot partially rename cells", call. = FALSE)
+  }
+  names(x = slot(object = object, name = 'polygons')) <- new.names
+  p <- progressor(along = slot(object = object, name = 'polygons'))
+  slot(object = object, name = 'polygons') <- future_mapply(
+    FUN = function(polygon, name) {
+      slot(object = polygon, name = 'ID') <- name
+      p()
+      return(polygon)
+    },
+    polygon = slot(object = object, name = 'polygons'),
+    name = new.names,
+    SIMPLIFY = FALSE,
+    USE.NAMES = TRUE
+  )
+  return(object)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

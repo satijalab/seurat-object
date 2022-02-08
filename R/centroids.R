@@ -194,6 +194,30 @@ Radius.Centroids <- function(object) {
   return(slot(object = object, name = 'radius'))
 }
 
+#' @details \code{RenameCells}: Update cell names
+#'
+#' @inheritParams RenameCells
+#'
+#' @return \code{RenameCells}: \code{object} with the cells renamed to
+#' \code{new.names}
+#'
+#' @rdname Centroids-methods
+#' @method RenameCells Centroids
+#' @export
+#'
+RenameCells.Centroids <- function(object, new.names = NULL, ...) {
+  if (is.null(x = new.names)) {
+    return(object)
+  }
+  new.names <- make.unique(names = new.names)
+  if (length(x = new.names) != length(x = Cells(x = object))) {
+    stop("Cannot partially rename cells", call. = FALSE)
+  }
+  slot(object = object, name = 'cells') <- new.names
+  return(object)
+}
+
+
 #' @details \code{Theta}: Get the offset angle
 #'
 #' @return \code{Theta}: The offset angle in degrees

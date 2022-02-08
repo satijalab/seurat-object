@@ -4,6 +4,7 @@
 \alias{Segmentation-methods}
 \alias{Cells.Segmentation}
 \alias{GetTissueCoordinates.Segmentation}
+\alias{RenameCells.Segmentation}
 \alias{lengths.Segmentation}
 \alias{subset.Segmentation}
 \alias{[,Segmentation,ANY,ANY,ANY-method}
@@ -14,6 +15,8 @@
 \method{Cells}{Segmentation}(x, ...)
 
 \method{GetTissueCoordinates}{Segmentation}(object, full = TRUE, ...)
+
+\method{RenameCells}{Segmentation}(object, new.names = NULL, ...)
 
 \method{lengths}{Segmentation}(x, use.names = TRUE)
 
@@ -32,6 +35,8 @@
 \item{...}{Arguments passed to other methods}
 
 \item{full}{Expand the coordinates to the full polygon}
+
+\item{new.names}{vector of new cell names}
 
 \item{use.names}{Ignored}
 
@@ -59,6 +64,9 @@ If \code{full} is \code{TRUE}, then each coordinate will indicate a vertex
 for the cell polygon; otherwise, each coordinate will indicate a centroid
 for the cell. Note: \code{GetTissueCoordinates} ....
 
+\code{RenameCells}: \code{object} with the cells renamed to
+\code{new.names}
+
 \code{lengths}: An \code{\link[base:rle]{rle}} object for the cells
 
 \code{subset}, \code{[}: \code{x} subsetted to the cells specified
@@ -76,6 +84,8 @@ objects
 \code{GetTissueCoordinates}, \code{coordinates}: Get
 tissue coordinates
 
+\code{RenameCells}: Update cell names
+
 \code{lengths}: Generate a run-length encoding of the cells present
 
 \code{subset}, \code{[}: Subset a \code{Segmentation} object to
@@ -83,6 +93,40 @@ certain cells
 
 \code{show}: Display an object summary to stdout
 }
+\section{Progress Updates with \pkg{progressr}}{
+
+The following methods use
+\href{https://cran.r-project.org/package=progressr}{\pkg{progressr}} to
+render status updates and progress bars:
+\itemize{
+ \item \code{RenameCells}
+}
+To enable progress updates, wrap
+the function call in \code{\link[progressr]{with_progress}} or run
+\code{\link[progressr:handlers]{handlers(global = TRUE)}} before running
+this function. For more details about \pkg{progressr}, please read
+\href{https://progressr.futureverse.org/articles/progressr-intro.html}{\code{vignette("progressr-intro")}}
+}
+
+\section{Parallelization with \pkg{future}}{
+
+The following methods use
+\href{https://cran.r-project.org/package=future}{\pkg{future}} to enable
+parallelization:
+\itemize{
+ \item \code{RenameCells}
+}
+Parallelization strategies can be set using
+\code{\link[future]{plan}}. Common plans include \dQuote{\code{sequential}}
+for non-parallelized processing or \dQuote{\code{multisession}} for parallel
+evaluation using multiple \R sessions; for other plans, see the
+\dQuote{Implemented evaluation strategies} section of
+\code{\link[future:plan]{?future::plan}}. For a more thorough introduction
+to \pkg{future}, see
+\href{https://future.futureverse.org/articles/future-1-overview.html}{\code{vignette("future-1-overview")}}
+}
+
 \seealso{
 \code{\link{Segmentation-class}}
 }
+\concept{future}

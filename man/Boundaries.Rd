@@ -5,10 +5,10 @@
 \alias{DefaultBoundary}
 \alias{DefaultBoundary<-}
 \alias{Molecules}
+\alias{Boundaries.FOV}
 \alias{DefaultBoundary.FOV}
 \alias{DefaultBoundary<-.FOV}
 \alias{Molecules.FOV}
-\alias{Boundaries.FOV}
 \title{Get, Set, and Query Segmentation Boundaries}
 \usage{
 Boundaries(object, ...)
@@ -19,13 +19,13 @@ DefaultBoundary(object, ...) <- value
 
 Molecules(object, ...)
 
+\method{Boundaries}{FOV}(object, ...)
+
 \method{DefaultBoundary}{FOV}(object)
 
 \method{DefaultBoundary}{FOV}(object, ...) <- value
 
 \method{Molecules}{FOV}(object, ...)
-
-\method{Boundaries}{FOV}(object, ...)
 }
 \arguments{
 \item{object}{An object}

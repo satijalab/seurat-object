@@ -7,6 +7,7 @@
 \alias{FetchData.FOV}
 \alias{GetTissueCoordinates.FOV}
 \alias{Keys.FOV}
+\alias{RenameCells.FOV}
 \alias{$.FOV}
 \alias{[.FOV}
 \alias{[[.FOV}
@@ -20,15 +21,17 @@
 \alias{show,FOV-method}
 \title{\code{FOV} Methods}
 \usage{
-\method{Cells}{FOV}(x, layer = NULL, ...)
+\method{Cells}{FOV}(x, boundary = NULL, ...)
 
-\method{Features}{FOV}(x, layer = NULL, ...)
+\method{Features}{FOV}(x, set = NULL, ...)
 
 \method{FetchData}{FOV}(object, vars, cells = NULL, simplify = TRUE, ...)
 
 \method{GetTissueCoordinates}{FOV}(object, which = NULL, ...)
 
 \method{Keys}{FOV}(object, ...)
+
+\method{RenameCells}{FOV}(object, new.names = NULL, ...)
 
 \method{$}{FOV}(x, i, ...)
 
@@ -55,19 +58,22 @@
 \arguments{
 \item{x, object}{A \code{\link{FOV}} object}
 
-\item{layer}{Name of segmentation or molecular layer to extract cell or
-feature names for; pass \code{NA} to return all cells or feature names}
+\item{boundary, set}{Name of segmentation boundary or molecule set  to
+extract cell or feature names for; pass \code{NA} to return all
+cells or feature names}
 
 \item{...}{Arguments passed to other methods}
 
 \item{vars}{A vector of variables to fetch; can be the name of a
-segmentation layer, to get tissue coordinates, or molecule names,
+segmentation boundary, to get tissue coordinates, or molecule names,
 to get molecule coordinates}
 
-\item{simplify}{If only returning either tissue or molecule coordinates,
+\item{simplify}{If only returning either boundary or molecule coordinates,
 return a single data frame instead of a list}
 
-\item{which}{Name of segmentation layer or molecule set}
+\item{which}{Name of segmentation boundary or molecule set}
+
+\item{new.names}{vector of new cell names}
 
 \item{i, cells}{For \code{[[} and \code{[[<-}, the name of a segmentation or
 \dQuote{molecules}; for \code{FetchData}, \code{subset}. and \code{[}, a
@@ -80,7 +86,7 @@ keep; for \code{[[<-}, not used}
 \code{\link[SeuratObject:Molecules-class]{Molecules}},
 \code{\link[SeuratObject:Centroids-class]{Centroids}}, or
 \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object;
-otherwise \code{NULL} to remove the layer stored at \code{i}}
+otherwise \code{NULL} to remove the boundary stored at \code{i}}
 }
 \value{
 \code{Cells}: A vector of cell names
@@ -88,14 +94,14 @@ otherwise \code{NULL} to remove the layer stored at \code{i}}
 \code{Features}: A vector of spatially-resolved molecule names;
 if no molecular information present, returns \code{NULL}
 
-\code{FetchData}: If both molecule and tissue coordinates are
+\code{FetchData}: If both molecule and boundary coordinates are
 requested, then a two-length list:
 \itemize{
  \item \dQuote{\code{molecules}}: A data frame with the molecule coordinates
   requested. If molecules requested are keyed, the keys are preserved in the
   data frame
  \item \dQuote{\code{coordinates}}: A data frame with coordinates from the
-  segmentation layers requested
+  segmentation boundaries requested
 }
 If \code{simplify} is \code{TRUE} and only one data frame is generated, then
 only the data frame is returned. Otherwise, a one-length list is returned
@@ -107,26 +113,29 @@ with the single data frame generated
 names of the molecule sets and values are the keys for the respective
 molecule set
 
-\code{$}, \code{[[}: The segmentation layer or spatially-resolved
+\code{RenameCells}: \code{object} with the cells renamed to
+\code{new.names}
+
+\code{$}, \code{[[}: The segmentation boundary or spatially-resolved
 molecule information stored at \code{i}
 
 \code{length}: The number of segmentation layers
 (\code{\link[SeuratObject:Segmentation-class]{Segmentation}} or
 \code{\link[SeuratObject:Centroids-class]{Centroids}} objects)
 
-\code{names}: A vector of segmentation layer and molecule set names
+\code{names}: A vector of segmentation boundary and molecule set names
 
 \code{subset}: \code{x} with just the cells and features specified
 
 \code{[[<-}: Varies depending on the class of \code{value}:
 \itemize{
- \item If \code{value} is \code{NULL}, returns \code{x} with the layer
+ \item If \code{value} is \code{NULL}, returns \code{x} with the boundary
  \code{i} removed; also allows removing \code{molecules}; does not allow
  removing the default segmentation
  \item If \code{value} is a \code{Molecules}, returns \code{x} with
  \code{value} stored in \code{molecules}; requires that \code{i} is
  \dQuote{molecules}
- \item Otherwise, stores \code{value} as a segmentation layer named \code{i}
+ \item Otherwise, stores \code{value} as a segmentation boundary named \code{i}
 }
 
 \code{show}: Invisibly returns \code{NULL}
@@ -142,16 +151,18 @@ The following methods are defined for interacting with a
 
 \code{Features}: Get spatially-resolved molecule names
 
-\code{FetchData}: Fetch tissue and/or molecule coordinates from
+\code{FetchData}: Fetch boundary and/or molecule coordinates from
 a \code{FOV} object
 
-\code{GetTissueCoordinates}: Get cell or molecule  coordinates from
-a \code{FOV} object
+\code{GetTissueCoordinates}: Get boundary or molecule
+coordinates from a \code{FOV} object
 
 \code{Keys}: Get the keys of molecule sets contained within a
 \code{FOV} object
 
-\code{$}, \code{[[}: Extract a segmentation layer
+\code{RenameCells}: Update cell names
+
+\code{$}, \code{[[}: Extract a segmentation boundary
 
 \code{length}: Get the number of segmentation layers in a
 \code{FOV} object
