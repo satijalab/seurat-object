@@ -603,6 +603,10 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
     x[[i]] <- subset(x = x[[i]], features = features)
   }
   for (i in Boundaries(object = x)) {
+    # make sure to select a common set of cells when input is numeric
+    if (is.numeric(x = cells)) {
+      cells <- Cells(x = x, boundary = NA)[cells]
+    }
     x[[i]] <- subset(x = x[[i]], cells = cells)
   }
   validObject(object = x)
@@ -917,13 +921,14 @@ setValidity(
               "All segmentation boundaries must have cells"
             )
             break
-          } else if (is.unsorted(x = matched.cells)) {
-            valid <- c(
-              valid,
-              "All segmentation boundaries must be ordered"
-            )
-            break
-          }
+          } 
+          # else if (is.unsorted(x = matched.cells)) {
+          #   valid <- c(
+          #     valid,
+          #     "All segmentation boundaries must be ordered"
+          #   )
+          #   break
+          # }
         }
       }
     }

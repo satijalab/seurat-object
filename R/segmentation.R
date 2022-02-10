@@ -98,6 +98,7 @@ CreateSegmentation.data.frame <- function(coords) {
   idx <- NameIndex(x = coords, names = c('cell', 'x', 'y'), MARGIN = 2L)
   xy <- idx[c('x', 'y')]
   cell.idx <- idx[['cell']]
+  # ordered.names <- sort(unique(coords[[cell.idx]]))
   coords <- split(x = coords, f = coords[[cell.idx]])
   coords <- sapply(
     X = coords,
@@ -110,6 +111,7 @@ CreateSegmentation.data.frame <- function(coords) {
       ))
     }
   )
+  # coords <- coords[ordered.names]
   coords <- SpatialPolygons(Srl = coords)
   CheckGC()
   return(as(object = coords, Class = 'Segmentation'))

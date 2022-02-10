@@ -88,6 +88,7 @@ CreateCentroids.default <- function(
     cnames <- append(x = cnames, values = 'cell')
   }
   idx <- NameIndex(x = coords, names = cnames, MARGIN = 2L)
+  # coords <- coords[order(coords$cell),]
   cells <- if ('cell' %in% names(x = idx)) {
     as.character(x = coords[, idx[['cell']], drop = TRUE])
   } else {
