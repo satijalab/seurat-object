@@ -414,6 +414,35 @@ DefaultBoundary <- function(object) {
   UseMethod(generic = 'DefaultBoundary<-', object = object)
 }
 
+#' Get and Set the Default FOV
+#'
+#' @param object A \code{\link{Seurat}} Object
+#' @param ... Arguments passed to other methods
+#'
+#' @return \code{DefaultFOV}: The name of the default \code{\link{FOV}}
+#'
+#' @name DefaultFOV
+#' @rdname DefaultFOV
+#'
+#' @export
+#'
+DefaultFOV <- function(object, ...) {
+  UseMethod(generic = 'DefaultFOV', object = object)
+}
+
+#' @param value The name of the \code{\link{FOV}} to set as the default
+#'
+#' @return \code{DefaultFOV<-}: \code{object} with the default FOV set
+#' to \code{value}
+#'
+#' @rdname DefaultFOV
+#'
+#' @export
+#'
+"DefaultFOV<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultFOV<-', object = object)
+}
+
 #' Get the Neighbor nearest neighbors distance matrix
 #'
 #' @param object An object

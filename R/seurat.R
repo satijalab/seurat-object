@@ -914,6 +914,83 @@ DefaultAssay.Seurat <- function(object, ...) {
   return(object)
 }
 
+#' @param assay Name of assay to get or set default \code{\link{FOV}} for;
+#' pass \code{NA} to get or set the global default \code{\link{FOV}}
+#'
+#' @rdname DefaultFOV
+#' @method DefaultFOV Seurat
+#' @export
+#'
+DefaultFOV.Seurat <- function(object, assay = NULL, ...) {
+  assay <- assay[1L] %||% DefaultAssay(object = object)
+  fovs <- FilterObjects(object = object, classes.keep = 'FOV')
+  if (is.na(x = assay)) {
+    return(fovs[1L])
+  }
+  assay <- match.arg(arg = assay, choices = Assays(object = object))
+  assay.fovs <- Filter(
+    f = function(x) {
+      return(DefaultAssay(object = object[[x]]) == assay)
+    },
+    x = fovs
+  )
+  if (!length(x = assay.fovs)) {
+    warning(
+      "No FOV associated with assay '",
+      assay,
+      "', using global default FOV",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    assay.fovs <- fovs[1L]
+  }
+  return(assay.fovs[1L])
+}
+
+#' @rdname DefaultFOV
+#' @method DefaultFOV<- Seurat
+#' @export
+#'
+"DefaultFOV<-.Seurat" <- function(object, assay = NA, ..., value) {
+  assay <- assay[1L] %||% DefaultAssay(object = object)
+  fovs <- FilterObjects(object = object, classes.keep = 'FOV')
+  value <- match.arg(arg = value, choices = fovs)
+  if (!is.na(x = assay)) {
+    assay <- match.arg(arg = assay, choices = Assays(object = object))
+    if (DefaultAssay(object = object[[value]]) != assay) {
+      warning(
+        "FOV '",
+        value,
+        "' currently associated with assay '",
+        DefaultAssay(object = object[[value]]),
+        "', changing to '",
+        assay,
+        "'",
+        call. = FALSE,
+        immediate. = TRUE
+      )
+      DefaultAssay(object = object[[value]]) <- assay
+    }
+    fovs <- Filter(
+      f = function(x) {
+        return(DefaultAssay(object = object[[x]]) == assay)
+      },
+      x = fovs
+    )
+  }
+  fidx <- which(x = fovs == value)
+  forder <- c(fidx, setdiff(x = seq_along(along.with = fovs), y = fidx))
+  fovs <- fovs[forder]
+  iidx <- seq_along(along.with = Images(object = object))
+  midx <- MatchCells(new = Images(object = object), orig = fovs, ordered = TRUE)
+  iidx[sort(x = midx)] <- midx
+  slot(object = object, name = 'images') <- slot(
+    object = object,
+    name = 'images'
+  )[iidx]
+  return(object)
+}
+
 #' @param reduction Name of reduction to pull cell embeddings for
 #'
 #' @rdname Embeddings
