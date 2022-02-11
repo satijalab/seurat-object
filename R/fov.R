@@ -602,6 +602,9 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   for (i in Molecules(object = x)) {
     x[[i]] <- subset(x = x[[i]], features = features)
   }
+  if (is.numeric(x = cells)) {
+    cells <- Cells(x = x, boundary = NA)[cells]
+  }
   for (i in Boundaries(object = x)) {
     x[[i]] <- subset(x = x[[i]], cells = cells)
   }
