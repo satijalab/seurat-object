@@ -195,23 +195,6 @@ CreateFOV.list <- function(
   key = NULL,
   ...
 ) {
-  # Reorder cells for boundaries
-  all.cells <- Reduce(f = union, x = lapply(X = coords, FUN = Cells))
-  for (i in seq_along(along.with = coords)) {
-    if (i == 1L) {
-      next
-    }
-    icells <- MatchCells(
-      new = Cells(x = coords[[i]]),
-      orig = all.cells,
-      ordered = TRUE
-    )
-    icells <- c(
-      icells,
-      setdiff(x = seq_along(along.with = Cells(x = coords[[i]])), y = icells)
-    )
-    coords[[i]] <- coords[[i]][icells]
-  }
   # Create a list of Molecules objects if provided; otherwise use an empty list
   molecules <- molecules %iff% list(molecules = CreateMolecules(
     coords = molecules,
@@ -225,7 +208,6 @@ CreateFOV.list <- function(
     assay = assay,
     key = key %||% Key(object = assay, quiet = TRUE)
   )
-  validObject(object = obj)
   return(obj)
 }
 
@@ -664,20 +646,20 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
       call. = FALSE
     )
   }
-  # Reorder cells
-  vcells <- MatchCells(
-    new = Cells(x = value),
-    orig = Cells(x = x, boundary = NA),
-    ordered = TRUE
-  )
-  vcells <- c(
-    vcells,
-    setdiff(
-      x = seq.int(from = 1L, to = length(x = Cells(x = value))),
-      y = vcells
-    )
-  )
-  value <- value[vcells]
+  # # Reorder cells
+  # vcells <- MatchCells(
+  #   new = Cells(x = value),
+  #   orig = Cells(x = x, boundary = NA),
+  #   ordered = TRUE
+  # )
+  # vcells <- c(
+  #   vcells,
+  #   setdiff(
+  #     x = seq.int(from = 1L, to = length(x = Cells(x = value))),
+  #     y = vcells
+  #   )
+  # )
+  # value <- value[vcells]
   # Check class
   if (i %in% Boundaries(object = x)) {
     same.class <- vapply(
@@ -699,9 +681,38 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   }
   # Add segmentation boundary
   slot(object = x, name = 'boundaries')[[i]] <- value
+  # Reorder cells
+  x <- .OrderCells(object = x)
   # Validate and return
   validObject(object = x)
   return(x)
+}
+
+#' Order cells in an FOV
+#'
+#' @param object An \code{\link[SeuratObject:FOV-class]{FOV}} object
+#'
+#' @return \code{object} with the cells in each boundary ordered
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.OrderCells <- function(object) {
+  all.cells <- Cells(x = object, boundary = NA)
+  for (b in Boundaries(object = object)) {
+    bcells <- MatchCells(
+      new = Cells(x = object[[b]]),
+      orig = all.cells,
+      ordered = TRUE
+    )
+    bcells <- c(
+      bcells,
+      setdiff(x = seq_along(along.with = Cells(x = object[[b]])), y = bcells)
+    )
+    slot(object = object, name = 'boundaries')[[b]] <- object[[b]][bcells]
+  }
+  return(object)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -827,6 +838,24 @@ setMethod(
     boxes <- lapply(X = slot(object = obj, name = 'boundaries'), FUN = bbox)
     boxes <- do.call(what = 'cbind', args = boxes)
     return(bbox(obj = t(x = boxes)))
+  }
+)
+
+#' @importFrom methods initialize
+#'
+setMethod(
+  f = 'initialize',
+  signature = 'FOV',
+  definition = function(.Object, molecules, boundaries, assay, key, ...) {
+    .Object <- callNextMethod(.Object, ...)
+    slot(object = .Object, name = 'molecules') <- molecules
+    slot(object = .Object, name = 'boundaries') <- boundaries
+    slot(object = .Object, name = 'assay') <- assay
+    slot(object = .Object, name = 'key') <- key
+    # Reorder cells in boundaries
+    .Object <- .OrderCells(object = .Object)
+    validObject(object = .Object)
+    return(.Object)
   }
 )
 

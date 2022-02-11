@@ -228,7 +228,7 @@ IsGlobal.SpatialImage <- function(object, ...) {
 #'
 Key.SpatialImage <- function(object, ...) {
   CheckDots(...)
-  object <- UpdateSlots(object = object)
+  # object <- UpdateSlots(object = object)
   return(slot(object = object, name = 'key'))
 }
 
