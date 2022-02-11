@@ -195,13 +195,33 @@ CreateFOV.list <- function(
   key = NULL,
   ...
 ) {
+  # Reorder cells for boundaries
+  all.cells <- Reduce(f = union, x = lapply(X = coords, FUN = Cells))
+  for (i in seq_along(along.with = coords)) {
+    if (i == 1L) {
+      next
+    }
+    icells <- MatchCells(
+      new = Cells(x = coords[[i]]),
+      orig = all.cells,
+      ordered = TRUE
+    )
+    icells <- c(
+      icells,
+      setdiff(x = seq_along(along.with = Cells(x = coords[[i]])), y = icells)
+    )
+    coords[[i]] <- coords[[i]][icells]
+  }
+  # Create a list of Molecules objects if provided; otherwise use an empty list
+  molecules <- molecules %iff% list(molecules = CreateMolecules(
+    coords = molecules,
+    key = 'mols_'
+  )) %||% list()
+  # Create and validate the FOV object
   obj <- new(
     Class = 'FOV',
     boundaries = coords,
-    molecules = molecules %iff% list(molecules = CreateMolecules(
-      coords = molecules,
-      key = 'mols_'
-    )) %||% list(),
+    molecules = molecules,
     assay = assay,
     key = key %||% Key(object = assay, quiet = TRUE)
   )
