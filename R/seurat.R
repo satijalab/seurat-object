@@ -3090,6 +3090,28 @@ setMethod(
         strwrap(x = paste(reductions, collapse = ', '))
       )
     }
+    fovs <- FilterObjects(object = object, classes.keep = 'FOV')
+    if (length(x = fovs)) {
+      cat(
+        '\n',
+        length(x = fovs),
+        'spatial',
+        ifelse(test = length(x = fovs) == 1L, yes = 'field', no = 'fields'),
+        'of view present:',
+        strwrap(x = paste(fovs, sep = ', '))
+      )
+    }
+    images <- FilterObjects(object = object, classes.keep = 'SpatialImage')
+    images <- setdiff(x = images, y = fovs)
+    if (length(x = images)) {
+      cat(
+        '\n',
+        length(x = images),
+        ifelse(test = length(x = images) == 1L, yes = 'image', no = 'images'),
+        'present:',
+        strwrap(x = paste(images, collapse = ', '))
+      )
+    }
     cat('\n')
   }
 )
