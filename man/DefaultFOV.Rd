@@ -11,7 +11,7 @@ DefaultFOV(object, ...)
 
 DefaultFOV(object, ...) <- value
 
-\method{DefaultFOV}{Seurat}(object, assay = NA, ...)
+\method{DefaultFOV}{Seurat}(object, assay = NULL, ...)
 
 \method{DefaultFOV}{Seurat}(object, assay = NA, ...) <- value
 }
