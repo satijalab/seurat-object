@@ -2776,7 +2776,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
     } else if (inherits(x = value, what = 'SpatialImage')) {
       # Ensure that all cells for this image are present
       if (!all(Cells(x = value) %in% Cells(x = x))) {
-        stop("", call. = FALSE)
+        stop("All cells in the image must be present in assay.", call. = FALSE)
       }
       # Ensure Assay that SpatialImage is associated with is present in Seurat object
       if (!DefaultAssay(object = value) %in% Assays(object = x)) {
