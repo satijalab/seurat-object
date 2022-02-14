@@ -217,28 +217,47 @@ Simplify.Molecules <- function(coords, tol, topologyPreserve = TRUE) {
 #' @method aggregate Molecules
 #' @export
 #'
-aggregate.Molecules <- function(x, by, ...) {
+aggregate.Molecules <- function(x, by, drop = TRUE, ...) {
   if (!inherits(x = by, what = 'SpatialPolygons')) {
     stop(
       "Aggregation of molecules works only with spatial polygons",
       call. = FALSE
     )
   }
+  oob <- 'boundless'
+  cells <- unname(obj = names(x = by))
+  if (isFALSE(x = drop)) {
+    if (oob %in% cells) {
+      oob <- RandomName(length = 7L)
+      warning(
+        "'boundless' already present in cell names, changing to '",
+        oob,
+        "'",
+        call. = FALSE,
+        immediate. = TRUE
+      )
+    }
+    cells <- c(cells, oob)
+  }
   idx <- over(x = x, y = by)
   m <- Matrix(
     data = 0,
     nrow = length(x = idx),
-    ncol = length(Cells(x = by)),
-    dimnames = list(Features(x = x), Cells(x = by)),
+    ncol = length(x = cells),
+    dimnames = list(Features(x = x), cells),
     sparse = TRUE
   )
   p <- progressor(along = idx)
   p(message = "Creating expression matrix", class = 'sticky', amount = 0)
   for (i in seq_along(along.with = idx)) {
     x <- idx[[i]]
+    f <- names(x = idx)[i]
+    if (isFALSE(x = drop)) {
+      m[f, oob] <- sum(is.na(x = x))
+    }
     x <- sort(x = unname(obj = x[!is.na(x = x)]))
     x <- rle(x = x)
-    m[names(x = idx)[i], x$values] <- x$lengths
+    m[f, x$values] <- x$lengths
     p()
   }
   return(m)

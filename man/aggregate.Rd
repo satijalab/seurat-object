@@ -6,9 +6,9 @@
 \alias{aggregate.Molecules}
 \title{Aggregate Molecules into an Expression Matrix}
 \usage{
-\method{aggregate}{FOV}(x, by = NULL, set = NULL, ...)
+\method{aggregate}{FOV}(x, by = NULL, set = NULL, drop = TRUE, ...)
 
-\method{aggregate}{Molecules}(x, by, ...)
+\method{aggregate}{Molecules}(x, by, drop = TRUE, ...)
 }
 \arguments{
 \item{x}{An object with spatially-resolved molecule information}
@@ -19,6 +19,10 @@
 \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object}
 
 \item{set}{Name of molecule set to aggregate}
+
+\item{drop}{Drop molecules not present in a segmentation; if \code{FALSE},
+adds a column called \dQuote{\code{boundless}} consisting of molecule counts
+not in a segmentation}
 
 \item{...}{Arguments passed to other methods}
 }

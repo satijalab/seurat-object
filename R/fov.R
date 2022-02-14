@@ -562,6 +562,9 @@ RenameCells.FOV <- function(object, new.names = NULL, ...) {
 #' \code{object} or a
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 #' @param set Name of molecule set to aggregate
+#' @param drop Drop molecules not present in a segmentation; if \code{FALSE},
+#' adds a column called \dQuote{\code{boundless}} consisting of molecule counts
+#' not in a segmentation
 #' @param ... Arguments passed to other methods
 #'
 #' @return An expression matrix
@@ -579,7 +582,7 @@ RenameCells.FOV <- function(object, new.names = NULL, ...) {
 #'
 #' @order 1
 #'
-aggregate.FOV <- function(x, by = NULL, set = NULL, ...) {
+aggregate.FOV <- function(x, by = NULL, set = NULL, drop = TRUE, ...) {
   # Check molecules
   set <- set[1L] %||% Molecules(object = x)[1L]
   if (is.null(x = set)) {
@@ -601,7 +604,7 @@ aggregate.FOV <- function(x, by = NULL, set = NULL, ...) {
   }
   # TODO: Check bbox intersect
   # Aggregate
-  return(aggregate(x = x[[set]], by = by, ...))
+  return(aggregate(x = x[[set]], by = by, drop = drop, ...))
 }
 
 #' @method dim FOV
