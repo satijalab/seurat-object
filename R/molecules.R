@@ -69,7 +69,6 @@ CreateMolecules.data.frame <- function(coords, key = '', ...) {
       mat <- as.matrix(x = x[, xy])
       rownames(x = mat) <- NULL
       return(SpatialPoints(coords = mat))
-      # return(SpatialPoints(coords = as.matrix(x = x[, xy])))
     },
     simplify = FALSE,
     USE.NAMES = TRUE
@@ -212,6 +211,39 @@ Simplify.Molecules <- function(coords, tol, topologyPreserve = TRUE) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @importFrom stats aggregate
+#' @rdname aggregate
+#' @method aggregate Molecules
+#' @export
+#'
+aggregate.Molecules <- function(x, by, ...) {
+  if (!inherits(x = by, what = 'SpatialPolygons')) {
+    stop(
+      "Aggregation of molecules works only with spatial polygons",
+      call. = FALSE
+    )
+  }
+  idx <- over(x = x, y = by)
+  m <- Matrix(
+    data = 0,
+    nrow = length(x = idx),
+    ncol = length(Cells(x = by)),
+    dimnames = list(Features(x = x), Cells(x = by)),
+    sparse = TRUE
+  )
+  p <- progressor(along = idx)
+  p(message = "Creating expression matrix", class = 'sticky', amount = 0)
+  for (i in seq_along(along.with = idx)) {
+    x <- idx[[i]]
+    x <- sort(x = unname(obj = x[!is.na(x = x)]))
+    x <- rle(x = x)
+    m[names(x = idx)[i], x$values] <- x$lengths
+    p()
+  }
+  return(m)
+}
+
 
 #' @details \code{subset}: Subset a \code{Molecules} object to certain molecules
 #'

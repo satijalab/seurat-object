@@ -554,6 +554,56 @@ RenameCells.FOV <- function(object, new.names = NULL, ...) {
   return(slot(object = x, name = slot.use)[[i]])
 }
 
+#' Aggregate Molecules into an Expression Matrix
+#'
+#' @param x An object with spatially-resolved molecule information
+#' @param by Name of a
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} within
+#' \code{object} or a
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
+#' @param set Name of molecule set to aggregate
+#' @param ... Arguments passed to other methods
+#'
+#' @return An expression matrix
+#'
+#' @importFrom stats aggregate
+#'
+#' @name aggregate
+#' @rdname aggregate
+#'
+#' @method aggregate FOV
+#' @export
+#'
+#' @template section-progressr
+#' @template section-future
+#'
+#' @order 1
+#'
+aggregate.FOV <- function(x, by = NULL, set = NULL, ...) {
+  # Check molecules
+  set <- set[1L] %||% Molecules(object = x)[1L]
+  if (is.null(x = set)) {
+    stop("No molecules present in this FOV", call. = FALSE)
+  }
+  set <- match.arg(arg = set, choices = Molecules(object = x))
+  # Check segmentation boundaries
+  by <- by[1L] %||% Filter(
+    f = function(b) {
+      return(inherits(x = x[[b]], what = 'Segmentation'))
+    },
+    x = Boundaries(object = x)
+  )[1L]
+  if (is.character(x = by)) {
+    by <- x[[by]]
+  }
+  if (!inherits(x = by, what = 'SpatialPolygons')) {
+    stop("'by' is not a segmentation boundary", call. = FALSE)
+  }
+  # TODO: Check bbox intersect
+  # Aggregate
+  return(aggregate(x = x[[set]], by = by, ...))
+}
+
 #' @method dim FOV
 #' @export
 #'
