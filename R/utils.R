@@ -25,6 +25,33 @@ as.sparse <- function(x, ...) {
   UseMethod(generic = 'as.sparse', object = x)
 }
 
+#' Check Matrix Validity
+#'
+#' @param object A matrix
+#' @param checks Type of checks to perform, choose one or more from:
+#' \itemize{
+#'  \item \dQuote{\code{infinite}}: Emit a warning if any value is infinite
+#'  \item \dQuote{\code{logical}}: Emit a warning if any value is a logical
+#'  \item \dQuote{\code{integer}}: Emit a warning if any value is \emph{not}
+#'   an integer
+#'  \item \dQuote{\code{na}}: Emit a warning if any value is an \code{NA}
+#'   or \code{NaN}
+#' }
+#' @param ... Arguments passed to other methods
+#'
+#' @return Emits warnings for each test and invisibly returns \code{NULL}
+#'
+#' @name CheckMatrix
+#' @rdname CheckMatrix
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+CheckMatrix <- function(object, checks, ...) {
+  UseMethod(generic = 'CheckMatrix', object = object)
+}
+
 #' Check if a matrix is empty
 #'
 #' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
@@ -193,6 +220,8 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
 #'
 #' @export
 #'
+#' @concept utils
+#'
 #' @examples
 #' DefaultDimReduc(pbmc_small)
 #'
@@ -329,6 +358,8 @@ ListToS4 <- function(x) {
 #'
 #' @export
 #'
+#' @concept utils
+#'
 #' @examples
 #' PackageCheck("SeuratObject", error = FALSE)
 #'
@@ -363,6 +394,8 @@ PackageCheck <- function(..., error = TRUE) {
 #' @seealso \code{\link[base]{sample}}
 #'
 #' @export
+#'
+#' @concept utils
 #'
 #' @examples
 #' set.seed(42L)
@@ -424,6 +457,47 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   return(new.mat)
 }
 
+#' Update slots in an object
+#'
+#' @param object An object to update
+#'
+#' @return \code{object} with the latest slot definitions
+#'
+#' @importFrom methods slotNames slot
+#'
+#' @export
+#'
+#' @concept utils
+#'
+UpdateSlots <- function(object) {
+  object.list <- sapply(
+    X = slotNames(x = object),
+    FUN = function(x) {
+      return(tryCatch(
+        expr = slot(object = object, name = x),
+        error = function(...) {
+          return(NULL)
+        }
+      ))
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  object.list <- Filter(f = Negate(f = is.null), x = object.list)
+  object.list <- c('Class' = class(x = object)[1], object.list)
+  object <- do.call(what = 'new', args = object.list)
+  for (x in setdiff(x = slotNames(x = object), y = names(x = object.list))) {
+    xobj <- slot(object = object, name = x)
+    if (is.vector(x = xobj) && !is.list(x = xobj) && length(x = xobj) == 0) {
+      slot(object = object, name = x) <- vector(
+        mode = class(x = xobj),
+        length = 1L
+      )
+    }
+  }
+  return(object)
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -462,6 +536,58 @@ as.sparse.Matrix <- function(x, ...) {
 #' @method as.sparse matrix
 #'
 as.sparse.matrix <- as.sparse.Matrix
+
+#' @rdname CheckMatrix
+#' @method CheckMatrix default
+#' @export
+#'
+CheckMatrix.default <- function(object, checks, ...) {
+  return(invisible(x = NULL))
+}
+
+#' @rdname CheckMatrix
+#' @method CheckMatrix dMatrix
+#' @export
+#'
+CheckMatrix.dMatrix <- function(
+  object,
+  checks = c('infinite', 'logical', 'integer', 'na'),
+  ...
+) {
+  checks <- match.arg(arg = checks, several.ok = TRUE)
+  x <- slot(object = object, name = 'x')
+  for (i in checks) {
+    switch(
+      EXPR = i,
+      'infinite' = if (any(is.infinite(x = x))) {
+        warning("Input matrix contains infinite values")
+      },
+      'logical' = if (any(is.logical(x = x))) {
+        warning("Input matrix contains logical values")
+      },
+      'integer' = if (!all(round(x = x) == x, na.rm = TRUE)) {
+        warning("Input matrix contains non-integer values")
+      },
+      'na' = if (anyNA(x = x)) {
+        warning("Input matrix contains NA/NaN values")
+      },
+    )
+  }
+  return(invisible(x = NULL))
+}
+
+#' @rdname CheckMatrix
+#' @method CheckMatrix lMatrix
+#' @export
+#'
+CheckMatrix.lMatrix <- function(
+  object,
+  checks = c('infinite', 'logical', 'integer', 'na'),
+  ...
+) {
+  warning("Input matrix contains logical values")
+  return(invisible(x = NULL))
+}
 
 #' @rdname IsMatrixEmpty
 #' @export
@@ -1050,4 +1176,40 @@ UpdateSlots <- function(object) {
     }
   }
   return(object)
+}
+#' Update a Key
+#'
+#' @param key A character to become a Seurat Key
+#'
+#' @return An updated Key that's valid for Seurat
+#'
+#' @section \code{Seurat} Object Keys:
+#' blah
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+UpdateKey <- function(key) {
+  if (grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
+    return(key)
+  } else {
+    new.key <- regmatches(
+      x = key,
+      m = gregexpr(pattern = '[[:alnum:]]+', text = key)
+    )
+    new.key <- paste0(paste(unlist(x = new.key), collapse = ''), '_')
+    if (new.key == '_') {
+      new.key <- paste0(RandomName(length = 3), '_')
+    }
+    warning(
+      "Keys should be one or more alphanumeric characters followed by an underscore, setting key from ",
+      key,
+      " to ",
+      new.key,
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    return(new.key)
+  }
 }
