@@ -225,7 +225,7 @@ names.Seurat5 <- function(x) {
     if (!identical(x = dim(x = value), y = dim(x = object[[name]]))) {
       stop("different cells/features from existing")
     }
-    if (!all(Cells(x = value) == Cells(x = object, assay = name))) {
+    if (!all(Cells(x = value) %in% Cells(x = object, assay = name))) {
       stop("different cells")
     }
   } else {
@@ -261,6 +261,12 @@ names.Seurat5 <- function(x) {
       immediate. = TRUE
     )
   }
+  cmatch <- MatchCells(
+    new = colnames(x = object),
+    orig = colnames(x = value),
+    ordered = TRUE
+  )
+  value <- subset(x = value, cells = cmatch)
   slot(object = object, name = 'assays')[[name]] <- value
   validObject(object = object)
   return(object)
@@ -607,3 +613,4 @@ setValidity(
     return(valid %||% TRUE)
   }
 )
+

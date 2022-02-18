@@ -277,11 +277,6 @@ CellsByImage <- function(object, images = NULL, unlist = FALSE) {
   return(cells)
 }
 
-#' Access cellular data
-#'
-#' Retrieves data (feature expression, PCA scores, metrics, etc.) for a set
-#' of cells in a Seurat object
-#'
 #' @param object Seurat object
 #' @param vars List of all variables to fetch, use keyword \dQuote{ident} to
 #' pull identity classes
@@ -290,16 +285,16 @@ CellsByImage <- function(object, images = NULL, unlist = FALSE) {
 #'
 #' @return A data frame with cells as rows and cellular data as columns
 #'
+#' @rdname FetchData
+#' @method FetchData Seurat
 #' @export
-#'
-#' @concept data-access
 #'
 #' @examples
 #' pc1 <- FetchData(object = pbmc_small, vars = 'PC_1')
 #' head(x = pc1)
 #' head(x = FetchData(object = pbmc_small, vars = c('groups', 'ident')))
 #'
-FetchData <- function(object, vars, cells = NULL, slot = 'data') {
+FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
   object <- UpdateSlots(object = object)
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {

@@ -302,6 +302,23 @@ Embeddings <- function(object, ...) {
   UseMethod(generic = 'Embeddings', object = object)
 }
 
+#' Access cellular data
+#'
+#' Retrieves data (feature expression, PCA scores, metrics, etc.) for a set
+#' of cells in a Seurat object
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @export FetchData
+#'
+#' @concept data-access
+#'
+#'
+FetchData <- function(object, ...) {
+  UseMethod(generic = 'FetchData', object = object)
+}
+
 #' @return \code{Features}: A vector of feature names
 #'
 #' @rdname Cells
