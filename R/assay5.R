@@ -885,7 +885,7 @@ dim.StdAssay <- function(x) {
 #' @seealso \code{\link{Cells}} \code{\link{Features}}
 #'
 dimnames.StdAssay <- function(x) {
-  return(list(Features(x = x), Cells(x = x)))
+  return(list(Features(x = x, layer = NA), Cells(x = x, layer = NA)))
 }
 
 #' @details \code{head} and \code{tail}: Get the first or last rows of feature
