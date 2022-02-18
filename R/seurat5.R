@@ -51,11 +51,11 @@ Assays.Seurat5 <- function(object, ...) {
 #' @method Cells Seurat5
 #' @export
 #'
-Cells.Seurat5 <- function(x, assay = NULL, ...) {
-  if (is.null(x = assay)) {
+Cells.Seurat5 <- function(x, assay = NA, ...) {
+  assay <- assay[1L] %||% DefaultAssay(object = x)
+  if (is.na(x = assay)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
-  assay <- assay[1L]
   assay <- match.arg(arg = assay, choices = Assays(object = x))
   return(slot(object = x, name = 'cells')[[assay]])
 }
@@ -150,7 +150,7 @@ DefaultAssay.Seurat5 <- function(object, ...) {
 Features.Seurat5 <- function(x, assay = NULL, ...) {
   assay <- assay[1L] %||% DefaultAssay(object = x)
   assay <- match.arg(arg = assay, choices = Assays(object = x))
-  return(Features(x = x[[assay]]))
+  return(Features(x = x[[assay]], ...))
 }
 
 #' @method Key Seurat5
@@ -244,7 +244,7 @@ names.Seurat5 <- function(x) {
     i <- 1L
     n <- 5L
     while (Key(object = value) %in% Key(object = object)) {
-      Key(object = value) <- Key(object = RandomName(), quiet = TRUE)
+      Key(object = value) <- Key(object = RandomName(length = n), quiet = TRUE)
       i <- i + 1L
       if (!i %% 7L) {
         n <- n + 2L
@@ -264,6 +264,76 @@ names.Seurat5 <- function(x) {
   slot(object = object, name = 'assays')[[name]] <- value
   validObject(object = object)
   return(object)
+}
+
+.CheckKey <- function(key, existing = NULL, name = NULL) {
+  key <- Key(object = key, quiet = !is.null(x = existing))
+  if (!is.null(x = names(x = existing)) && !is.null(x = name)) {
+    existing <- existing[setdiff(x = names(x = existing), y = name)]
+  }
+  if (key %in% existing) {
+    old <- key
+    key <- Key(object = tolower(x = name %||% RandomName()), quiet = TRUE)
+    i <- 1L
+    n <- 5L
+    while (key %in% existing) {
+      key <- Key(object = RandomName(length = n), quiet = TRUE)
+      i <- i + 1L
+      if (!i %% 7L) {
+        n <- n + 2L
+      }
+    }
+    warning(
+      "Key '",
+      old,
+      "' taken, using '",
+      key,
+      "' instead",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  return(key)
+}
+
+.DuplicateError <- function(name, cls, error = TRUE) {
+  letter <- tolower(x = substr(x = cls[1L], start = 1L, stop = 1L))
+  article <- ifelse(test = letter %in% .Vowels(), yes = 'an', no = 'a')
+  msg <- paste0("'", name[1L], "' already taken for ", paste(article, class))
+  if (isTRUE(x = error)) {
+    stop(msg, call. = FALSE)
+  }
+  return(msg)
+}
+
+#' @importFrom methods slotNames
+#' @importFrom rlang is_bare_list
+#'
+.ObjectNames <- function(object) {
+  slots <- setdiff(x = slotNames(x = object), y = c('misc', 'tools'))
+  slots <- Filter(
+    f = function(x) {
+      return(is_bare_list(x = slot(object = object, name = x)))
+    },
+    x = slots
+  )
+  objects <- lapply(
+    X = slots,
+    FUN = function(x) {
+      obj.names <- names(x = slot(object = object, name = x))
+      cls <- switch(
+        EXPR = x,
+        'assays' = 'StdAssay',
+        'reductions' = 'DimReduc',
+        'commands' = 'SeuratCommand',
+        x
+      )
+      objs <- rep_len(x = cls, length.out = length(x = obj.names))
+      names(x = objs) <- obj.names
+      return(objs)
+    }
+  )
+  return(unlist(x = objects))
 }
 
 .RemoveObject <- function(object, name, value) {
@@ -303,6 +373,94 @@ setMethod(
 
 setMethod(
   f = '[[<-',
+  signature = c(
+    x = 'Seurat5',
+    i = 'character',
+    j = 'missing',
+    value = 'StdAssay'
+  ),
+  definition = function(x, i, ..., value) {
+    i <- make.names(names = i)
+    # Check for duplicate names
+    if (i %in% names(x = x)) {
+      if (!inherits(x = x[[i]], what = 'StdAssay')) {
+        .DuplicateError(name = i, cls = class(x = x[[i]]))
+      }
+      if (!identical(x = dim(x = value), y = dim(x = x[[i]]))) {
+        stop("different cells/features from existing")
+      }
+      if (!all(Cells(x = value) == Cells(x = x, assay = i))) {
+        stop("different cells")
+      }
+    } else {
+      if (!all(Cells(x = value) %in% Cells(x = x))) {
+        stop("new cells")
+      }
+      slot(object = x, name = 'cells')[[i]] <- Cells(x = value)
+    }
+    # Check keys
+    Key(object = value) <- .CheckKey(
+      key = Key(object = value),
+      existing = Key(object = x),
+      name = i
+    )
+    # Add the assay
+    slot(object = x, name = 'assays')[[i]] <- value
+    slot(object = x, name = 'assays') <- Filter(
+      f = Negate(f = is.null),
+      x = slot(object = x, name = 'assays')
+    )
+    validObject(object = x)
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat5',
+    i = 'character',
+    j = 'missing',
+    value = 'DimReduc'
+  ),
+  definition = function(x, i, ..., value) {
+    i <- make.names(names = i)
+    # Check for duplicate names
+    if (i %in% names(x = x)) {
+      # Checks for overwriting DimReducs
+      if (inherits(x = x[[i]], what = 'DimReduc')) {
+        ''
+      } else {
+        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        # cls <- class(x = x[[i]])[1L]
+        # letter <- substr(x = cls, start = 1L, stop = 1L)
+        # article <- ifelse(
+        #   test = tolower(x = letter) %in% .Vowels(),
+        #   yes = 'an',
+        #   no = 'a'
+        # )
+        # stop("'", i, "' already taken for ", paste(article, cls), call. = FALSE)
+      }
+    }
+    # Check keys
+    Key(object = value) <- .CheckKey(
+      key = Key(object = value),
+      existing = Key(object = x),
+      name = i
+    )
+    # TODO: Check cells
+    # Add the DimReduc
+    slot(object = x, name = 'reductions')[[i]] <- value
+    slot(object = x, name = 'reductions') <- Filter(
+      f = Negate(f = is.null),
+      x = slot(object = x, name = 'reductions')
+    )
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
   signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'vector'),
   definition = function(x, i, ..., value) {
     if (length(x = value) > length(x = i)) {
@@ -328,7 +486,28 @@ setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'NULL'),
   definition = function(x, i, ..., value) {
-    return(.AddObject(object = x, name = i, value = value))
+    # return(.AddObject(object = x, name = i, value = value))
+    for (name in i) {
+      slot.use <- .FindObject(object = x, name = name) %||% 'meta.data'
+      switch(
+        EXPR = slot.use,
+        'meta.data' = {
+          .NotYetImplemented()
+        },
+        'assays' = {
+          if (isTRUE(x = name == DefaultAssay(object = x))) {
+            stop("Cannot delete default assay", call. = FALSE)
+          }
+          slot(object = x, name = slot.use)[[x]] <- value
+          cmat <- slot(object = x, name = 'cells')
+          cmat <- cmat[, -which(x = colnames(x = cmat) == name), drop = FALSE]
+          slot(object = x, name = 'cells') <- cmat
+        },
+        slot(object = x, name = slot.use)[[name]] <- value
+      )
+    }
+    validObject(object = x)
+    return(x)
   }
 )
 
