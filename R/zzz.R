@@ -245,6 +245,69 @@ setOldClass(Classes = 'package_version')
   return(getOption(x = x, default = choices[[x]] %||% default))
 }
 
+#' @param pkg Name of package
+#' @param external Include packages imported, but not defined, by \code{pkg}
+#' @param old Includes S3 classes registered by
+#' \code{\link[methods]{setOldClass}}
+#' @param unions Include class unions
+#'
+#' @importFrom methods getClass getClasses isClassUnion isXS3Class
+#'
+#' @noRd
+#'
+.PkgClasses <- function(
+  pkg = 'SeuratObject',
+  external = FALSE,
+  old = FALSE,
+  unions = FALSE,
+  virtual = NA,
+  collapse = TRUE,
+  include = NULL,
+  exclude = NULL
+) {
+  classes <- getClasses(where = getNamespace(name = pkg))
+  include <- intersect(x = include, y = classes)
+  # Filter out classes imported, but not defined by pkg
+  if (!isTRUE(x = external)) {
+    classes <- Filter(
+      f = function(x) {
+        return(slot(object = getClass(Class = x), name = 'package') == pkg)
+      },
+      x = classes
+    )
+  }
+  # Filter out S3 classes
+  if (!isTRUE(x = old)) {
+    classes <- Filter(
+      f = function(x) {
+        return(!isXS3Class(classDef = getClass(Class = x)))
+      },
+      x = classes
+    )
+  }
+  # Filter out class unions
+  if (!isTRUE(x = unions)) {
+    classes <- Filter(f = Negate(f = isClassUnion), x = classes)
+  }
+  # TODO: Remove virtual classes
+  if (isFALSE(x = virtual)) {
+    ''
+  }
+  # TODO: Collapse classes
+  if (isTRUE(x = collapse)) {
+    ''
+  }
+  # Add classes back
+  classes <- union(x = classes, y = include)
+  # Remove excluded classes
+  classes <- setdiff(x = classes, y = exclude)
+  return(classes)
+}
+
+.Vowels <- function() {
+  return(c('a', 'e', 'i', 'o', 'u'))
+}
+
 #' Empty Data Frames
 #'
 #' Create an empty \link[base:data.frame]{data frame} with no row names and
