@@ -47,16 +47,15 @@ Suggests:
     testthat
 Collate:
     'RcppExports.R'
-    'utils.R'
     'zzz.R'
     'generics.R'
+    'default.R'
     'assay.R'
     'logmap.R'
     'layers.R'
     'assay5.R'
     'command.R'
     'data.R'
-    'default.R'
     'jackstraw.R'
     'dimreduc.R'
     'graph.R'
@@ -65,4 +64,5 @@ Collate:
     'seurat.R'
     'seurat5.R'
     'sparse.R'
+    'utils.R'
 LinkingTo: Rcpp, RcppEigen

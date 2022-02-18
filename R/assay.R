@@ -1,5 +1,6 @@
 #' @include zzz.R
 #' @include generics.R
+#' @include default.R
 #' @importFrom methods new setClass setValidity slot slot<-
 #'
 NULL

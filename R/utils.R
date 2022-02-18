@@ -1,3 +1,5 @@
+#' @include zzz.R
+#' @include generics.R
 #' @importFrom Rcpp evalCpp
 #' @useDynLib SeuratObject
 #'
@@ -6,107 +8,6 @@ NULL
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#' Cast to Sparse
-#'
-#' Convert dense objects to sparse representations
-#'
-#' @param x An object
-#' @param ... Arguments passed to other methods
-#'
-#' @return A sparse representation of the input data
-#'
-#' @rdname as.sparse
-#' @export as.sparse
-#'
-#' @concept utils
-#'
-as.sparse <- function(x, ...) {
-  UseMethod(generic = 'as.sparse', object = x)
-}
-
-#' Check Matrix Validity
-#'
-#' @param object A matrix
-#' @param checks Type of checks to perform, choose one or more from:
-#' \itemize{
-#'  \item \dQuote{\code{infinite}}: Emit a warning if any value is infinite
-#'  \item \dQuote{\code{logical}}: Emit a warning if any value is a logical
-#'  \item \dQuote{\code{integer}}: Emit a warning if any value is \emph{not}
-#'   an integer
-#'  \item \dQuote{\code{na}}: Emit a warning if any value is an \code{NA}
-#'   or \code{NaN}
-#' }
-#' @param ... Arguments passed to other methods
-#'
-#' @return Emits warnings for each test and invisibly returns \code{NULL}
-#'
-#' @name CheckMatrix
-#' @rdname CheckMatrix
-#'
-#' @keywords internal
-#'
-#' @export
-#'
-CheckMatrix <- function(object, checks, ...) {
-  UseMethod(generic = 'CheckMatrix', object = object)
-}
-
-#' Check if a matrix is empty
-#'
-#' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
-#'
-#' @param x A matrix
-#'
-#' @return Whether or not \code{x} is empty
-#'
-#' @rdname IsMatrixEmpty
-#' @export IsMatrixEmpty
-#'
-#' @concept utils
-#'
-#' @examples
-#' IsMatrixEmpty(new("matrix"))
-#' IsMatrixEmpty(matrix())
-#' IsMatrixEmpty(matrix(1:3))
-#'
-IsMatrixEmpty <- function(x) {
-  UseMethod(generic = 'IsMatrixEmpty', object = x)
-}
-
-#' S4/List Conversion
-#'
-#' Convert S4 objects to lists and vice versa. Useful for declassing an S4
-#' object while keeping track of it's class using attributes (see section
-#' \strong{S4 Class Definition Attributes} below for more details). Both
-#' \code{ListToS4} and \code{S4ToList} are recursive functions, affecting all
-#' lists/S4 objects contained as sub-lists/sub-objects.
-#'
-#' @param x A list with an S4 class definition attribute
-#' @param object An S4 object
-#'
-#' @return \code{S4ToList}: A list with an S4 class definition attribute
-#'
-#' @section S4 Class Definition Attributes:
-#' S4 classes are scoped to the package and class name. In order to properly
-#' track which class a list is generated from in order to build a new one,
-#' these function use an \code{\link[base:attr]{attribute}} to denote the
-#' class name and package of origin. This attribute is stored as
-#' \dQuote{classDef} and takes the form of \dQuote{\code{package:class}}.
-#'
-#' @name s4list
-#' @rdname s4list
-#'
-#' @concept utils
-#'
-#' @export
-#'
-S4ToList <- function(object) {
-  if (!(isS4(object) || inherits(x = object, what = 'list'))) {
-    return(object)
-  }
-  UseMethod(generic = 'S4ToList', object = object)
-}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
@@ -651,6 +552,39 @@ S4ToList.list <- function(object) {
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Identify Object Collections
+#'
+#' Find all collection (named lists) slots in an S4 object
+#'
+#' @param object An S4 object
+#' @param exclude A character vector of slot names to exclude
+#' @inheritDotParams IsNamedList
+#'
+#' @return A character vector of names of collection slots
+#'
+#' @importFrom methods slotNames
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.Collections <- function(object, exclude = character(length = 0L), ...) {
+  if (!isS4(object)) {
+    stop("Not an S4 object")
+  }
+  collections <- slotNames(x = object)
+  collections <- Filter(
+    f = function(s) {
+      return(IsNamedList(x = slot(object = object, name = s), ...))
+    },
+    x = collections
+  )
+  if (is.character(x = exclude) && length(x = exclude)) {
+    collections <- setdiff(x = collections, y = exclude)
+  }
+  return(collections)
+}
+
 #' Get Parent S4 Classes
 #'
 #' @param object An \link[methods:Classes_Details]{S4} object
@@ -674,6 +608,139 @@ S4ToList.list <- function(object) {
     object = getClass(Class = class(x = object)),
     name = 'contains'
   )))
+}
+
+#' Find A Subobject
+#'
+#' Determine the slot that a subobject is contained in
+#'
+#' @inheritParams .Collections
+#' @param name Name of subobject to find
+#'
+#' @return The name of the slot that contains \code{name}
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.FindObject <- function(object, name, exclude = c('misc', 'tools'), ...) {
+  collections <- .Collections(object = object, exclude = exclude)
+  object.names <- sapply(
+    X = collections,
+    FUN = function(x) {
+      return(names(x = slot(object = object, name = x)))
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  object.names <- Filter(f = Negate(f = is.null), x = object.names)
+  for (i in names(x = object.names)) {
+    if (name %in% names(x = slot(object = object, name = i))) {
+      return(i)
+    }
+  }
+  return(NULL)
+}
+
+.FilterObjects <- function(object, classes.keep = c('StdAssay', 'DimReduc')) {
+  collections <- .Collections(object = object, exclude = c('misc', 'tools'))
+  subobjects <- unlist(x = lapply(
+    X = collections,
+    FUN = function(x) {
+      return(Filter(
+        f = function(i) {
+          return(inherits(
+            x = slot(object = object, name = x)[[i]],
+            what = classes.keep
+          ))
+        },
+        x = names(x = slot(object = object, name = x))
+      ))
+    }
+  ))
+  if (!length(x = subobjects)) {
+    subobjects <- NULL
+  }
+  return(subobjects)
+}
+
+#' Get An Option
+#'
+#' @inheritParams base::getOption
+#' @param choices A named list of default options; has higher priority
+#' than \code{default}
+#'
+#' @return ...
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.Opt <- function(x, choices = default.options, default = NULL) {
+  return(getOption(x = x, default = choices[[x]] %||% default))
+}
+
+#' @param pkg Name of package
+#' @param external Include packages imported, but not defined, by \code{pkg}
+#' @param old Includes S3 classes registered by
+#' \code{\link[methods]{setOldClass}}
+#' @param unions Include class unions
+#'
+#' @importFrom methods getClass getClasses isClassUnion isXS3Class
+#'
+#' @noRd
+#'
+.PkgClasses <- function(
+  pkg = 'SeuratObject',
+  external = FALSE,
+  old = FALSE,
+  unions = FALSE,
+  virtual = NA,
+  collapse = TRUE,
+  include = NULL,
+  exclude = NULL
+) {
+  classes <- getClasses(where = getNamespace(name = pkg))
+  include <- intersect(x = include, y = classes)
+  # Filter out classes imported, but not defined by pkg
+  if (!isTRUE(x = external)) {
+    classes <- Filter(
+      f = function(x) {
+        return(slot(object = getClass(Class = x), name = 'package') == pkg)
+      },
+      x = classes
+    )
+  }
+  # Filter out S3 classes
+  if (!isTRUE(x = old)) {
+    classes <- Filter(
+      f = function(x) {
+        return(!isXS3Class(classDef = getClass(Class = x)))
+      },
+      x = classes
+    )
+  }
+  # Filter out class unions
+  if (!isTRUE(x = unions)) {
+    classes <- Filter(f = Negate(f = isClassUnion), x = classes)
+  }
+  # TODO: Remove virtual classes
+  if (isFALSE(x = virtual)) {
+    ''
+  }
+  # TODO: Collapse classes
+  if (isTRUE(x = collapse)) {
+    ''
+  }
+  # Add classes back
+  classes <- union(x = classes, y = include)
+  # Remove excluded classes
+  classes <- setdiff(x = classes, y = exclude)
+  return(classes)
+}
+
+.Vowels <- function() {
+  return(c('a', 'e', 'i', 'o', 'u'))
 }
 
 #' Check the Use of Dots
@@ -882,6 +949,24 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
   return(object.list)
 }
 
+#' Empty Data Frames
+#'
+#' Create an empty \link[base:data.frame]{data frame} with no row names and
+#' zero columns
+#'
+#' @param n Number of rows for the data frame
+#'
+#' @return A \link[base:data.frame]{data frame} with \code{n} rows and
+#' zero columns
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+EmptyDF <- function(n) {
+  return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
+}
+
 #' Extract delimiter information from a string.
 #'
 #' Parses a string (usually a cell name) and extracts fields based
@@ -916,6 +1001,51 @@ ExtractField <- function(string, field = 1, delim = "_") {
     strsplit(x = string, split = delim)[[1]][fields],
     collapse = delim
   ))
+}
+
+#' Check List Names
+#'
+#' Check to see if a list has names; also check to enforce that all names are
+#' present and unique
+#'
+#' @param x A list
+#' @param all.unique Require that all names are unique from one another
+#' @param allow.empty Allow empty (\code{nchar = 0}) names
+#' @param pass.zero Pass on zero-length lists
+#'
+#' @return \code{TRUE} if ..., otherwise \code{FALSE}
+#'
+#' @importFrom rlang is_bare_list
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+IsNamedList <- function(
+  x,
+  all.unique = TRUE,
+  allow.empty = FALSE,
+  pass.zero = FALSE
+) {
+  if (!is_bare_list(x = x)) {
+    return(FALSE)
+  }
+  if (isTRUE(x = pass.zero) && !length(x = x)) {
+    return(TRUE)
+  }
+  n <- names(x = x)
+  named <- !is.null(x = n)
+  if (!isTRUE(x = allow.empty)) {
+    named <- named && all(vapply(
+      X = n,
+      FUN = nchar,
+      FUN.VALUE = integer(length = 1L)
+    ))
+  }
+  if (isTRUE(x = all.unique)) {
+    named <- named && (length(x = n) == length(x = unique(x = n)))
+  }
+  return(named)
 }
 
 #' Test Null Pointers
@@ -1004,6 +1134,17 @@ IsCharEmpty <- function(
     empty
   )
   return(empty)
+}
+
+RandomKey <- function(n = 7L, ...) {
+  x <- c(letters, LETTERS, seq.int(from = 0, to = 9))
+  return(paste0(
+    paste(
+      sample(x = x, size = n, ...),
+      collapse = ''
+    ),
+    '_'
+  ))
 }
 
 #' Update a Class's Package
@@ -1135,6 +1276,45 @@ UpdateClassPkg <- function(object, from = NULL, to = NULL) {
   obj.list <- SwapClassPkg(x = obj.list, from = from, to = to)
   # browser()
   return(ListToS4(x = obj.list))
+}
+
+#' Update a Key
+#'
+#' @param key A character to become a Seurat Key
+#'
+#' @return An updated Key that's valid for Seurat
+#'
+#' @section \code{Seurat} Object Keys:
+#' blah
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+UpdateKey <- function(key) {
+  key.msg <- 'Keys should be one or more alphanumeric characters followed by an underscore'
+  if (grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
+    return(key)
+  } else {
+    new.key <- regmatches(
+      x = key,
+      m = gregexpr(pattern = '[[:alnum:]]+', text = key)
+    )
+    new.key <- paste0(paste(unlist(x = new.key), collapse = ''), '_')
+    if (new.key == '_') {
+      new.key <- paste0(RandomName(length = 3), '_')
+    }
+    warning(
+      key.msg,
+      ", setting key from ",
+      key,
+      " to ",
+      new.key,
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    return(new.key)
+  }
 }
 
 #' Update slots in an object
