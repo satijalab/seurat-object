@@ -277,10 +277,11 @@ AddMetaData.StdAssay <- .AddMetaData
 #' @export
 #'
 Cells.StdAssay <- function(x, layer = NULL, ...) {
-  if (isTRUE(x = is.na(x = layer))) {
+  layer <- layer[1L] %||% DefaultLayer(object = x)
+  if (is.na(x = layer)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
-  layer <- layer %||% DefaultLayer(object = x)
+  layer <- match.arg(arg = layer, choices = Layers(object = x))
   return(slot(object = x, name = 'cells')[[layer]])
 }
 
@@ -332,10 +333,11 @@ DefaultLayer.StdAssay <- function(object, ...) {
 #' @method Features StdAssay
 #'
 Features.StdAssay <- function(x, layer = NULL, ...) {
-  if (isTRUE(x = is.na(x = layer))) {
+  layer <- layer[1L] %||% DefaultLayer(object = x)
+  if (is.na(x = layer)) {
     return(rownames(x = slot(object = x, name = 'features')))
   }
-  layer <- layer %||% DefaultLayer(object = x)
+  layer <- match.arg(arg = layer, choices = Layers(object = x))
   return(slot(object = x, name = 'features')[[layer]])
 }
 
