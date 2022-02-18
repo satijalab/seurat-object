@@ -1177,39 +1177,3 @@ UpdateSlots <- function(object) {
   }
   return(object)
 }
-#' Update a Key
-#'
-#' @param key A character to become a Seurat Key
-#'
-#' @return An updated Key that's valid for Seurat
-#'
-#' @section \code{Seurat} Object Keys:
-#' blah
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-UpdateKey <- function(key) {
-  if (grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
-    return(key)
-  } else {
-    new.key <- regmatches(
-      x = key,
-      m = gregexpr(pattern = '[[:alnum:]]+', text = key)
-    )
-    new.key <- paste0(paste(unlist(x = new.key), collapse = ''), '_')
-    if (new.key == '_') {
-      new.key <- paste0(RandomName(length = 3), '_')
-    }
-    warning(
-      "Keys should be one or more alphanumeric characters followed by an underscore, setting key from ",
-      key,
-      " to ",
-      new.key,
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    return(new.key)
-  }
-}
