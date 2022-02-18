@@ -299,7 +299,7 @@ names.Seurat5 <- function(x) {
 .DuplicateError <- function(name, cls, error = TRUE) {
   letter <- tolower(x = substr(x = cls[1L], start = 1L, stop = 1L))
   article <- ifelse(test = letter %in% .Vowels(), yes = 'an', no = 'a')
-  msg <- paste0("'", name[1L], "' already taken for ", paste(article, class))
+  msg <- paste0("'", name[1L], "' already taken for ", paste(article, cls))
   if (isTRUE(x = error)) {
     stop(msg, call. = FALSE)
   }
@@ -432,14 +432,6 @@ setMethod(
         ''
       } else {
         .DuplicateError(name = i, cls = class(x = x[[i]]))
-        # cls <- class(x = x[[i]])[1L]
-        # letter <- substr(x = cls, start = 1L, stop = 1L)
-        # article <- ifelse(
-        #   test = tolower(x = letter) %in% .Vowels(),
-        #   yes = 'an',
-        #   no = 'a'
-        # )
-        # stop("'", i, "' already taken for ", paste(article, cls), call. = FALSE)
       }
     }
     # Check keys
