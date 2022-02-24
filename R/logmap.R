@@ -27,12 +27,12 @@ setClass(
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @rdname LogMap-class
+#'
 #' @param y A character vector
 #'
 #' @return \code{LogMap}: A new \code{LogMap} object with zero columns and
 #' \code{length(x = x)} rows; rownames are set to \code{x}
-#'
-#' @rdname LogMap-class
 #'
 #' @export
 #'
