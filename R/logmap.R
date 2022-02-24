@@ -36,6 +36,8 @@ setClass(
 #'
 #' @export
 #'
+#' @order 1
+#'
 #' @examples
 #' # Create a LogMap
 #' map <- LogMap(letters[1:10])
@@ -58,8 +60,13 @@ setClass(
 #' # Get the full logical matrix
 #' map[[]]
 #'
+#' # Find observations for a set of values
+#' map[['entry']] <- c(2, 7, 10)
+#' labels(map, c('a', 'b', 'g'))
+#'
 #' # Remove an observation from the LogMap
 #' map[['obs']] <- NULL
+#' map[['entry']] <- NULL
 #' map
 #'
 LogMap <- function(y) {
@@ -80,6 +87,80 @@ LogMap <- function(y) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @rdname LogMap-class
+#' @param x,object A \code{LogMap} object
+#' @param values A vector of values to find observations for
+#' @param select Observation selection method; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{first}}: the first observation the value is found in
+#'  \item \dQuote{\code{last}}: the last observation the value is found in
+#'  \item \dQuote{\code{common}}: the first most-common observation the value
+#'  is found in; most-common is determined by the observation that contains
+#'  the most of the values requested
+#'  \item \dQuote{\code{all}}: all observations the value is found in
+#' }
+#' @param simplify Simplify the resulting list to a vector
+#'
+#' @return \code{labels}: A list, or vector if \code{simplify} is \code{TRUE},
+#' of all values and the observations they're found in, according
+#' to the value of \code{select}
+#'
+#' @method labels LogMap
+#' @export
+#'
+labels.LogMap <- function(
+  object,
+  values,
+  select = c('first', 'last', 'common', 'all'),
+  simplify = TRUE,
+  ...
+) {
+  select <- select[1L]
+  select <- match.arg(arg = select)
+  values <- intersect(x = values, y = rownames(x = object))
+  obs <- sapply(
+    X = values,
+    FUN = function(x) {
+      return(colnames(x = object)[which(x = object[x, , drop = TRUE])])
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  obs <- Filter(f = length, x = obs)
+  obs <- switch(
+    EXPR = select,
+    'first' = lapply(X = obs, FUN = '[[', 1L),
+    'last' = lapply(
+      X = obs,
+      FUN = function(x) {
+        return(x[[length(x = x)]])
+      }
+    ),
+    common = {
+      counts <- table(unlist(x = obs))
+      tmp <- obs
+      obs <- vector(mode = 'character', length = length(x = tmp))
+      names(x = obs) <- names(x = tmp)
+      for (i in seq_along(along.with = obs)) {
+        obs[i] <- names(x = which.max(
+          x = counts[names(x = counts) %in% tmp[[i]]]
+        ))
+      }
+      obs
+    },
+    obs
+  )
+  if (isTRUE(x = simplify)) {
+    tmp <- obs
+    obs <- unlist(x = tmp)
+    names(x = obs) <- make.unique(names = rep.int(
+      x = names(x = tmp),
+      times = vapply(X = tmp, FUN = length, FUN.VALUE = numeric(length = 1L))
+    ))
+  }
+  return(obs)
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,7 +171,6 @@ LogMap <- function(y) {
 
 #' @rdname LogMap-class
 #'
-#' @param x A \code{LogMap} object
 #' @param i A character vector of length 1, or \code{NULL}
 #' @param j Not used
 #'
@@ -98,6 +178,8 @@ LogMap <- function(y) {
 #' mapped to \code{i}; otherwise the rownames of \code{x}
 #'
 #' @export
+#'
+#' @order 2
 #'
 setMethod(
   f = '[[',
@@ -113,6 +195,8 @@ setMethod(
 #'
 #' @export
 #'
+#' @order 3
+#'
 setMethod(
   f = '[[',
   signature = c(x = 'LogMap', i = 'missing', j = 'missing'),
@@ -124,6 +208,8 @@ setMethod(
 #' @rdname LogMap-class
 #'
 #' @export
+#'
+#' @order 4
 #'
 setMethod(
   f = '[[',
@@ -144,6 +230,8 @@ setMethod(
 #'
 #' @export
 #'
+#' @order 5
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -162,6 +250,8 @@ setMethod(
 #' @rdname LogMap-class
 #'
 #' @export
+#'
+#' @order 6
 #'
 setMethod(
   f = '[[<-',
@@ -194,6 +284,8 @@ setMethod(
 #'
 #' @export
 #'
+#' @order 7
+#'
 setMethod(
   f = '[[<-',
   signature = c(x = 'LogMap', i = 'character', j = 'missing', value = 'NULL'),
@@ -214,6 +306,8 @@ setMethod(
 #' @rdname LogMap-class
 #'
 #' @export
+#'
+#' @order 8
 #'
 setMethod(
   f = '[[<-',
@@ -262,12 +356,14 @@ setValidity(
     }
     # Check colnames
     if (!is.null(x = colnames(x = object))) {
-      if (!all(nchar(x = colnames(x = object)))) {
+      if (any(!nzchar(x = colnames(x = object)))) {
         valid <- c(valid, "Columnn names cannot be empty strings")
       }
       if (anyDuplicated(x = colnames(x = object))) {
         valid <- c(valid, "Duplicate colnames not allowed")
       }
+    } else if (!ncol(x = object)) {
+      valid <- c(valid, "Colnames must be supplied")
     }
     return(valid %||% TRUE)
   }
