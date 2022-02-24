@@ -501,6 +501,170 @@ Features.StdAssay <- function(x, layer = NULL, ...) {
   return(slot(object = x, name = 'features')[[layer]])
 }
 
+#' @method FetchData StdAssay
+#' @export
+#'
+FetchData.StdAssay <- function(
+  object,
+  vars,
+  cells = NULL,
+  layer = NULL,
+  clean = TRUE,
+  ...
+) {
+  # Identify layer(s) to use
+  layer <- layer %||% Layers(object = object)
+  if (length(x = layer) == 1L && !layer %in% Layers(object = object)) {
+    layer <- grep(
+      pattern = paste0('^', layer, '$'),
+      x = Layers(object = object),
+      value = TRUE
+    )
+  }
+  layer <- match.arg(
+    arg = layer,
+    choices = Layers(object = object),
+    several.ok = TRUE
+  )
+  # Identify cells to use
+  cells <- cells %||% colnames(x = object)
+  if (is.numeric(x = cells)) {
+    cells <- colnames(x = object)[cells]
+  }
+  # Check vars
+  orig <- vars
+  vars <- gsub(
+    pattern = paste0('^', Key(object = object)),
+    replacement = '',
+    x = vars
+  )
+  # Pull expression information
+  features <- intersect(
+    x = grep(pattern = '^md_', x = vars, invert = TRUE, value = TRUE),
+    y = Features(x = object, layer = NA)
+  )
+  features <- labels(
+    object = slot(object = object, name = 'features'),
+    values = features,
+    select = 'all',
+    simplify = FALSE
+  )
+  features <- Filter(
+    f = function(x) {
+      return(any(x %in% layer))
+    },
+    x = features
+  )
+  features <- sapply(X = features, FUN = '[[', 1L)
+  features <- if (length(x = features)) {
+    split(x = names(x = features), f = features)
+  } else {
+    NULL
+  }
+  data.fetched <- as.data.frame(x = if (length(x = features)) {
+    matrix(
+      data = NA_real_,
+      nrow = length(x = cells),
+      ncol = length(x = unlist(x = features)),
+      dimnames = list(cells, unlist(x = features))
+    )
+  } else {
+    matrix(
+      data = NA_real_,
+      nrow = 0L,
+      ncol = nrow(x = object),
+      dimnames = list(NULL, Features(x = object, layer = NA))
+    )
+  })
+  for (lyr in names(x = features)) {
+    lcells <- intersect(x = cells, y = Cells(x = object, layer = lyr))
+    if (!length(x = lcells)) {
+      next
+    }
+    ldat <- LayerData(
+      object = object,
+      layer = lyr,
+      cells = lcells,
+      features = features[[lyr]]
+    )
+    data.fetched[lcells, features[[lyr]]] <- t(x = ldat)
+  }
+  if (isTRUE(x = clean)) {
+    no.data <- which(x = apply(
+      X = data.fetched,
+      MARGIN = 1L,
+      FUN = function(x) {
+        return(all(is.na(x = x)))
+      }
+    ))
+    if (length(x = no.data)) {
+      data.fetched <- data.fetched[-no.data, , drop = FALSE]
+    }
+  }
+  # Pull feature-level metadata
+  meta.fetch <- c(
+    grep(pattern = '^md_', x = vars, value = TRUE),
+    vars[vars %in% colnames(x = object[[]])]
+  )
+  meta.fetch <- setdiff(x = meta.fetch, y = colnames(x = data.fetched))
+  meta.keyed <- which(x = grepl(pattern = '^md', x = meta.fetch))
+  meta.fetch <- gsub(pattern = '^md_', replacement = '', x = meta.fetch)
+  meta.data <- lapply(
+    X = meta.fetch,
+    FUN = function(x, f) {
+      df <- as.data.frame(x = matrix(
+        data = NA,
+        nrow = 1L,
+        ncol = length(x = f),
+        dimnames = list(x, f)
+      ))
+      df[x, ] <- object[[x]][f, , drop = TRUE]
+      return(df)
+    },
+    f = colnames(x = data.fetched)
+  )
+  meta.data <- do.call(what = 'rbind', args = meta.data)
+  if (length(x = meta.keyed)) {
+    rownames(x = meta.data)[meta.keyed] <- paste0(
+      'md_',
+      rownames(x = meta.data)[meta.keyed]
+    )
+  }
+  keyed.meta <- paste0(Key(object = object), rownames(x = meta.data))
+  keyed.meta.idx <- which(x = keyed.meta %in% orig)
+  if (length(x = keyed.meta.idx)) {
+    rownames(x = meta.data)[keyed.meta.idx] <- keyed.meta[keyed.meta.idx]
+  }
+  if (nrow(x = data.fetched) && (nrow(x = meta.data) %||% 0)) {
+    warning(
+      "Returning both expression and meta data; data types might be different than expected",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  data.fetched <- rbind(data.fetched, meta.data)
+  # Add keys to keyed vars
+  keyed.features <- paste0(Key(object = object), colnames(x = data.fetched))
+  keyed.idx <- which(x = keyed.features %in% orig)
+  if (length(x = keyed.idx)) {
+    colnames(x = data.fetched)[keyed.idx] <- keyed.features[keyed.idx]
+  }
+  # Check final list of features
+  fetched <- setdiff(x = unlist(x = dimnames(x = data.fetched)), y = cells)
+  missing <- setdiff(x = orig, y = fetched)
+  if (length(x = missing) == length(x = orig)) {
+    stop("None of the requested variables found", call. = FALSE)
+  } else if (length(x = missing)) {
+    warning(
+      "The following variables could not be found: ",
+      paste(missing, collapse = ', '),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  return(data.fetched)
+}
+
 #' @rdname AssayData
 #' @export
 #' @method GetAssayData StdAssay
@@ -647,9 +811,9 @@ LayerData.StdAssay <- function(
   dnames[[1L]] <- dnames[[1L]][features]
   # Pull the layer data
   ldat <- if (.MARGIN(object = object) == 1L) {
-    slot(object = object, name = 'layers')[[layer]][features, cells]
+    slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
   } else {
-    slot(object = object, name = 'layers')[[layer]][cells, features]
+    slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
   }
   # Add dimnames and transpose if requested
   ldat <- if (isTRUE(x = fast)) {
@@ -1020,12 +1184,12 @@ NULL
   if (missing(x = j)) {
     j <- seq_len(length.out = ncol(x = x))
   }
-  return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
+  return(LayerData(object = x, cells = j, features = i, ...))
 }
 
 #' @details \code{[[}: Get feature-level metadata
 #'
-#' @param drop See \code{\link[base]{drop}}
+#' @inheritParams base::`[[.data.frame`
 #'
 #' @return \code{[[}: The feature-level metadata for \code{i}
 #'
@@ -1227,6 +1391,8 @@ CalcN5 <- function(object) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @details \code{[[<-}: Add or remove pieces of meta data
+#'
+#' @param value Feature-level metadata to add to the assay
 #'
 #' @return \code{[[<-}: \code{x} with the metadata updated
 #'
