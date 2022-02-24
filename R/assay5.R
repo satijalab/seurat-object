@@ -1,6 +1,7 @@
 #' @include zzz.R
 #' @include layers.R
 #' @include logmap.R
+#' @include keymixin.R
 #' @importFrom methods setAs
 #'
 NULL
@@ -13,35 +14,23 @@ NULL
 #'
 #' The \code{StdAssay} class is a virtual class that provides core
 #' infrastructure for assay data in \pkg{Seurat}. Assays contain expression
-#' data along with additional representations of the expression data (layers)
-#' and associated metadata. Derived classes
-#' (eg. \link[Assay-class]{the v5 Assay}) must set the storage mechanism for
-#' expression data (eg. \code{\link[base]{matrix}} or
-#' \code{\link[Matrix:dgCMatrix-class]{dgCMatrix}}) and may optionally define
-#' additional functionality
+#' data (layers) and associated feature-level metadata. Derived classes
+#' (eg. \link[Assay-class]{the v5 Assay}) may optionally define additional
+#' functionality
 #'
-#' @slot data A two-dimensional object with expression data with cells as
-#' columns and features as rows
 #' @slot layers A named list containing alternate representations of
 #' \code{data}; layers must have the same cells as \code{data} and either the
 #' same or a subset of the features present in \code{data}
-#' @slot key ...
-#' @slot cells A vector of cell names present in the assay
+#' @slot cells A \code{\link{LogMap}} describing the cell membership for
+#' each layer
+#' @slot features A \code{\link{LogMap}} describing the feature membership
+#' for each layer
 #' @slot assay.orig ...
-#' @slot features A matrix containing the presence/absence status of features
-#' in the layers with the following properties;
-#' \itemize{
-#'  \item The dimensions of the matrix should be m\emph{f} rows and n\emph{l}
-#'  columns where m\emph{f} is the number of features (rows) in \code{data}
-#'  and n\emph{l} is the number of layers in \code{layers}
-#'  \item The row names should be the features (in order) present in \code{data}
-#'  \item The column names should be the names of each layer present in
-#'  \code{layers}
-#'  \item Each value should be either \code{TRUE} if a given feature is present
-#'  in a given layer, otherwise \code{FALSE}
-#' }
 #' @slot meta.data ...
 #' @slot misc ...
+#' @slot key A one-length character vector with the object's key; keys must
+#' be one or more alphanumeric characters followed by an underscore
+#' \dQuote{\code{_}} (regex pattern \dQuote{\code{^[[:alnum:]]+_$}})
 #'
 #' @exportClass StdAssay
 #'
@@ -51,14 +40,13 @@ NULL
 #'
 setClass(
   Class = 'StdAssay',
-  contains = 'VIRTUAL',
+  contains = c('VIRTUAL', 'KeyMixin'),
   slots = c(
     layers = 'list',
-    key = 'character',
     cells = 'LogMap',
-    assay.orig = 'character',
     features = 'LogMap',
     # var.features = 'character',
+    assay.orig = 'character',
     meta.data = 'data.frame',
     misc = 'list'
   )
@@ -89,47 +77,54 @@ setClass(
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' Generic Assay Creation
-#'
-#' Create an assay object; runs a standardized filtering scheme that
-#' works regardless of the direction of the data (eg. cells as columns
-#' and features as rows or vice versa) and creates an assay object based
-#' on the  initialization scheme defined for \code{\link{StdAssay}}-derived
-#' class \code{type}
-#'
-#' @param counts A two-dimensional expression matrix
-#' @param min.cells Include features detected in at least this many cells;
-#' will subset the counts matrix as well. To reintroduce excluded features,
-#' create a new object with a lower cutoff
-#' @param min.features Include cells where at least this many features
-#' are detected
-#' @param cells Vector of cell names
-#' @param features Vector of feature names
-#' @param layer Name of layer to store \code{counts} as
-#' @param type Type of assay object to create; must be the name of a class
-#' that's derived from \code{\link{StdAssay}}
-#' @param csum Function for calculating cell sums
-#' @param fsum Function for calculating feature sums
-#' @param ... Extra parameters passed to \code{\link[methods]{new}} for
-#' assay creation; used to set slots not defined by \code{\link{StdAssay}}
-#'
-#' @return An object of class \code{type} with a layer named \code{layer}
-#' containing the data found in \code{counts}
-#'
-#' @importFrom methods getClass
-#' @importFrom utils getS3method methods
-#'
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Methods for Seurat-defined generics
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @method .AssayClass Assay5T
 #' @export
 #'
-#' @keywords internal
+.AssayClass.Assay5T <- function(object) {
+  return('Transposed Assay (v5)')
+}
+
+#' @param layer Name of layer to store \code{counts} as
 #'
-.CreateStdAssay <- function(
+#' @rdname dot-CreateStdAssay
+#' @method .CreateStdAssay default
+#' @export
+#'
+.CreateStdAssay.default <- function(
   counts,
   min.cells = 0,
   min.features = 0,
   cells = NULL,
   features = NULL,
+  transpose = FALSE,
+  type = 'Assay5',
   layer = 'counts',
+  ...
+) {
+  .NotYetImplemented()
+}
+
+#' @param csum Function for calculating cell sums
+#' @param fsum Function for calculating feature sums
+#'
+#' @importFrom methods getClass
+#' @importFrom rlang is_bare_list
+#' @importFrom utils getS3method methods
+#'
+#' @rdname dot-CreateStdAssay
+#' @method .CreateStdAssay list
+#' @export
+#'
+.CreateStdAssay.list <- function(
+  counts,
+  min.cells = 0,
+  min.features = 0,
+  cells = NULL,
+  features = NULL,
   transpose = FALSE,
   type = 'Assay5',
   csum = Matrix::colSums,
@@ -142,7 +137,7 @@ setClass(
   if (!'StdAssay' %in% contains) {
     stop("Class '", type, "' does not inherit from StdAssay")
   }
-  for (i in c(contains, 'default')) {
+  for (i in c(type, contains, 'default')) {
     fmargin <- getS3method(f = '.MARGIN', class = i, optional = TRUE)
     if (is.function(x = fmargin)) {
       break
@@ -150,94 +145,113 @@ setClass(
   }
   cdim <- fmargin(object = type, type = 'cells')
   fdim <- fmargin(object = type, type = 'features')
-  cells <- cells %||%
-    dimnames(x = counts)[[cdim]] %||%
-    paste0('Cell_', seq_len(length.out = dim(x = counts)[cdim]))
-  features <- features %||%
-    dimnames(x = counts)[[fdim]] %||%
-    paste0('Feature', seq_len(length.out = dim(x = counts)[fdim]))
+  # Check layer names
+  if (is.null(x = names(x = counts))) {
+    names(x = counts) <- paste0('counts', seq_along(along.with = counts))
+  } else if (any(!nzchar(x = names(x = counts)))) {
+    names(x = counts)[!nzchar(x = names(x = counts))] <- 'counts'
+  }
+  names(x = counts) <- make.unique(names = names(x = counts), sep = '')
+  # Check cell/feature names for all layers
+  if (is.atomic(x = cells)) {
+    cells <- rep_len(x = list(cells), length.out = length(x = counts))
+  }
+  if (!is_bare_list(x = cells) || length(x = cells) != length(x = counts)) {
+    stop("Not enough cells for the counts matrices provided", call. = FALSE)
+  }
+  cells <- .CheckNames(x = cells, n = names(x = counts))
+  if (is.atomic(x = features)) {
+    features <- rep_len(x = list(features), length.out = length(x = counts))
+  }
+  if (!is_bare_list(x = features) || length(x = features) != length(x = counts)) {
+    stop("Not enough features for the counts matrices provided", call. = FALSE)
+  }
+  features <- .CheckNames(x = features, n = names(x = counts))
+  for (layer in names(x = counts)) {
+    cells[[layer]] <- cells[[layer]] %||%
+      dimnames(x = counts[[layer]])[[cdim]] %||%
+      paste0('Cell_', seq_len(length.out = dim(x = counts[[layer]])[cdim]))
+    features[[layer]] <- features[[layer]] %||%
+      dimnames(x = counts[[layer]])[[fdim]] %||%
+      paste0('Feature', seq_len(length.out = dim(x = counts[[layer]])[fdim]))
+  }
   # Filter based on min.features
   if (min.features > 0) {
-    cells.use <- which(x = csum(counts > 0) >= min.features)
-    counts <- if (cdim == 1) {
-      counts[cells.use, ]
-    } else {
-      counts[, cells.use]
+    for (layer in names(x = counts)) {
+      cells.use <- which(x = csum(counts[[layer]] > 0) >= min.features)
+      counts[[layer]] <- if (cdim == 1L) {
+        counts[[layer]][cells.use, ]
+      } else {
+        counts[[layer]][, cells.use]
+      }
+      cells[[layer]] <- cells[[layer]][cells.use]
     }
-    cells <- cells[cells.use]
   }
   # Filter based on min.cells
   if (min.cells > 0) {
-    features.use <- which(x = fsum(counts > 0) >= min.cells)
-    counts <- if (fdim == 1) {
-      counts[features.use, ]
-    } else {
-      counts[, features.use]
+    for (layer in names(x = counts)) {
+      features.use <- which(x = fsum(counts[[layer]] > 0) >= min.cells)
+      counts[[layer]] <- if (fdim == 1L) {
+        counts[[layer]][features.use, ]
+      } else {
+        counts[[layer]][, features.use]
+      }
+      features[[layer]] <- features[[layer]][features.use]
     }
-    features <- features[features.use]
   }
+  features.all <- Reduce(f = union, x = features)
   # Create the object
   object <- new(
     Class = type,
     layers = list(),
-    features = LogMap(y = features),
-    cells = LogMap(y = cells),
-    meta.data = EmptyDF(n = length(x = features)),
+    features = LogMap(y = features.all),
+    cells = LogMap(y = Reduce(f = union, x = cells)),
+    meta.data = EmptyDF(n = length(x = features.all)),
     ...
   )
-  LayerData(
-    object = object,
-    layer = layer,
-    features = features,
-    cells = cells,
-    transpose = transpose
-  ) <- counts
+  for (layer in names(x = counts)) {
+    LayerData(
+      object = object,
+      layer = layer,
+      features = features[[layer]],
+      cells = cells[[layer]],
+      transpose = transpose
+    ) <- counts[[layer]]
+  }
+  validObject(object = object)
   return(object)
 }
 
-#' Create a v5 Assay object
-#'
-#' Create an \code{\link{Assay5}} object from a feature expression matrix;
-#' the expected format of the matrix is features x cells
-#'
-#' @inheritParams .CreateStdAssay
-#' @param ... Extra parameters passed to \code{\link{.CreateStdAssay}}
-#'
-#' @return An \code{\link{Assay5}} object
-#'
+#' @rdname dot-CreateStdAssay
+#' @method .CreateStdAssay Matrix
 #' @export
 #'
-CreateAssay5Object <- function(
+.CreateStdAssay.Matrix <- function(
   counts,
   min.cells = 0,
   min.features = 0,
-  layer = 'counts',
+  cells = NULL,
+  features = NULL,
   transpose = FALSE,
+  type = 'Assay5',
+  layer = 'counts',
   ...
 ) {
-  type <- ifelse(test = isTRUE(x = transpose), yes = 'Assay5T', no = 'Assay5')
-  if (inherits(x = counts, what = 'spam')) {
-    if (isTRUE(x = transpose)) {
-      csum <- spam::rowSums
-      fsum <- spam::colSums
-    } else {
-      csum <- spam::colSums
-      fsum <- spam::rowSums
-    }
+  counts <- list(counts)
+  names(x = counts) <- layer
+  if (isTRUE(x = transpose)) {
+    csum <- Matrix::rowSums
+    fsum <- Matrix::colSums
   } else {
-    if (isTRUE(x = transpose)) {
-      csum <- Matrix::rowSums
-      fsum <- Matrix::colSums
-    } else {
-      csum <- Matrix::colSums
-      fsum <- Matrix::rowSums
-    }
+    csum <- Matrix::colSums
+    fsum <- Matrix::rowSums
   }
   return(.CreateStdAssay(
     counts = counts,
-    min.cells =  min.cells,
+    min.cells = min.cells,
     min.features = min.features,
-    layer = layer,
+    cells = cells,
+    features = features,
     transpose = transpose,
     type = type,
     csum = csum,
@@ -246,16 +260,11 @@ CreateAssay5Object <- function(
   ))
 }
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Methods for Seurat-defined generics
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#' @method .AssayClass Assay5T
+#' @rdname dot-CreateStdAssay
+#' @method .CreateStdAssay matrix
 #' @export
 #'
-.AssayClass.Assay5T <- function(object) {
-  return('Transposed Assay (v5)')
-}
+.CreateStdAssay.matrix <- .CreateStdAssay.Matrix
 
 #' @method .MARGIN Assay5T
 #' @export
@@ -283,6 +292,157 @@ Cells.StdAssay <- function(x, layer = NULL, ...) {
   }
   layer <- match.arg(arg = layer, choices = Layers(object = x))
   return(slot(object = x, name = 'cells')[[layer]])
+}
+
+#' @rdname CreateAssay5Object
+#' @method CreateAssay5Object default
+#' @export
+#'
+CreateAssay5Object.default <- function(
+  counts,
+  min.cells = 0,
+  min.features = 0,
+  layer = 'counts',
+  transpose = FALSE,
+  csum = NULL,
+  fsum = NULL,
+  ...
+) {
+  if (isTRUE(x = transpose)) {
+    type <- 'Assay5T'
+    csum <- csum %||% Matrix::rowSums
+    fsum <- fsum %||% Matrix::colSums
+  } else {
+    type <- 'Assay5'
+    csum <- csum %||% Matrix::colSums
+    fsum <- fsum %||% Matrix::rowSums
+  }
+  return(.CreateStdAssay(
+    counts = counts,
+    min.cells = min.cells,
+    min.features = min.features,
+    transpose = transpose,
+    type = type,
+    layer = layer,
+    csum = csum,
+    fsum = fsum,
+    ...
+  ))
+}
+
+#' @rdname CreateAssay5Object
+#' @method CreateAssay5Object list
+#' @export
+#'
+CreateAssay5Object.list <- function(
+  counts,
+  min.cells = 0,
+  min.features = 0,
+  transpose = FALSE,
+  csum = NULL,
+  fsum = NULL,
+  ...
+) {
+  if (any(sapply(X = counts, FUN = inherits, what = 'spam'))) {
+    colsums <- spam::colSums
+    rowsums <- spam::rowSums
+  } else {
+    colsums <- Matrix::colSums
+    rowsums <- Matrix::rowSums
+  }
+  if (isTRUE(x = transpose)) {
+    type <- 'Assay5T'
+    csum <- csum %||% rowsums
+    fsum <- fsum %||% colsums
+  } else {
+    type <- 'Assay5'
+    csum <- csum %||% colsums
+    fsum <- fsum %||% rowsums
+  }
+  return(.CreateStdAssay(
+    counts = counts,
+    min.cells = min.cells,
+    min.features = min.features,
+    transpose = transpose,
+    type = type,
+    csum = csum,
+    fsum = fsum,
+    ...
+  ))
+}
+
+#' @rdname CreateAssay5Object
+#' @method CreateAssay5Object Matrix
+#' @export
+#'
+CreateAssay5Object.Matrix <- function(
+  counts,
+  min.cells = 0,
+  min.features = 0,
+  transpose = FALSE,
+  layer = 'counts',
+  ...
+) {
+  if (isTRUE(x = transpose)) {
+    type <- 'Assay5T'
+    csum <- Matrix::rowSums
+    fsum <- Matrix::colSums
+  } else {
+    type <- 'Assay5'
+    csum <- Matrix::colSums
+    fsum <- Matrix::rowSums
+  }
+  return(.CreateStdAssay(
+    counts = counts,
+    min.cells = min.cells,
+    min.features = min.features,
+    transpose = transpose,
+    type = type,
+    layer = layer,
+    csum = csum,
+    fsum = fsum,
+    ...
+  ))
+}
+
+#' @rdname CreateAssay5Object
+#' @method CreateAssay5Object matrix
+#' @export
+#'
+CreateAssay5Object.matrix <- CreateAssay5Object.Matrix
+
+#' @rdname CreateAssay5Object
+#' @method CreateAssay5Object spam
+#' @export
+#'
+CreateAssay5Object.spam <- function(
+  counts,
+  min.cells = 0,
+  min.features = 0,
+  transpose = FALSE,
+  layer = 'counts',
+  ...
+) {
+  if (isTRUE(x = transpose)) {
+    type <- 'Assay5T'
+    csum <- spam::rowSums
+    fsum <- spam::colSums
+  } else {
+    type <- 'Assay5'
+    csum <- spam::colSums
+    fsum <- spam::rowSums
+  }
+  return(.CreateStdAssay(
+    counts = counts,
+    min.cells = min.cells,
+    min.features = min.features,
+    transpose = transpose,
+    type = type,
+    layer = layer,
+    csum = csum,
+    fsum = fsum,
+    ...
+  ))
 }
 
 #' @rdname DefaultAssay
@@ -415,7 +575,7 @@ HVFInfo.StdAssay <- function(object, selection.method, status = FALSE, ...) {
 #'
 Key.StdAssay <- function(object, ...) {
   CheckDots(...)
-  return(slot(object = object, name = 'key'))
+  return(NextMethod())
 }
 
 #' @rdname Key
@@ -431,7 +591,7 @@ Key.StdAssay <- function(object, ...) {
 #'
 "Key<-.StdAssay" <- function(object, ..., value) {
   CheckDots(...)
-  slot(object = object, name = 'key') <- UpdateKey(key = value)
+  object <- NextMethod()
   return(object)
 }
 
@@ -449,14 +609,49 @@ Key.StdAssay <- function(object, ...) {
 #' @method LayerData StdAssay
 #' @export
 #'
-LayerData.StdAssay <- function(object, layer = NULL, fast = FALSE, ...) {
+LayerData.StdAssay <- function(
+  object,
+  layer = NULL,
+  cells = NULL,
+  features = NULL,
+  fast = FALSE,
+  ...
+) {
+  # Figure out the layer we're pulling
   layer <- layer[1] %||% DefaultLayer(object = object)
   layer <- match.arg(arg = layer, choices = Layers(object = object))
-  ldat <- slot(object = object, name = 'layers')[[layer]]
+  # Allow cell/feature subsets
   dnames <- list(
     Features(x = object, layer = layer),
     Cells(x = object, layer = layer)
   )
+  cells <- cells %||% dnames[[2L]]
+  if (is.numeric(x = cells)) {
+    cells <- dnames[[2L]][cells]
+  }
+  cells <- sort(x = MatchCells(
+    new = dnames[[2L]],
+    orig = cells,
+    ordered = TRUE
+  ))
+  dnames[[2L]] <- dnames[[2L]][cells]
+  features <- features %||% dnames[[1L]]
+  if (is.numeric(x = features)) {
+    features <- dnames[[1L]][features]
+  }
+  features <- sort(x = MatchCells(
+    new = dnames[[1L]],
+    orig = features,
+    ordered = TRUE
+  ))
+  dnames[[1L]] <- dnames[[1L]][features]
+  # Pull the layer data
+  ldat <- if (.MARGIN(object = object) == 1L) {
+    slot(object = object, name = 'layers')[[layer]][features, cells]
+  } else {
+    slot(object = object, name = 'layers')[[layer]][cells, features]
+  }
+  # Add dimnames and transpose if requested
   ldat <- if (isTRUE(x = fast)) {
     ldat
   } else if (is.na(x = fast)) {
@@ -902,6 +1097,106 @@ dimnames.StdAssay <- function(x) {
 #'
 head.StdAssay <- .head
 
+#' @details \code{merge}: Merge multiple assays together
+#'
+#' @return \code{merge}: A new assay ...
+#'
+#' @rdname StdAssay-methods
+#'
+#' @method merge StdAssay
+#' @export
+#'
+merge.StdAssay <- function(x, y, ...) {
+  .NotYetImplemented()
+}
+
+#' @details \code{subset}: Subset an assay to a given set of cells
+#' and/or features
+#'
+#' @return \code{subset}: The assay subsetted to the cells and/or features given
+#'
+#' @rdname StdAssay-methods
+#'
+#' @method subset StdAssay
+#' @export
+#'
+subset.StdAssay <- function(x, cells = NULL, features = NULL, ...) {
+  if (is.null(x = cells) && is.null(x = features)) {
+    return(x)
+  }
+  # Check the cells vector
+  if (all(is.na(x = cells))) {
+    cells <- Cells(x = x, layer = NA)
+  } else if (any(is.na(x = cells))) {
+    warning(
+      "NAs passed in cells vector, removing NAs",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    cells <- cells[!is.na(x = cells)]
+  }
+  if (is.numeric(x = cells)) {
+    cells <- Cells(x = x, layer = NA)[cells]
+  }
+  cells <- intersect(x = cells, y = Cells(x = x, layer = NA))
+  if (!length(x = cells)) {
+    stop("None of the cells provided found in this assay", call. = FALSE)
+  }
+  # Check the features vector
+  if (all(is.na(x = features))) {
+    features <- Features(x = x, layer = NA)
+  } else if (any(is.na(x = features))) {
+    warning(
+      "NAs passed in features vector, removing NAs",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    features <- features[!is.na(x = features)]
+  }
+  if (is.numeric(x = features)) {
+    features <- Features(x = x, layer = NA)[features]
+  }
+  features <- intersect(x = features, y = Features(x = x, layer = NA))
+  if (!length(x = features)) {
+    stop("None of the features provided found in this assay", call. = FALSE)
+  }
+  # Perform the subsets
+  for (l in Layers(object = x)) {
+    lcells <- MatchCells(
+      new = Cells(x = x, layer = l),
+      orig = cells,
+      ordered = TRUE
+    )
+    lfeatures <- MatchCells(
+      new = Features(x = x, layer = l),
+      orig = features,
+      ordered = TRUE
+    )
+    if (is.null(x = lcells) || is.null(x = features)) {
+      LayerData(object = x, layer = l) <- NULL
+    } else {
+      LayerData(object = x, layer = l) <- LayerData(
+        object = x,
+        layer = l,
+        cells = lcells,
+        features = lfeatures
+      )
+    }
+  }
+  # TODO: Subset feature-level metadata
+  mfeatures <- MatchCells(
+    new = Features(x = x, layer = NA),
+    orig = features,
+    ordered = TRUE
+  )
+  slot(object = x, name = 'meta.data') <- slot(
+    object = x,
+    name = 'meta.data'
+  )[mfeatures, , drop = FALSE]
+  validObject(object = x)
+  return(x)
+}
+
 #' @return \code{tail}: The last \code{n} rows of feature-level metadata
 #'
 #' @importFrom utils tail
@@ -1015,7 +1310,7 @@ setMethod(
   definition = function(x, i, ..., value) {
     # Add multiple bits of metadata
     if (length(x = i) > 1L) {
-      value <- rep_len(x = value)
+      value <- rep_len(x = i)
       for (idx in seq_along(along.with = i)) {
         x[i[idx]] <- value[[idx]]
       }

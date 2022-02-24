@@ -7,6 +7,8 @@
 \alias{dim.StdAssay}
 \alias{dimnames.StdAssay}
 \alias{head.StdAssay}
+\alias{merge.StdAssay}
+\alias{subset.StdAssay}
 \alias{tail.StdAssay}
 \alias{[[<-,StdAssay,character,missing,data.frame-method}
 \alias{[[<-,StdAssay,character,missing,factor-method}
@@ -27,6 +29,10 @@
 \method{dimnames}{StdAssay}(x)
 
 \method{head}{StdAssay}(x, n = 10L, ...)
+
+\method{merge}{StdAssay}(x, y, ...)
+
+\method{subset}{StdAssay}(x, cells = NULL, features = NULL, ...)
 
 \method{tail}{StdAssay}(x, n = 10L, ...)
 
@@ -71,6 +77,10 @@ feature names or indices}
 
 \code{head}: The first \code{n} rows of feature-level metadata
 
+\code{merge}: A new assay ...
+
+\code{subset}: The assay subsetted to the cells and/or features given
+
 \code{tail}: The last \code{n} rows of feature-level metadata
 
 \code{[[<-}: \code{x} with the metadata updated
@@ -96,6 +106,11 @@ The following methods are provided for interacting with a
 
 \code{head} and \code{tail}: Get the first or last rows of feature
 level meta data
+
+\code{merge}: Merge multiple assays together
+
+\code{subset}: Subset an assay to a given set of cells
+and/or features
 
 \code{[[<-}: Add or remove pieces of meta data
 

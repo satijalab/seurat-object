@@ -15,7 +15,14 @@ LayerData(object, layer, ...) <- value
 
 Layers(object, ...)
 
-\method{LayerData}{StdAssay}(object, layer = NULL, fast = FALSE, ...)
+\method{LayerData}{StdAssay}(
+  object,
+  layer = NULL,
+  cells = NULL,
+  features = NULL,
+  fast = FALSE,
+  ...
+)
 
 \method{LayerData}{StdAssay}(object, layer, features = NULL, cells = NULL, ...) <- value
 
@@ -30,6 +37,8 @@ Layers(object, ...)
 
 \item{value}{New two-dimensional data to be added as a layer}
 
+\item{features, cells}{Vectors of features/cells to include ...}
+
 \item{fast}{Determine how to return the layer data; choose from:
 \describe{
  \item{\code{FALSE}}{Apply any transpositions and attempt to add feature/cell
@@ -39,8 +48,6 @@ Layers(object, ...)
  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell names
   to the layer data}
 }}
-
-\item{features, cells}{Vectors of features/cells to include ...}
 }
 \value{
 \code{LayerData}: the layer data for \code{layer} from \code{object}
