@@ -108,10 +108,6 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
   return(head(x = x[[]], n = n, ...))
 }
 
-.tail <- function(x, n = 10L, ...) {
-  return(tail(x = x[[]], n = n, ...))
-}
-
 #' Miscellaneous Data
 #'
 #' Internal functions for getting and setting miscellaneous data
@@ -160,6 +156,14 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
     slot(object = object, name = 'misc')[[slot]] <- value
   }
   return(object)
+}
+
+#' @rdname dot-head
+#'
+#' @noRd
+#'
+.tail <- function(x, n = 10L, ...) {
+  return(tail(x = x[[]], n = n, ...))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
