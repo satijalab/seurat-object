@@ -1,8 +1,8 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.9.9.9004
-Date: 2021-11-10
+Version: 4.9.9.9005
+Date: 2022-02-24
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
   person(given = 'Andrew', family = 'Butler', email = 'abutler@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0003-3608-0463')),
@@ -51,6 +51,7 @@ Collate:
     'generics.R'
     'default.R'
     'assay.R'
+    'keymixin.R'
     'logmap.R'
     'layers.R'
     'assay5.R'
