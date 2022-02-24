@@ -11,6 +11,7 @@
 \alias{[[<-,LogMap,character,missing,NULL-method}
 \alias{[[<-,LogMap,character,missing,numeric-method}
 \alias{LogMap-class}
+\alias{droplevels.LogMap}
 \alias{labels.LogMap}
 \title{A Logical Map}
 \usage{
@@ -29,6 +30,8 @@ LogMap(y)
 \S4method{[[}{LogMap,character,missing,`NULL`}(x, i, j, ...) <- value
 
 \S4method{[[}{LogMap,character,missing,numeric}(x, i, j, ...) <- value
+
+\method{droplevels}{LogMap}(x, ...)
 
 \method{labels}{LogMap}(
   object,
@@ -75,6 +78,9 @@ mapped to \code{i}; otherwise the rownames of \code{x}
 the observations for \code{i}; otherwise, \code{x} with a new column for
 \code{i} recording a \code{TRUE} for all values present in \code{value}
 
+\code{droplevels}: \code{x} with values not present in any
+observation removed
+
 \code{labels}: A list, or vector if \code{simplify} is \code{TRUE},
 of all values and the observations they're found in, according
 to the value of \code{select}
@@ -117,6 +123,11 @@ map[[]]
 # Find observations for a set of values
 map[['entry']] <- c(2, 7, 10)
 labels(map, c('a', 'b', 'g'))
+
+# Remove unused values
+map <- droplevels(map)
+map
+map[[]]
 
 # Remove an observation from the LogMap
 map[['obs']] <- NULL

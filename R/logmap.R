@@ -64,6 +64,11 @@ setClass(
 #' map[['entry']] <- c(2, 7, 10)
 #' labels(map, c('a', 'b', 'g'))
 #'
+#' # Remove unused values
+#' map <- droplevels(map)
+#' map
+#' map[[]]
+#'
 #' # Remove an observation from the LogMap
 #' map[['obs']] <- NULL
 #' map[['entry']] <- NULL
@@ -88,7 +93,36 @@ LogMap <- function(y) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @rdname LogMap-class
+#'
 #' @param x,object A \code{LogMap} object
+#'
+#' @return \code{droplevels}: \code{x} with values not present in any
+#' observation removed
+#'
+#' @method droplevels LogMap
+#' @export
+#'
+droplevels.LogMap <- function(x, ...) {
+  fidx <- which(x = apply(
+    X = x,
+    MARGIN = 1L,
+    FUN = function(row) {
+      return(all(vapply(
+        X = row,
+        FUN = isFALSE,
+        FUN.VALUE = logical(length = 1L)
+      )))
+    }
+  ))
+  if (length(x = fidx)) {
+    x <- as(object = x[-fidx, , drop = FALSE], Class = 'LogMap')
+  }
+  validObject(object = x)
+  return(x)
+}
+
+#' @rdname LogMap-class
+#'
 #' @param values A vector of values to find observations for
 #' @param select Observation selection method; choose from:
 #' \itemize{
@@ -362,7 +396,7 @@ setValidity(
       if (anyDuplicated(x = colnames(x = object))) {
         valid <- c(valid, "Duplicate colnames not allowed")
       }
-    } else if (!ncol(x = object)) {
+    } else if (ncol(x = object)) {
       valid <- c(valid, "Colnames must be supplied")
     }
     return(valid %||% TRUE)
