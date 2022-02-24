@@ -62,7 +62,11 @@ feature names or indices}
 
 \item{...}{Arguments passed to other methods}
 
-\item{drop}{See \code{\link[base]{drop}}}
+\item{drop}{logical.  If \code{TRUE} the result is coerced to the
+    lowest possible dimension.  The default is to drop if only one
+    column is left, but \bold{not} to drop if only one row is left.}
+
+\item{value}{Feature-level metadata to add to the assay}
 }
 \value{
 \code{[}: The \code{data} slot for features \code{i} and cells
