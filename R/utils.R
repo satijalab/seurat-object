@@ -284,10 +284,10 @@ PackageCheck <- function(..., error = TRUE) {
 
 #' Generate a random name
 #'
-#' Make a name from randomly sampled lowercase letters, pasted together with no
-#' spaces or other characters
+#' Make a name from randomly sampled characters, pasted together with no spaces
 #'
 #' @param length How long should the name be
+#' @param chars A vector of 1-length characters to use to generate the name
 #' @param ... Extra parameters passed to \code{\link[base]{sample}}
 #'
 #' @return A character with \code{nchar == length} of randomly sampled letters
@@ -303,9 +303,13 @@ PackageCheck <- function(..., error = TRUE) {
 #' RandomName()
 #' RandomName(7L, replace = TRUE)
 #'
-RandomName <- function(length = 5L, ...) {
+RandomName <- function(length = 5L, chars = letters, ...) {
   CheckDots(..., fxns = 'sample')
-  return(paste(sample(x = letters, size = length, ...), collapse = ''))
+  chars <- unique(x = unlist(x = strsplit(
+    x = as.character(x = chars),
+    split = ''
+  )))
+  return(paste(sample(x = chars, size = length, ...), collapse = ''))
 }
 
 #' Merge Sparse Matrices by Row
@@ -552,6 +556,22 @@ S4ToList.list <- function(object) {
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+.CheckNames <- function(x, n) {
+  stopifnot(length(x = x) == length(x = n))
+  if (is.null(x = names(x = x))) {
+    names(x = x) <- n
+  }
+  if (any(!nzchar(x = names(x = x)))) {
+    idx <- which(x = !nzchar(x = names(x = x)))
+    n2 <- setdiff(x = n, y = names(x = x))
+    if (length(x = idx) != length(x = n2)) {
+      stop("Not all provided names fit with the values provided", call. = FALSE)
+    }
+    names(x = x)[idx] <- n2
+  }
+  return(x)
+}
+
 #' Identify Object Collections
 #'
 #' Find all collection (named lists) slots in an S4 object
@@ -642,6 +662,17 @@ S4ToList.list <- function(object) {
   return(NULL)
 }
 
+#' Find Subobjects Of A Certain Class
+#'
+#' @inheritParams .Contains
+#' @param classes.keep A vector of classes to keep
+#'
+#' @return A vector of object names that are of class \code{classes.keep}
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
 .FilterObjects <- function(object, classes.keep = c('StdAssay', 'DimReduc')) {
   collections <- .Collections(object = object, exclude = c('misc', 'tools'))
   subobjects <- unlist(x = lapply(
@@ -1136,17 +1167,6 @@ IsCharEmpty <- function(
   return(empty)
 }
 
-RandomKey <- function(n = 7L, ...) {
-  x <- c(letters, LETTERS, seq.int(from = 0, to = 9))
-  return(paste0(
-    paste(
-      sample(x = x, size = n, ...),
-      collapse = ''
-    ),
-    '_'
-  ))
-}
-
 #' Update a Class's Package
 #'
 #' Swap packages for an object's class definition. As classes move between
@@ -1276,45 +1296,6 @@ UpdateClassPkg <- function(object, from = NULL, to = NULL) {
   obj.list <- SwapClassPkg(x = obj.list, from = from, to = to)
   # browser()
   return(ListToS4(x = obj.list))
-}
-
-#' Update a Key
-#'
-#' @param key A character to become a Seurat Key
-#'
-#' @return An updated Key that's valid for Seurat
-#'
-#' @section \code{Seurat} Object Keys:
-#' blah
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-UpdateKey <- function(key) {
-  key.msg <- 'Keys should be one or more alphanumeric characters followed by an underscore'
-  if (grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
-    return(key)
-  } else {
-    new.key <- regmatches(
-      x = key,
-      m = gregexpr(pattern = '[[:alnum:]]+', text = key)
-    )
-    new.key <- paste0(paste(unlist(x = new.key), collapse = ''), '_')
-    if (new.key == '_') {
-      new.key <- paste0(RandomName(length = 3), '_')
-    }
-    warning(
-      key.msg,
-      ", setting key from ",
-      key,
-      " to ",
-      new.key,
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    return(new.key)
-  }
 }
 
 #' Update slots in an object
