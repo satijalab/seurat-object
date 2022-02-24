@@ -76,8 +76,7 @@ setGeneric(
 
 .Cmargin <- function(fmargin) {
   fmargin <- .CheckFmargin(fmargin = fmargin)
-  cmargin <- setdiff(x = seq.int(from = 1L, to = 2L), y = fmargin)
-  return(cmargin)
+  return(setdiff(x = seq.int(from = 1L, to = 2L), y = fmargin))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
