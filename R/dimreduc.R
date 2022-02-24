@@ -1,6 +1,7 @@
 #' @include zzz.R
 #' @include generics.R
 #' @include jackstraw.R
+#' @include keymixin.R
 #' @importFrom methods new slot slot<- slotNames
 #'
 NULL
@@ -35,6 +36,7 @@ NULL
 #'
 DimReduc <- setClass(
   Class = 'DimReduc',
+  contains = 'KeyMixin',
   slots = c(
     cell.embeddings = 'matrix',
     feature.loadings = 'matrix',
@@ -42,7 +44,7 @@ DimReduc <- setClass(
     assay.used = 'character',
     global = 'logical',
     stdev = 'numeric',
-    key = 'character',
+    # key = 'character',
     jackstraw = 'JackStrawData',
     misc = 'list'
   )
@@ -276,7 +278,7 @@ JS.DimReduc <- function(object, slot = NULL, ...) {
 #'
 Key.DimReduc <- function(object, ...) {
   CheckDots(...)
-  return(slot(object = object, name = 'key'))
+  return(NextMethod())
 }
 
 #' @rdname Key
@@ -291,25 +293,7 @@ Key.DimReduc <- function(object, ...) {
 "Key<-.DimReduc" <- function(object, ..., value) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
-  old.key <- Key(object = object)
-  slots <- Filter(
-    f = function(x) {
-      return(class(x = slot(object = object, name = x)) == 'matrix')
-    },
-    x = slotNames(x = object)
-  )
-  for (s in slots) {
-    mat <- slot(object = object, name = s)
-    if (!IsMatrixEmpty(x = mat)) {
-      colnames(x = mat) <- sub(
-        pattern = paste0('^', old.key),
-        replacement = value,
-        x = colnames(x = mat)
-      )
-    }
-    slot(object = object, name = s) <- mat
-  }
-  slot(object = object, name = 'key') <- value
+  object <- NextMethod()
   return(object)
 }
 
