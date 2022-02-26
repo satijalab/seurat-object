@@ -1888,7 +1888,7 @@ WhichCells.Seurat <- function(
         "Cannot find the following identities in the object: ",
         paste(
           idents[!idents %in% levels(x = Idents(object = object))],
-          sep = ', '
+          collapse = ', '
         )
       )
     }
