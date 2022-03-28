@@ -750,12 +750,12 @@ Key.StdAssay <- function(object, ...) {
 
 #' @param fast Determine how to return the layer data; choose from:
 #' \describe{
-#'  \item{\code{FALSE}}{Apply any transpositions and attempt to add feature/cell
-#'   names (if supported) back to the layer data}
+#'  \item{\code{FALSE}}{Apply any transpositions and attempt to add
+#'   feature/cell names (if supported) back to the layer data}
 #'  \item{\code{NA}}{Attempt to add feature/cell names back to the layer data,
 #'   skip any transpositions}
-#'  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell names
-#'   to the layer data}
+#'  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell
+#'   names to the layer data}
 #' }
 #'
 #' @rdname Layers
@@ -1288,8 +1288,67 @@ head.StdAssay <- .head
 #' @method merge StdAssay
 #' @export
 #'
-merge.StdAssay <- function(x, y, ...) {
-  .NotYetImplemented()
+merge.StdAssay <- function(
+  x,
+  y,
+  labels = NULL,
+  add.cell.ids = labels,
+  collapse = FALSE,
+  ...
+) {
+  assays <- c(x, y)
+  # TODO: Support multiple types of assays
+  if (length(x = unique(x = sapply(X = assays, FUN = class))) != 1L) {
+    stop("Multiple types of assays provided", call. = FALSE)
+  }
+  labels <- labels %||% as.character(x = seq_along(along.with = assays))
+  add.cell.ids <- add.cell.ids %||% labels
+  # TODO: Support collapsing layers
+  if (isTRUE(x = collapse)) {
+    stop("Collapsing layers is not yet supported", call. = FALSE)
+  }
+  for (i in seq_along(along.with = assays)) {
+    if (is.na(x = labels[i])) {
+      labels[i] <- as.character(x = i)
+    }
+    if (is.na(x = add.cell.ids[i])) {
+      add.cell.ids[i] <- as.character(x = i)
+    }
+    colnames(x = assays[[i]]) <- paste(
+      colnames(x = assays[[i]]),
+      add.cell.ids[i], sep = '.'
+    )
+  }
+  features.all <- LogMap(y = Reduce(f = union, x = lapply(X = assays, FUN = rownames)))
+  combined <- new(
+    Class = class(x = x),
+    layers = list(),
+    cells = LogMap(y = Reduce(f = union, x = lapply(X = assays, FUN = colnames))),
+    features = features.all,
+    meta.data = EmptyDF(n = length(x = features.all)),
+    misc = list(),
+    key = Key(object = x) %||% character(length = 0L)
+  )
+  # Add layers
+  # TODO: Support collapsing layers
+  if (isTRUE(x = collapse)) {
+    stop("Collapsing layers is not yet supported", call. = FALSE)
+  } else {
+    for (i in seq_along(along.with = assays)) {
+      for (lyr in Layers(object = assays[[i]])) {
+        LayerData(
+          object = combined,
+          layer = paste(lyr, labels[i], sep = '.'),
+          features = Features(x = assays[[i]], layer = lyr),
+          cells = Cells(x = assays[[i]], layer = lyr)
+        ) <- LayerData(object = assays[[i]], layer = lyr, fast = TRUE)
+      }
+    }
+  }
+  # TODO: Add feature-level metadata
+  # TODO: Add misc
+  validObject(object = x)
+  return(combined)
 }
 
 #' @details \code{subset}: Subset an assay to a given set of cells
