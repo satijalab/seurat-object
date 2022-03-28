@@ -160,7 +160,7 @@ Key.Seurat5 <- function(object, ...) {
   return(sapply(
     X = .FilterObjects(
       object = object,
-      classes.keep = c('StdAssay', 'DimReduc', 'SpatialImage')
+      classes.keep = c('KeyMixin')
     ),
     FUN = function(x) {
       return(Key(object = object[[x]]))
@@ -200,6 +200,13 @@ dim.Seurat5 <- function(x) {
     ),
     nrow(x = slot(object = x, name = 'cells'))
   ))
+}
+
+#' @method dimnames Seurat5
+#' @export
+#'
+dimnames.Seurat5 <- function(x) {
+  .NotYetImplemented()
 }
 
 #' @method names Seurat5
@@ -272,6 +279,25 @@ names.Seurat5 <- function(x) {
   return(object)
 }
 
+#' Check for Duplicate Keys
+#'
+#' Check the uniqueness and validity of a key. If the provided key is not
+#' unique, \code{.CheckKey} will attempt to create a new key based on the name
+#' associated with the key, if provided. If not provided, or still not unique,
+#' \code{.CheckKey} will generate a series of random keys until a unique one
+#' is found
+#'
+#' @param key A key to check
+#' @param existing A vector of existing keys; can optionally be named with
+#' the names of objects corresponding to the keys
+#' @param name Name for object that \code{key} will be associated with
+#'
+#' @return A valid, unique key
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
 .CheckKey <- function(key, existing = NULL, name = NULL) {
   key <- Key(object = key, quiet = !is.null(x = existing))
   if (!is.null(x = names(x = existing)) && !is.null(x = name)) {
@@ -387,22 +413,23 @@ setMethod(
   ),
   definition = function(x, i, ..., value) {
     i <- make.names(names = i)
-    # Check for duplicate names
+    # Checks for if the assay or name already exists
     if (i %in% names(x = x)) {
+      # Check for duplicate names
       if (!inherits(x = x[[i]], what = 'StdAssay')) {
         .DuplicateError(name = i, cls = class(x = x[[i]]))
       }
       if (!identical(x = dim(x = value), y = dim(x = x[[i]]))) {
         stop("different cells/features from existing")
       }
-      if (!all(Cells(x = value) == Cells(x = x, assay = i))) {
+      if (!all(Cells(x = value, layer = NA) == Cells(x = x, assay = i))) {
         stop("different cells")
       }
     } else {
       if (!all(Cells(x = value) %in% Cells(x = x))) {
         stop("new cells")
       }
-      slot(object = x, name = 'cells')[[i]] <- Cells(x = value)
+      slot(object = x, name = 'cells')[[i]] <- Cells(x = value, layer = NA)
     }
     # Check keys
     Key(object = value) <- .CheckKey(
@@ -416,6 +443,8 @@ setMethod(
       f = Negate(f = is.null),
       x = slot(object = x, name = 'assays')
     )
+    # TODO: Update the cells LogMap
+    # Return the Seurat object
     validObject(object = x)
     return(x)
   }

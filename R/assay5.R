@@ -383,24 +383,13 @@ CreateAssay5Object.Matrix <- function(
   layer = 'counts',
   ...
 ) {
-  if (isTRUE(x = transpose)) {
-    type <- 'Assay5T'
-    csum <- Matrix::rowSums
-    fsum <- Matrix::colSums
-  } else {
-    type <- 'Assay5'
-    csum <- Matrix::colSums
-    fsum <- Matrix::rowSums
-  }
   return(.CreateStdAssay(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
     transpose = transpose,
-    type = type,
+    type = ifelse(test = isTRUE(x = transpose), yes = 'Assay5T', no = 'Assay5'),
     layer = layer,
-    csum = csum,
-    fsum = fsum,
     ...
   ))
 }
@@ -1155,6 +1144,9 @@ VariableFeatures.StdAssay <- function(object, selection.method = NULL, ...) {
 #' @param i,features For \code{[[}: metadata names; for all other methods,
 #' feature names or indices
 #' @param j,cells Cell names or indices
+#' @param value For \code{[[} Feature-level metadata to add to the assay; for
+#' \code{dimnames<-}, a list of two character vectors with the first entry being
+#' new feature names and the second being new cell names for the assay
 #' @param ... Arguments passed to other methods
 #'
 #' @details The following methods are provided for interacting with a
@@ -1247,6 +1239,32 @@ dimnames.StdAssay <- function(x) {
   return(list(Features(x = x, layer = NA), Cells(x = x, layer = NA)))
 }
 
+#' @details \code{dimnames<-}: Set the feature and cell names
+#'
+#' @return \code{dimnames<-}: \code{x} with the cell and/or feature
+#' names updated to \code{value}
+#'
+#' @importFrom rlang is_bare_list
+#'
+#' @rdname StdAssay-methods
+#'
+#' @method dimnames<- StdAssay
+#' @export
+#'
+"dimnames<-.StdAssay" <- function(x, value) {
+  msg <- "Invalid 'dimnames' given for an assay"
+  if (!is_bare_list(x = value, n = 2L)) {
+    stop(msg, call. = FALSE)
+  } else if (!all.equal(target = sapply(X = value, FUN = length), current = dim(x = x))) {
+    stop(msg, call. = FALSE)
+  }
+  value <- lapply(X = value, FUN = as.character)
+  rownames(x = slot(object = x, name = 'features')) <- value[[1L]]
+  rownames(x = slot(object = x, name = 'cells')) <- value[[2L]]
+  validObject(object = x)
+  return(x)
+}
+
 #' @details \code{head} and \code{tail}: Get the first or last rows of feature
 #' level meta data
 #'
@@ -1275,7 +1293,8 @@ merge.StdAssay <- function(x, y, ...) {
 }
 
 #' @details \code{subset}: Subset an assay to a given set of cells
-#' and/or features
+#' and/or features. \strong{Note}: reordering of cells/features is
+#' \emph{not} permitted
 #'
 #' @return \code{subset}: The assay subsetted to the cells and/or features given
 #'
@@ -1391,8 +1410,6 @@ CalcN5 <- function(object) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @details \code{[[<-}: Add or remove pieces of meta data
-#'
-#' @param value Feature-level metadata to add to the assay
 #'
 #' @return \code{[[<-}: \code{x} with the metadata updated
 #'

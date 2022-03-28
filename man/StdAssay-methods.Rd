@@ -6,6 +6,7 @@
 \alias{[[.StdAssay}
 \alias{dim.StdAssay}
 \alias{dimnames.StdAssay}
+\alias{dimnames<-.StdAssay}
 \alias{head.StdAssay}
 \alias{merge.StdAssay}
 \alias{subset.StdAssay}
@@ -27,6 +28,8 @@
 \method{dim}{StdAssay}(x)
 
 \method{dimnames}{StdAssay}(x)
+
+\method{dimnames}{StdAssay}(x) <- value
 
 \method{head}{StdAssay}(x, n = 10L, ...)
 
@@ -66,7 +69,9 @@ feature names or indices}
     lowest possible dimension.  The default is to drop if only one
     column is left, but \bold{not} to drop if only one row is left.}
 
-\item{value}{Feature-level metadata to add to the assay}
+\item{value}{For \code{[[} Feature-level metadata to add to the assay; for
+\code{dimnames<-}, a list of two character vectors with the first entry being
+new feature names and the second being new cell names for the assay}
 }
 \value{
 \code{[}: The \code{data} slot for features \code{i} and cells
@@ -78,6 +83,9 @@ feature names or indices}
 (\code{ncol})
 
 \code{dimnames}: A list with feature (row) and cell (column) names
+
+\code{dimnames<-}: \code{x} with the cell and/or feature
+names updated to \code{value}
 
 \code{head}: The first \code{n} rows of feature-level metadata
 
@@ -108,13 +116,16 @@ The following methods are provided for interacting with a
 
 \code{dimnames}: Get the feature and cell names
 
+\code{dimnames<-}: Set the feature and cell names
+
 \code{head} and \code{tail}: Get the first or last rows of feature
 level meta data
 
 \code{merge}: Merge multiple assays together
 
 \code{subset}: Subset an assay to a given set of cells
-and/or features
+and/or features. \strong{Note}: reordering of cells/features is
+\emph{not} permitted
 
 \code{[[<-}: Add or remove pieces of meta data
 
