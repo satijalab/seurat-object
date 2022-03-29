@@ -679,40 +679,24 @@ GetAssayData.StdAssay <- function(object, slot = 'data', ...) {
 #' HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
 #' }
 #'
-HVFInfo.StdAssay <- function(object, selection.method, status = FALSE, ...) {
-  .NotYetImplemented()
-  CheckDots(...)
-  disp.methods <- c('mean.var.plot', 'dispersion', 'disp')
-  if (tolower(x = selection.method) %in% disp.methods) {
-    selection.method <- 'mvp'
+HVFInfo.StdAssay <- function(object, method = NULL, status = FALSE, ...) {
+  vf.methods <- .VFMethods(object = object, type = 'hvf')
+  method <- method[1L] %||% vf.methods[1L]
+  method <- match.arg(arg = method, choices = vf.methods)
+  cols <- grep(
+    pattern = paste0('^vf_', method, '_'),
+    x = colnames(x = object[[]]),
+    value = TRUE
+  )
+  if (!isTRUE(x = status)) {
+    cols <- setdiff(x = cols, y = paste0('^vf_', method, '_variable'))
   }
-  selection.method <- switch(
-    EXPR = tolower(x = selection.method),
-    'sctransform' = 'sct',
-    selection.method
+  hvf.info <- object[[cols]]
+  colnames(x = hvf.info) <- gsub(
+    pattern = '^vf_',
+    replacement = '',
+    x = colnames(x = hvf.info)
   )
-  vars <- switch(
-    EXPR = selection.method,
-    'vst' = c('mean', 'variance', 'variance.standardized'),
-    'mvp' = c('mean', 'dispersion', 'dispersion.scaled'),
-    'sct' = c('gmean', 'variance', 'residual_variance'),
-    stop("Unknown method: '", selection.method, "'", call. = FALSE)
-  )
-  tryCatch(
-    expr = hvf.info <- object[[paste(selection.method, vars, sep = '.')]],
-    error = function(e) {
-      stop(
-        "Unable to find highly variable feature information for method '",
-        selection.method,
-        "'",
-        call. = FALSE
-      )
-    }
-  )
-  colnames(x = hvf.info) <- vars
-  if (status) {
-    hvf.info$variable <- object[[paste0(selection.method, '.variable')]]
-  }
   return(hvf.info)
 }
 
@@ -960,12 +944,28 @@ LayerData.StdAssay <- function(
   return(object)
 }
 
+#' @param search A pattern to search layer names for
+#'
 #' @rdname Layers
 #' @method Layers StdAssay
 #' @export
 #'
-Layers.StdAssay <- function(object, ...) {
+Layers.StdAssay <- function(object, search = NULL, ...) {
   layers <- names(x = slot(object = object, name = 'layers'))
+  if (!is.null(x = search)) {
+    layers <- unique(x = unlist(x = lapply(
+      X = search,
+      FUN = function(lyr) {
+        if (lyr %in% layers) {
+          return(lyr)
+        }
+        return(grep(pattern = lyr, x = layers, value = TRUE, ...))
+      }
+    )))
+    if (!length(x = layers)) {
+      stop("No layers found matching search pattern provided", call. = FALSE)
+    }
+  }
   return(layers)
 }
 
@@ -1078,18 +1078,23 @@ SetAssayData.StdAssay <- function(object, slot, new.data, ...) {
 #' @export
 #' @method VariableFeatures StdAssay
 #'
-VariableFeatures.StdAssay <- function(object, selection.method = NULL, ...) {
+VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, ...) {
   .NotYetImplemented()
-  CheckDots(...)
-  if (!is.null(x = selection.method)) {
-    vf <- HVFInfo(
-      object = object,
-      selection.method = selection.method,
-      status = TRUE
-    )
-    return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
-  }
-  return(slot(object = object, name = 'var.features'))
+  hvf.methods <- .VFMethods(object = object, type = 'hvf', layers = layer[1L])
+  method <- method[1L] %||% hvf.methods[1L]
+  method <- match.arg(arg = method, choices = hvf.methods)
+  vf <- HVFInfo(object = object, method = method, status = TRUE)
+  return(rownames(x = vf)[which(x = vf[['variable']])])
+  # CheckDots(...)
+  # if (!is.null(x = selection.method)) {
+  #   vf <- HVFInfo(
+  #     object = object,
+  #     selection.method = selection.method,
+  #     status = TRUE
+  #   )
+  #   return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
+  # }
+  # return(slot(object = object, name = 'var.features'))
 }
 
 #' @rdname VariableFeatures
@@ -1195,10 +1200,14 @@ NULL
     i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
   data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
-  row.names(x = data.return) <- Features(x = x, layer = NA)
-  if (drop) {
+  # row.names(x = data.return) <- Features(x = x, layer = NA)
+  row.names(x = data.return) <- rownames(x = x)
+  if (isTRUE(x = drop)) {
     data.return <- unlist(x = data.return, use.names = FALSE)
-    names(x = data.return) <- rep.int(x = rownames(x = x), times = length(x = i))
+    names(x = data.return) <- rep.int(
+      x = rownames(x = x),
+      times = length(x = i)
+    )
   }
   return(data.return)
 }
@@ -1454,6 +1463,46 @@ tail.StdAssay <- .tail
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @param object A \code{\link{StdAssay}} object
+#' @param type Type of variable feature method to pull; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{hvf}}: highly variable features
+#'  \item \dQuote{\code{svf}}: spatially variable features
+#' }
+#' @param layers Vector of layers to restrict methods for, or a search pattern
+#' for multiple layers
+#'
+#' @return A vector of variable feature methods found in \code{object}
+#'
+#' @noRd
+#'
+.VFMethods <- function(object, type = c('hvf', 'svf'), layers = NULL) {
+  type <- type[1L]
+  type <- match.arg(arg = type)
+  pattern <- switch(
+    EXPR = type,
+    'hvf' = '^vf_',
+    stop("Unknown type: '", type, "'", call. = FALSE)
+  )
+  vf.cols <- grep(
+    pattern = paste0(pattern, '[[:alnum:]]+_'),
+    x = colnames(x = object[[]]),
+    value = TRUE
+  )
+  layers <- Layers(object = object, search = layers)
+  vf.cols <- Filter(
+    f = function(x) {
+      return(unlist(x = strsplit(x = x, split = '_'))[3L] %in% layers)
+    },
+    x = vf.cols
+  )
+  return(unique(x = sapply(
+    X = strsplit(x = vf.cols, split = '_'),
+    FUN = '[[',
+    2L
+  )))
+}
+
 CalcN5 <- function(object) {
   if (IsMatrixEmpty(x = LayerData(object = object))) {
     return(NULL)
@@ -1552,7 +1601,7 @@ setMethod(
   definition = function(x, i, ..., value) {
     # Add multiple bits of metadata
     if (length(x = i) > 1L) {
-      value <- rep_len(x = i)
+      value <- rep_len(x = value, length.out = length(x = i))
       for (idx in seq_along(along.with = i)) {
         x[i[idx]] <- value[[idx]]
       }
