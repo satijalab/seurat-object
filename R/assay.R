@@ -253,7 +253,13 @@ CreateAssayObject <- function(
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @rdname AddMetaData
+# @rdname AddMetaData
+#' @inherit AddMetaData
+#'
+#' @templateVar fname AddMetaData
+#' @templateVar version 4
+#' @template name-oldv
+#'
 #' @export
 #' @method AddMetaData Assay
 #'
@@ -305,7 +311,13 @@ GetAssayData.Assay <- function(
 #' # Get the HVF info directly from an Assay object
 #' HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
 #'
-HVFInfo.Assay <- function(object, selection.method, status = FALSE, ...) {
+HVFInfo.Assay <- function(
+  object,
+  method,
+  status = FALSE,
+  selection.method = method,
+  ...
+) {
   CheckDots(...)
   disp.methods <- c('mean.var.plot', 'dispersion', 'disp')
   if (tolower(x = selection.method) %in% disp.methods) {
