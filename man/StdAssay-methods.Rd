@@ -33,7 +33,7 @@
 
 \method{head}{StdAssay}(x, n = 10L, ...)
 
-\method{merge}{StdAssay}(x, y, ...)
+\method{merge}{StdAssay}(x, y, labels = NULL, add.cell.ids = labels, collapse = FALSE, ...)
 
 \method{subset}{StdAssay}(x, cells = NULL, features = NULL, ...)
 

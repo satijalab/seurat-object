@@ -21,7 +21,7 @@
 \alias{VariableFeatures<-.StdAssay}
 \title{Highly Variable Features}
 \usage{
-HVFInfo(object, selection.method, status = FALSE, ...)
+HVFInfo(object, method, status = FALSE, ...)
 
 VariableFeatures(object, selection.method = NULL, ...)
 
@@ -31,7 +31,14 @@ SVFInfo(object, selection.method, status, ...)
 
 SpatiallyVariableFeatures(object, selection.method, ...)
 
-\method{HVFInfo}{Seurat}(object, selection.method = NULL, status = FALSE, assay = NULL, ...)
+\method{HVFInfo}{Seurat}(
+  object,
+  method = NULL,
+  status = FALSE,
+  assay = NULL,
+  selection.method = method,
+  ...
+)
 
 \method{VariableFeatures}{Seurat}(object, selection.method = NULL, assay = NULL, ...)
 
@@ -53,7 +60,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
   ...
 )
 
-\method{HVFInfo}{Assay}(object, selection.method, status = FALSE, ...)
+\method{HVFInfo}{Assay}(object, method, status = FALSE, selection.method = method, ...)
 
 \method{SpatiallyVariableFeatures}{Assay}(
   object,
@@ -73,14 +80,18 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{VariableFeatures}{Assay}(object, ...) <- value
 
-\method{HVFInfo}{StdAssay}(object, selection.method, status = FALSE, ...)
+\method{HVFInfo}{StdAssay}(object, method = NULL, status = FALSE, ...)
 
-\method{VariableFeatures}{StdAssay}(object, selection.method = NULL, ...)
+\method{VariableFeatures}{StdAssay}(object, method = NULL, layer = NULL, ...)
 
 \method{VariableFeatures}{StdAssay}(object, ...) <- value
 }
 \arguments{
 \item{object}{An object}
+
+\item{status}{Add variable status to the resulting data frame}
+
+\item{...}{Arguments passed to other methods}
 
 \item{selection.method}{Which method to pull. For \code{HVFInfo} and
 \code{VariableFeatures}, choose one from one of the
@@ -96,10 +107,6 @@ For \code{SVFInfo} and \code{SpatiallyVariableFeatures}, choose from:
  \item \dQuote{markvariogram}
  \item \dQuote{moransi}
 }}
-
-\item{status}{Add variable status to the resulting data frame}
-
-\item{...}{Arguments passed to other methods}
 
 \item{value}{A character vector of variable features}
 

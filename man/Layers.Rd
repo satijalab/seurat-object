@@ -26,7 +26,7 @@ Layers(object, ...)
 
 \method{LayerData}{StdAssay}(object, layer, features = NULL, cells = NULL, ...) <- value
 
-\method{Layers}{StdAssay}(object, ...)
+\method{Layers}{StdAssay}(object, search = NULL, ...)
 }
 \arguments{
 \item{object}{An object}
@@ -41,13 +41,15 @@ Layers(object, ...)
 
 \item{fast}{Determine how to return the layer data; choose from:
 \describe{
- \item{\code{FALSE}}{Apply any transpositions and attempt to add feature/cell
-  names (if supported) back to the layer data}
+ \item{\code{FALSE}}{Apply any transpositions and attempt to add
+  feature/cell names (if supported) back to the layer data}
  \item{\code{NA}}{Attempt to add feature/cell names back to the layer data,
   skip any transpositions}
- \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell names
-  to the layer data}
+ \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell
+  names to the layer data}
 }}
+
+\item{search}{A pattern to search layer names for}
 }
 \value{
 \code{LayerData}: the layer data for \code{layer} from \code{object}
