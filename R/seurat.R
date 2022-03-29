@@ -1242,9 +1242,10 @@ GetTissueCoordinates.Seurat <- function(object, image = NULL, ...) {
 #'
 HVFInfo.Seurat <- function(
   object,
-  selection.method = NULL,
+  method = NULL,
   status = FALSE,
   assay = NULL,
+  selection.method = method,
   ...
 ) {
   CheckDots(...)
