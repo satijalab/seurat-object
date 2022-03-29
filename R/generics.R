@@ -551,7 +551,7 @@ GetTissueCoordinates <- function(object, ...) {
 #'
 #' @concept data-access
 #'
-HVFInfo <- function(object, selection.method, status = FALSE, ...) {
+HVFInfo <- function(object, method, status = FALSE, ...) {
   UseMethod(generic = 'HVFInfo', object = object)
 }
 
