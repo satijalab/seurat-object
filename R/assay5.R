@@ -1328,13 +1328,19 @@ merge.StdAssay <- function(
       add.cell.ids[i], sep = '.'
     )
   }
-  features.all <- LogMap(y = Reduce(f = union, x = lapply(X = assays, FUN = rownames)))
+  features.all <- LogMap(y = Reduce(
+    f = union,
+    x = lapply(X = assays, FUN = rownames)
+  ))
   combined <- new(
     Class = class(x = x),
     layers = list(),
-    cells = LogMap(y = Reduce(f = union, x = lapply(X = assays, FUN = colnames))),
+    cells = LogMap(y = Reduce(
+      f = union,
+      x = lapply(X = assays, FUN = colnames)
+    )),
     features = features.all,
-    meta.data = EmptyDF(n = length(x = features.all)),
+    meta.data = EmptyDF(n = nrow(x = features.all)),
     misc = list(),
     key = Key(object = x) %||% character(length = 0L)
   )
