@@ -679,17 +679,41 @@ GetAssayData.StdAssay <- function(object, slot = 'data', ...) {
 #' HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
 #' }
 #'
-HVFInfo.StdAssay <- function(object, method = NULL, status = FALSE, ...) {
+HVFInfo.StdAssay <- function(
+  object,
+  method = NULL,
+  status = FALSE,
+  layer = NULL,
+  strip = TRUE,
+  ...
+) {
+  # Find available HVF methods and layers
   vf.methods <- .VFMethods(object = object, type = 'hvf')
-  method <- method[1L] %||% vf.methods[1L]
+  vf.layers <- unique(x = vapply(
+    X = strsplit(
+      x = grep(pattern = '^vf_', x = colnames(x = object[[]]), value = TRUE),
+      split = '_'
+    ),
+    FUN = '[[',
+    FUN.VALUE = character(length = 1L),
+    3L
+  ))
+  # Determine which method and layer to use
+  method <- (method %||% vf.methods)[1L]
   method <- match.arg(arg = method, choices = vf.methods)
+  layer <- (layer %||% vf.layers)[1L]
+  layer <- match.arg(arg = layer, choices = vf.layers)
+  # Find the columns for the specified method and layer
   cols <- grep(
-    pattern = paste0('^vf_', method, '_'),
+    pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
     x = colnames(x = object[[]]),
     value = TRUE
   )
   if (!isTRUE(x = status)) {
-    cols <- setdiff(x = cols, y = paste0('^vf_', method, '_variable'))
+    cols <- setdiff(
+      x = cols,
+      y = paste('^vf', method, layer, c('variable', 'rank'), sep = '_')
+    )
   }
   hvf.info <- object[[cols]]
   colnames(x = hvf.info) <- gsub(
@@ -697,6 +721,13 @@ HVFInfo.StdAssay <- function(object, method = NULL, status = FALSE, ...) {
     replacement = '',
     x = colnames(x = hvf.info)
   )
+  if (isTRUE(x = strip)) {
+    colnames(x = hvf.info) <- gsub(
+      pattern = paste0(paste(method, layer, sep = '_'), '_'),
+      replacement = '',
+      x = colnames(x = hvf.info)
+    )
+  }
   return(hvf.info)
 }
 
@@ -1079,22 +1110,26 @@ SetAssayData.StdAssay <- function(object, slot, new.data, ...) {
 #' @method VariableFeatures StdAssay
 #'
 VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, ...) {
-  .NotYetImplemented()
-  hvf.methods <- .VFMethods(object = object, type = 'hvf', layers = layer[1L])
-  method <- method[1L] %||% hvf.methods[1L]
-  method <- match.arg(arg = method, choices = hvf.methods)
-  vf <- HVFInfo(object = object, method = method, status = TRUE)
-  return(rownames(x = vf)[which(x = vf[['variable']])])
-  # CheckDots(...)
-  # if (!is.null(x = selection.method)) {
-  #   vf <- HVFInfo(
-  #     object = object,
-  #     selection.method = selection.method,
-  #     status = TRUE
-  #   )
-  #   return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
-  # }
-  # return(slot(object = object, name = 'var.features'))
+  hvf.info <- HVFInfo(
+    object = object,
+    method = method,
+    layer = layer,
+    status = TRUE,
+    strip = TRUE
+  )
+  if (!'variable' %in% names(x = hvf.info)) {
+    stop("No variable features found", call. = FALSE)
+  }
+  vf <- rownames(x = hvf.info)[which(x = hvf.info$variable)]
+  if ('rank' %in% names(x = hvf.info)) {
+    vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
+  } else {
+    warning(
+      "No variable feature rank found, returning features in assay order",
+      call. = FALSE
+    )
+  }
+  return(vf)
 }
 
 #' @rdname VariableFeatures
