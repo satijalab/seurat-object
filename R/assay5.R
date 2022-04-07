@@ -963,9 +963,11 @@ LayerData.StdAssay <- function(
     }
   }
   # Reorder the layer data
-  vdims <- list(fmatch, cmatch)
-  names(x = vdims) <- c('i', 'j')[c(fdim, cdim)]
-  value <- do.call(what = '[', args = c(list(x = value), vdims))
+  value <- if (fdim == 1L) {
+    value[fmatch, cmatch]
+  } else {
+    value[cmatch, fmatch]
+  }
   # Add the layer
   slot(object = object, name = 'layers')[[layer]] <- value
   # Update the maps
@@ -1299,7 +1301,7 @@ dimnames.StdAssay <- function(x) {
   msg <- "Invalid 'dimnames' given for an assay"
   if (!is_bare_list(x = value, n = 2L)) {
     stop(msg, call. = FALSE)
-  } else if (!all.equal(target = sapply(X = value, FUN = length), current = dim(x = x))) {
+  } else if (!all(sapply(X = value, FUN = length) == dim(x = x))) {
     stop(msg, call. = FALSE)
   }
   value <- lapply(X = value, FUN = as.character)
@@ -1336,7 +1338,7 @@ merge.StdAssay <- function(
   x,
   y,
   labels = NULL,
-  add.cell.ids = labels,
+  add.cell.ids = NULL,
   collapse = FALSE,
   ...
 ) {
@@ -1346,7 +1348,7 @@ merge.StdAssay <- function(
     stop("Multiple types of assays provided", call. = FALSE)
   }
   labels <- labels %||% as.character(x = seq_along(along.with = assays))
-  add.cell.ids <- add.cell.ids %||% labels
+  # add.cell.ids <- add.cell.ids %||% labels
   # TODO: Support collapsing layers
   if (isTRUE(x = collapse)) {
     stop("Collapsing layers is not yet supported", call. = FALSE)
@@ -1355,13 +1357,15 @@ merge.StdAssay <- function(
     if (is.na(x = labels[i])) {
       labels[i] <- as.character(x = i)
     }
-    if (is.na(x = add.cell.ids[i])) {
+    if (isTRUE(x = is.na(x = add.cell.ids[i]))) {
       add.cell.ids[i] <- as.character(x = i)
     }
-    colnames(x = assays[[i]]) <- paste(
-      colnames(x = assays[[i]]),
-      add.cell.ids[i], sep = '.'
-    )
+    if (!is.null(x = add.cell.ids[i])) {
+      colnames(x = assays[[i]]) <- paste(
+        colnames(x = assays[[i]]),
+        add.cell.ids[i], sep = '.'
+      )
+    }
   }
   features.all <- LogMap(y = Reduce(
     f = union,
@@ -1379,6 +1383,7 @@ merge.StdAssay <- function(
     misc = list(),
     key = Key(object = x) %||% character(length = 0L)
   )
+  # browser()
   # Add layers
   # TODO: Support collapsing layers
   if (isTRUE(x = collapse)) {
