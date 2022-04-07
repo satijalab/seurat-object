@@ -80,7 +80,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{VariableFeatures}{Assay}(object, ...) <- value
 
-\method{HVFInfo}{StdAssay}(object, method = NULL, status = FALSE, ...)
+\method{HVFInfo}{StdAssay}(object, method = NULL, status = FALSE, layer = NULL, strip = TRUE, ...)
 
 \method{VariableFeatures}{StdAssay}(object, method = NULL, layer = NULL, ...)
 
