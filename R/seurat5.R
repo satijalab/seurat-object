@@ -17,6 +17,7 @@ setClass(
     reductions = 'list',
     cells = 'LogMap',
     meta.data = 'data.frame',
+    project = 'character',
     version = 'package_version'
   )
 )
@@ -71,6 +72,7 @@ CreateSeurat5Object.default <- function(
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
+  project = 'SeuratProject',
   ...
 ) {
   assay.data <- CreateAssay5Object(
@@ -84,7 +86,8 @@ CreateSeurat5Object.default <- function(
     assay = assay,
     names.field = names.field,
     names.delim = names.delim,
-    meta.data = meta.data
+    meta.data = meta.data,
+    project = project
   ))
 }
 
@@ -97,11 +100,12 @@ CreateSeurat5Object.StdAssay <- function(
   names.field = 1L,
   names.delim = '_',
   meta.data = NULL,
+  project = 'SeuratProject',
   ...
 ) {
   cells <- LogMap(y = Cells(x = counts))
   cells[[assay]] <- Cells(x = counts)
-  if (IsCharEmpty(x = Key(object = counts))) {
+  if (!isTRUE(x = nzchar(x = Key(object = counts)))) {
     Key(object = counts) <- Key(object = tolower(x = assay), quiet = TRUE)
   }
   assay.list <- list(counts)
@@ -111,8 +115,7 @@ CreateSeurat5Object.StdAssay <- function(
     assays = assay.list,
     reductions = list(),
     cells = cells,
-    meta.data = EmptyDF(n = nrow(x = cells)),
-    version = packageVersion(pkg = 'SeuratObject')
+    project = project,
   )
   # TODO: Calculate nCount and nFeature
   n.calc <- CalcN5(object = counts)
@@ -168,6 +171,13 @@ Key.Seurat5 <- function(object, ...) {
   ))
 }
 
+#' @method Project Seurat5
+#' @export
+#'
+Project.Seurat5 <- function(object, ...) {
+  return(slot(object = object, name = 'project'))
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -206,7 +216,140 @@ dim.Seurat5 <- function(x) {
 #' @export
 #'
 dimnames.Seurat5 <- function(x) {
-  .NotYetImplemented()
+  return(list(
+    DefaultAssay(object = x) %iff% rownames(x = x[[DefaultAssay(object = x)]]),
+    Cells(x = x, assay = NA)
+  ))
+}
+
+#' @importFrom rlang is_bare_list
+#'
+#' @method dimnames<- Seurat5
+#' @export
+#'
+"dimnames<-.Seurat5" <- function(x, value) {
+  msg <- "Invalid 'dimnames given for a Seurat object"
+  if (!is_bare_list(x = value, n = 2L)) {
+    stop(msg, call. = FALSE)
+  } else if (!all(sapply(X = value, FUN = length) == dim(x = x))) {
+    stop(msg, call. = FALSE)
+  }
+  value <- lapply(X = value, FUN = as.character)
+  cells.orig <- Cells(x = x, assay = NA)
+  # Rename cells at the Seurat level
+  rownames(x = slot(object = x, name = 'cells')) <- value[[2L]]
+  # Rename features/cells at the Assay level
+  for (assay in Assays(object = x)) {
+    anames <- dimnames(x = x[[assay]])
+    afeatures <- MatchCells(
+      new = Features(x = x, assay = assay),
+      orig = anames[[1L]]
+    )
+    if (!is.null(x = afeatures)) {
+      anames[[1L]] <- value[[1L]][afeatures]
+    }
+    acells <- MatchCells(
+      new = cells.orig,
+      orig = anames[[2L]]
+    )
+    anames[[2L]] <- value[[2L]][acells]
+    dimnames(x = x[[assay]]) <- anames
+  }
+  # TODO: Rename features/cells at the DimReduc level
+  # Validate and return the Seurat object
+  validObject(object = x)
+  return(x)
+}
+
+#' @importFrom utils head
+#'
+#' @method head Seurat5
+#' @export
+#'
+head.Seurat5 <- .head
+
+#' @method merge Seurat5
+#' @export
+#'
+merge.Seurat5 <- function(
+  x,
+  y,
+  # labels = NULL,
+  add.cell.ids = NULL,
+  collapse = FALSE,
+  project = 'SeuratProject',
+  ...
+) {
+  objects <- c(x, y)
+  projects <- vapply(
+    X = objects,
+    FUN = Project,
+    FUN.VALUE = character(length = 1L)
+  )
+  # Check cell names
+  if (isTRUE(x = is.na(x = add.cell.ids))) {
+    add.cell.ids <- as.character(x = seq_along(along.with = objects))
+  } else if (isTRUE(x = add.cell.ids)) {
+    add.cell.ids <- projects
+  }
+  if (!is.null(x = add.cell.ids)) {
+    if (length(x = add.cell.ids) != length(x = objects)) {
+      stop("add.cell.ids length", call. = FALSE)
+    } else if (anyDuplicated(x = add.cell.ids)) {
+      stop("add.cell.ids duplicate", call. = FALSE)
+    }
+    for (i in seq_along(along.with = add.cell.ids)) {
+      colnames(x = objects[[i]]) <- paste(
+        colnames(x = objects[[i]]),
+        add.cell.ids[i],
+        sep = '_'
+      )
+    }
+  }
+  objects <- CheckDuplicateCellNames(object.list = objects)
+  # Initialize the combined object
+  obj.combined <- suppressWarnings(expr = new(
+    Class = 'Seurat5',
+    assays = list(),
+    reductions = list(),
+    cells = LogMap(y = unlist(x = lapply(X = objects, FUN = colnames))),
+    project = project,
+    validate = FALSE
+  ))
+  # TODO: Merge assays
+  assays.all <- c(
+    DefaultAssay(object = x),
+    setdiff(
+      x = unique(x = unlist(x = lapply(X = objects, FUN = Assays))),
+      y = DefaultAssay(object = x)
+    )
+  )
+  # browser()
+  for (assay in assays.all) {
+    assay.objs <- which(x = vapply(
+      X = lapply(X = objects, FUN = names),
+      FUN = '%in%',
+      FUN.VALUE = logical(length = 1L),
+      x = assay
+    ))
+    if (length(x = assay.objs) == 1L) {
+      obj.combined[[assay]] <- objects[[assay.objs]][[assay]]
+      next
+    }
+    idx.x <- assay.objs[[1L]]
+    idx.y <- setdiff(x = assay.objs, y = idx.x)
+    obj.combined[[assay]] <- merge(
+      x = objects[[idx.x]][[assay]],
+      y = lapply(X = objects[idx.y], FUN = '[[', assay),
+      labels = projects,
+      add.cell.ids = NULL,
+      collapse = collapse,
+      ...
+    )
+  }
+  # Validate and return the merged object
+  validObject(object = obj.combined)
+  return(obj.combined)
 }
 
 #' @method names Seurat5
@@ -218,6 +361,13 @@ names.Seurat5 <- function(x) {
     classes.keep = c('StdAssay','DimReduc')
   ))
 }
+
+#' @importFrom utils tail
+#'
+#' @method tail Seurat5
+#' @export
+#'
+tail.Seurat5 <- .tail
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
@@ -277,6 +427,42 @@ names.Seurat5 <- function(x) {
   slot(object = object, name = 'assays')[[name]] <- value
   validObject(object = object)
   return(object)
+}
+
+#' Check for Duplicate Names
+#'
+#' @inheritParams base::paste
+#' @param names A list of character vectors
+#' @param stop Throw an error if any duplicate names are found
+#'
+#' @return \code{names} with all values enforced to be unique across all entries
+#'
+#' @importFrom rlang is_bare_list
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.CheckDuplicateNames <- function(names, stop = FALSE, sep = '_') {
+  if (!is_bare_list(x = names)) {
+    stop("'names' must be a list", call. = FALSE)
+  } else if (length(x = names) == 1L) {
+    return(names)
+  }
+  if (length(x = Reduce(f = intersect, x = names))) {
+    if (isTRUE(x = stop)) {
+      stop("Duplicate names provided", call. = FALSE)
+    }
+    warning(
+      "Duplicate names provided, adjusting to enfoce unique names",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    for (i in seq_along(along.with = names)) {
+      names[[i]] <- paste(names, i, sep = '_')
+    }
+  }
+  return(names)
 }
 
 #' Check for Duplicate Keys
@@ -398,6 +584,7 @@ setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat5', i = 'character', j = 'missing'),
   definition = function(x, i, ..., value) {
+    message("blah")
     x <- .AddObject(object = x, name = i, value = value)
     return(x)
   }
@@ -420,16 +607,18 @@ setMethod(
         .DuplicateError(name = i, cls = class(x = x[[i]]))
       }
       if (!identical(x = dim(x = value), y = dim(x = x[[i]]))) {
-        stop("different cells/features from existing")
+        warning("different cells/features from existing", call. = FALSE, immediate. = TRUE)
       }
-      if (!all(Cells(x = value, layer = NA) == Cells(x = x, assay = i))) {
-        stop("different cells")
-      }
-    } else {
-      if (!all(Cells(x = value) %in% Cells(x = x))) {
-        stop("new cells")
-      }
-      slot(object = x, name = 'cells')[[i]] <- Cells(x = value, layer = NA)
+      # if (!all(colnames(x = value) == Cells(x = x, assay = i))) {
+      #   stop("different cells", call. = FALSE)
+      # }
+    }
+    if (!all(colnames(x = value) %in% colnames(x = x))) {
+        stop("new cells", call. = FALSE)
+    }
+    # TODO: enable reordering cells in assay
+    if (is.unsorted(x = MatchCells(new = colnames(x = value), orig = colnames(x = x), ordered = TRUE))) {
+      stop("unorderd cells", call. = FALSE)
     }
     # Check keys
     Key(object = value) <- .CheckKey(
@@ -444,6 +633,7 @@ setMethod(
       x = slot(object = x, name = 'assays')
     )
     # TODO: Update the cells LogMap
+    slot(object = x, name = 'cells')[[i]] <- colnames(x = value)
     # Return the Seurat object
     validObject(object = x)
     return(x)
@@ -490,21 +680,26 @@ setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'vector'),
   definition = function(x, i, ..., value) {
-    if (length(x = value) > length(x = i)) {
-      warning(
-        "More values provided than names, using only first ",
-        length(x = i),
-        " values",
-        call. = FALSE,
-        immediate. = TRUE
-      )
-    } else if (!length(x = value)) {
-      stop("At least one value must be supplied", call. = FALSE)
+    if (length(x = i) > 1L) {
+      value <- rep_len(x = value, length.out = length(x = i))
+      for (idx in seq_along(along.with = i)) {
+        x[[i[idx]]] <- value[[idx]]
+        return(x)
+      }
     }
-    value <- rep_len(x = value, length.out = length(x = i))
-    for (idx in seq_along(along.with = i)) {
-      x <- .AddObject(object = x, name = i[[idx]], value = value[[idx]])
+    if (is.null(x = names(x = value))) {
+      value <- rep_len(x = value, length.out = ncol(x = x))
+      names(x = value) <- colnames(x = x)
+    } else {
+      names.intersect <- intersect(x = names(x = value), y = colnames(x = x))
+      if (!length(x = names.intersect)) {
+        stop(
+          "No cell overlap between new meta data and Seurat object",
+          call. = FALSE
+        )
+      }
     }
+    validObject(object = x)
     return(x)
   }
 )
@@ -513,7 +708,6 @@ setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'NULL'),
   definition = function(x, i, ..., value) {
-    # return(.AddObject(object = x, name = i, value = value))
     for (name in i) {
       slot.use <- .FindObject(object = x, name = name) %||% 'meta.data'
       switch(
@@ -525,7 +719,7 @@ setMethod(
           if (isTRUE(x = name == DefaultAssay(object = x))) {
             stop("Cannot delete default assay", call. = FALSE)
           }
-          slot(object = x, name = slot.use)[[x]] <- value
+          slot(object = x, name = slot.use)[[i]] <- value
           cmat <- slot(object = x, name = 'cells')
           cmat <- cmat[, -which(x = colnames(x = cmat) == name), drop = FALSE]
           slot(object = x, name = 'cells') <- cmat
@@ -558,6 +752,36 @@ setMethod(
 )
 
 setMethod(
+  f = 'initialize',
+  signature = 'Seurat5',
+  definition = function(
+    .Object,
+    assays,
+    reductions,
+    cells,
+    meta.data = EmptyDF(n = nrow(x = cells)),
+    project = 'SeuratProject',
+    version = utils::packageVersion(pkg = 'SeuratObject'),
+    ...,
+    validate = TRUE
+  ) {
+    .Object <- methods::callNextMethod(.Object, ...)
+    slot(object = .Object, name = 'assays') <- assays
+    slot(object = .Object, name = 'reductions') <- reductions
+    slot(object = .Object, name = 'cells') <- cells
+    slot(object = .Object, name = 'meta.data') <- meta.data
+    slot(object = .Object, name = 'project') <- project
+    slot(object = .Object, name = 'version') <- version
+    if (isFALSE(x = validate)) {
+      warning("no validate", call. = FALSE, immediate. = TRUE)
+    } else {
+      methods::validObject(object = .Object)
+    }
+    return(.Object)
+  }
+)
+
+setMethod(
   f = 'show',
   signature = c(object = 'Seurat5'),
   definition = function(object) {
@@ -571,7 +795,9 @@ setMethod(
     ))
     nassays <- length(x = Assays(object = object))
     cat(
-      "A Seurat (v5) object\n"
+      "A Seurat (v5) object for the",
+      Project(object = object),
+      "project\n"
     )
     cat(
       nfeatures,
@@ -631,10 +857,37 @@ setValidity(
           )
           break
         }
+        if (!assay %in% colnames(x = slot(object = object, name = 'cells'))) {
+          valid <- c(
+            valid,
+            "All assays must have an entry in 'cells'"
+          )
+        } else if (any(colnames(x = object[[assay]]) != Cells(x = object, assay = assay))) {
+          valid <- c(
+            valid,
+            paste0(
+              "All assays must have the same cells as listed in 'cells' (offending: ",
+              assay,
+              ")"
+            )
+          )
+        }
+        if (!isTRUE(x = nzchar(x = Key(object = object[[assay]])))) {
+          valid <- c(valid, "All assays must have a key")
+        }
       }
     }
     # TODO: Check reductions
     # TODO: Check metadata
+    # TODO: Check project
+    proj <- Project(object = object)
+    if (length(x = proj) != 1L) {
+      valid <- c(valid, "'project' must be a 1-length character")
+    } else if (is.na(x = proj)) {
+      valid <- c(valid, "'project' cannot be NA")
+    } else if (!nzchar(x = proj)) {
+      valid <- c(valid, "'project' cannot be an empty character")
+    }
     # TODO: Check version
     if (length(x = slot(object = object, name = 'version')) > 1) {
       valid <- c(valid, "Only one version is allowed")
