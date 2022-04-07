@@ -314,6 +314,8 @@ CreateSeuratObject <- function(
   UseMethod(generic = 'CreateSeuratObject', object = counts)
 }
 
+#' @export
+#'
 CreateSeurat5Object <- function(
   counts,
   assay = 'RNA',
