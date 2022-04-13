@@ -669,6 +669,8 @@ GetAssayData.StdAssay <- function(object, slot = 'data', ...) {
   return(LayerData(object = object, layer = slot, ...))
 }
 
+#' @importFrom utils adist
+#'
 #' @rdname VariableFeatures
 #' @export
 #' @method HVFInfo StdAssay
@@ -702,7 +704,8 @@ HVFInfo.StdAssay <- function(
   method <- (method %||% vf.methods)[1L]
   method <- match.arg(arg = method, choices = vf.methods)
   layer <- (layer %||% vf.layers)[1L]
-  layer <- match.arg(arg = layer, choices = vf.layers)
+  # layer <- match.arg(arg = layer, choices = vf.layers)
+  layer <- vf.layers[which.min(x = adist(x = layer, y = vf.layers))]
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
