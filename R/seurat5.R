@@ -156,6 +156,30 @@ Features.Seurat5 <- function(x, assay = NULL, ...) {
   return(Features(x = x[[assay]], ...))
 }
 
+#' @method HVFInfo Seurat5
+#' @export
+#'
+HVFInfo.Seurat5 <- function(
+  object,
+  assay = NULL,
+  method = NULL,
+  status = FALSE,
+  layer = NULL,
+  strip = TRUE,
+  ...
+) {
+  assay <- assay[1L] %||% DefaultAssay(object = object)
+  assay <- match.arg(arg = assay, choices = Assays(object = object))
+  return(HVFInfo(
+    object = object[[assay]],
+    method = method,
+    status = status,
+    layer = layer,
+    strip = strip,
+    ...
+  ))
+}
+
 #' @method Key Seurat5
 #' @export
 #'
@@ -176,6 +200,35 @@ Key.Seurat5 <- function(object, ...) {
 #'
 Project.Seurat5 <- function(object, ...) {
   return(slot(object = object, name = 'project'))
+}
+
+#' @method VariableFeatures Seurat5
+#' @export
+#'
+VariableFeatures.Seurat5 <- function(
+  object,
+  assay = NULL,
+  method = NULL,
+  layer = NULL,
+  ...
+) {
+  assay <- assay[1L] %||% DefaultAssay(object = object)
+  assay <- match.arg(arg = assay, choices = Assays(object = object))
+  return(VariableFeatures(
+    object = object[[assay]],
+    method = method,
+    layer = layer,
+    ...
+  ))
+}
+
+#' @method VariableFeatures<- Seurat5
+#' @export
+#'
+"VariableFeatures<-.Seurat5" <- function(object, assay = NULL, ..., value) {
+  assay <- assay[1L] %||% DefaultAssay(object = object)
+  assay <- match.arg(arg = assay, choices = Assays(object = object))
+  .NotYetImplemented()
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
