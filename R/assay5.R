@@ -944,7 +944,7 @@ LayerData.StdAssay <- function(
       features
     }
     ccheck <- if (is.numeric(x = cells)) {
-      Cells(object = object, layer = layer)[cells]
+      Cells(x = object, layer = layer)[cells]
     } else {
       cells
     }
