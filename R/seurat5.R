@@ -649,6 +649,108 @@ setMethod(
     x = 'Seurat5',
     i = 'character',
     j = 'missing',
+    value = 'data.frame'
+  ),
+  definition = function(x, i, ..., value) {
+    i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
+    names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
+    if (length(x = names.intersect)) {
+      value <- value[names.intersect, , drop = FALSE]
+    } else if (nrow(x = value) == ncol(x = x)) {
+      row.names(x = value) <- colnames(x = x)
+    } else {
+      stop(
+        "Cannot add more or less meta data without cell names",
+        call. = FALSE
+      )
+    }
+    for (n in i) {
+      v <- value[[n]]
+      names(x = v) <- row.names(x = value)
+      x[[n]] <- v
+    }
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat5',
+    i = 'missing',
+    j = 'missing',
+    value = 'data.frame'
+  ),
+  definition = function(x, ..., value) {
+    x[[names(x = value)]] <- value
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat5',
+    i = 'character',
+    j = 'missing',
+    value = 'DimReduc'
+  ),
+  definition = function(x, i, ..., value) {
+    i <- make.names(names = i)
+    # Check for duplicate names
+    if (i %in% names(x = x)) {
+      # Checks for overwriting DimReducs
+      if (inherits(x = x[[i]], what = 'DimReduc')) {
+        ''
+      } else {
+        .DuplicateError(name = i, cls = class(x = x[[i]]))
+      }
+    }
+    # Check keys
+    Key(object = value) <- .CheckKey(
+      key = Key(object = value),
+      existing = Key(object = x),
+      name = i
+    )
+    # TODO: Check cells
+    # Add the DimReduc
+    slot(object = x, name = 'reductions')[[i]] <- value
+    slot(object = x, name = 'reductions') <- Filter(
+      f = Negate(f = is.null),
+      x = slot(object = x, name = 'reductions')
+    )
+    return(x)
+  }
+)
+
+#' @importFrom methods selectMethod
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'factor'),
+  definition = function(x, i, ..., value) {
+    f <- slot(
+      object = selectMethod(
+        f = '[[<-',
+        signature = c(
+          x = 'Seurat5',
+          i = 'character',
+          j = 'missing',
+          value = 'vector'
+        )
+      ),
+      name = '.Data'
+    )
+    return(f(x = x, i = i, value = value))
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat5',
+    i = 'character',
+    j = 'missing',
     value = 'StdAssay'
   ),
   definition = function(x, i, ..., value) {
@@ -695,42 +797,6 @@ setMethod(
 
 setMethod(
   f = '[[<-',
-  signature = c(
-    x = 'Seurat5',
-    i = 'character',
-    j = 'missing',
-    value = 'DimReduc'
-  ),
-  definition = function(x, i, ..., value) {
-    i <- make.names(names = i)
-    # Check for duplicate names
-    if (i %in% names(x = x)) {
-      # Checks for overwriting DimReducs
-      if (inherits(x = x[[i]], what = 'DimReduc')) {
-        ''
-      } else {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
-      }
-    }
-    # Check keys
-    Key(object = value) <- .CheckKey(
-      key = Key(object = value),
-      existing = Key(object = x),
-      name = i
-    )
-    # TODO: Check cells
-    # Add the DimReduc
-    slot(object = x, name = 'reductions')[[i]] <- value
-    slot(object = x, name = 'reductions') <- Filter(
-      f = Negate(f = is.null),
-      x = slot(object = x, name = 'reductions')
-    )
-    return(x)
-  }
-)
-
-setMethod(
-  f = '[[<-',
   signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'vector'),
   definition = function(x, i, ..., value) {
     if (length(x = i) > 1L) {
@@ -751,7 +817,13 @@ setMethod(
           call. = FALSE
         )
       }
+      value <- value[names.intersect]
     }
+    df <- EmptyDF(n = nrow(x = x))
+    row.names(x = df) <- colnames(x = x)
+    df[[i]] <- NA
+    df[names(x = value), i] <- value
+    slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     validObject(object = x)
     return(x)
   }
