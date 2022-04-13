@@ -240,7 +240,9 @@ VariableFeatures.Seurat5 <- function(
 #'
 "[[.Seurat5" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
-    return(slot(object = x, name = 'meta.data'))
+    df <- slot(object = x, name = 'meta.data')
+    row.names(x = df) <- colnames(x = x)
+    return(df)
   }
   slot.use <- .FindObject(object = x, name = i)
   if (is.null(x = slot.use)) {
@@ -819,7 +821,7 @@ setMethod(
       }
       value <- value[names.intersect]
     }
-    df <- EmptyDF(n = nrow(x = x))
+    df <- EmptyDF(n = ncol(x = x))
     row.names(x = df) <- colnames(x = x)
     df[[i]] <- NA
     df[names(x = value), i] <- value
