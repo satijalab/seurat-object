@@ -11,10 +11,10 @@
   "Packages": {
     "Matrix": {
       "Package": "Matrix",
-      "Version": "1.4-0",
+      "Version": "1.4-1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "130c0caba175739d98f2963c6a407cf6",
+      "Hash": "699c47c606293bdfbc9fd78a93c9c8fe",
       "Requirements": [
         "lattice"
       ]
