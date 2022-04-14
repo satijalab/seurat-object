@@ -235,19 +235,65 @@ VariableFeatures.Seurat5 <- function(
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @importFrom utils .DollarNames
+#'
+#' @method .DollarNames Seurat5
+#' @export
+#'
+.DollarNames.Seurat5 <- .DollarNames.Seurat
+
+#' @method $ Seurat5
+#' @export
+#'
+"$.Seurat5" <- `$.Seurat`
+
+#' @method $<- Seurat5
+#' @export
+#'
+"$<-.Seurat5" <- `$<-.Seurat`
+
 #' @method [[ Seurat5
 #' @export
 #'
-"[[.Seurat5" <- function(x, i, ..., drop = FALSE) {
+"[[.Seurat5" <- function(x, i, ..., drop = FALSE, na.rm = FALSE) {
+  # Pull all meta data
   if (missing(x = i)) {
     df <- slot(object = x, name = 'meta.data')
     row.names(x = df) <- colnames(x = x)
     return(df)
   }
-  slot.use <- .FindObject(object = x, name = i)
-  if (is.null(x = slot.use)) {
-    stop("Cannot find '", i, "' in this Seurat object", call. = FALSE)
+  # Correct invalid `i`
+  meta.cols <- names(x = slot(object = x, name = 'meta.data'))
+  if (is.numeric(x = i)) {
+    stopifnot(any(i <= length(x = meta.cols)))
+    i <- i[i <= length(x = meta.cols)]
+    i <- meta.cols[as.integer(x = i)]
   }
+  stopifnot(is.character(x = i))
+  slot.use <- .FindObject(object = x, name = i)
+  # Pull cell-level meta data
+  if (is.null(x = slot.use)) {
+    ic <- intersect(x = i, y = meta.cols)
+    if (!length(x = ic)) {
+      stop("Cannot find '", i, "' in this Seurat object", call. = FALSE)
+    }
+    data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
+    if (isTRUE(x = na.rm)) {
+      idx.na <- apply(X = is.na(x = data.return),MARGIN = 1L, FUN = all)
+      data.return <- data.return[!idx.na, , drop = FALSE]
+    } else {
+      idx.na <- rep_len(x = FALSE, length.out = ncol(x = x))
+    }
+    if (isTRUE(x = drop)) {
+      data.return <- unlist(x = data.return, use.names = FALSE)
+      names(x = data.return) <- rep.int(
+        x = colnames(x = x)[!idx.na],
+        times = length(x = i)
+      )
+    }
+    return(data.return)
+  }
+  # Pull a sub object
   data.return <- slot(object = x, name = slot.use)[[i]]
   return(data.return)
 }
@@ -645,6 +691,7 @@ setMethod(
   }
 )
 
+# Add cell-level meta data
 setMethod(
   f = '[[<-',
   signature = c(
@@ -654,18 +701,40 @@ setMethod(
     value = 'data.frame'
   ),
   definition = function(x, i, ..., value) {
-    i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
+    # Check that the `i` we're adding are present in the data frame
+    if (!is.null(x = names(x = value))) {
+      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
+    } else if (length(x = i) != ncol(x = value)) {
+      stop(
+        "Cannot assign ",
+        length(x = i),
+        " names to ",
+        ncol(x = value),
+        " bits of meta data",
+        call. = FALSE
+      )
+    }
+    # Handle meta data for different cells
     names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
     if (length(x = names.intersect)) {
       value <- value[names.intersect, , drop = FALSE]
+      if (!nrow(x = value)) {
+        stop(
+          "None of the cells provided are in this Seurat object",
+          call. = FALSE
+        )
+      }
     } else if (nrow(x = value) == ncol(x = x)) {
+      # When no cell names are provided in value, assume it's in cell order
       row.names(x = value) <- colnames(x = x)
     } else {
+      # Throw an error when no cell names provided and cannot assume cell order
       stop(
         "Cannot add more or less meta data without cell names",
         call. = FALSE
       )
     }
+    # Add the cell-level meta data using the `value = vector` method
     for (n in i) {
       v <- value[[n]]
       names(x = v) <- row.names(x = value)
@@ -675,6 +744,7 @@ setMethod(
   }
 )
 
+# Add cell-level meta data
 setMethod(
   f = '[[<-',
   signature = c(
@@ -684,11 +754,18 @@ setMethod(
     value = 'data.frame'
   ),
   definition = function(x, ..., value) {
+    # Allow removing all meta data
+    if (IsMatrixEmpty(x = value)) {
+      x[[names(x = x[[]])]] <- NULL
+      return(x)
+    }
+    # If no `i` provided, use the column names from value
     x[[names(x = value)]] <- value
     return(x)
   }
 )
 
+# Add dimensional reductions
 setMethod(
   f = '[[<-',
   signature = c(
@@ -725,12 +802,14 @@ setMethod(
   }
 )
 
+# Add cell-level meta data
 #' @importFrom methods selectMethod
 #'
 setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'factor'),
   definition = function(x, i, ..., value) {
+    # Reuse the `value = vector` method
     f <- slot(
       object = selectMethod(
         f = '[[<-',
@@ -747,6 +826,59 @@ setMethod(
   }
 )
 
+# Remove objects and cell-level meta data
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'NULL'),
+  definition = function(x, i, ..., value) {
+    # Allow removing multiple objects or bits of cell-level meta data at once
+    for (name in i) {
+      # Determine the slot to use
+      # If no subobject found, check cell-level meta data
+      slot.use <- .FindObject(object = x, name = name) %||% 'meta.data'
+      switch(
+        EXPR = slot.use,
+        'meta.data' = {
+          # If we can't find the cell-level meta data, throw a warning and move
+          # to the next name
+          if (!name %in% colnames(x = x[[]])) {
+            warning(
+              "Cannot find cell-level meta data named ",
+              name,
+              call. = FALSE,
+              immediate. = TRUE
+            )
+            next
+          }
+          # Remove the column of meta data
+          slot(object = x, name = 'meta.data')[, name] <- value
+        },
+        'assays' = {
+          # Cannot remove the default assay
+          if (isTRUE(x = name == DefaultAssay(object = x))) {
+            stop("Cannot delete default assay", call. = FALSE)
+          }
+          # Remove the assay
+          slot(object = x, name = slot.use)[[i]] <- value
+          # Remove the assay entry from the LogMap
+          # cmat <- slot(object = x, name = 'cells')
+          # cmat <- cmat[, -which(x = colnames(x = cmat) == name), drop = FALSE]
+          # slot(object = x, name = 'cells') <- cmat
+          slot(object = x, name = 'cells') <- droplevels(x = slot(
+            object = x,
+            name = 'cells'
+          ))
+        },
+        # Remove other subobjects
+        slot(object = x, name = slot.use)[[name]] <- value
+      )
+    }
+    validObject(object = x)
+    return(x)
+  }
+)
+
+# Add assays
 setMethod(
   f = '[[<-',
   signature = c(
@@ -797,21 +929,26 @@ setMethod(
   }
 )
 
+# Add multiple objects or cell-level meta data
 setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'vector'),
   definition = function(x, i, ..., value) {
+    # Add multiple objects
     if (length(x = i) > 1L) {
       value <- rep_len(x = value, length.out = length(x = i))
       for (idx in seq_along(along.with = i)) {
         x[[i[idx]]] <- value[[idx]]
-        return(x)
       }
+      return(x)
     }
+    # Add a column of cell-level meta data
     if (is.null(x = names(x = value))) {
+      # Handle cases where new meta data is unnamed
       value <- rep_len(x = value, length.out = ncol(x = x))
       names(x = value) <- colnames(x = x)
     } else {
+      # Check cell names for new objects
       names.intersect <- intersect(x = names(x = value), y = colnames(x = x))
       if (!length(x = names.intersect)) {
         stop(
@@ -826,34 +963,6 @@ setMethod(
     df[[i]] <- NA
     df[names(x = value), i] <- value
     slot(object = x, name = 'meta.data')[, i] <- df[[i]]
-    validObject(object = x)
-    return(x)
-  }
-)
-
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Seurat5', i = 'character', j = 'missing', value = 'NULL'),
-  definition = function(x, i, ..., value) {
-    for (name in i) {
-      slot.use <- .FindObject(object = x, name = name) %||% 'meta.data'
-      switch(
-        EXPR = slot.use,
-        'meta.data' = {
-          .NotYetImplemented()
-        },
-        'assays' = {
-          if (isTRUE(x = name == DefaultAssay(object = x))) {
-            stop("Cannot delete default assay", call. = FALSE)
-          }
-          slot(object = x, name = slot.use)[[i]] <- value
-          cmat <- slot(object = x, name = 'cells')
-          cmat <- cmat[, -which(x = colnames(x = cmat) == name), drop = FALSE]
-          slot(object = x, name = 'cells') <- cmat
-        },
-        slot(object = x, name = slot.use)[[name]] <- value
-      )
-    }
     validObject(object = x)
     return(x)
   }
