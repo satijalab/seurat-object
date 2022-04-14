@@ -976,6 +976,10 @@ LayerData.StdAssay <- function(
   # Update the maps
   slot(object = object, name = 'features')[[layer]] <- features
   slot(object = object, name = 'cells')[[layer]] <- cells
+  slot(object = object, name = 'cells') <- droplevels(x = slot(
+    object = object,
+    name = 'cells'
+  ))
   validObject(object = object)
   return(object)
 }
@@ -1420,7 +1424,13 @@ merge.StdAssay <- function(
 #' @method subset StdAssay
 #' @export
 #'
-subset.StdAssay <- function(x, cells = NULL, features = NULL, ...) {
+subset.StdAssay <- function(
+  x,
+  cells = NULL,
+  features = NULL,
+  layers = NULL,
+  ...
+) {
   if (is.null(x = cells) && is.null(x = features)) {
     return(x)
   }
@@ -1460,8 +1470,20 @@ subset.StdAssay <- function(x, cells = NULL, features = NULL, ...) {
   if (!length(x = features)) {
     stop("None of the features provided found in this assay", call. = FALSE)
   }
+  # Check the layers
+  layers.all <- Layers(object = x)
+  layers <- layers %||% layers.all
+  layers <- match.arg(
+    arg = layers,
+    choices = layers.all,
+    several.ok = TRUE
+  )
+  # Remove unused layers
+  for (lyr in setdiff(x = layers.all, y = layers)) {
+    LayerData(object = x, layer = lyr) <- NULL
+  }
   # Perform the subsets
-  for (l in Layers(object = x)) {
+  for (l in layers) {
     lcells <- MatchCells(
       new = Cells(x = x, layer = l),
       orig = cells,
