@@ -976,10 +976,6 @@ LayerData.StdAssay <- function(
   # Update the maps
   slot(object = object, name = 'features')[[layer]] <- features
   slot(object = object, name = 'cells')[[layer]] <- cells
-  slot(object = object, name = 'cells') <- droplevels(x = slot(
-    object = object,
-    name = 'cells'
-  ))
   validObject(object = object)
   return(object)
 }
@@ -1505,6 +1501,10 @@ subset.StdAssay <- function(
       )
     }
   }
+  slot(object = x, name = 'cells') <- droplevels(x = slot(
+    object = x,
+    name = 'cells'
+  ))
   # TODO: Subset feature-level metadata
   mfeatures <- MatchCells(
     new = Features(x = x, layer = NA),
