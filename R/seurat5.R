@@ -861,9 +861,6 @@ setMethod(
           # Remove the assay
           slot(object = x, name = slot.use)[[i]] <- value
           # Remove the assay entry from the LogMap
-          # cmat <- slot(object = x, name = 'cells')
-          # cmat <- cmat[, -which(x = colnames(x = cmat) == name), drop = FALSE]
-          # slot(object = x, name = 'cells') <- cmat
           slot(object = x, name = 'cells') <- droplevels(x = slot(
             object = x,
             name = 'cells'
