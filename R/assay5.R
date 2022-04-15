@@ -276,10 +276,67 @@ setClass(
 }
 
 #' @rdname AddMetaData
-#' @export
 #' @method AddMetaData StdAssay
+#' @export
 #'
 AddMetaData.StdAssay <- .AddMetaData
+
+#' @importFrom methods as
+#'
+#' @method CastAssay StdAssay
+#' @export
+#'
+CastAssay.StdAssay <- function(object, to, layers = NULL, ...) {
+  layers <- Layers(object = object, search = layers)
+  stopifnot(is.character(x = to) || is.function(x = to))
+  for (lyr in layers) {
+    clyr <- Cells(x = object, layer = lyr)
+    flyr <- Features(x = object, layer = lyr)
+    w <- function(e) {
+      warning(
+        "Unable to cast layer ",
+        lyr,
+        ": ",
+        e$message,
+        call. = FALSE,
+        immediate. = TRUE
+      )
+      return(invisible(x = NULL))
+    }
+    if (is.function(x = to)) {
+      tryCatch(
+        expr = LayerData(
+          object = object,
+          layer = lyr,
+          cells = clyr,
+          features = flyr
+        ) <- to(LayerData(object = object, layer = lyr, fast = TRUE), ...),
+        error = w
+      )
+    } else {
+      check <- is(
+        object = LayerData(object = object, layer = lyr, fast = TRUE),
+        class2 = to
+      )
+      if (isTRUE(x = check)) {
+        next
+      }
+      tryCatch(
+        expr = LayerData(
+          object = object,
+          layer = lyr,
+          cells = clyr,
+          features = flyr
+        ) <- as(
+          object = LayerData(object = object, layer = lyr, fast = TRUE),
+          Class = to
+        ),
+        error = w
+      )
+    }
+  }
+  return(object)
+}
 
 #' @rdname Cells
 #' @method Cells StdAssay

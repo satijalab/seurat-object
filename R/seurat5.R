@@ -49,6 +49,15 @@ Assays.Seurat5 <- function(object, ...) {
   return(names(x = slot(object = object, name = 'assays')))
 }
 
+#' @method CastAssay Seurat5
+#' @export
+#'
+CastAssay.Seurat5 <- function(object, to, assay = NULL, layers = NULL, ...) {
+  assay <- assay[1L] %||% DefaultAssay(object = object)
+  assay <- match.arg(arg = assay, choices = Assays(object = object))
+  return(CastAssay(object = object[[assay]], to = to, layers = layers, ...))
+}
+
 #' @method Cells Seurat5
 #' @export
 #'

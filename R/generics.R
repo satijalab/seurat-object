@@ -164,6 +164,12 @@ as.sparse <- function(x, ...) {
   UseMethod(generic = 'as.sparse', object = x)
 }
 
+#' @export
+#'
+CastAssay <- function(object, to, ...) {
+  UseMethod(generic = 'CastAssay', object = object)
+}
+
 #' Cell and Feature Names
 #'
 #' Get the cell and feature names of an object
