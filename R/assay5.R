@@ -760,9 +760,10 @@ HVFInfo.StdAssay <- function(
       x = grep(pattern = '^vf_', x = colnames(x = object[[]]), value = TRUE),
       split = '_'
     ),
-    FUN = '[[',
-    FUN.VALUE = character(length = 1L),
-    3L
+    FUN = function(x) {
+      return(paste(x[3:(length(x = x) - 1L)], collapse = '_'))
+    },
+    FUN.VALUE = character(length = 1L)
   ))
   # Determine which method and layer to use
   method <- (method %||% vf.methods)[1L]
@@ -1627,7 +1628,9 @@ tail.StdAssay <- .tail
   layers <- Layers(object = object, search = layers)
   vf.cols <- Filter(
     f = function(x) {
-      return(unlist(x = strsplit(x = x, split = '_'))[3L] %in% layers)
+      x <- unlist(x = strsplit(x = x, split = '_'))
+      x <- paste(x[3:(length(x = x) - 1L)], collapse = '_')
+      return(x %in% layers)
     },
     x = vf.cols
   )
