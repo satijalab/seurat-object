@@ -35,7 +35,7 @@
 
 \method{merge}{StdAssay}(x, y, labels = NULL, add.cell.ids = NULL, collapse = FALSE, ...)
 
-\method{subset}{StdAssay}(x, cells = NULL, features = NULL, ...)
+\method{subset}{StdAssay}(x, cells = NULL, features = NULL, layers = NULL, ...)
 
 \method{tail}{StdAssay}(x, n = 10L, ...)
 
