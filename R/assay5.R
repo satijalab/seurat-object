@@ -286,10 +286,17 @@ AddMetaData.StdAssay <- .AddMetaData
 #' @method CastAssay StdAssay
 #' @export
 #'
-CastAssay.StdAssay <- function(object, to, layers = NULL, ...) {
+CastAssay.StdAssay <- function(object, to, layers = NULL, verbose = TRUE, ...) {
   layers <- Layers(object = object, search = layers)
   stopifnot(is.character(x = to) || is.function(x = to))
   for (lyr in layers) {
+    if (isTRUE(x = verbose)) {
+      msg <- paste("Attempting to cast layer", lyr)
+      if (is.character(x = to)) {
+        msg <- paste(msg, "to", to)
+      }
+      message(msg)
+    }
     clyr <- Cells(x = object, layer = lyr)
     flyr <- Features(x = object, layer = lyr)
     w <- function(e) {

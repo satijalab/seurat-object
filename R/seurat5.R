@@ -55,7 +55,14 @@ Assays.Seurat5 <- function(object, ...) {
 CastAssay.Seurat5 <- function(object, to, assay = NULL, layers = NULL, ...) {
   assay <- assay[1L] %||% DefaultAssay(object = object)
   assay <- match.arg(arg = assay, choices = Assays(object = object))
-  return(CastAssay(object = object[[assay]], to = to, layers = layers, ...))
+  object[[assay]] <- CastAssay(
+    object = object[[assay]],
+    to = to,
+    layers = layers,
+    ...
+  )
+  validObject(object = object)
+  return(object)
 }
 
 #' @method Cells Seurat5
