@@ -1,3 +1,4 @@
+#' @importFrom lifecycle deprecated deprecate_soft is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setOldClass
 #' setValidity slot slot<- validObject
 #' @importClassesFrom Matrix dgCMatrix
