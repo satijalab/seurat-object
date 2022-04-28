@@ -566,19 +566,20 @@ FetchData.StdAssay <- function(
   ...
 ) {
   # Identify layer(s) to use
-  layer <- layer %||% Layers(object = object)
-  if (length(x = layer) == 1L && !layer %in% Layers(object = object)) {
-    layer <- grep(
-      pattern = paste0('^', layer, '$'),
-      x = Layers(object = object),
-      value = TRUE
-    )
-  }
-  layer <- match.arg(
-    arg = layer,
-    choices = Layers(object = object),
-    several.ok = TRUE
-  )
+  # layer <- layer %||% Layers(object = object)
+  # if (length(x = layer) == 1L && !layer %in% Layers(object = object)) {
+  #   layer <- grep(
+  #     pattern = paste0('^', layer, '$'),
+  #     x = Layers(object = object),
+  #     value = TRUE
+  #   )
+  # }
+  # layer <- match.arg(
+  #   arg = layer,
+  #   choices = Layers(object = object),
+  #   several.ok = TRUE
+  # )
+  layer <- Layers(object = object, search = layer)
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
