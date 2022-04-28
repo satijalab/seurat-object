@@ -44,8 +44,19 @@ Imports:
     utils
 Suggests:
     testthat
-Collate: 'RcppExports.R' 'utils.R' 'zzz.R' 'generics.R'
-      'assay.R' 'command.R' 'data.R' 'default.R'
-      'jackstraw.R' 'dimreduc.R' 'graph.R' 'neighbor.R'
-      'spatial.R' 'seurat.R'
+Collate: 
+    'RcppExports.R'
+    'utils.R'
+    'zzz.R'
+    'generics.R'
+    'graph.R'
+    'assay.R'
+    'command.R'
+    'data.R'
+    'default.R'
+    'jackstraw.R'
+    'dimreduc.R'
+    'neighbor.R'
+    'spatial.R'
+    'seurat.R'
 LinkingTo: Rcpp, RcppEigen
