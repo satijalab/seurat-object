@@ -227,6 +227,65 @@ Embeddings.DimReduc <- function(object, ...) {
   return(slot(object = object, name = 'cell.embeddings'))
 }
 
+#' @method FetchData DimReduc
+#' @export
+#'
+FetchData.DimReduc <- function(
+  object,
+  vars,
+  cells = NULL,
+  layer = c('embeddings', 'loadings', 'projected'),
+  ...
+) {
+  layer <- layer[1L]
+  layer <- match.arg(arg = layer)
+  cells <- cells %||% Cells(x = object)
+  if (is.numeric(x = cells)) {
+    cells <- Cells(x = object)[cells]
+  }
+  key <- Key(object = object)
+  ovars <- vars
+  vars <- grep(
+    pattern = paste0('^(', key, ')?[[:digit:]]+$'),
+    x = vars,
+    value = TRUE
+  )
+  if (!length(x = vars)) {
+    stop(
+      "None of the vars provided are valid for reduced dimensions",
+      call. = FALSE
+    )
+  } else if (length(x = vars) != length(x = ovars)) {
+    warning(
+      "The following requested vars are not valid: ",
+      paste(setdiff(x = ovars, y = vars), collapse = ', '),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  vars <- paste0(
+    key,
+    as.integer(x = gsub(pattern = key, replacement = '', x = vars))
+  )
+  data <- switch(
+    EXPR = layer,
+    'embeddings' = Embeddings(object = object),
+    Loadings(object = object, projected = layer == 'projected')
+  )
+  missing <- setdiff(x = vars, y = colnames(x = data))
+  if (length(x = missing) == length(x = vars)) {
+    stop("Cannot find any of the requested dimensions", call. = FALSE)
+  } else if (length(x = missing)) {
+    warning(
+      "Cannot find the following dimensions: ", paste0(missing, collapse = ', '),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    vars <- setdiff(x = vars, y = missing)
+  }
+  return(as.data.frame(x = data)[cells, vars, drop = FALSE])
+}
+
 #' @rdname IsGlobal
 #' @export
 #' @method IsGlobal DimReduc
