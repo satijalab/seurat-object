@@ -172,6 +172,100 @@ Features.Seurat5 <- function(x, assay = NULL, ...) {
   return(Features(x = x[[assay]], ...))
 }
 
+#' @method FetchData Seurat5
+#' @export
+#'
+FetchData.Seurat5 <- function(
+  object,
+  vars,
+  cells = NULL,
+  layer = NULL,
+  slot = deprecated(),
+  ...
+) {
+  if (is_present(arg = slot)) {
+    deprecate_soft(
+      when = '4.9.0',
+      what = 'FetchData(slot = )',
+      with = 'FetchData(layer = )'
+    )
+    layer <- layer %||% slot
+  }
+  # Find cells to use
+  cells <- cells %||% colnames(x = object)
+  if (is.numeric(x = cells)) {
+    cells <- colnames(x = object)[cells]
+  }
+  if (is.null(x = vars)) {
+    df <- EmptyDF(n = length(x = cells))
+    rownames(x = df) <- cells
+    return(df)
+  }
+  # Get a list of all objects to search through and their keys
+  object.keys <- Key(object = object)
+  # Find all vars that are keyed
+  keyed.vars <- sapply(
+    X = object.keys,
+    FUN = function(key) {
+      if (length(x = key) == 0 || !nzchar(x = key)) {
+        return(character(length = 0L))
+      }
+      return(grep(pattern = paste0('^', key), x = vars, value = TRUE))
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  keyed.vars <- Filter(f = length, x = keyed.vars)
+  # return(keyed.vars)
+  # TODO: Handle FOVs
+  # Find all keyed. vars
+  data.fetched <- lapply(
+    X = names(x = keyed.vars),
+    FUN = function(x) {
+      data.return <- if (x == 'meta.data') {
+        md <- gsub(pattern = '^md_', replacement = '', x = keyed.vars[[x]])
+        df <- object[[md]][cells, , drop = FALSE]
+        names(x = df) <- paste0('md_', names(x = df))
+        df
+      } else {
+        FetchData(
+          object = object[[x]],
+          vars = keyed.vars[[x]],
+          cells = cells,
+          layer = layer,
+          ...
+        )
+      }
+      return(as.list(x = data.return))
+    }
+  )
+  # data.fetched <- do.call(what = 'cbind', args = data.fetched)
+  # Pull vars from object metadata
+  meta.vars <- intersect(x = vars, y = names(x = object[[]]))
+  meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
+  meta.default <- intersect(x = meta.vars, y = rownames(x = object))
+  if (length(x = meta.default)) {
+    warning(
+      "The following variables were found in both object metadata and the default assay: ",
+      paste0(meta.default, collapse = ', '),
+      "\nReturning metadata; if you want the feature, please use the assay's key (eg. ",
+      paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
+      ")",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  # Pull vars from the default assay
+  # Pull identities
+  if ('ident' %in% vars && !'ident' %in% colnames(x = object[[]])) {
+    data.fetched[['ident']] <- Idents(object = object)[cells]
+  }
+  # Try to find ambiguous vars
+  # Warn about missing vars
+  data.fetched <- as.data.frame(x = data.fetched, row.names = cells)
+  return(data.fetched)
+}
+
 #' @method HVFInfo Seurat5
 #' @export
 #'
@@ -200,14 +294,17 @@ HVFInfo.Seurat5 <- function(
 #' @export
 #'
 Key.Seurat5 <- function(object, ...) {
-  return(sapply(
-    X = .FilterObjects(
-      object = object,
-      classes.keep = c('KeyMixin')
+  return(c(
+    sapply(
+      X = .FilterObjects(
+        object = object,
+        classes.keep = c('KeyMixin')
+      ),
+      FUN = function(x) {
+        return(Key(object = object[[x]]))
+      }
     ),
-    FUN = function(x) {
-      return(Key(object = object[[x]]))
-    }
+    meta.data = 'md_'
   ))
 }
 
@@ -294,6 +391,7 @@ VariableFeatures.Seurat5 <- function(
       stop("Cannot find '", i, "' in this Seurat object", call. = FALSE)
     }
     data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
+    row.names(x = data.return) <- colnames(x = x)
     if (isTRUE(x = na.rm)) {
       idx.na <- apply(X = is.na(x = data.return),MARGIN = 1L, FUN = all)
       data.return <- data.return[!idx.na, , drop = FALSE]
