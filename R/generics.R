@@ -1128,6 +1128,11 @@ SVFInfo <- function(object, selection.method, status, ...) {
   UseMethod(generic = 'SVFInfo', object = object)
 }
 
+#' Get the offset angle
+#'
+#' @param object An object
+#'
+#' @rdname Theta
 #' @export
 #'
 Theta <- function(object) {
