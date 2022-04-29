@@ -1,8 +1,8 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.0.4.9001
-Date: 2022-02-04
+Version: 4.0.4.9002
+Date: 2022-04-28
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
   person(given = 'Andrew', family = 'Butler', email = 'abutler@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0003-3608-0463')),
@@ -44,8 +44,19 @@ Imports:
     utils
 Suggests:
     testthat
-Collate: 'RcppExports.R' 'utils.R' 'zzz.R' 'generics.R'
-      'assay.R' 'command.R' 'data.R' 'default.R'
-      'jackstraw.R' 'dimreduc.R' 'graph.R' 'neighbor.R'
-      'spatial.R' 'seurat.R'
+Collate: 
+    'RcppExports.R'
+    'utils.R'
+    'zzz.R'
+    'generics.R'
+    'graph.R'
+    'assay.R'
+    'command.R'
+    'data.R'
+    'default.R'
+    'jackstraw.R'
+    'dimreduc.R'
+    'neighbor.R'
+    'spatial.R'
+    'seurat.R'
 LinkingTo: Rcpp, RcppEigen
