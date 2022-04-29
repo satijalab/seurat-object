@@ -1,8 +1,8 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.0.999.9011
-Date: 2022-02-14
+Version: 4.0.999.9012
+Date: 2022-04-29
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
   person(given = 'Andrew', family = 'Butler', email = 'abutler@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0003-3608-0463')),
@@ -54,6 +54,7 @@ Collate:
     'RcppExports.R'
     'zzz.R'
     'generics.R'
+    'graph.R'
     'assay.R'
     'centroids.R'
     'command.R'
@@ -66,7 +67,6 @@ Collate:
     'molecules.R'
     'spatial.R'
     'fov.R'
-    'graph.R'
     'logmap.R'
     'neighbor.R'
     'seurat.R'

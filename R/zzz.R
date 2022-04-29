@@ -67,7 +67,6 @@ progressr::with_progress
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-setClassUnion(name = 'AnyMatrix', members = c("matrix", "dgCMatrix"))
 setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
 setClassUnion(name = 'OptionalList', members = c('NULL', 'list'))
 

@@ -1,5 +1,6 @@
 #' @include zzz.R
 #' @include generics.R
+#' @include graph.R
 #' @importFrom methods new slot slot<-
 #'
 NULL
@@ -7,6 +8,8 @@ NULL
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+setClassUnion(name = 'AnyMatrix', members = c("matrix", "dgCMatrix"))
 
 #' The Assay Class
 #'
