@@ -33,30 +33,42 @@ RoxygenNote: 7.1.2
 Depends:
   R (>= 4.0.0)
 Imports:
+    future,
+    future.apply,
     grDevices,
     grid,
     Matrix (>= 1.3.3),
     methods,
+    progressr,
     Rcpp (>= 1.0.5),
+    sp,
+    rgeos,
     rlang (>= 0.4.7),
     stats,
     tools,
     utils
 Suggests:
+    ggplot2,
     testthat
-Collate: 
+Collate:
     'RcppExports.R'
-    'utils.R'
     'zzz.R'
     'generics.R'
     'graph.R'
     'assay.R'
+    'centroids.R'
     'command.R'
     'data.R'
     'default.R'
     'jackstraw.R'
     'dimreduc.R'
-    'neighbor.R'
+    'segmentation.R'
+    'keymixin.R'
+    'molecules.R'
     'spatial.R'
+    'fov.R'
+    'logmap.R'
+    'neighbor.R'
     'seurat.R'
+    'utils.R'
 LinkingTo: Rcpp, RcppEigen

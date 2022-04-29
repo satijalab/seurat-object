@@ -56,6 +56,21 @@ as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
 }
 
+#' Convert Segmentation Layers
+#'
+#' @inheritParams CreateCentroids
+#' @param x An object
+#' @param ... Arguments passed to other methods
+#'
+#' @return \code{as.Centroids}: A
+#' \code{\link[SeuratObject:Centroids-class]{Centroids}} object
+#'
+#' @export
+#'
+as.Centroids <- function(x, nsides = NULL, radius = NULL, theta = NULL, ...) {
+  UseMethod(generic = "as.Centroids", object = x)
+}
+
 #' Coerce to a \code{Neighbor} Object
 #'
 #' Convert objects to \code{\link{Neighbor}} objects
@@ -72,6 +87,16 @@ as.Graph <- function(x, ...) {
 #'
 as.Neighbor <- function(x, ...) {
   UseMethod(generic = 'as.Neighbor', object = x)
+}
+
+#' @return \code{as.Segmentation}: A
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
+#'
+#' @rdname as.Centroids
+#' @export
+#'
+as.Segmentation <- function(x, ...) {
+  UseMethod(generic = 'as.Segmentation', object = x)
 }
 
 #' Coerce to a \code{Seurat} Object
@@ -92,11 +117,48 @@ as.Seurat <- function(x, ...) {
   UseMethod(generic = 'as.Seurat', object = x)
 }
 
-#' Get cells present in an object
+#' Cast to Sparse
+#'
+#' Convert dense objects to sparse representations
 #'
 #' @param x An object
+#' @param ... Arguments passed to other methods
 #'
-#' @return A vector of cell names
+#' @return A sparse representation of the input data
+#'
+#' @rdname as.sparse
+#' @export as.sparse
+#'
+#' @concept utils
+#'
+as.sparse <- function(x, ...) {
+  UseMethod(generic = 'as.sparse', object = x)
+}
+
+#' Get, Set, and Query Segmentation Boundaries
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @name Boundaries
+#' @return \code{Boundaries}: The names of all segmentation boundaries present
+#' within \code{object}
+#'
+#' @rdname Boundaries
+#' @export
+#'
+Boundaries <- function(object, ...) {
+  UseMethod(generic = 'Boundaries', object = object)
+}
+
+#' Cell and Feature Names
+#'
+#' Get the cell and feature names of an object
+#'
+#' @param x An object
+#' @param ... Arguments passed to other methods
+#'
+#' @return \code{Cell}: A vector of cell names
 #'
 #' @rdname Cells
 #' @export Cells
@@ -106,8 +168,35 @@ as.Seurat <- function(x, ...) {
 #' @examples
 #' Cells(x = pbmc_small)
 #'
-Cells <- function(x) {
+Cells <- function(x, ...) {
   UseMethod(generic = 'Cells', object = x)
+}
+
+#' Check Matrix Validity
+#'
+#' @param object A matrix
+#' @param checks Type of checks to perform, choose one or more from:
+#' \itemize{
+#'  \item \dQuote{\code{infinite}}: Emit a warning if any value is infinite
+#'  \item \dQuote{\code{logical}}: Emit a warning if any value is a logical
+#'  \item \dQuote{\code{integer}}: Emit a warning if any value is \emph{not}
+#'   an integer
+#'  \item \dQuote{\code{na}}: Emit a warning if any value is an \code{NA}
+#'   or \code{NaN}
+#' }
+#' @param ... Arguments passed to other methods
+#'
+#' @return Emits warnings for each test and invisibly returns \code{NULL}
+#'
+#' @name CheckMatrix
+#' @rdname CheckMatrix
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+CheckMatrix <- function(object, checks, ...) {
+  UseMethod(generic = 'CheckMatrix', object = object)
 }
 
 #' Get SeuratCommands
@@ -126,6 +215,53 @@ Cells <- function(x) {
 #'
 Command <- function(object, ...) {
   UseMethod(generic = 'Command', object = object)
+}
+
+#' Create a \code{\link[SeuratObject:Centroids-class]{Centroids}} Objects
+#'
+#' @param coords The coordinates of cell/spot centroids
+#' @param nsides The number of sides to represent cells/spots; pass
+#' \code{\link[base]{Inf}} to plot as circles
+#' @param radius Radius of shapes when plotting
+#' @param theta Angle to adjust shapes when plotting
+#'
+#' @return A \code{\link[SeuratObject:Centroids-class]{Centroids}} object
+#'
+#' @export
+#'
+CreateCentroids <- function(coords, nsides, radius, theta) {
+  UseMethod(generic = 'CreateCentroids', object = coords)
+}
+
+#' Create a \code{\link{Molecules}} Object
+#'
+#' @param coords Spatial coordinates for molecules; should be a data frame
+#' with three columns:
+#' \itemize{
+#'  \item \dQuote{\code{x}}: x-coordinates for each molecule
+#'  \item \dQuote{\code{y}}: y-coordinates for each molecule
+#'  \item \dQuote{\code{gene}}: gene name for each molecule
+#' }
+#' @param ... Arguments passed to other methods
+#'
+#' @return A \code{\link{Molecules}} object
+#'
+#' @export
+#'
+CreateMolecules <- function(coords, ...) {
+  UseMethod(generic = 'CreateMolecules', object = coords)
+}
+
+#' Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects
+#'
+#' @param coords The coordinates of cell segmentations
+#'
+#' @return A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
+#'
+#' @export
+#'
+CreateSegmentation <- function(coords) {
+  UseMethod(generic = 'CreateSegmentation', object = coords)
 }
 
 #' Create a \code{Seurat} object
@@ -188,6 +324,43 @@ CreateSeuratObject <- function(
   UseMethod(generic = 'CreateSeuratObject', object = counts)
 }
 
+#' Create Spatial Coordinates
+#'
+#' @param coords Spatial coordinates
+#' @param ... Arguments passed to other methods
+#'
+#' @return A \code{\link{FOV}} object
+#'
+#' @export
+#'
+#' @seealso \code{\link{FOV-class}}
+#'
+CreateFOV <- function(coords, ...) {
+  UseMethod(generic = 'CreateFOV', object = coords)
+}
+
+#' Crop Coordinates
+#'
+#' @param object An object
+#' @param x,y Range to crop x/y limits to; if \code{NULL}, uses full range of
+#' \code{x}/\code{y}
+#' @param coords Coordinate system to execute crop; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{plot}}: Coordinates as shown when plotting
+#'  \item \dQuote{\code{tissue}}: Coordinates from
+#'   \code{\link{GetTissueCoordinates}}
+#' }
+#' @param ... ...
+#'
+#' @return \code{object} cropped to the region specified by \code{x}
+#' and \code{y}
+#'
+#' @export
+#'
+Crop <- function(object, x = NULL, y = NULL, coords = c('plot', 'tissue'), ...) {
+  UseMethod(generic = 'Crop', object = object)
+}
+
 #' Default Assay
 #'
 #' Get and set the default assay
@@ -215,6 +388,59 @@ DefaultAssay <- function(object, ...) {
 #'
 "DefaultAssay<-" <- function(object, ..., value) {
   UseMethod(generic = 'DefaultAssay<-', object = object)
+}
+
+#' @return \code{DefaultBoundary}: The name of the default
+#' segmentation boundary
+#'
+#' @rdname Boundaries
+#'
+#' @export
+#'
+DefaultBoundary <- function(object) {
+  UseMethod(generic = 'DefaultBoundary', object = object)
+}
+
+#' @param value The name of a segmentation boundary to set as default
+#'
+#' @return \code{DefaultBoundary<-}: \code{object} with the default
+#' segmentation boundary set to \code{value}
+#'
+#' @rdname Boundaries
+#'
+#' @export
+#'
+"DefaultBoundary<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultBoundary<-', object = object)
+}
+
+#' Get and Set the Default FOV
+#'
+#' @param object A \code{\link{Seurat}} Object
+#' @param ... Arguments passed to other methods
+#'
+#' @return \code{DefaultFOV}: The name of the default \code{\link{FOV}}
+#'
+#' @name DefaultFOV
+#' @rdname DefaultFOV
+#'
+#' @export
+#'
+DefaultFOV <- function(object, ...) {
+  UseMethod(generic = 'DefaultFOV', object = object)
+}
+
+#' @param value The name of the \code{\link{FOV}} to set as the default
+#'
+#' @return \code{DefaultFOV<-}: \code{object} with the default FOV set
+#' to \code{value}
+#'
+#' @rdname DefaultFOV
+#'
+#' @export
+#'
+"DefaultFOV<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultFOV<-', object = object)
 }
 
 #' Get the Neighbor nearest neighbors distance matrix
@@ -247,6 +473,32 @@ Distances <- function(object, ...) {
 #'
 Embeddings <- function(object, ...) {
   UseMethod(generic = 'Embeddings', object = object)
+}
+
+#' Access cellular data
+#'
+#' Retrieves data (feature expression, PCA scores, metrics, etc.) for a set
+#' of cells in a Seurat object
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @export FetchData
+#'
+#' @concept data-access
+#'
+#'
+FetchData <- function(object, ...) {
+  UseMethod(generic = 'FetchData', object = object)
+}
+
+#' @return \code{Features}: A vector of feature names
+#'
+#' @rdname Cells
+#' @export Features
+#'
+Features <- function(x, ...) {
+  UseMethod(generic = 'Features', object = x)
 }
 
 #' Get and Set Assay Data
@@ -535,6 +787,15 @@ Key <- function(object, ...) {
   UseMethod(generic = 'Key<-', object = object)
 }
 
+#' @return \code{Keys}: a named vector of keys of sub-objects
+#'
+#' @rdname Key
+#' @export
+#'
+Keys <- function(object, ...) {
+  UseMethod(generic = 'Keys', object = object)
+}
+
 #' Get and set feature loadings
 #'
 #' @param object An object
@@ -560,6 +821,24 @@ Loadings <- function(object, ...) {
 #'
 "Loadings<-" <- function(object, ..., value) {
   UseMethod(generic = 'Loadings<-', object = object)
+}
+
+#' Match Cells
+#'
+#' @param new A vector of new cells
+#' @param orig A vector of existing cells
+#' @param ordered Sort the result to the same order as \code{orig}
+#'
+#' @return A numeric vector with new cells in order of the original cells; if
+#' no match can be found, returns \code{NULL}
+#'
+#' @export
+#'
+MatchCells <- function(new, orig, ordered = FALSE) {
+  if (!is.character(x = orig)) {
+    stop("'orig' must be a character vector")
+  }
+  UseMethod(generic = 'MatchCells', object = new)
 }
 
 #' Get and set miscellaneous data
@@ -588,6 +867,41 @@ Misc <- function(object, ...) {
 "Misc<-" <- function(object, ..., value) {
   UseMethod(generic = 'Misc<-', object = object)
 }
+
+#' @return \code{Molecules}: The names of all molecule sets present within
+#' \code{object}
+#'
+#' @rdname Boundaries
+#' @export
+#'
+Molecules <- function(object, ...) {
+  UseMethod(generic = 'Molecules', object = object)
+}
+
+#' Overlay \code{Spatial} Objects Over One Another
+#'
+#' Create an overlay of some query spatial object (\code{x}) against some
+#' target object (\code{y}). Basically, find all components of a query that
+#' fall within the bounds of a target spatial region
+#'
+#' @param x Query \code{Spatial} object
+#' @param y Target \code{Spatial} object
+#' @param invert Invert the overlay and return only the components of \code{x}
+#' that fall \emph{outside} the bounds of \code{y}
+#' @param ... Ignored
+#'
+#' @return \code{x} with only the components that fall within the
+#' bounds of \code{y}
+#'
+#' @export
+#'
+setGeneric(
+  name = 'Overlay',
+  def = function(x, y, invert = FALSE, ...) {
+    standardGeneric(f = 'Overlay')
+  },
+  signature = c('x', 'y')
+)
 
 #' Get and set project information
 #'
@@ -686,6 +1000,40 @@ ReorderIdent <- function(object, var, ...) {
   UseMethod(generic = 'ReorderIdent', object = object)
 }
 
+#' S4/List Conversion
+#'
+#' Convert S4 objects to lists and vice versa. Useful for declassing an S4
+#' object while keeping track of it's class using attributes (see section
+#' \strong{S4 Class Definition Attributes} below for more details). Both
+#' \code{ListToS4} and \code{S4ToList} are recursive functions, affecting all
+#' lists/S4 objects contained as sub-lists/sub-objects.
+#'
+#' @param x A list with an S4 class definition attribute
+#' @param object An S4 object
+#'
+#' @return \code{S4ToList}: A list with an S4 class definition attribute
+#'
+#' @section S4 Class Definition Attributes:
+#' S4 classes are scoped to the package and class name. In order to properly
+#' track which class a list is generated from in order to build a new one,
+#' these function use an \code{\link[base:attr]{attribute}} to denote the
+#' class name and package of origin. This attribute is stored as
+#' \dQuote{classDef} and takes the form of \dQuote{\code{package:class}}.
+#'
+#' @name s4list
+#' @rdname s4list
+#'
+#' @concept utils
+#'
+#' @export
+#'
+S4ToList <- function(object) {
+  if (!(isS4(object) || inherits(x = object, what = 'list'))) {
+    return(object)
+  }
+  UseMethod(generic = 'S4ToList', object = object)
+}
+
 #' @param new.data New assay data to add
 #'
 #' @return \code{SetAssayData}: \code{object} with the assay data set
@@ -712,6 +1060,19 @@ SetAssayData <- function(object, slot, new.data, ...) {
 #'
 SetIdent <- function(object, ...) {
   UseMethod(generic = 'SetIdent', object = object)
+}
+
+#' Simplify Geometry
+#'
+#' @inheritParams rgeos::gSimplify
+#' @param coords ...
+#'
+#' @return ...
+#'
+#' @export
+#'
+Simplify <- function(coords, tol, topologyPreserve = TRUE) {
+  UseMethod(generic = 'Simplify', object = coords)
 }
 
 #' @return \code{SpatiallyVariableFeatures}: a character vector of the spatially
@@ -765,6 +1126,17 @@ Stdev <- function(object, ...) {
 #'
 SVFInfo <- function(object, selection.method, status, ...) {
   UseMethod(generic = 'SVFInfo', object = object)
+}
+
+#' Get the offset angle
+#'
+#' @param object An object
+#'
+#' @rdname Theta
+#' @export
+#'
+Theta <- function(object) {
+  UseMethod(generic = 'Theta', object = object)
 }
 
 #' Get and set additional tool data
