@@ -1,8 +1,8 @@
-# SeuratObject v4.0.4
+# SeuratObject v4.1.0
 
 ## Test environments
-* local ubuntu 20.04 install, R 4.1.1
-* win-builder (release, devel)
+* local ubuntu 20.04 install, R 4.1.3
+* win-builder (old-release, release, devel)
 
 ## R CMD check results
 

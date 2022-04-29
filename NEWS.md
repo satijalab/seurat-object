@@ -1,4 +1,4 @@
-# Unreleased
+# SeuratObject 4.1.0
 ## Changed
 - Allow `UpdateSeuratObject` to work when `data` is `NULL` (#38)
 - Fix superclass issue with R-devel 4.3.x (#42)
