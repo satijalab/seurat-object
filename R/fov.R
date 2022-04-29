@@ -913,8 +913,7 @@ setMethod(
 )
 
 #' @importClassesFrom sp Spatial
-#' @param y Target \code{Spatial} object
-#' @rdname FOV-methods
+#' @rdname Overlay
 #'
 setMethod(
   f = 'Overlay',
@@ -922,10 +921,7 @@ setMethod(
   definition = .OverBbox
 )
 
-#' @param y Target \code{SpatialPolygons} object
-#' @param invert Invert the overlay and return only the components of \code{x}
-#' that fall \emph{outside} the bounds of \code{y}
-#' @rdname FOV-methods
+#' @rdname Overlay
 #'
 setMethod(
   f = 'Overlay',
@@ -938,8 +934,7 @@ setMethod(
   }
 )
 
-#' @param y Target \code{FOV} object
-#' @rdname FOV-methods
+#' @rdname Overlay
 #'
 setMethod(
   f = 'Overlay',

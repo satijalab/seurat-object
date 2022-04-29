@@ -18,9 +18,6 @@
 \alias{[[<-,FOV,character,missing,Molecules-method}
 \alias{[[<-,FOV,character,missing,NULL-method}
 \alias{[[<-,FOV,character,missing,Segmentation-method}
-\alias{Overlay,FOV,Spatial-method}
-\alias{Overlay,FOV,SpatialPolygons-method}
-\alias{Overlay,FOV,FOV-method}
 \alias{show,FOV-method}
 \title{\code{FOV} Methods}
 \usage{
@@ -56,12 +53,6 @@
 
 \S4method{[[}{FOV,character,missing,Segmentation}(x, i, j, ...) <- value
 
-\S4method{Overlay}{FOV,Spatial}(x, y, invert = FALSE, ...)
-
-\S4method{Overlay}{FOV,SpatialPolygons}(x, y, invert = FALSE, ...)
-
-\S4method{Overlay}{FOV,FOV}(x, y, invert = FALSE, ...)
-
 \S4method{show}{FOV}(object)
 }
 \arguments{
@@ -96,11 +87,6 @@ keep; for \code{[[<-}, not used}
 \code{\link[SeuratObject:Centroids-class]{Centroids}}, or
 \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object;
 otherwise \code{NULL} to remove the boundary stored at \code{i}}
-
-\item{y}{Target \code{FOV} object}
-
-\item{invert}{Invert the overlay and return only the components of \code{x}
-that fall \emph{outside} the bounds of \code{y}}
 }
 \value{
 \code{Cells}: A vector of cell names
