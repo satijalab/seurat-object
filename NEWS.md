@@ -3,6 +3,9 @@
 - Allow `UpdateSeuratObject` to work when `data` is `NULL` (#38)
 - Fix superclass issue with R-devel 4.3.x (#42)
 
+## Added
+- New `FOV`, `Segmentations`, `Centroids`, and `Molecules` classes for imaging-based spatial datasets
+
 # SeuratObject 4.0.4
 ## Changed
 - `CreateSeuratObject.Assay` sets Assay key when not present (#29)

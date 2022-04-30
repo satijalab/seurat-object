@@ -12,6 +12,6 @@ There were no ERRORs, WARNINGs, or NOTEs
 
 There is one package that depends on SeuratObject: tidyseurat; this update does not impact its functionality
 
-There are three packages that import SeuratObject: Platypus, Seurat, and Singac; this update does not impact their functionality
+There are four packages that import SeuratObject: CAMML, Platypus, Seurat, and Singac; this update does not impact their functionality
 
 There are two packages that suggest SeuratObject: singleCellHaystack and VAM; this update does not impact their functionality
