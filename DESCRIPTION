@@ -1,7 +1,7 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.0.999.9012
+Version: 4.1.0
 Date: 2022-04-29
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
