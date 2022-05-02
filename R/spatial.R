@@ -125,7 +125,7 @@ NULL
 #' @method Cells SpatialImage
 #' @export
 #'
-Cells.SpatialImage <- function(x) {
+Cells.SpatialImage <- function(x, ...) {
   stop(
     "'Cells' must be implemented for all subclasses of 'SpatialImage'",
     call. = FALSE
@@ -228,7 +228,7 @@ IsGlobal.SpatialImage <- function(object, ...) {
 #'
 Key.SpatialImage <- function(object, ...) {
   CheckDots(...)
-  object <- UpdateSlots(object = object)
+  # object <- UpdateSlots(object = object)
   return(slot(object = object, name = 'key'))
 }
 

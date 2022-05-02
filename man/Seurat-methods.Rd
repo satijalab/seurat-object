@@ -18,7 +18,7 @@
 \alias{subset.Seurat}
 \alias{subset}
 \alias{tail.Seurat}
-\alias{[[<-,Seurat-method}
+\alias{[[<-,Seurat,ANY,ANY,ANY-method}
 \alias{colMeans,Seurat-method}
 \alias{colSums,Seurat-method}
 \alias{rowMeans,Seurat-method}
@@ -66,7 +66,7 @@
 
 \method{tail}{Seurat}(x, n = 10L, ...)
 
-\S4method{[[}{Seurat}(x, i, j, ...) <- value
+\S4method{[[}{Seurat,ANY,ANY,ANY}(x, i, j, ...) <- value
 
 \S4method{colMeans}{Seurat}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
 
@@ -211,7 +211,7 @@ packages
 
 \item \code{tail.Seurat}: Get the last rows of cell-level metadata
 
-\item \code{[[<-,Seurat-method}: Add cell-level metadata or associated objects
+\item \code{[[<-,Seurat,ANY,ANY,ANY-method}: Add cell-level metadata or associated objects
 
 \item \code{colMeans,Seurat-method}: Calculate \code{\link[base]{colMeans}} on a
 \code{Seurat} object

@@ -10,7 +10,7 @@
 \alias{merge.Assay}
 \alias{subset.Assay}
 \alias{tail.Assay}
-\alias{[[<-,Assay-method}
+\alias{[[<-,Assay,ANY,ANY,ANY-method}
 \alias{colMeans,Assay-method}
 \alias{colSums,Assay-method}
 \alias{rowMeans,Assay-method}
@@ -34,7 +34,7 @@
 
 \method{tail}{Assay}(x, n = 10L, ...)
 
-\S4method{[[}{Assay}(x, i, j, ...) <- value
+\S4method{[[}{Assay,ANY,ANY,ANY}(x, i, j, ...) <- value
 
 \S4method{colMeans}{Assay}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
 
@@ -141,7 +141,7 @@ other packages
 
 \item \code{tail.Assay}: Get the last rows of feature-level metadata
 
-\item \code{[[<-,Assay-method}: Add feature-level metadata
+\item \code{[[<-,Assay,ANY,ANY,ANY-method}: Add feature-level metadata
 
 \item \code{colMeans,Assay-method}: Calculate \code{\link[base]{colMeans}} on an
 \code{Assay}
