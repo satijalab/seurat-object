@@ -974,6 +974,8 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
 
 .Vowels <- function() {
   return(c('a', 'e', 'i', 'o', 'u'))
+}
+
 #' Find the Default FOV
 #'
 #' Attempts to find the \dQuote{default} FOV using the revamped

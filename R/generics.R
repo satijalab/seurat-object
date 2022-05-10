@@ -193,6 +193,8 @@ as.sparse <- function(x, ...) {
 #'
 CastAssay <- function(object, to, ...) {
   UseMethod(generic = 'CastAssay', object = object)
+}
+
 #' Get, Set, and Query Segmentation Boundaries
 #'
 #' @param object An object
@@ -418,6 +420,7 @@ CreateSeurat5Object <- function(
 ) {
   UseMethod(generic = 'CreateSeurat5Object', object = counts)
 }
+
 #' Create Spatial Coordinates
 #'
 #' @param coords Spatial coordinates
@@ -967,6 +970,7 @@ LayerData <- function(object, layer, ...) {
 Layers <- function(object, ...) {
   UseMethod(generic = 'Layers', object = object)
 }
+
 #' @return \code{Keys}: a named vector of keys of sub-objects
 #'
 #' @rdname Key
