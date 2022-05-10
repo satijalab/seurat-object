@@ -1,6 +1,9 @@
 #' @include zzz.R
 #' @include generics.R
+#' @include centroids.R
+#' @include segmentation.R
 #' @importFrom Rcpp evalCpp
+#' @importFrom methods as setAs
 #' @useDynLib SeuratObject
 #'
 NULL
@@ -55,6 +58,67 @@ rlang::`%||%`
   }
   return(x)
 }
+
+#' Set if \code{NA}
+#'
+#' Set a default value depending on if an object is \code{\link[base]{NA}}
+#'
+#' @inheritParams set-if-null
+#'
+#' @return For \code{\%NA\%}: \code{y} if \code{x} is \code{\link[base]{NA}};
+#' otherwise \code{x}
+#'
+#' @name set-if-na
+#' @rdname set-if-na
+#'
+#' @importFrom rlang is_na
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' 1 %NA% 2
+#' NA %NA% 2
+#'
+`%NA%` <- function(x, y) {
+  if (is_na(x = x)) {
+    return(y)
+  }
+  return(x)
+}
+
+#' @rdname set-if-na
+#'
+#' @export
+#'
+`%na%` <- `%NA%`
+
+#' @return For \code{\%!NA\%}: \code{y} if \code{x} is \strong{not}
+#' \code{\link[base]{NA}}; otherwise \code{x}
+#'
+#' @rdname set-if-na
+#'
+#' @importFrom rlang is_na
+#'
+#' @export
+#'
+#' @examples
+#' 1 %!NA% 2
+#' NA %!NA% 2
+#'
+`%!NA%` <- function(x, y) {
+  if (is_na(x = x)) {
+    return(x)
+  }
+  return(y)
+}
+
+#' @rdname set-if-na
+#'
+#' @export
+#'
+`%!na%` <- `%!NA%`
 
 #' Attach Required Packages
 #'
@@ -196,6 +260,48 @@ ClassKey <- function(class, package = NULL) {
   return(paste(package, class, sep = ':'))
 }
 
+#' Check List Names
+#'
+#' Check to see if a list has names; also check to enforce that all names are
+#' present and unique
+#'
+#' @param x A list
+#' @param all.unique Require that all names are unique from one another
+#' @param allow.empty Allow empty (\code{nchar = 0}) names
+#' @param pass.zero Pass on zero-length lists
+#'
+#' @return \code{TRUE} if ..., otherwise \code{FALSE}
+#'
+#' @importFrom rlang is_bare_list
+#'
+#' @export
+#'
+IsNamedList <- function(
+  x,
+  all.unique = TRUE,
+  allow.empty = FALSE,
+  pass.zero = FALSE
+) {
+  if (!is_bare_list(x = x)) {
+    return(FALSE)
+  }
+  if (isTRUE(x = pass.zero) && !length(x = x)) {
+    return(TRUE)
+  }
+  n <- names(x = x)
+  named <- !is.null(x = n)
+  if (!isTRUE(x = allow.empty)) {
+    named <- named && all(vapply(
+      X = n,
+      FUN = nchar,
+      FUN.VALUE = integer(length = 1L)
+    ))
+  }
+  if (isTRUE(x = all.unique)) {
+    named <- named && (length(x = n) == length(x = unique(x = n)))
+  }
+  return(named)
+}
 
 #' @name s4list
 #' @rdname s4list
@@ -407,6 +513,71 @@ UpdateSlots <- function(object) {
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @rdname as.Centroids
+#' @method as.Centroids Segmentation
+#' @export
+#'
+as.Centroids.Segmentation <- function(
+  x,
+  nsides = NULL,
+  radius = NULL,
+  theta = NULL,
+  ...
+) {
+  coords <- as(object = x, Class = 'Centroids')
+  if (!is.null(x = nsides)) {
+    slot(object = coords, name = 'nsides') <- nsides
+  }
+  if (!is.null(x = theta)) {
+    slot(object = coords, name = 'theta') <- theta
+  }
+  if (is.null(x = radius)) {
+    radius <- vapply(
+      X = Cells(x = x),
+      FUN = function(i) {
+        area <- slot(
+          object = slot(object = x, name = 'polygons')[[i]],
+          name = 'area'
+        )
+        return(sqrt(x = area / pi))
+      },
+      FUN.VALUE = numeric(length = 1L),
+      USE.NAMES = FALSE
+    )
+  }
+  slot(object = coords, name = 'radius') <- radius
+  validObject(object = coords)
+  return(coords)
+  # x <- c()
+  # y <- c()
+  # radius <- c()
+  # nsides <- 0
+  # for (cell in Cells(x)) {
+  #   a <- x@polygons[[cell]]@area
+  #   radius <- c(radius, sqrt(a / pi))
+  #   x <- c(x, x@polygons[[cell]]@labpt[1])
+  #   y <- c(y, x@polygons[[cell]]@labpt[2])
+  # }
+  # coords <- data.frame(x, y)
+  # rownames(x = coords) = Cells(x)
+  # return(
+  #   CreateCentroids(
+  #     coords,
+  #     radius = radius,
+  #     theta = rep(0, length(radius)),
+  #     nsides = rep(0, length(radius))
+  #   )
+  # )
+}
+
+#' @rdname as.Centroids
+#' @method as.Segmentation Centroids
+#' @export
+#'
+as.Segmentation.Centroids <- function(x, ...) {
+  return(as(object = x, Class = 'Segmentation'))
+}
+
 #' @param row.names \code{NULL} or a character vector giving the row names for
 #' the data; missing values are not allowed
 #'
@@ -544,6 +715,37 @@ S4ToList.list <- function(object) {
   return(object)
 }
 
+#' @importFrom rgeos gSimplify
+#'
+#' @rdname Simplify
+#' @method Simplify Spatial
+#' @export
+#'
+Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
+  class.orig <- class(x = coords)
+  dest <- ifelse(
+    test = grepl(pattern = '^Spatial', x = class.orig),
+    yes = class.orig,
+    no = grep(
+      pattern = '^Spatial',
+      x = .Contains(object = coords),
+      value = TRUE
+    )[1L]
+  )
+  coords <- gSimplify(
+    spgeom = as(object = coords, Class = dest),
+    tol = as.numeric(x = tol),
+    topologyPreserve = isTRUE(x = topologyPreserve)
+  )
+  coords <- tryCatch(
+    expr = as(object = coords, Class = class.orig),
+    error = function(...) {
+      return(coords)
+    }
+  )
+  return(coords)
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -611,7 +813,7 @@ S4ToList.list <- function(object) {
 #'
 #' @return A vector of class names that \code{object} inherits from
 #'
-#' @importFrom methods getClass
+#' @importFrom methods getClass slot
 #'
 #' @keywords internal
 #'
@@ -772,6 +974,34 @@ S4ToList.list <- function(object) {
 
 .Vowels <- function() {
   return(c('a', 'e', 'i', 'o', 'u'))
+#' Find the Default FOV
+#'
+#' Attempts to find the \dQuote{default} FOV using the revamped
+#' spatial framework
+#'
+#' @param object A \code{{Seurat}} object
+#'
+#' @return ...
+#'
+#' @export
+#'
+#' @keywords internal
+#'
+.DefaultFOV <- function(object, assay = NULL) {
+  images <- FilterObjects(object = object, classes.keep = 'FOV')
+  if (!is.null(x = assay)) {
+    assays <- c(assay, DefaultAssay(object = object[[assay]]))
+    images <- Filter(
+      f = function(x) {
+        return(DefaultAssay(object = object[[x]]) %in% assays)
+      },
+      x = images
+    )
+  }
+  if (!length(x = images)) {
+    return(NULL)
+  }
+  return(images)
 }
 
 #' Check the Use of Dots
@@ -980,6 +1210,28 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
   return(object.list)
 }
 
+#' Radian/Degree Conversions
+#'
+#' Convert degrees to radians and vice versa
+#'
+#' @param rad Angle in radians
+#'
+#' @return \code{Degrees}: \code{rad} in degrees
+#'
+#' @name Angles
+#' @rdname Angles
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' Degrees(pi)
+#'
+Degrees <- function(rad) {
+  return(rad * (180 / pi))
+}
+
 #' Empty Data Frames
 #'
 #' Create an empty \link[base:data.frame]{data frame} with no row names and
@@ -992,7 +1244,8 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
 #'
 #' @keywords internal
 #'
-#' @noRd
+#' @export
+#'
 #'
 EmptyDF <- function(n) {
   return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
@@ -1166,6 +1419,74 @@ IsCharEmpty <- function(
   )
   return(empty)
 }
+#' Polygon Vertices
+#'
+#' Calculate the vertices of a regular polygon given the number of sides and
+#' its radius (distance from center to vertex). Also permits transforming the
+#' resulting coordinates by moving the origin and altering the initial angle
+#'
+#' @param n Number of sides of the polygon
+#' @param r Radius of the polygon
+#' @param xc,yc X/Y coordinates for the center of the polygon
+#' @param t1 Angle of the first vertex in degrees
+#'
+#' @return A \code{\link[base]{data.frame}} with \code{n} rows and two columns:
+#' \describe{
+#'  \item{\code{x}}{X positions of each coordinate}
+#'  \item{\code{y}}{Y positions of each coordinate}
+#' }
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @references \url{https://stackoverflow.com/questions/3436453/calculate-coordinates-of-a-regular-polygons-vertices}
+#'
+#' @examples
+#' coords <- PolyVtx(5, t1 = 90)
+#' coords
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   ggplot2::ggplot(coords, ggplot2::aes(x = x, y = y)) + ggplot2::geom_polygon()
+#' }
+#'
+PolyVtx <- function(n, r = 1L, xc = 0L, yc = 0L, t1 = 0) {
+  n <- n[1]
+  r <- r[1]
+  xc <- xc[1]
+  yc <- yc[1]
+  t1 <- t1[1]
+  if (n < 3) {
+    stop("'n' must be greater than or equal to 3", call. = FALSE)
+  }
+  t1 <- Radians(deg = t1)
+  coords <- matrix(data = 0, nrow = n, ncol = 2)
+  colnames(x = coords) <- c('x', 'y')
+  for (i in seq_len(length.out = n)) {
+    theta <- 2 * pi * (i - 1) / n + t1
+    coords[i, ] <- c(
+      xc + r * cos(x = theta),
+      yc + r * sin(x = theta)
+    )
+  }
+  return(as.data.frame(x = coords))
+}
+
+#' @param deg Angle in degrees
+#'
+#' @return \code{Radians}: \code{deg} in radians
+#'
+#' @rdname Angles
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' Radians(180)
+#'
+Radians <- function(deg) {
+  return(deg * (pi / 180))
+}
 
 #' Update a Class's Package
 #'
@@ -1338,3 +1659,32 @@ UpdateSlots <- function(object) {
   }
   return(object)
 }
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# S4 methods
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+setAs(
+  from = 'Centroids',
+  to = 'Segmentation',
+  def = function(from) {
+    if (is.infinite(x = from)) {
+      stop("Cannot convert shapeless Centroids", call. = FALSE)
+    }
+    return(CreateSegmentation(coords = GetTissueCoordinates(
+      object = from,
+      full = TRUE
+    )))
+  }
+)
+
+setAs(
+  from = 'Segmentation',
+  to = 'Centroids',
+  def = function(from) {
+    return(CreateCentroids(coords = GetTissueCoordinates(
+      object = from,
+      full = FALSE
+    )))
+  }
+)

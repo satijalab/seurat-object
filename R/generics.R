@@ -110,6 +110,21 @@ as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
 }
 
+#' Convert Segmentation Layers
+#'
+#' @inheritParams CreateCentroids
+#' @param x An object
+#' @param ... Arguments passed to other methods
+#'
+#' @return \code{as.Centroids}: A
+#' \code{\link[SeuratObject:Centroids-class]{Centroids}} object
+#'
+#' @export
+#'
+as.Centroids <- function(x, nsides = NULL, radius = NULL, theta = NULL, ...) {
+  UseMethod(generic = "as.Centroids", object = x)
+}
+
 #' Coerce to a \code{Neighbor} Object
 #'
 #' Convert objects to \code{\link{Neighbor}} objects
@@ -126,6 +141,16 @@ as.Graph <- function(x, ...) {
 #'
 as.Neighbor <- function(x, ...) {
   UseMethod(generic = 'as.Neighbor', object = x)
+}
+
+#' @return \code{as.Segmentation}: A
+#' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
+#'
+#' @rdname as.Centroids
+#' @export
+#'
+as.Segmentation <- function(x, ...) {
+  UseMethod(generic = 'as.Segmentation', object = x)
 }
 
 #' Coerce to a \code{Seurat} Object
@@ -168,6 +193,20 @@ as.sparse <- function(x, ...) {
 #'
 CastAssay <- function(object, to, ...) {
   UseMethod(generic = 'CastAssay', object = object)
+#' Get, Set, and Query Segmentation Boundaries
+#'
+#' @param object An object
+#' @param ... Arguments passed to other methods
+#'
+#' @name Boundaries
+#' @return \code{Boundaries}: The names of all segmentation boundaries present
+#' within \code{object}
+#'
+#' @rdname Boundaries
+#' @export
+#'
+Boundaries <- function(object, ...) {
+  UseMethod(generic = 'Boundaries', object = object)
 }
 
 #' Cell and Feature Names
@@ -260,6 +299,53 @@ CreateAssay5Object <- function(
   UseMethod(generic = 'CreateAssay5Object', object = counts)
 }
 
+#' Create a \code{\link[SeuratObject:Centroids-class]{Centroids}} Objects
+#'
+#' @param coords The coordinates of cell/spot centroids
+#' @param nsides The number of sides to represent cells/spots; pass
+#' \code{\link[base]{Inf}} to plot as circles
+#' @param radius Radius of shapes when plotting
+#' @param theta Angle to adjust shapes when plotting
+#'
+#' @return A \code{\link[SeuratObject:Centroids-class]{Centroids}} object
+#'
+#' @export
+#'
+CreateCentroids <- function(coords, nsides, radius, theta) {
+  UseMethod(generic = 'CreateCentroids', object = coords)
+}
+
+#' Create a \code{\link{Molecules}} Object
+#'
+#' @param coords Spatial coordinates for molecules; should be a data frame
+#' with three columns:
+#' \itemize{
+#'  \item \dQuote{\code{x}}: x-coordinates for each molecule
+#'  \item \dQuote{\code{y}}: y-coordinates for each molecule
+#'  \item \dQuote{\code{gene}}: gene name for each molecule
+#' }
+#' @param ... Arguments passed to other methods
+#'
+#' @return A \code{\link{Molecules}} object
+#'
+#' @export
+#'
+CreateMolecules <- function(coords, ...) {
+  UseMethod(generic = 'CreateMolecules', object = coords)
+}
+
+#' Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects
+#'
+#' @param coords The coordinates of cell segmentations
+#'
+#' @return A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
+#'
+#' @export
+#'
+CreateSegmentation <- function(coords) {
+  UseMethod(generic = 'CreateSegmentation', object = coords)
+}
+
 #' Create a \code{Seurat} object
 #'
 #' Create a \code{Seurat} object from raw data
@@ -332,6 +418,42 @@ CreateSeurat5Object <- function(
 ) {
   UseMethod(generic = 'CreateSeurat5Object', object = counts)
 }
+#' Create Spatial Coordinates
+#'
+#' @param coords Spatial coordinates
+#' @param ... Arguments passed to other methods
+#'
+#' @return A \code{\link{FOV}} object
+#'
+#' @export
+#'
+#' @seealso \code{\link{FOV-class}}
+#'
+CreateFOV <- function(coords, ...) {
+  UseMethod(generic = 'CreateFOV', object = coords)
+}
+
+#' Crop Coordinates
+#'
+#' @param object An object
+#' @param x,y Range to crop x/y limits to; if \code{NULL}, uses full range of
+#' \code{x}/\code{y}
+#' @param coords Coordinate system to execute crop; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{plot}}: Coordinates as shown when plotting
+#'  \item \dQuote{\code{tissue}}: Coordinates from
+#'   \code{\link{GetTissueCoordinates}}
+#' }
+#' @param ... ...
+#'
+#' @return \code{object} cropped to the region specified by \code{x}
+#' and \code{y}
+#'
+#' @export
+#'
+Crop <- function(object, x = NULL, y = NULL, coords = c('plot', 'tissue'), ...) {
+  UseMethod(generic = 'Crop', object = object)
+}
 
 #' Default Assay
 #'
@@ -387,6 +509,59 @@ DefaultLayer <- function(object, ...) {
 #'
 "DefaultLayer<-" <- function(object, ..., value) {
   UseMethod(generic = 'DefaultLayer<-', object = object)
+}
+
+#' @return \code{DefaultBoundary}: The name of the default
+#' segmentation boundary
+#'
+#' @rdname Boundaries
+#'
+#' @export
+#'
+DefaultBoundary <- function(object) {
+  UseMethod(generic = 'DefaultBoundary', object = object)
+}
+
+#' @param value The name of a segmentation boundary to set as default
+#'
+#' @return \code{DefaultBoundary<-}: \code{object} with the default
+#' segmentation boundary set to \code{value}
+#'
+#' @rdname Boundaries
+#'
+#' @export
+#'
+"DefaultBoundary<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultBoundary<-', object = object)
+}
+
+#' Get and Set the Default FOV
+#'
+#' @param object A \code{\link{Seurat}} Object
+#' @param ... Arguments passed to other methods
+#'
+#' @return \code{DefaultFOV}: The name of the default \code{\link{FOV}}
+#'
+#' @name DefaultFOV
+#' @rdname DefaultFOV
+#'
+#' @export
+#'
+DefaultFOV <- function(object, ...) {
+  UseMethod(generic = 'DefaultFOV', object = object)
+}
+
+#' @param value The name of the \code{\link{FOV}} to set as the default
+#'
+#' @return \code{DefaultFOV<-}: \code{object} with the default FOV set
+#' to \code{value}
+#'
+#' @rdname DefaultFOV
+#'
+#' @export
+#'
+"DefaultFOV<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultFOV<-', object = object)
 }
 
 #' Get the Neighbor nearest neighbors distance matrix
@@ -792,6 +967,14 @@ LayerData <- function(object, layer, ...) {
 Layers <- function(object, ...) {
   UseMethod(generic = 'Layers', object = object)
 }
+#' @return \code{Keys}: a named vector of keys of sub-objects
+#'
+#' @rdname Key
+#' @export
+#'
+Keys <- function(object, ...) {
+  UseMethod(generic = 'Keys', object = object)
+}
 
 #' Get and set feature loadings
 #'
@@ -864,6 +1047,41 @@ Misc <- function(object, ...) {
 "Misc<-" <- function(object, ..., value) {
   UseMethod(generic = 'Misc<-', object = object)
 }
+
+#' @return \code{Molecules}: The names of all molecule sets present within
+#' \code{object}
+#'
+#' @rdname Boundaries
+#' @export
+#'
+Molecules <- function(object, ...) {
+  UseMethod(generic = 'Molecules', object = object)
+}
+
+#' Overlay \code{Spatial} Objects Over One Another
+#'
+#' Create an overlay of some query spatial object (\code{x}) against some
+#' target object (\code{y}). Basically, find all components of a query that
+#' fall within the bounds of a target spatial region
+#'
+#' @param x Query \code{Spatial} object
+#' @param y Target \code{Spatial} object
+#' @param invert Invert the overlay and return only the components of \code{x}
+#' that fall \emph{outside} the bounds of \code{y}
+#' @param ... Ignored
+#'
+#' @return \code{x} with only the components that fall within the
+#' bounds of \code{y}
+#'
+#' @export
+#'
+setGeneric(
+  name = 'Overlay',
+  def = function(x, y, invert = FALSE, ...) {
+    standardGeneric(f = 'Overlay')
+  },
+  signature = c('x', 'y')
+)
 
 #' Get and set project information
 #'
@@ -1024,6 +1242,19 @@ SetIdent <- function(object, ...) {
   UseMethod(generic = 'SetIdent', object = object)
 }
 
+#' Simplify Geometry
+#'
+#' @inheritParams rgeos::gSimplify
+#' @param coords ...
+#'
+#' @return ...
+#'
+#' @export
+#'
+Simplify <- function(coords, tol, topologyPreserve = TRUE) {
+  UseMethod(generic = 'Simplify', object = coords)
+}
+
 #' @return \code{SpatiallyVariableFeatures}: a character vector of the spatially
 #' variable features
 #'
@@ -1075,6 +1306,17 @@ Stdev <- function(object, ...) {
 #'
 SVFInfo <- function(object, selection.method, status, ...) {
   UseMethod(generic = 'SVFInfo', object = object)
+}
+
+#' Get the offset angle
+#'
+#' @param object An object
+#'
+#' @rdname Theta
+#' @export
+#'
+Theta <- function(object) {
+  UseMethod(generic = 'Theta', object = object)
 }
 
 #' Get and set additional tool data

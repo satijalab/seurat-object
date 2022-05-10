@@ -4,6 +4,8 @@
 \name{DefaultAssay}
 \alias{DefaultAssay}
 \alias{DefaultAssay<-}
+\alias{DefaultAssay.Graph}
+\alias{DefaultAssay<-.Graph}
 \alias{DefaultAssay.Assay}
 \alias{DefaultAssay<-.Assay}
 \alias{DefaultAssay.StdAssay}
@@ -11,8 +13,6 @@
 \alias{DefaultAssay.SeuratCommand}
 \alias{DefaultAssay.DimReduc}
 \alias{DefaultAssay<-.DimReduc}
-\alias{DefaultAssay.Graph}
-\alias{DefaultAssay<-.Graph}
 \alias{DefaultAssay.Seurat}
 \alias{DefaultAssay<-.Seurat}
 \title{Default Assay}
@@ -20,6 +20,10 @@
 DefaultAssay(object, ...)
 
 DefaultAssay(object, ...) <- value
+
+\method{DefaultAssay}{Graph}(object, ...)
+
+\method{DefaultAssay}{Graph}(object, ...) <- value
 
 \method{DefaultAssay}{Assay}(object, ...)
 
@@ -34,10 +38,6 @@ DefaultAssay(object, ...) <- value
 \method{DefaultAssay}{DimReduc}(object, ...)
 
 \method{DefaultAssay}{DimReduc}(object, ...) <- value
-
-\method{DefaultAssay}{Graph}(object, ...)
-
-\method{DefaultAssay}{Graph}(object, ...) <- value
 
 \method{DefaultAssay}{Seurat}(object, ...)
 

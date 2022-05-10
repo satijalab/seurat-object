@@ -214,6 +214,50 @@ DefaultAssay.DimReduc <- function(object, ...) {
   return(object)
 }
 
+#' @rdname FetchData
+#' @export
+#' @method FetchData DimReduc
+#'
+FetchData.DimReduc <- function(
+  object,
+  vars,
+  cells = NULL,
+  slot = c('embeddings', 'loadings', 'projected'),
+  ...
+) {
+  slot <- slot[1L]
+  slot <- match.arg(arg = slot)
+  cells <- cells %||% Cells(x = object)
+  if (is.numeric(x = cells)) {
+    cells <- Cells(x = object)[cells]
+  }
+  pattern <- paste0('^(', Key(object = object), ')?[[:digit:]]+$')
+  vars <- grep(pattern = pattern, x = vars, value = TRUE)
+  if (!length(x = 'vars')) {
+    stop("invalid vars")
+  }
+  vars <- gsub(pattern = Key(object = object), replacement = '', x = vars)
+  vars <- as.integer(x = vars)
+  vars <- paste0(Key(object = object), vars)
+  data <- switch(
+    EXPR = slot,
+    'embeddings' = Embeddings(object = object),
+    Loadings(object = object, projected = slot == 'projected')
+  )
+  missing <- setdiff(x = vars, y = colnames(x = data))
+  if (length(x = missing) == length(x = vars)) {
+    stop("Cannot find any of the requested dimensions")
+  } else if (length(x = missing)) {
+    warning(
+      "Cannot find the following dimensions: ", paste0(missing, collapse = ', '),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    vars <- setdiff(x = vars, y = missing)
+  }
+  return(as.data.frame(x = data)[cells, vars, drop = FALSE])
+}
+
 #' @rdname Embeddings
 #' @export
 #' @method Embeddings DimReduc

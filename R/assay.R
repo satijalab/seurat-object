@@ -1,13 +1,17 @@
 #' @include zzz.R
 #' @include generics.R
 #' @include default.R
+#' @include graph.R
 #' @importFrom methods new setClass setValidity slot slot<-
+#' @importFrom methods new slot slot<-
 #'
 NULL
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+setClassUnion(name = 'AnyMatrix', members = c("matrix", "dgCMatrix"))
 
 #' The Assay Class
 #'

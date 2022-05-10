@@ -205,8 +205,10 @@ labels.LogMap <- function(
 
 #' @rdname LogMap-class
 #'
+#' @param x,object A \code{LogMap} object
 #' @param i A character vector of length 1, or \code{NULL}
 #' @param j Not used
+#' @param ... Ignored
 #'
 #' @return \code{[[}: if \code{i} is a character vector, the rownames that are
 #' mapped to \code{i}; otherwise the rownames of \code{x}

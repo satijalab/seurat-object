@@ -7,10 +7,20 @@
 \usage{
 FetchData(object, ...)
 
+\method{FetchData}{DimReduc}(
+  object,
+  vars,
+  cells = NULL,
+  slot = c("embeddings", "loadings", "projected"),
+  ...
+)
+
 \method{FetchData}{Seurat}(object, vars, cells = NULL, slot = "data", ...)
 }
 \arguments{
-\item{object}{Seurat object}
+\item{object}{An object}
+
+\item{...}{Arguments passed to other methods}
 
 \item{...}{Arguments passed to other methods}
 
