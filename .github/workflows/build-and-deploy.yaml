@@ -17,6 +17,9 @@ jobs:
         uses: r-lib/actions/setup-r@master
       - name: Setup Pandoc
         uses: r-lib/actions/setup-pandoc@master
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -y && sudo apt-get install -y libgeos-dev
       - name: Configure RPSM
         run: |
           echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' | sudo tee -a /etc/R/Rprofile.site
