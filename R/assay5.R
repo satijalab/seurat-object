@@ -45,6 +45,7 @@ setClass(
     layers = 'list',
     cells = 'LogMap',
     features = 'LogMap',
+    default = 'integer',
     # var.features = 'character',
     assay.orig = 'character',
     meta.data = 'data.frame',
@@ -351,7 +352,7 @@ CastAssay.StdAssay <- function(object, to, layers = NULL, verbose = TRUE, ...) {
 #'
 Cells.StdAssay <- function(x, layer = NULL, ...) {
   layer <- layer[1L] %||% DefaultLayer(object = x)
-  if (is.na(x = layer)) {
+  if (is_na(x = layer)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
   layer <- match.arg(arg = layer, choices = Layers(object = x))
@@ -520,7 +521,11 @@ DefaultAssay.StdAssay <- function(object, ...) {
 #' @method DefaultLayer StdAssay
 #'
 DefaultLayer.StdAssay <- function(object, ...) {
-  return(Layers(object = object)[1])
+  idx <- slot(object = object, name = 'default')
+  if (!length(x = idx) || idx == 0L) {
+    idx <- 1L
+  }
+  return(Layers(object = object)[seq_len(length.out = idx)])
 }
 
 #' @rdname DefaultLayer
@@ -528,14 +533,16 @@ DefaultLayer.StdAssay <- function(object, ...) {
 #' @method DefaultLayer<- StdAssay
 #'
 "DefaultLayer<-.StdAssay" <- function(object, ..., value) {
-  value <- value[1]
+  # value <- value[1]
   layers <- Layers(object = object)
-  value <- match.arg(arg = value, choices = layers)
+  # value <- match.arg(arg = value, choices = layers, several.ok = TRUE)
+  value <- Layers(object = object, search = value)
   idx <- which(x = layers == value)
   slot(object = object, name = 'layers') <- c(
     slot(object = object, name = 'layers')[idx],
     slot(object = object, name = 'layers')[-idx]
   )
+  slot(object = object, name = 'default') <- length(x = value)
   return(object)
 }
 
@@ -547,7 +554,7 @@ DefaultLayer.StdAssay <- function(object, ...) {
 #'
 Features.StdAssay <- function(x, layer = NULL, ...) {
   layer <- layer[1L] %||% DefaultLayer(object = x)
-  if (is.na(x = layer)) {
+  if (is_na(x = layer)) {
     return(rownames(x = slot(object = x, name = 'features')))
   }
   layer <- match.arg(arg = layer, choices = Layers(object = x))
@@ -566,20 +573,10 @@ FetchData.StdAssay <- function(
   ...
 ) {
   # Identify layer(s) to use
-  # layer <- layer %||% Layers(object = object)
-  # if (length(x = layer) == 1L && !layer %in% Layers(object = object)) {
-  #   layer <- grep(
-  #     pattern = paste0('^', layer, '$'),
-  #     x = Layers(object = object),
-  #     value = TRUE
-  #   )
-  # }
-  # layer <- match.arg(
-  #   arg = layer,
-  #   choices = Layers(object = object),
-  #   several.ok = TRUE
-  # )
-  layer <- Layers(object = object, search = layer)
+  layer <- rev(x = Layers(
+    object = object,
+    search = layer %||% DefaultLayer(object = object)
+  ))
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
@@ -593,56 +590,34 @@ FetchData.StdAssay <- function(
     x = vars
   )
   # Pull expression information
-  features <- intersect(
-    x = grep(pattern = '^md_', x = vars, invert = TRUE, value = TRUE),
-    y = Features(x = object, layer = NA)
+  features <- sapply(
+    X = layer,
+    FUN = Features,
+    x = object,
+    simplify = FALSE,
+    USE.NAMES = TRUE
   )
-  features <- labels(
-    object = slot(object = object, name = 'features'),
-    values = features,
-    select = 'all',
-    simplify = FALSE
-  )
-  features <- Filter(
-    f = function(x) {
-      return(any(x %in% layer))
-    },
-    x = features
-  )
-  features <- sapply(X = features, FUN = '[[', 1L)
-  features <- if (length(x = features)) {
-    split(x = names(x = features), f = features)
-  } else {
-    NULL
-  }
-  data.fetched <- as.data.frame(x = if (length(x = features)) {
-    matrix(
-      data = NA_real_,
-      nrow = length(x = cells),
-      ncol = length(x = unlist(x = features)),
-      dimnames = list(cells, unlist(x = features))
-    )
-  } else {
-    matrix(
-      data = NA_real_,
-      nrow = 0L,
-      ncol = nrow(x = object),
-      dimnames = list(NULL, Features(x = object, layer = NA))
-    )
-  })
-  for (lyr in names(x = features)) {
+  vars <- intersect(x = vars, y = Reduce(f = union, x = features))
+  data.fetched <- as.data.frame(x = matrix(
+    data = NA_real_,
+    nrow = length(x = cells),
+    ncol = length(x = vars),
+    dimnames = list(cells, vars)
+  ))
+  for (lyr in layer) {
     lcells <- intersect(x = cells, y = Cells(x = object, layer = lyr))
-    if (!length(x = lcells)) {
+    lvars <- intersect(x = vars, y = Features(x = object, layer = lyr))
+    if (!length(x = lcells) || !length(x = lvars)) {
       next
     }
-    ldat <- LayerData(
+    data.fetched[lcells, lvars] <- t(x = LayerData(
       object = object,
       layer = lyr,
       cells = lcells,
-      features = features[[lyr]]
-    )
-    data.fetched[lcells, features[[lyr]]] <- t(x = ldat)
+      features = lvars
+    ))
   }
+  # Clean out missing cells from the expression matrix
   if (isTRUE(x = clean)) {
     no.data <- which(x = apply(
       X = data.fetched,
@@ -652,51 +627,16 @@ FetchData.StdAssay <- function(
       }
     ))
     if (length(x = no.data)) {
+      warning(
+        "Removing ",
+        length(x = no.data),
+        " cells missing data for features requested",
+        call. = FALSE,
+        immediate. = TRUE
+      )
       data.fetched <- data.fetched[-no.data, , drop = FALSE]
     }
   }
-  # Pull feature-level metadata
-  meta.fetch <- c(
-    grep(pattern = '^md_', x = vars, value = TRUE),
-    vars[vars %in% colnames(x = object[[]])]
-  )
-  meta.fetch <- setdiff(x = meta.fetch, y = colnames(x = data.fetched))
-  meta.keyed <- which(x = grepl(pattern = '^md', x = meta.fetch))
-  meta.fetch <- gsub(pattern = '^md_', replacement = '', x = meta.fetch)
-  meta.data <- lapply(
-    X = meta.fetch,
-    FUN = function(x, f) {
-      df <- as.data.frame(x = matrix(
-        data = NA,
-        nrow = 1L,
-        ncol = length(x = f),
-        dimnames = list(x, f)
-      ))
-      df[x, ] <- object[[x]][f, , drop = TRUE]
-      return(df)
-    },
-    f = colnames(x = data.fetched)
-  )
-  meta.data <- do.call(what = 'rbind', args = meta.data)
-  if (length(x = meta.keyed)) {
-    rownames(x = meta.data)[meta.keyed] <- paste0(
-      'md_',
-      rownames(x = meta.data)[meta.keyed]
-    )
-  }
-  keyed.meta <- paste0(Key(object = object), rownames(x = meta.data))
-  keyed.meta.idx <- which(x = keyed.meta %in% orig)
-  if (length(x = keyed.meta.idx)) {
-    rownames(x = meta.data)[keyed.meta.idx] <- keyed.meta[keyed.meta.idx]
-  }
-  if (nrow(x = data.fetched) && (nrow(x = meta.data) %||% 0)) {
-    warning(
-      "Returning both expression and meta data; data types might be different than expected",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-  }
-  data.fetched <- rbind(data.fetched, meta.data)
   # Add keys to keyed vars
   keyed.features <- paste0(Key(object = object), colnames(x = data.fetched))
   keyed.idx <- which(x = keyed.features %in% orig)
@@ -717,6 +657,68 @@ FetchData.StdAssay <- function(
     )
   }
   return(data.fetched)
+  # # Pull feature-level metadata
+  # meta.fetch <- c(
+  #   grep(pattern = '^md_', x = vars, value = TRUE),
+  #   vars[vars %in% colnames(x = object[[]])]
+  # )
+  # meta.fetch <- setdiff(x = meta.fetch, y = colnames(x = data.fetched))
+  # meta.keyed <- which(x = grepl(pattern = '^md', x = meta.fetch))
+  # meta.fetch <- gsub(pattern = '^md_', replacement = '', x = meta.fetch)
+  # meta.data <- lapply(
+  #   X = meta.fetch,
+  #   FUN = function(x, f) {
+  #     df <- as.data.frame(x = matrix(
+  #       data = NA,
+  #       nrow = 1L,
+  #       ncol = length(x = f),
+  #       dimnames = list(x, f)
+  #     ))
+  #     df[x, ] <- object[[x]][f, , drop = TRUE]
+  #     return(df)
+  #   },
+  #   f = colnames(x = data.fetched)
+  # )
+  # meta.data <- do.call(what = 'rbind', args = meta.data)
+  # if (length(x = meta.keyed)) {
+  #   rownames(x = meta.data)[meta.keyed] <- paste0(
+  #     'md_',
+  #     rownames(x = meta.data)[meta.keyed]
+  #   )
+  # }
+  # keyed.meta <- paste0(Key(object = object), rownames(x = meta.data))
+  # keyed.meta.idx <- which(x = keyed.meta %in% orig)
+  # if (length(x = keyed.meta.idx)) {
+  #   rownames(x = meta.data)[keyed.meta.idx] <- keyed.meta[keyed.meta.idx]
+  # }
+  # if (nrow(x = data.fetched) && (nrow(x = meta.data) %||% 0)) {
+  #   warning(
+  #     "Returning both expression and meta data; data types might be different than expected",
+  #     call. = FALSE,
+  #     immediate. = TRUE
+  #   )
+  # }
+  # data.fetched <- rbind(data.fetched, meta.data)
+  # # Add keys to keyed vars
+  # keyed.features <- paste0(Key(object = object), colnames(x = data.fetched))
+  # keyed.idx <- which(x = keyed.features %in% orig)
+  # if (length(x = keyed.idx)) {
+  #   colnames(x = data.fetched)[keyed.idx] <- keyed.features[keyed.idx]
+  # }
+  # # Check final list of features
+  # fetched <- setdiff(x = unlist(x = dimnames(x = data.fetched)), y = cells)
+  # missing <- setdiff(x = orig, y = fetched)
+  # if (length(x = missing) == length(x = orig)) {
+  #   stop("None of the requested variables found", call. = FALSE)
+  # } else if (length(x = missing)) {
+  #   warning(
+  #     "The following variables could not be found: ",
+  #     paste(missing, collapse = ', '),
+  #     call. = FALSE,
+  #     immediate. = TRUE
+  #   )
+  # }
+  # return(data.fetched)
 }
 
 #' @rdname AssayData
@@ -927,16 +929,24 @@ LayerData.StdAssay <- function(
   if (is.null(x = value)) {
     if (length(x = Layers(object = object)) == 1L) {
       stop("Cannot remove only layer")
-    } else if (layer == DefaultLayer(object = object)) {
-      DefaultLayer(object = object) <- Layers(object = object)[2]
-      warning(
-        "Removing default layer, setting default to ",
-        DefaultLayer(object = object),
-        call. = FALSE,
-        immediate. = TRUE
-      )
+    } else if (layer %in% DefaultLayer(object = object)) {
+      msg <- 'Removing default layer'
+      if (length(x = DefaultLayer(object = object)) == 1L) {
+        DefaultLayer(object = object) <- Layers(object = object)[2]
+        msg <- paste0(
+          msg,
+          ', setting default to ', DefaultLayer(object = object)
+        )
+      } else {
+        didx <- slot(object = object, name = 'default') - 1L
+        slot(object = object, name = 'default') <- didx
+      }
+      warning(msg, call. = FALSE, immediate. = TRUE)
     }
     slot(object = object, name = 'layers')[[layer]] <- NULL
+    if (slot(object = object, name = 'default') > length(x = Layers(object = object))) {
+      slot(object = object, name = 'default') <- length(x = Layers(object = object))
+    }
     maps <- c(
       'cells',
       'features'
@@ -1995,6 +2005,14 @@ setValidity(
             )
           }
         }
+      }
+    }
+    if (length(x = didx)) {
+      if (didx < 0 || didx > length(x = Layers(object = object))) {
+        valid <- c(
+          valid,
+          "'default' must be between 0 and the number of layers present"
+        )
       }
     }
     # TODO: Check variable features
