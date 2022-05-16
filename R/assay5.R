@@ -205,6 +205,7 @@ setClass(
   object <- new(
     Class = type,
     layers = list(),
+    default = 0L,
     features = LogMap(y = features.all),
     cells = LogMap(y = Reduce(f = union, x = cells)),
     meta.data = EmptyDF(n = length(x = features.all)),
@@ -219,6 +220,7 @@ setClass(
       transpose = transpose
     ) <- counts[[layer]]
   }
+  DefaultLayer(object = object) <- Layers(object = object)[1L]
   validObject(object = object)
   return(object)
 }
@@ -2007,6 +2009,7 @@ setValidity(
         }
       }
     }
+    didx <- slot(object = object, name = 'default')
     if (length(x = didx)) {
       if (didx < 0 || didx > length(x = Layers(object = object))) {
         valid <- c(
