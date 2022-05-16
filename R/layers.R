@@ -194,9 +194,9 @@ setMethod(
       x <- tf(x)
       dnames <- rev(x = dnames)
     }
+    x <- suppressMessages(expr = unname(x))
     attr(x = x, which = 'features') <- dnames[[fmargin]]
     attr(x = x, which = 'cells') <- dnames[[cmargin]]
-    x <- suppressMessages(expr = unname(x))
     return(x)
   }
 )
