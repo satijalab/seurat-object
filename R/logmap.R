@@ -92,6 +92,13 @@ LogMap <- function(y) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @method as.matrix LogMap
+#' @export
+#'
+as.matrix.LogMap <- function(x, ...) {
+  return(as(object = x, Class = 'matrix'))
+}
+
 #' @rdname LogMap-class
 #'
 #' @param x,object A \code{LogMap} object
@@ -152,7 +159,7 @@ labels.LogMap <- function(
   select <- select[1L]
   select <- match.arg(arg = select)
   values <- intersect(x = values, y = rownames(x = object))
-  obs <- sapply(
+  obs <- pbapply::pbsapply(
     X = values,
     FUN = function(x) {
       return(colnames(x = object)[which(x = object[x, , drop = TRUE])])
@@ -202,6 +209,80 @@ labels.LogMap <- function(
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+setMethod(
+  f = '[',
+  signature = c(x = 'LogMap', i = 'missing', j = 'missing'),
+  definition = function(x, i, j, ..., drop = FALSE) {
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[',
+  signature = c(x = 'LogMap', i = 'character', j = 'character'),
+  definition = function(x, i, j, ..., drop = FALSE) {
+    x <- as.matrix(x = x)[i, j, drop = drop]
+    if (!isTRUE(x = drop)) {
+      x <- as(object = x, Class = 'LogMap')
+    }
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[',
+  signature = c(x = 'LogMap', i = 'character', j = 'missing'),
+  definition = function(x, i, j, ..., drop = FALSE) {
+    x <- as.matrix(x = x)[i, , drop = drop]
+    if (!isTRUE(x = drop)) {
+      x <- as(object = x, Class = 'LogMap')
+    }
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[',
+  signature = c(x = 'LogMap', i = 'missing', j = 'character'),
+  definition = function(x, i, j, ..., drop = FALSE) {
+    x <- as.matrix(x = x)[, j, drop = drop]
+    if (!isTRUE(x = drop)) {
+      x <- as(object = x, Class = 'LogMap')
+    }
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[',
+  signature = c(x = 'LogMap', i = 'numeric', j = 'missing'),
+  definition = function(x, i, j, ..., drop = FALSE) {
+    i <- rownames(x = x)[i]
+    return(callNextMethod(x, i, ..., drop = drop))
+  }
+)
+
+setMethod(
+  f = '[',
+  signature = c(x = 'LogMap', i = 'missing', j = 'numeric'),
+  definition = function(x, i, j, ..., drop = FALSE) {
+    j <- colnames(x = x)[j]
+    return(callNextMethod(x, , j, ..., drop = drop))
+  }
+)
+
+
+setMethod(
+  f = '[',
+  signature = c(x = 'LogMap', i = 'numeric', j = 'numeric'),
+  definition = function(x, i, j, ..., drop = FALSE) {
+    i <- rownames(x = x)[i]
+    j <- colnames(x = x)[j]
+    return(callNextMethod(x, i, j, ..., drop = drop))
+  }
+)
+
 
 #' @rdname LogMap-class
 #'
