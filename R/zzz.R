@@ -1,7 +1,8 @@
-#' @importFrom lifecycle deprecated deprecate_soft is_present
+#' @importFrom rlang is_na
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
 #' @importFrom utils head tail
+#' @importFrom lifecycle deprecated deprecate_soft is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
 #' setOldClass setValidity slot slot<- validObject
 #' @importClassesFrom Matrix dgCMatrix
