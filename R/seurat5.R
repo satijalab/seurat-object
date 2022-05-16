@@ -15,6 +15,7 @@ setClass(
   slots = c(
     assays = 'list',
     reductions = 'list',
+    idents = 'factor',
     cells = 'LogMap',
     meta.data = 'data.frame',
     project = 'character',
@@ -126,13 +127,21 @@ CreateSeurat5Object.StdAssay <- function(
   }
   assay.list <- list(counts)
   names(x = assay.list) <- assay
-  object <- new(
+  idents <- factor(x = rep_len(x = project, length.out = ncol(x = counts)))
+  names(x = idents) <- colnames(x = counts)
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
+  object <- suppressWarnings(expr = new(
     Class = 'Seurat5',
     assays = assay.list,
     reductions = list(),
+    idents = idents,
     cells = cells,
+    meta.data = EmptyDF(n = nrow(x = cells)),
     project = project,
-  )
+    version = utils::packageVersion(pkg = "SeuratObject")
+  ))
+  options(op)
   # TODO: Calculate nCount and nFeature
   n.calc <- CalcN5(object = counts)
   if (!is.null(x = n.calc)) {
@@ -288,6 +297,13 @@ HVFInfo.Seurat5 <- function(
     strip = strip,
     ...
   ))
+}
+
+#' @method Idents Seurat5
+#' @export
+#'
+Idents.Seurat5 <- function(object, ...) {
+  return(slot(object = object, name = 'idents'))
 }
 
 #' @method Key Seurat5
@@ -1109,36 +1125,6 @@ setMethod(
 )
 
 setMethod(
-  f = 'initialize',
-  signature = 'Seurat5',
-  definition = function(
-    .Object,
-    assays,
-    reductions,
-    cells,
-    meta.data = EmptyDF(n = nrow(x = cells)),
-    project = 'SeuratProject',
-    version = utils::packageVersion(pkg = 'SeuratObject'),
-    ...,
-    validate = TRUE
-  ) {
-    .Object <- methods::callNextMethod(.Object, ...)
-    slot(object = .Object, name = 'assays') <- assays
-    slot(object = .Object, name = 'reductions') <- reductions
-    slot(object = .Object, name = 'cells') <- cells
-    slot(object = .Object, name = 'meta.data') <- meta.data
-    slot(object = .Object, name = 'project') <- project
-    slot(object = .Object, name = 'version') <- version
-    if (isFALSE(x = validate)) {
-      warning("no validate", call. = FALSE, immediate. = TRUE)
-    } else {
-      methods::validObject(object = .Object)
-    }
-    return(.Object)
-  }
-)
-
-setMethod(
   f = 'show',
   signature = c(object = 'Seurat5'),
   definition = function(object) {
@@ -1240,6 +1226,15 @@ setValidity(
     }
     # TODO: Check reductions
     # TODO: Check metadata
+    # TODO: Check idents
+    idents <- Idents(object = object)
+    if (length(x = idents) != ncol(x = object)) {
+      valid <- c(valid, "'idents' must have the same length as number of cells")
+    } else if (is.null(x = names(x = idents))) {
+      valid <- c(valid, "'idents' must be named")
+    } else if (!all(names(x = idents) == colnames(x = object))) {
+      valid <- c(valid, "'idents' must be named with the cells")
+    }
     # TODO: Check project
     proj <- Project(object = object)
     if (length(x = proj) != 1L) {
