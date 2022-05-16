@@ -443,6 +443,8 @@ dimnames.Seurat5 <- function(x) {
 #' @export
 #'
 "dimnames<-.Seurat5" <- function(x, value) {
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
   msg <- "Invalid 'dimnames given for a Seurat object"
   if (!is_bare_list(x = value, n = 2L)) {
     stop(msg, call. = FALSE)
@@ -468,10 +470,11 @@ dimnames.Seurat5 <- function(x) {
       orig = anames[[2L]]
     )
     anames[[2L]] <- value[[2L]][acells]
-    dimnames(x = x[[assay]]) <- anames
+    suppressWarnings(expr = dimnames(x = x[[assay]]) <- anames)
   }
   # TODO: Rename features/cells at the DimReduc level
   # Validate and return the Seurat object
+  options(op)
   validObject(object = x)
   return(x)
 }
@@ -539,7 +542,6 @@ merge.Seurat5 <- function(
       y = DefaultAssay(object = x)
     )
   )
-  # browser()
   for (assay in assays.all) {
     assay.objs <- which(x = vapply(
       X = lapply(X = objects, FUN = names),
@@ -561,6 +563,10 @@ merge.Seurat5 <- function(
       collapse = collapse,
       ...
     )
+  }
+  # Merge meta data
+  for (i in seq_along(along.with = objects)) {
+    obj.combined[[]] <- objects[[i]][[]]
   }
   # Validate and return the merged object
   validObject(object = obj.combined)
@@ -1071,7 +1077,11 @@ setMethod(
     }
     df <- EmptyDF(n = ncol(x = x))
     row.names(x = df) <- colnames(x = x)
-    df[[i]] <- NA
+    df[[i]] <- if (i %in% names(x = x[[]])) {
+      x[[i]]
+    } else {
+      NA
+    }
     df[names(x = value), i] <- value
     slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     validObject(object = x)
@@ -1191,6 +1201,10 @@ setMethod(
 setValidity(
   Class = 'Seurat5',
   method = function(object) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warning("Not validating Seurat objects", call. = FALSE, immediate. = TRUE)
+      return(TRUE)
+    }
     valid <- NULL
     # TODO: Check assays
     if (!IsNamedList(x = slot(object = object, name = 'assays'))) {

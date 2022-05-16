@@ -1464,7 +1464,6 @@ merge.StdAssay <- function(
     misc = list(),
     key = Key(object = x) %||% character(length = 0L)
   )
-  # browser()
   # Add layers
   # TODO: Support collapsing layers
   if (isTRUE(x = collapse)) {
@@ -1481,7 +1480,10 @@ merge.StdAssay <- function(
       }
     }
   }
-  # TODO: Add feature-level metadata
+  # Add feature-level metadata
+  for (i in seq_along(along.with = assays)) {
+    combined[[]] <- assays[[i]][[]]
+  }
   # TODO: Add misc
   validObject(object = x)
   return(combined)
@@ -1776,7 +1778,11 @@ setMethod(
       }
       df <- EmptyDF(n = nrow(x = x))
       rownames(x = df) <- Features(x = x, layer = NA)
-      df[[i]] <- NA
+      df[[i]] <- if (i %in% names(x = x[[]])) {
+        x[[i]]
+      } else {
+        NA
+      }
       df[names(x = value), i] <- value
       slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     }
@@ -1813,7 +1819,13 @@ setMethod(
     value = 'data.frame'
   ),
   definition = function(x, ..., value) {
-    x[[colnames(x = value)]] <- value
+    # Allow removing all meta data
+    if (IsMatrixEmpty(x = value)) {
+      x[[names(x = x[[]])]] <- NULL
+      return(x)
+    }
+    # If no `i` provided, use the column names from value
+    x[[names(x = value)]] <- value
     return(x)
   }
 )
