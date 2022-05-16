@@ -539,7 +539,8 @@ DefaultLayer.StdAssay <- function(object, ...) {
   layers <- Layers(object = object)
   # value <- match.arg(arg = value, choices = layers, several.ok = TRUE)
   value <- Layers(object = object, search = value)
-  idx <- which(x = layers == value)
+  # idx <- which(x = layers == value)
+  idx <- MatchCells(new = layers, orig = value, ordered = TRUE)
   slot(object = object, name = 'layers') <- c(
     slot(object = object, name = 'layers')[idx],
     slot(object = object, name = 'layers')[-idx]
@@ -555,7 +556,7 @@ DefaultLayer.StdAssay <- function(object, ...) {
 #' @method Features StdAssay
 #'
 Features.StdAssay <- function(x, layer = NULL, ...) {
-  layer <- layer[1L] %||% DefaultLayer(object = x)
+  layer <- layer[1L] %||% DefaultLayer(object = x)[1L]
   if (is_na(x = layer)) {
     return(rownames(x = slot(object = x, name = 'features')))
   }
@@ -1482,7 +1483,31 @@ merge.StdAssay <- function(
   }
   # Add feature-level metadata
   for (i in seq_along(along.with = assays)) {
-    combined[[]] <- assays[[i]][[]]
+    # Rename HVF columns
+    mf <- assays[[i]][[]]
+    for (type in c('vf')) {
+      vf.idx <- grep(pattern = paste0('^', type, '_'), x = names(x = mf))
+      if (length(x = vf.idx)) {
+        names(x = mf)[vf.idx] <- vapply(
+          X = names(x = mf)[vf.idx],
+          FUN = function(vf) {
+            vf <- unlist(x = strsplit(x = vf, split = '_'))
+            vf <- paste(
+              paste(vf[1:2], collapse = '_'),
+              paste(
+                paste(vf[3:(length(x = vf) - 1L)], collapse = '_'),
+                labels[i],
+                sep = '.'
+              ),
+              vf[length(x = vf)],
+              sep = '_'
+            )
+          },
+          FUN.VALUE = character(length = 1L)
+        )
+      }
+    }
+    combined[[]] <- mf
   }
   # TODO: Add misc
   validObject(object = x)
