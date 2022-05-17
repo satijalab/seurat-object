@@ -860,7 +860,7 @@ LayerData.StdAssay <- function(
   ...
 ) {
   # Figure out the layer we're pulling
-  layer <- layer[1] %||% DefaultLayer(object = object)
+  layer <- layer[1L] %||% DefaultLayer(object = object)[1L]
   layer <- match.arg(arg = layer, choices = Layers(object = object))
   # Allow cell/feature subsets
   dnames <- list(
