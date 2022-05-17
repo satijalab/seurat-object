@@ -194,9 +194,9 @@ FetchData.Seurat5 <- function(
     layer <- layer %||% slot
   }
   # Find cells to use
-  cells <- cells %||% colnames(x = object)
+  cells <- cells %||% Cells(x = object, assay = NULL)
   if (is.numeric(x = cells)) {
-    cells <- colnames(x = object)[cells]
+    cells <- Cells(x = object, assay = NULL)[cells]
   }
   if (is.null(x = vars)) {
     df <- EmptyDF(n = length(x = cells))
