@@ -120,8 +120,8 @@ CreateSeurat5Object.StdAssay <- function(
   project = 'SeuratProject',
   ...
 ) {
-  cells <- LogMap(y = Cells(x = counts))
-  cells[[assay]] <- Cells(x = counts)
+  cells <- LogMap(y = colnames(x = counts))
+  cells[[assay]] <- colnames(x = counts)
   if (!isTRUE(x = nzchar(x = Key(object = counts)))) {
     Key(object = counts) <- Key(object = tolower(x = assay), quiet = TRUE)
   }
@@ -147,6 +147,7 @@ CreateSeurat5Object.StdAssay <- function(
   if (!is.null(x = n.calc)) {
     names(x = n.calc) <- paste(names(x = n.calc), assay, sep = '_')
   }
+  validObject(object = object)
   return(object)
 }
 
@@ -488,6 +489,8 @@ dimnames.Seurat5 <- function(x) {
     anames[[2L]] <- value[[2L]][acells]
     suppressWarnings(expr = dimnames(x = x[[assay]]) <- anames)
   }
+  # Rename idents
+  names(x = slot(object = x, name = 'idents')) <- value[[2L]]
   # TODO: Rename features/cells at the DimReduc level
   # Validate and return the Seurat object
   options(op)
@@ -541,15 +544,24 @@ merge.Seurat5 <- function(
     }
   }
   objects <- CheckDuplicateCellNames(object.list = objects)
+  cmat <- LogMap(y = unlist(x = lapply(X = objects, FUN = colnames)))
+  # Merge identities
+  idents.all <- unlist(x = lapply(X = objects, FUN = slot, name = 'idents'))
+  idents.all <- idents.all[rownames(x = cmat)]
   # Initialize the combined object
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
   obj.combined <- suppressWarnings(expr = new(
     Class = 'Seurat5',
     assays = list(),
     reductions = list(),
-    cells = LogMap(y = unlist(x = lapply(X = objects, FUN = colnames))),
+    idents = idents.all,
+    cells = cmat,
+    meta.data = EmptyDF(n = nrow(x = cmat)),
     project = project,
-    validate = FALSE
+    version = packageVersion(pkg = "SeuratObject")
   ))
+  options(op)
   # TODO: Merge assays
   assays.all <- c(
     DefaultAssay(object = x),
