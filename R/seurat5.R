@@ -27,14 +27,6 @@ setClass(
 # Generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-setGeneric(
-  name = '.AddObject',
-  def = function(object, name, value) {
-    standardGeneric(f = '.AddObject')
-  },
-  signature = c('object', 'value')
-)
-
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -656,62 +648,6 @@ tail.Seurat5 <- .tail
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-.AddObjectAssay <- function(object, name, value) {
-  # Overwrite existing assay
-  if (name %in% names(x = object)) {
-    if (!inherits(x = object[[name]], what = 'StdAssay')) {
-      stop("duplicate names")
-    }
-    if (!identical(x = dim(x = value), y = dim(x = object[[name]]))) {
-      stop("different cells/features from existing")
-    }
-    if (!all(Cells(x = value) %in% Cells(x = object, assay = name))) {
-      stop("different cells")
-    }
-  } else {
-    # Add new assay
-    if (!all(Cells(x = value) %in% Cells(x = object))) {
-      stop("new cells")
-    }
-    slot(object = object, name = 'cells')[[name]] <- Cells(x = value)
-  }
-  if (IsCharEmpty(x = Key(object = value))) {
-    Key(object = value) <- Key(object = tolower(x = name))
-  }
-  if (Key(object = value) %in% Key(object = object) && !name %in% names(x = object)) {
-    old <- Key(object = value)
-    Key(object = value) <- Key(object = tolower(x = name), quiet = TRUE)
-    i <- 1L
-    n <- 5L
-    while (Key(object = value) %in% Key(object = object)) {
-      Key(object = value) <- Key(object = RandomName(length = n), quiet = TRUE)
-      i <- i + 1L
-      if (!i %% 7L) {
-        n <- n + 2L
-        i <- 1L
-      }
-    }
-    warning(
-      "Key '",
-      old,
-      "' taken, using '",
-      Key(object = value),
-      "' instead",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-  }
-  cmatch <- MatchCells(
-    new = colnames(x = object),
-    orig = colnames(x = value),
-    ordered = TRUE
-  )
-  value <- subset(x = value, cells = cmatch)
-  slot(object = object, name = 'assays')[[name]] <- value
-  validObject(object = object)
-  return(object)
-}
-
 #' Check for Duplicate Names
 #'
 #' @inheritParams base::paste
@@ -835,28 +771,6 @@ tail.Seurat5 <- .tail
     }
   )
   return(unlist(x = objects))
-}
-
-.RemoveObject <- function(object, name, value) {
-  slot.use <- .FindObject(object = object, name = name) %||% 'meta.data'
-  switch(
-    EXPR = slot.use,
-    'meta.data' = {
-      .NotYetImplemented()
-    },
-    'assays' = {
-      if (isTRUE(x = name == DefaultAssay(object = object))) {
-        stop("Cannot delete default assay", call. = FALSE)
-      }
-      slot(object = object, name = slot.use)[[name]] <- value
-      cmat <- slot(object = object, name = 'cells')
-      cmat <- cmat[, -which(x = colnames(x = cmat) == name), drop = FALSE]
-      slot(object = object, name = 'cells') <- cmat
-    },
-    slot(object = object, name = slot.use)[[name]] <- value
-  )
-  validObject(object = object)
-  return(object)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1148,25 +1062,6 @@ setMethod(
     slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     validObject(object = x)
     return(x)
-  }
-)
-
-setMethod(
-  f = '.AddObject',
-  signature = c(object = 'Seurat5', value = 'StdAssay'),
-  definition = function(object, name, value) {
-    return(.AddObjectAssay(object = object, name = name, value = value))
-  }
-)
-
-setMethod(
-  f = '.AddObject',
-  signature = c(object = 'Seurat5', value = 'NULL'),
-  definition = function(object, name, value) {
-    for (i in name) {
-      object <- .RemoveObject(object = object, name = i, value = value)
-    }
-    return(object)
   }
 )
 
