@@ -260,19 +260,39 @@ FetchData.Seurat5 <- function(
   # Pull vars from the default assay
   default.assay <- DefaultAssay(object = object)
   default.vars <- intersect(x = vars, y = rownames(x = object))
-  data.fetched[default.vars] <- as.list(x = FetchData(
-    object = object[[default.assay]],
-    vars = default.vars,
-    cells = cells,
-    layer = layer,
-    ...
-  ))
+  if (length(x = default.vars)) {
+    data.fetched[default.vars] <- as.list(x = FetchData(
+      object = object[[default.assay]],
+      vars = default.vars,
+      cells = cells,
+      layer = layer,
+      ...
+    ))
+  }
   # Pull identities
   if ('ident' %in% vars && !'ident' %in% colnames(x = object[[]])) {
     data.fetched[['ident']] <- Idents(object = object)[cells]
   }
   # Try to find ambiguous vars
+  missing.vars <- setdiff(x = vars, y = names(x = data.fetched))
   # Warn about missing vars
+  m2 <- if (length(x = missing.vars) > 10) {
+    paste0(' (10 out of ', length(x = missing.vars), ' shown)')
+  } else {
+    ''
+  }
+  if (length(x = missing.vars) == length(x = vars)) {
+    stop("None of the requested variables were found", call. = FALSE)
+  } else if (length(x = missing.vars)) {
+    warning(
+      "The following requested variables were not found",
+      m2,
+      ": ",
+      paste(head(x = missing.vars, n = 10L), collapse = ', '),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
   data.fetched <- as.data.frame(x = data.fetched, row.names = cells)
   return(data.fetched)
 }
