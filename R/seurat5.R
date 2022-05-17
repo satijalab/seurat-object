@@ -312,7 +312,48 @@ Idents.Seurat5 <- function(object, ...) {
 #' @export
 #'
 "Idents<-.Seurat5" <- function(object, cells = NULL, drop = FALSE, ..., value) {
-  .NotYetImplemented()
+  cells <- cells %||% colnames(x = object)
+  if (is.numeric(x = cells)) {
+    cells <- colnames(x = object)[cells]
+  }
+  cells <- intersect(x = cells, y = colnames(x = object))
+  cells <- match(x = cells, table = colnames(x = object))
+  if (length(x = cells) == 0) {
+    warning("Cannot find cells provided", call. = FALSE, immediate. = TRUE)
+    return(object)
+  }
+  idents.new <- if (length(x = value) == 1 && value %in% colnames(x = object[[]])) {
+    unlist(x = object[[value]], use.names = FALSE)[cells]
+  } else {
+    if (is.list(x = value)) {
+      value <- unlist(x = value, use.names = FALSE)
+    }
+    rep_len(x = value, length.out = length(x = cells))
+  }
+  new.levels <- if (is.factor(x = idents.new)) {
+    levels(x = idents.new)
+  } else {
+    unique(x = idents.new)
+  }
+  old.levels <- levels(x = object)
+  levels <- c(new.levels, old.levels)
+  idents.new <- as.vector(x = idents.new)
+  idents <- as.vector(x = Idents(object = object))
+  idents[cells] <- idents.new
+  idents[is.na(x = idents)] <- 'NA'
+  levels <- intersect(x = levels, y = unique(x = idents))
+  names(x = idents) <- colnames(x = object)
+  missing.cells <- which(x = is.na(x = names(x = idents)))
+  if (length(x = missing.cells) > 0) {
+    idents <- idents[-missing.cells]
+  }
+  idents <- factor(x = idents, levels = levels)
+  slot(object = object, name = 'idents') <- idents
+  if (isTRUE(x = drop)) {
+    object <- droplevels(x = object)
+  }
+  validObject(object = object)
+  return(object)
 }
 
 #' @method Key Seurat5
@@ -366,7 +407,8 @@ VariableFeatures.Seurat5 <- function(
 "VariableFeatures<-.Seurat5" <- function(object, assay = NULL, ..., value) {
   assay <- assay[1L] %||% DefaultAssay(object = object)
   assay <- match.arg(arg = assay, choices = Assays(object = object))
-  .NotYetImplemented()
+  VariableFeatures(object = object[[assay]], ...) <- value
+  return(object)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -529,7 +571,7 @@ levels.Seurat5 <- levels.Seurat
 #' @method levels<- Seurat5
 #' @export
 #'
-"levels.Seurat5" <- `levels<-.Seurat`
+"levels<-.Seurat5" <- `levels<-.Seurat`
 
 #' @method merge Seurat5
 #' @export
