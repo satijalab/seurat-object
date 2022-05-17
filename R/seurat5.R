@@ -266,6 +266,15 @@ FetchData.Seurat5 <- function(
     )
   }
   # Pull vars from the default assay
+  default.assay <- DefaultAssay(object = object)
+  default.vars <- intersect(x = vars, y = rownames(x = object))
+  data.fetched[default.vars] <- as.list(x = FetchData(
+    object = object[[default.assay]],
+    vars = default.vars,
+    cells = cells,
+    layer = layer,
+    ...
+  ))
   # Pull identities
   if ('ident' %in% vars && !'ident' %in% colnames(x = object[[]])) {
     data.fetched[['ident']] <- Idents(object = object)[cells]
@@ -305,6 +314,13 @@ HVFInfo.Seurat5 <- function(
 #'
 Idents.Seurat5 <- function(object, ...) {
   return(slot(object = object, name = 'idents'))
+}
+
+#' @method Idents<- Seurat5
+#' @export
+#'
+"Idents<-.Seurat5" <- function(object, cells = NULL, drop = FALSE, ..., value) {
+  .NotYetImplemented()
 }
 
 #' @method Key Seurat5
@@ -498,12 +514,30 @@ dimnames.Seurat5 <- function(x) {
   return(x)
 }
 
+#' @method droplevels Seurat5
+#' @export
+#'
+droplevels.Seurat5 <- function(x, ...) {
+  Idents(object = x) <- droplevels(x = Idents(object = x), ...)
+  return(x)
+}
+
 #' @importFrom utils head
 #'
 #' @method head Seurat5
 #' @export
 #'
 head.Seurat5 <- .head
+
+#' @method levels Seurat5
+#' @export
+#'
+levels.Seurat5 <- levels.Seurat
+
+#' @method levels<- Seurat5
+#' @export
+#'
+"levels.Seurat5" <- `levels<-.Seurat`
 
 #' @method merge Seurat5
 #' @export
