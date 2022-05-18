@@ -3,6 +3,8 @@ name: Build and Deploy
 on:
   push:
     branches: master
+  pull_request:
+    branches: master
 
 jobs:
   build:
@@ -17,7 +19,10 @@ jobs:
         uses: r-lib/actions/setup-r@master
       - name: Setup Pandoc
         uses: r-lib/actions/setup-pandoc@master
-      - name: Configure RPSM
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -y && sudo apt-get install -y libgeos-dev
+      - name: Configure RSPM
         run: |
           echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' | sudo tee -a /etc/R/Rprofile.site
       - name: Install dependencies
@@ -28,6 +33,7 @@ jobs:
       - name: Install package
         run: R CMD INSTALL .
       - name: Deploy package
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
