@@ -1469,6 +1469,9 @@ merge.StdAssay <- function(
   for (i in seq_along(along.with = assays)) {
     # Rename HVF columns
     mf <- assays[[i]][[]]
+    if (!ncol(x = mf)) {
+      next
+    }
     for (type in c('vf')) {
       vf.idx <- grep(pattern = paste0('^', type, '_'), x = names(x = mf))
       if (length(x = vf.idx)) {
@@ -1494,7 +1497,7 @@ merge.StdAssay <- function(
     combined[[]] <- mf
   }
   # TODO: Add misc
-  validObject(object = x)
+  validObject(object = combined)
   return(combined)
 }
 
