@@ -308,6 +308,14 @@ setMethod(
   }
 )
 
+setMethod(
+  f = '[[',
+  signature = c(x = 'LogMap', i = 'integer', j = 'missing'),
+  definition = function(x, i, ...) {
+    return(x[[colnames(x = x)[i]]])
+  }
+)
+
 #' @rdname LogMap-class
 #'
 #' @export
@@ -319,6 +327,14 @@ setMethod(
   signature = c(x = 'LogMap', i = 'missing', j = 'missing'),
   definition = function(x, ...) {
     return(slot(object = x, name = '.Data'))
+  }
+)
+
+setMethod(
+  f = '[[',
+  signature = c(x = 'LogMap', i = 'numeric', j = 'missing'),
+  definition = function(x, i, ...) {
+    return(x[[as.integer(x = i)]])
   }
 )
 

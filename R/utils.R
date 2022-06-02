@@ -4,6 +4,7 @@
 #' @include segmentation.R
 #' @importFrom Rcpp evalCpp
 #' @importFrom methods as setAs
+#' @importFrom rlang is_bare_list
 #' @useDynLib SeuratObject
 #'
 NULL
@@ -11,6 +12,14 @@ NULL
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @export
+#'
+StitchMatrix <- function(x, y, rowmap, colmap, ...) {
+  stopifnot(inherits(x = rowmap, what = 'LogMap'))
+  stopifnot(inherits(x = colmap, what = 'LogMap'))
+  UseMethod(generic = 'StitchMatrix', object = x)
+}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
@@ -744,6 +753,55 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
     }
   )
   return(coords)
+}
+
+#' @method StitchMatrix dgCMatrix
+#' @export
+#'
+StitchMatrix.dgCMatrix <- function(x, y, rowmap, colmap, ...) {
+  on.exit(expr = CheckGC())
+  if (!is_bare_list(x = y)) {
+    y <- list(y)
+  }
+  rowmap <- droplevels(x = rowmap)
+  colmap <- droplevels(x = colmap)
+  stopifnot(ncol(rowmap) == length(y) + 1L)
+  stopifnot(ncol(colmap) == length(y) + 1L)
+  stopifnot(identical(x = colnames(x = rowmap), y = colnames(x = colmap)))
+  dimnames(x = x) <- list(rowmap[[1L]], colmap[[1L]])
+  for (i in seq_along(along.with = y)) {
+    j <- i + 1L
+    y[[i]] <- as(object = y[[i]], Class = 'CsparseMatrix')
+    dimnames(x = y[[i]]) <- list(rowmap[[j]], colmap[[j]])
+  }
+  return(RowMergeSparseMatrices(mat1 = x, mat2 = y))
+}
+
+#' @method StitchMatrix matrix
+#' @export
+#'
+StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
+  on.exit(expr = CheckGC())
+  if (!is_bare_list(x = y)) {
+    y <- list(y)
+  }
+  rowmap <- droplevels(x = rowmap)
+  colmap <- droplevels(x = colmap)
+  stopifnot(ncol(rowmap) == length(y) + 1L)
+  stopifnot(ncol(colmap) == length(y) + 1L)
+  stopifnot(identical(x = colnames(x = rowmap), y = colnames(x = colmap)))
+  m <- matrix(
+    data = 0,
+    nrow = nrow(x = rowmap),
+    ncol = nrow(x = colmap),
+    dimnames = list(rownames(x = rowmap), rownames(x = colmap))
+  )
+  m[rowmap[[1L]], colmap[[1L]]] <- x
+  for (i in seq_along(along.with = y)) {
+    j <- i + 1L
+    m[rowmap[[j]], colmap[[j]]] <- as.matrix(x = y[[i]])
+  }
+  return(m)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
