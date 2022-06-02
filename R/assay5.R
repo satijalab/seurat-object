@@ -761,21 +761,20 @@ HVFInfo.StdAssay <- function(
 ) {
   # Find available HVF methods and layers
   vf.methods <- .VFMethods(object = object, type = 'hvf')
-  vf.layers <- unique(x = vapply(
-    X = strsplit(
-      x = grep(pattern = '^vf_', x = colnames(x = object[[]]), value = TRUE),
-      split = '_'
-    ),
-    FUN = function(x) {
-      return(paste(x[3:(length(x = x) - 1L)], collapse = '_'))
-    },
-    FUN.VALUE = character(length = 1L)
-  ))
+  vf.layers <- .VFLayers(object = object, type = 'hvf')
   # Determine which method and layer to use
   method <- (method %||% vf.methods)[1L]
-  method <- match.arg(arg = method, choices = vf.methods)
+  method <- tryCatch(
+    expr = match.arg(arg = method, choices = vf.methods),
+    error = function(...) {
+      return(NULL)
+    }
+  )
+  # If no methods found, return NULL
+  if (is.null(x = method)) {
+    return(method)
+  }
   layer <- (layer %||% vf.layers)[1L]
-  # layer <- match.arg(arg = layer, choices = vf.layers)
   layer <- vf.layers[which.min(x = adist(x = layer, y = vf.layers))]
   # Find the columns for the specified method and layer
   cols <- grep(
@@ -786,7 +785,7 @@ HVFInfo.StdAssay <- function(
   if (!isTRUE(x = status)) {
     cols <- setdiff(
       x = cols,
-      y = paste('^vf', method, layer, c('variable', 'rank'), sep = '_')
+      y = paste('vf', method, layer, c('variable', 'rank'), sep = '_')
     )
   }
   hvf.info <- object[[cols]]
@@ -1201,8 +1200,13 @@ VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, ...) 
     status = TRUE,
     strip = TRUE
   )
+  msg <- 'No variable features found'
+  if (is.null(x = hvf.info)) {
+    warning(msg, call. = FALSE, immediate. = TRUE)
+    return(NULL)
+  }
   if (!'variable' %in% names(x = hvf.info)) {
-    stop("No variable features found", call. = FALSE)
+    stop(msg, call. = FALSE)
   }
   vf <- rownames(x = hvf.info)[which(x = hvf.info$variable)]
   if ('rank' %in% names(x = hvf.info)) {
@@ -1210,7 +1214,8 @@ VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, ...) 
   } else {
     warning(
       "No variable feature rank found, returning features in assay order",
-      call. = FALSE
+      call. = FALSE,
+      immediate. = TRUE
     )
   }
   return(vf)
@@ -1220,38 +1225,17 @@ VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, ...) 
 #' @export
 #' @method VariableFeatures<- StdAssay
 #'
-"VariableFeatures<-.StdAssay" <- function(object, ..., value) {
-  .NotYetImplemented()
-  CheckDots(...)
-  if (length(x = value) == 0) {
-    slot(object = object, name = 'var.features') <- character(length = 0)
-    return(object)
+"VariableFeatures<-.StdAssay" <- function(object, method = 'custom', layer = NULL, ..., value) {
+  value <- intersect(x = value, y = rownames(x = object))
+  if (!length(x = value)) {
+    stop("None of the features specified are present in this assay", call. = FALSE)
   }
-  if (any(grepl(pattern = '_', x = value))) {
-    warning(
-      "Feature names cannot have underscores '_', replacing with dashes '-'",
-      call. = FALSE,
-      immediate = TRUE
-    )
-    value <- gsub(pattern = '_', replacement = '-', x = value)
+  layer <- Layers(object = object, search = layer)
+  df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
+  for (lyr in layer) {
+    names(x = df) <- paste('vf', method, lyr, c('variable', 'rank'), sep = '_')
+    object[[]] <- df
   }
-  value <- split(x = value, f = value %in% rownames(x = object))
-  if (length(x = value[['FALSE']]) > 0) {
-    if (length(x = value[['TRUE']]) == 0) {
-      stop(
-        "None of the features provided are in this Assay object",
-        call. = FALSE
-      )
-    } else {
-      warning(
-        "Not all features provided are in this Assay object, removing the following feature(s): ",
-        paste(value[['FALSE']], collapse = ', '),
-        call. = FALSE,
-        immediate. = TRUE
-      )
-    }
-  }
-  slot(object = object, name = 'var.features') <- value[['TRUE']]
   return(object)
 }
 
@@ -1639,6 +1623,42 @@ tail.StdAssay <- .tail
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+.VFLayers <- function(
+  object,
+  type = c('hvf', 'svf'),
+  layers = NULL,
+  missing = FALSE
+) {
+  type <- type[1L]
+  type <- match.arg(arg = type)
+  pattern <- switch(
+    EXPR = type,
+    'hvf' = '^vf_',
+    stop("Unknown type: '", type, "'", call. = FALSE)
+  )
+  vf.cols <- grep(
+    pattern = paste0(pattern, '[[:alnum:]]+_'),
+    x = colnames(x = object[[]]),
+    value = TRUE
+  )
+  vf.layers <- unique(x = unlist(x = lapply(
+    X = strsplit(x = vf.cols, split = '_'),
+    FUN = function(x) {
+      return(x[3L:(length(x = x) - 1L)])
+    }
+  )))
+  if (!isTRUE(x = missing)) {
+    vf.layers <- intersect(
+      x = vf.layers,
+      y = Layers(object = object, search = layers)
+    )
+  }
+  if (!length(x = vf.layers)) {
+    vf.layers <- NULL
+  }
+  return(vf.layers)
+}
+
 #' @param object A \code{\link{StdAssay}} object
 #' @param type Type of variable feature method to pull; choose from:
 #' \itemize{
@@ -1652,7 +1672,12 @@ tail.StdAssay <- .tail
 #'
 #' @noRd
 #'
-.VFMethods <- function(object, type = c('hvf', 'svf'), layers = NULL) {
+.VFMethods <- function(
+  object,
+  type = c('hvf', 'svf'),
+  layers = NULL,
+  missing = FALSE
+) {
   type <- type[1L]
   type <- match.arg(arg = type)
   pattern <- switch(
@@ -1665,7 +1690,13 @@ tail.StdAssay <- .tail
     x = colnames(x = object[[]]),
     value = TRUE
   )
-  layers <- Layers(object = object, search = layers)
+  # layers <- Layers(object = object, search = layers)
+  layers <- .VFLayers(
+    object = object,
+    type = type,
+    layers = layers,
+    missing = missing
+  )
   vf.cols <- Filter(
     f = function(x) {
       x <- unlist(x = strsplit(x = x, split = '_'))
@@ -1674,11 +1705,15 @@ tail.StdAssay <- .tail
     },
     x = vf.cols
   )
-  return(unique(x = sapply(
+  vf.methods <- unique(x = unlist(x = lapply(
     X = strsplit(x = vf.cols, split = '_'),
     FUN = '[[',
     2L
   )))
+  if (!length(x = vf.methods)) {
+    vf.methods <- NULL
+  }
+  return(vf.methods)
 }
 
 CalcN5 <- function(object) {
