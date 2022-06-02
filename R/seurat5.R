@@ -606,6 +606,7 @@ merge.Seurat5 <- function(
   ...
 ) {
   objects <- c(x, y)
+  names(x = objects) <- NULL
   projects <- vapply(
     X = objects,
     FUN = Project,
@@ -682,7 +683,11 @@ merge.Seurat5 <- function(
   }
   # Merge meta data
   for (i in seq_along(along.with = objects)) {
-    obj.combined[[]] <- objects[[i]][[]]
+    md <- objects[[i]][[]]
+    if (!ncol(x = md)) {
+      next
+    }
+    obj.combined[[]] <- md
   }
   # Validate and return the merged object
   validObject(object = obj.combined)
