@@ -1241,7 +1241,10 @@ Embeddings.Seurat <- function(object, reduction = 'pca', ...) {
   return(Embeddings(object = object[[reduction]], ...))
 }
 
-
+#' @rdname Embeddings
+#' @export
+#' @method Embeddings Seurat5
+#'
 Embeddings.Seurat5 <- function(object, reduction = 'pca', ...) {
   return(Embeddings(object = object[[reduction]], ...))
 }
