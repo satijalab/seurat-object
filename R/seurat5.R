@@ -241,6 +241,7 @@ FetchData.Seurat5 <- function(
       return(as.list(x = data.return))
     }
   )
+  data.fetched <- unlist(x = data.fetched, recursive = FALSE)
   # data.fetched <- do.call(what = 'cbind', args = data.fetched)
   # Pull vars from object metadata
   meta.vars <- intersect(x = vars, y = names(x = object[[]]))
