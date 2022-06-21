@@ -214,6 +214,18 @@ DefaultAssay.DimReduc <- function(object, ...) {
   return(object)
 }
 
+#' @method Features DimReduc
+#' @export
+#'
+Features.DimReduc <- function(x, projected = NULL, ...) {
+  projected <- isTRUE(x = projected %||% Projected(object = x))
+  features <- rownames(x = Loadings(object = x, projected = projected))
+  if (!length(x = features)) {
+    features <- NULL
+  }
+  return(features)
+}
+
 #' @rdname FetchData
 #' @export
 #' @method FetchData DimReduc
@@ -475,6 +487,7 @@ RenameCells.DimReduc <- function(object, new.names = NULL, ...) {
   old.data <- Embeddings(object = object)
   rownames(x = old.data) <- new.names
   slot(object = object, name = "cell.embeddings") <- old.data
+  validObject(object = object)
   return(object)
 }
 
@@ -854,9 +867,48 @@ setMethod(
   }
 )
 
+setValidity(
+  Class = 'DimReduc',
+  method = function(object) {
+    valid <- NULL
+    return(valid %||% TRUE)
+  }
+)
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+.RenameFeatures <- function(object, old.names = NULL, new.names = NULL) {
+  if (is.null(x = old.names) && is.null(x = new.names)) {
+    return(object)
+  }
+  # Checks
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op))
+  stopifnot(length(x = old.names) == length(x = new.names))
+  stopifnot(all(nzchar(x = old.names)))
+  stopifnot(all(nzchar(x = new.names)))
+  if (is.null(x = Features(x = object)) && length(x = new.names)) {
+    warning("No features present in this DimReduc", call. = FALSE, immediate. = TRUE)
+  }
+  # Rename features
+  names(x = new.names) <- old.names
+  features <- Features(x = object, projected = FALSE)
+  ldat <- Loadings(object = object, projected = FALSE)
+  rownames(x = ldat) <- unname(obj = new.names[features])
+  Loadings(object = object, projected = FALSE) <- ldat
+  if (isTRUE(x = Projected(object = object))) {
+    pdat <- Loadings(object = object, projected = TRUE)
+    pfeatures <- Features(x = object, projected = TRUE)
+    rownames(x = pdat) <- unname(obj = new.names[pfeatures])
+    Loadings(object = object, projected = TRUE) <- pdat
+  }
+  # Validate and return
+  options(op)
+  validObject(object = object)
+  return(object)
+}
 
 #' Check to see if projected loadings have been set
 #'
