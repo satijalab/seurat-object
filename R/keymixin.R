@@ -164,7 +164,7 @@ setValidity(
     if (!is.null(x = key)) {
       if (length(x = key) != 1L) {
         valid <- c(valid, "Keys must be a one-length character vector")
-      } else if (nchar(x = key) && !grepl(pattern = pattern, x = key)) {
+      } else if (nzchar(x = key) && !grepl(pattern = pattern, x = key)) {
         # Ensure proper key composition
         valid <- c(valid, paste0("Keys must match the pattern '", pattern, "'"))
       }
