@@ -539,23 +539,22 @@ dimnames.Seurat5 <- function(x) {
     stop(msg, call. = FALSE)
   }
   value <- lapply(X = value, FUN = as.character)
-  cells.orig <- Cells(x = x, assay = NA)
+  onames <- dimnames(x = x)
   # Rename cells at the Seurat level
   rownames(x = slot(object = x, name = 'cells')) <- value[[2L]]
   # Rename features/cells at the Assay level
   for (assay in Assays(object = x)) {
     anames <- dimnames(x = x[[assay]])
     afeatures <- MatchCells(
-      new = Features(x = x, assay = assay),
-      orig = anames[[1L]]
+      new = onames[[1L]],
+      orig = anames[[1L]],
+      ordered = TRUE
     )
     if (!is.null(x = afeatures)) {
-      anames[[1L]] <- value[[1L]][afeatures]
+      idx <- MatchCells(new = anames[[1L]], orig = onames[[1L]])
+      anames[[1L]][idx] <- value[[1L]][afeatures]
     }
-    acells <- MatchCells(
-      new = cells.orig,
-      orig = anames[[2L]]
-    )
+    acells <- MatchCells(new = onames[[2L]], orig = anames[[2L]])
     anames[[2L]] <- value[[2L]][acells]
     suppressWarnings(expr = dimnames(x = x[[assay]]) <- anames)
   }
@@ -771,7 +770,10 @@ tail.Seurat5 <- .tail
 #' @noRd
 #'
 .CheckKey <- function(key, existing = NULL, name = NULL) {
-  key <- Key(object = key, quiet = !is.null(x = existing))
+  key <- Key(
+    object = key %||% Key(object = name %||% RandomName(), quiet = TRUE),
+    quiet = !is.null(x = existing)
+  )
   if (!is.null(x = names(x = existing)) && !is.null(x = name)) {
     existing <- existing[setdiff(x = names(x = existing), y = name)]
   }
@@ -827,7 +829,7 @@ tail.Seurat5 <- .tail
       obj.names <- names(x = slot(object = object, name = x))
       cls <- switch(
         EXPR = x,
-        'assays' = 'StdAssay',
+        'assays' = c('StdAssay', 'Assay'),
         'reductions' = 'DimReduc',
         'commands' = 'SeuratCommand',
         x
@@ -843,16 +845,6 @@ tail.Seurat5 <- .tail
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Seurat5', i = 'character', j = 'missing'),
-  definition = function(x, i, ..., value) {
-    message("blah")
-    x <- .AddObject(object = x, name = i, value = value)
-    return(x)
-  }
-)
 
 # Add cell-level meta data
 setMethod(
