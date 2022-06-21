@@ -1253,22 +1253,24 @@ CheckDots <- function(..., fxns = NULL) {
 #'
 CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
   cell.names <- unlist(x = lapply(X = object.list, FUN = colnames))
-  if (any(duplicated(x = cell.names))) {
-    if (stop) {
-      stop("Duplicate cell names present across objects provided.")
+  if (anyDuplicated(x = cell.names)) {
+    if (isTRUE(x = stop)) {
+      stop("Duplicate cell names present across objects provided.", call. = FALSE)
     }
     if (verbose) {
-      warning("Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.")
+      warning(
+        "Some cell names are duplicated across objects provided. Renaming to enforce unique cell names.",
+        call. = FALSE,
+        immediate. = TRUE
+      )
     }
-    object.list <- lapply(
-      X = 1:length(x = object.list),
-      FUN = function(x) {
-        return(RenameCells(
-          object = object.list[[x]],
-          new.names = paste0(Cells(x = object.list[[x]]), "_", x)
-        ))
-      }
-    )
+    for (i in seq_along(along.with = object.list)) {
+      colnames(x = object.list[[i]]) <- paste(
+        colnames(x = object.list[[i]]),
+        i,
+        sep = '_'
+      )
+    }
   }
   return(object.list)
 }
