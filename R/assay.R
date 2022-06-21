@@ -288,23 +288,143 @@ DefaultAssay.Assay <- function(object, ...) {
   return(object)
 }
 
+#' @method DefaultLayer Assay
+#' @export
+#'
+DefaultLayer.Assay <- function(object, ...) {
+  return('data')
+}
+
+#' @method Features Assay
+#' @export
+#'
+Features.Assay <- function(
+  x,
+  layer = c('data', 'scale.data', 'counts'),
+  slot = deprecated(),
+  ...
+) {
+  if (is_present(arg = slot)) {
+    f <- if (.IsFutureSeurat(version = '5.1.0')) {
+      deprecate_stop
+    } else if (.IsFutureSeurat(version = '5.0.0')) {
+      deprecate_warn
+    } else {
+      deprecate_soft
+    }
+    f(
+      when = '5.0.0',
+      what = 'Features(slot = )',
+      with = 'Features(layer = )'
+    )
+    layer <- slot
+  }
+  layer <- layer[1L] %||% 'data'
+  layer <- match.arg(arg = layer)
+  features <- rownames(x = GetAssayData(object = x, slot = layer))
+  if (!length(x = features)) {
+    features <- NULL
+  }
+  return(features)
+}
+
+#' @method FetchData Assay
+#' @export
+#'
+FetchData.Assay <- function(
+  object,
+  vars,
+  cells = NULL,
+  layer = NULL,
+  slot = deprecated(),
+  ...
+) {
+  if (is_present(arg = slot)) {
+    deprecate_soft(
+      when = '4.9.0',
+      what = 'FetchData(slot = )',
+      with = 'FetchData(layer = )'
+    )
+    layer <- layer %||% slot
+  }
+  # Identify slot to use
+  layer <- layer %||% 'data'
+  layer <- match.arg(arg = layer, choices = c('counts', 'data', 'scale.data'))
+  # Identify cells to use
+  cells <- cells %||% colnames(x = object)
+  if (is.numeric(x = cells)) {
+    cells <- colnames(x = object)[cells]
+  }
+  # Check vars
+  orig <- vars
+  vars <- gsub(
+    pattern = paste0('^', Key(object = object)),
+    replacement = '',
+    x = vars
+  )
+  # Pull expression information
+  mat <- GetAssayData(object = object, slot = layer)
+  if (IsMatrixEmpty(x = mat)) {
+    stop("Slot ", layer, " is empty in this assay", call. = FALSE)
+  }
+  vars <- intersect(x = vars, y = rownames(x = mat))
+  data.fetched <- as.data.frame(x = as.matrix(
+    x = Matrix::t(x = mat[vars, cells, drop = FALSE])
+  ))
+  # Add keys to keyed vars
+  keyed.features <- paste0(Key(object = object), names(x = data.fetched))
+  keyed.idx <- which(x = keyed.features %in% orig)
+  if (length(x = keyed.idx)) {
+    names(x = data.fetched)[keyed.idx] <- keyed.features[keyed.idx]
+  }
+  # Check the final list of features
+  missing <- setdiff(x = orig, y = names(x = data.fetched))
+  if (length(x = missing) == length(x = orig)) {
+    stop("None of the requested features found", call. = FALSE)
+  } else if (length(x = missing)) {
+    warning(
+      "The following features could not be found ",
+      paste(missing, collapse = ', '),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  return(data.fetched)
+}
+
 #' @rdname AssayData
 #' @export
 #' @method GetAssayData Assay
 #'
 #' @examples
 #' # Get the data directly from an Assay object
-#' GetAssayData(pbmc_small[["RNA"]], slot = "data")[1:5,1:5]
+#' GetAssayData(pbmc_small[["RNA"]], layer = "data")[1:5,1:5]
 #'
 GetAssayData.Assay <- function(
   object,
-  slot = c('data', 'scale.data', 'counts'),
+  layer = c('data', 'scale.data', 'counts'),
+  slot = deprecated(),
   ...
 ) {
   CheckDots(...)
-  slot <- slot[1]
-  slot <- match.arg(arg = slot)
-  return(slot(object = object, name = slot))
+  if (is_present(arg = slot)) {
+    f <- if (.IsFutureSeurat(version = '5.1.0')) {
+      deprecate_stop
+    } else if (.IsFutureSeurat(version = '5.0.0')) {
+      deprecate_warn
+    } else {
+      deprecate_soft
+    }
+    f(
+      when = '5.0.0',
+      what = 'GetAssayData(slot = )',
+      with = 'GetAssayData(layer = )'
+    )
+    layer <- slot
+  }
+  layer <- layer[1L] %||% 'data'
+  layer <- match.arg(arg = layer)
+  return(methods::slot(object = object, name = layer))
 }
 
 #' @rdname VariableFeatures
@@ -313,38 +433,53 @@ GetAssayData.Assay <- function(
 #'
 #' @examples
 #' # Get the HVF info directly from an Assay object
-#' HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
+#' HVFInfo(pbmc_small[["RNA"]], method = 'vst')[1:5, ]
 #'
 HVFInfo.Assay <- function(
   object,
   method,
   status = FALSE,
-  selection.method = method,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    f <- if (.IsFutureSeurat(version = '5.1.0')) {
+      deprecate_stop
+    } else if (.IsFutureSeurat(version = '5.0.0')) {
+      deprecate_warn
+    } else {
+      deprecate_soft
+    }
+    f(
+      when = '5.0.0',
+      what = 'HVFInfo(selection.method = )',
+      with = 'HVFInfo(method = )'
+    )
+    method <- selection.method
+  }
   disp.methods <- c('mean.var.plot', 'dispersion', 'disp')
-  if (tolower(x = selection.method) %in% disp.methods) {
-    selection.method <- 'mvp'
+  if (tolower(x = method) %in% disp.methods) {
+    method <- 'mvp'
   }
   selection.method <- switch(
-    EXPR = tolower(x = selection.method),
+    EXPR = tolower(x = method),
     'sctransform' = 'sct',
-    selection.method
+    method
   )
   vars <- switch(
-    EXPR = selection.method,
+    EXPR = method,
     'vst' = c('mean', 'variance', 'variance.standardized'),
     'mvp' = c('mean', 'dispersion', 'dispersion.scaled'),
     'sct' = c('gmean', 'variance', 'residual_variance'),
-    stop("Unknown method: '", selection.method, "'", call. = FALSE)
+    stop("Unknown method: '", method, "'", call. = FALSE)
   )
   tryCatch(
-    expr = hvf.info <- object[[paste(selection.method, vars, sep = '.')]],
+    expr = hvf.info <- object[[paste(method, vars, sep = '.')]],
     error = function(e) {
       stop(
         "Unable to find highly variable feature information for method '",
-        selection.method,
+        method,
         "'",
         call. = FALSE
       )
@@ -352,7 +487,7 @@ HVFInfo.Assay <- function(
   )
   colnames(x = hvf.info) <- vars
   if (status) {
-    hvf.info$variable <- object[[paste0(selection.method, '.variable')]]
+    hvf.info$variable <- object[[paste0(method, '.variable')]]
   }
   return(hvf.info)
 }
@@ -788,6 +923,40 @@ dimnames.Assay <- function(x) {
   return(dimnames(x = GetAssayData(object = x)))
 }
 
+#' @method dimnames<- Assay
+#' @export
+#'
+"dimnames<-.Assay" <- function(x, value) {
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
+  # Check the provided dimnames
+  msg <- "Invalid 'dimnames' given for a Seurat object"
+  if (!is_bare_list(x = value, n = 2L)) {
+    stop(msg, call. = FALSE)
+  } else if (!all(sapply(X = value, FUN = length) == dim(x = x))) {
+    stop(msg, call. = FALSE)
+  }
+  value <- lapply(X = value, FUN = as.character)
+  # Warn about changing features
+  if (!all(value[[1L]] == rownames(x = slot(object = x, name = 'data')))) {
+    warning(
+      "Changing feature names in v3 Assays is not supported",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  # Set cell names
+  for (lyr in c('counts', 'data', 'scale.data')) {
+    if (!IsMatrixEmpty(x = slot(object = x, name = lyr))) {
+      suppressWarnings(expr = colnames(x = slot(object = x, name = lyr)) <- value[[2L]])
+    }
+  }
+  # Validate and return the Seurat object
+  options(op)
+  validObject(object = x)
+  return(x)
+}
+
 #' @describeIn Assay-methods Get the first rows of feature-level metadata
 #'
 #' @inheritParams utils::head
@@ -1131,6 +1300,81 @@ setMethod(
       '\n'
     )
     return(invisible(x = NULL))
+  }
+)
+
+setValidity(
+  Class = 'Assay',
+  method = function(object) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warning(
+        "Not validating",
+        class(x = object)[1L],
+        "objects",
+        call. = FALSE,
+        immediate. = TRUE
+      )
+      return(TRUE)
+    }
+    valid <- NULL
+    # Check matrices
+    features <- rownames(x = slot(object = object, name = 'data'))
+    if (anyDuplicated(x = features)) {
+      valid <- c(valid, "duplicate feature names are not allowed")
+    }
+    cells <- colnames(x = slot(object = object, name = 'data'))
+    if (anyDuplicated(x = cells)) {
+      valid <- c(valid, "duplicate cell names are not allowed")
+    }
+    for (lyr in c('counts', 'scale.data')) {
+      ldat <- slot(object = object, name = lyr)
+      if (IsMatrixEmpty(x = ldat)) {
+        next
+      }
+      if (!all(colnames(x = ldat) == cells)) {
+        valid <- c(
+          valid,
+          paste0("'", lyr, "' must have the same cells as 'data'")
+        )
+      }
+      if (lyr == 'counts' && !all(rownames(x = ldat) == features)) {
+        valid <- c(
+          valid,
+          paste0("'", lyr, "' must have the same features as 'data'")
+        )
+      } else if (lyr == 'scale.data') {
+        scaled <- rownames(x = ldat)
+        if (!all(scaled %in% features)) {
+          valid <- c(
+            valid,
+            "all features in 'scale.data' must be present in 'data'"
+          )
+        } else if (is.unsorted(x = MatchCells(new = scaled, orig = features, ordered = TRUE))) {
+          valid <- c(
+            valid,
+            "features in 'scale.data' must be in the same order as in 'data'"
+          )
+        }
+      }
+    }
+    # Check meta.features
+    mf <- slot(object = object, name = 'meta.features')
+    if (nrow(x = mf) != length(x = features)) {
+      valid <- c(
+        valid,
+        "'meta.features' must have the same number of rows as 'data'"
+      )
+    } else if (!all(row.names(x = mf) == features)) {
+      valid <- c(valid, "meta.features' must have the same features as 'data'")
+    }
+    # Check variable features
+    vf <- slot(object = object, name = 'var.features')
+    if (length(x = vf) && !all(vf %in% features)) {
+      valid <- c(valid, "all 'var.features' must be present in")
+    }
+    # TODO: Check assay.orig
+    # TODO: Check key
+    return(valid %||% TRUE)
   }
 )
 
