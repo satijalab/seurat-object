@@ -680,6 +680,9 @@ CheckMatrix.lMatrix <- function(
 #'
 IsMatrixEmpty.default <- function(x) {
   matrix.dims <- dim(x = x)
+  if (is.null(x = matrix.dims)) {
+    return(FALSE)
+  }
   matrix.na <- all(matrix.dims == 1) && all(is.na(x = x))
   return(all(matrix.dims == 0) || matrix.na)
 }
@@ -1707,7 +1710,9 @@ UpdateSlots <- function(object) {
   )
   object.list <- Filter(f = Negate(f = is.null), x = object.list)
   object.list <- c('Class' = class(x = object)[1], object.list)
-  object <- do.call(what = 'new', args = object.list)
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
+  object <- suppressWarnings(expr = do.call(what = 'new', args = object.list))
   for (x in setdiff(x = slotNames(x = object), y = names(x = object.list))) {
     xobj <- slot(object = object, name = x)
     if (is.vector(x = xobj) && !is.list(x = xobj) && length(x = xobj) == 0) {
@@ -1717,6 +1722,7 @@ UpdateSlots <- function(object) {
       )
     }
   }
+  # options(op)
   return(object)
 }
 
