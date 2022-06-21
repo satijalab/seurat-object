@@ -20,7 +20,12 @@ SetAssayData(object, slot, new.data, ...)
 
 \method{SetAssayData}{Seurat}(object, slot = "data", new.data, assay = NULL, ...)
 
-\method{GetAssayData}{Assay}(object, slot = c("data", "scale.data", "counts"), ...)
+\method{GetAssayData}{Assay}(
+  object,
+  layer = c("data", "scale.data", "counts"),
+  slot = deprecated(),
+  ...
+)
 
 \method{SetAssayData}{Assay}(object, slot = c("data", "scale.data", "counts"), new.data, ...)
 
@@ -67,7 +72,7 @@ new.seurat.object <- SetAssayData(
 )
 
 # Get the data directly from an Assay object
-GetAssayData(pbmc_small[["RNA"]], slot = "data")[1:5,1:5]
+GetAssayData(pbmc_small[["RNA"]], layer = "data")[1:5,1:5]
 
 # Set an Assay slot directly
 count.data <- GetAssayData(pbmc_small[["RNA"]], slot = "counts")

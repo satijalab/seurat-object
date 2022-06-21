@@ -4,7 +4,7 @@
 \alias{FilterObjects}
 \title{Find Sub-objects of a Certain Class}
 \usage{
-FilterObjects(object, classes.keep = c("Assay", "DimReduc"))
+FilterObjects(object, classes.keep = c("Assay", "StdAssay", "DimReduc"))
 }
 \arguments{
 \item{object}{A \code{\link{Seurat}} object}

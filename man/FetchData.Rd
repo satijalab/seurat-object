@@ -16,12 +16,10 @@ FetchData(object, ...)
   ...
 )
 
-\method{FetchData}{Seurat}(object, vars, cells = NULL, slot = "data", ...)
-
-\method{FetchData}{Seurat}(object, vars, cells = NULL, slot = "data", ...)
+\method{FetchData}{Seurat}(object, vars, cells = NULL, layer = NULL, slot = deprecated(), ...)
 }
 \arguments{
-\item{object}{Seurat object}
+\item{object}{An object}
 
 \item{...}{Arguments passed to other methods}
 
@@ -30,11 +28,11 @@ pull identity classes}
 
 \item{cells}{Cells to collect data for (default is all cells)}
 
-\item{slot}{Slot to pull feature data for}
+\item{layer}{Layer to pull feature data for}
+
+\item{slot}{Deprecated in favor of \code{layer}}
 }
 \value{
-A data frame with cells as rows and cellular data as columns
-
 A data frame with cells as rows and cellular data as columns
 }
 \description{
@@ -42,10 +40,6 @@ Retrieves data (feature expression, PCA scores, metrics, etc.) for a set
 of cells in a Seurat object
 }
 \examples{
-pc1 <- FetchData(object = pbmc_small, vars = 'PC_1')
-head(x = pc1)
-head(x = FetchData(object = pbmc_small, vars = c('groups', 'ident')))
-
 pc1 <- FetchData(object = pbmc_small, vars = 'PC_1')
 head(x = pc1)
 head(x = FetchData(object = pbmc_small, vars = c('groups', 'ident')))

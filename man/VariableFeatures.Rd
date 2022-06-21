@@ -60,7 +60,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
   ...
 )
 
-\method{HVFInfo}{Assay}(object, method, status = FALSE, selection.method = method, ...)
+\method{HVFInfo}{Assay}(object, method, status = FALSE, selection.method = deprecated(), ...)
 
 \method{SpatiallyVariableFeatures}{Assay}(
   object,
@@ -84,7 +84,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{VariableFeatures}{StdAssay}(object, method = NULL, layer = NULL, ...)
 
-\method{VariableFeatures}{StdAssay}(object, ...) <- value
+\method{VariableFeatures}{StdAssay}(object, method = "custom", layer = NULL, ...) <- value
 }
 \arguments{
 \item{object}{An object}
@@ -137,7 +137,7 @@ restricted to spatially variable features
 HVFInfo(object = pbmc_small, assay = "RNA")[1:5, ]
 
 # Get the HVF info directly from an Assay object
-HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
+HVFInfo(pbmc_small[["RNA"]], method = 'vst')[1:5, ]
 
 \dontrun{
 # Get the HVF info directly from an Assay object

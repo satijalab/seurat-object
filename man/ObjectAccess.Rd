@@ -10,7 +10,7 @@
 \usage{
 Assays(object, ...)
 
-\method{Assays}{Seurat}(object, slot = NULL, ...)
+\method{Assays}{Seurat}(object, slot = deprecated(), ...)
 
 Graphs(object, slot = NULL)
 

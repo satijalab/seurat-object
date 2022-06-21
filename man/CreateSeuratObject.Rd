@@ -18,24 +18,23 @@ CreateSeuratObject(
 
 \method{CreateSeuratObject}{default}(
   counts,
-  project = "SeuratProject",
   assay = "RNA",
-  names.field = 1,
+  names.field = 1L,
   names.delim = "_",
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
-  row.names = NULL,
+  project = "SeuratProject",
   ...
 )
 
 \method{CreateSeuratObject}{Assay}(
   counts,
-  project = "SeuratProject",
   assay = "RNA",
-  names.field = 1,
+  names.field = 1L,
   names.delim = "_",
   meta.data = NULL,
+  project = "SeuratProject",
   ...
 )
 }
@@ -71,10 +70,6 @@ new object with a lower cutoff.}
 
 \item{min.features}{Include cells where at least this many features are
 detected.}
-
-\item{row.names}{When \code{counts} is a \code{data.frame} or
-\code{data.frame}-derived object: an optional vector of feature names to be
-used}
 }
 \value{
 A \code{\link{Seurat}} object
