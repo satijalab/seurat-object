@@ -1,8 +1,9 @@
-#' @importFrom rlang is_na
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
 #' @importFrom utils head tail
-#' @importFrom lifecycle deprecated deprecate_soft is_present
+#' @importFrom rlang is_bare_list is_na
+#' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
+#' deprecate_warn is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
 #' setOldClass setValidity slot slot<- validObject
 #' @importClassesFrom Matrix dgCMatrix
@@ -21,6 +22,7 @@ NULL
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 default.options <- list()
+
 # Options
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -77,9 +79,6 @@ setOldClass(Classes = 'package_version')
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Hooks
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #' Add Object Metadata
 #'
 #' Internal \code{\link{AddMetaData}} definition
@@ -287,6 +286,42 @@ setOldClass(Classes = 'package_version')
   return(tail(x = x[[]], n = n, ...))
 }
 
+#' Test Future Compatibility with \pkg{Seurat}
+#'
+#' Check to see if \pkg{SeuratObject} and/or \pkg{Seurat} are at least a
+#' specific version or if they're configured to act as if they're a
+#' specific version (see details below). This allows testing compatibility with
+#' future requirements for both \pkg{SeuratObject} and \pkg{Seurat}
+#'
+#' Blah blah blah
+#'
+#' @inheritParams utils::packageVersion
+#' @param version A version string or object of class
+#' \code{\link{package_version}}
+#'
+#' @return \code{TRUE} if \pkg{SeuratObject} and/or \pkg{Seurat}
+#'
+#' @importFrom utils packageVersion
+#'
+#' @export
+#'
+#' @aliases IsFutureSeurat
+#'
+.IsFutureSeurat <- function(version, lib.loc = NULL) {
+  version <- package_version(x = version)
+  opt <- paste0(
+    'Seurat.future.v',
+    gsub(pattern = '\\.', replacement = '_', x = as.character(x = version))
+  )
+  future <- isTRUE(x = getOption(x = opt, default = FALSE)) ||
+    packageVersion(pkg = 'SeuratObject', lib.loc = lib.loc) >= version
+  if (requireNamespace('Seurat', quietly = TRUE)) {
+    future <- future ||
+      packageVersion(pkg = 'Seurat', lib.loc = lib.loc) >= version
+  }
+  return(future)
+}
+
 #' Miscellaneous Data
 #'
 #' Internal functions for getting and setting miscellaneous data
@@ -308,12 +343,6 @@ setOldClass(Classes = 'package_version')
     return(slot(object = object, name = 'misc'))
   }
   return(slot(object = object, name = 'misc')[[slot]])
-}
-
-.onLoad <- function(libname, pkgname) {
-  for (i in c('CsparseMatrix', 'RsparseMatrix', 'spam')) {
-    RegisterSparseMatrix(class = i)
-  }
 }
 
 .OverBbox <- function(x, y, invert = FALSE, ...) {
@@ -455,3 +484,9 @@ NameIndex <- function(x, names, MARGIN) {
   }
   return(invisible(x = NULL))
 }
+#
+# .onLoad <- function(libname, pkgname) {
+#   for (i in c('CsparseMatrix', 'RsparseMatrix', 'spam')) {
+#     RegisterSparseMatrix(class = i)
+#   }
+# }
