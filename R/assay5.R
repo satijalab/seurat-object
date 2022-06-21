@@ -1,4 +1,5 @@
 #' @include zzz.R
+#' @include assay.R
 #' @include layers.R
 #' @include logmap.R
 #' @include keymixin.R
@@ -113,7 +114,6 @@ setClass(
 #' @param fsum Function for calculating feature sums
 #'
 #' @importFrom methods getClass
-#' @importFrom rlang is_bare_list
 #' @importFrom utils getS3method methods
 #'
 #' @rdname dot-CreateStdAssay
@@ -1356,8 +1356,6 @@ dimnames.StdAssay <- function(x) {
 #' @return \code{dimnames<-}: \code{x} with the cell and/or feature
 #' names updated to \code{value}
 #'
-#' @importFrom rlang is_bare_list
-#'
 #' @rdname StdAssay-methods
 #'
 #' @method dimnames<- StdAssay
@@ -1607,6 +1605,10 @@ subset.StdAssay <- function(
     object = x,
     name = 'meta.data'
   )[mfeatures, , drop = FALSE]
+  # Update the cell/feature maps
+  for (i in c('cells', 'features')) {
+    slot(object = x, name = i) <- droplevels(x = slot(object = x, name = i))
+  }
   validObject(object = x)
   return(x)
 }
@@ -2015,6 +2017,14 @@ setMethod(
       )
     }
     return(invisible(x = NULL))
+  }
+)
+
+setAs(
+  from = 'Assay',
+  to = 'Assay5',
+  def = function(from) {
+    ''
   }
 )
 
