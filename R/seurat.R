@@ -176,21 +176,29 @@ Assays <- function(object, ...) {
 #' @method Assays Seurat
 #' @export
 #'
-Assays.Seurat <- function(object, slot = NULL, ...) {
-  assays <- FilterObjects(object = object, classes.keep = 'Assay')
-  if (is.null(x = slot)) {
-    return(assays)
-  }
-  if (!slot %in% assays) {
-    warning(
-      "Cannot find an assay of name ",
-      slot,
-      " in this Seurat object",
-      call. = FALSE,
-      immediate. = TRUE
+Assays.Seurat <- function(object, slot = deprecated(), ...) {
+  if (is_present(arg = slot)) {
+    lifecycle::deprecate_stop(
+      when = '4.9.0',
+      what = 'Assays(slot = )',
+      with = 'LayerData()'
     )
   }
-  return(slot(object = object, name = 'assays')[[slot]])
+  return(names(x = methods::slot(object = object, name = 'assays')))
+  # assays <- names(x = slot(object = object, name = 'assays'))
+  # if (is.null(x = slot)) {
+  #   return(assays)
+  # }
+  # if (!slot %in% assays) {
+  #   warning(
+  #     "Cannot find an assay of name ",
+  #     slot,
+  #     " in this Seurat object",
+  #     call. = FALSE,
+  #     immediate. = TRUE
+  #   )
+  # }
+  # return(slot(object = object, name = 'assays')[[slot]])
 }
 
 #' Get cell names grouped by identity class
@@ -277,233 +285,6 @@ CellsByImage <- function(object, images = NULL, unlist = FALSE) {
   return(cells)
 }
 
-#' @param object Seurat object
-#' @param vars List of all variables to fetch, use keyword \dQuote{ident} to
-#' pull identity classes
-#' @param cells Cells to collect data for (default is all cells)
-#' @param slot Slot to pull feature data for
-#'
-#' @return A data frame with cells as rows and cellular data as columns
-#'
-#' @rdname FetchData
-#' @method FetchData Seurat
-#' @export
-#'
-#' @examples
-#' pc1 <- FetchData(object = pbmc_small, vars = 'PC_1')
-#' head(x = pc1)
-#' head(x = FetchData(object = pbmc_small, vars = c('groups', 'ident')))
-#'
-FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
-  object <- UpdateSlots(object = object)
-  cells <- cells %||% colnames(x = object)
-  if (is.numeric(x = cells)) {
-    cells <- colnames(x = object)[cells]
-  }
-  # Get a list of all objects to search through and their keys
-  object.keys <- Key(object = object)
-  # Find all vars that are keyed
-  keyed.vars <- lapply(
-    X = object.keys,
-    FUN = function(key) {
-      if (length(x = key) == 0 || nchar(x = key) == 0) {
-        return(integer(length = 0L))
-      }
-      return(grep(pattern = paste0('^', key), x = vars))
-    }
-  )
-  keyed.vars <- Filter(f = length, x = keyed.vars)
-  data.fetched <- lapply(
-    X = names(x = keyed.vars),
-    FUN = function(x) {
-      vars.use <- vars[keyed.vars[[x]]]
-      key.use <- object.keys[x]
-      data.return <- if (inherits(x = object[[x]], what = 'DimReduc')) {
-        vars.use <- grep(
-          pattern = paste0('^', key.use, '[[:digit:]]+$'),
-          x = vars.use,
-          value = TRUE
-        )
-        if (length(x = vars.use) > 0) {
-          tryCatch(
-            expr = object[[x]][[cells, vars.use, drop = FALSE]],
-            error = function(...) {
-              return(NULL)
-            }
-          )
-        } else {
-          NULL
-        }
-      } else if (inherits(x = object[[x]], what = 'Assay')) {
-        vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
-        data.assay <- GetAssayData(
-          object = object,
-          slot = slot,
-          assay = x
-        )
-        vars.use <- vars.use[vars.use %in% rownames(x = data.assay)]
-        data.vars <- t(x = as.matrix(data.assay[vars.use, cells, drop = FALSE]))
-        if (ncol(data.vars) > 0) {
-          colnames(x = data.vars) <- paste0(key.use, vars.use)
-        }
-        data.vars
-      } else if (inherits(x = object[[x]], what = 'SpatialImage')) {
-        vars.unkeyed <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
-        names(x = vars.use) <- vars.unkeyed
-        coords <- GetTissueCoordinates(object = object[[x]])[cells, vars.unkeyed, drop = FALSE]
-        colnames(x = coords) <- vars.use[colnames(x = coords)]
-        coords
-      }
-      data.return <- as.list(x = as.data.frame(x = data.return))
-      return(data.return)
-    }
-  )
-  data.fetched <- unlist(x = data.fetched, recursive = FALSE)
-  # Pull vars from object metadata
-  meta.vars <- vars[vars %in% colnames(x = object[[]]) & !(vars %in% names(x = data.fetched))]
-  data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
-  meta.default <- meta.vars[meta.vars %in% rownames(x = GetAssayData(object = object, slot = slot))]
-  if (length(x = meta.default)) {
-    warning(
-      "The following variables were found in both object metadata and the default assay: ",
-      paste0(meta.default, collapse = ", "),
-      "\nReturning metadata; if you want the feature, please use the assay's key (eg. ",
-      paste0(Key(object = object[[DefaultAssay(object = object)]]), meta.default[1]),
-      ")",
-      call. = FALSE
-    )
-  }
-  # Pull vars from the default assay
-  default.vars <- vars[vars %in% rownames(x = GetAssayData(object = object, slot = slot)) & !(vars %in% names(x = data.fetched))]
-  data.fetched <- c(
-    data.fetched,
-    tryCatch(
-      expr = as.data.frame(x = t(x = as.matrix(x = GetAssayData(
-        object = object,
-        slot = slot
-      )[default.vars, cells, drop = FALSE]))),
-      error = function(...) {
-        return(NULL)
-      }
-    )
-  )
-  # Pull identities
-  if ('ident' %in% vars && !'ident' %in% colnames(x = object[[]])) {
-    data.fetched[['ident']] <- Idents(object = object)[cells]
-  }
-  # Try to find ambiguous vars
-  fetched <- names(x = data.fetched)
-  vars.missing <- setdiff(x = vars, y = fetched)
-  if (length(x = vars.missing) > 0) {
-    # Search for vars in alternative assays
-    vars.alt <- vector(mode = 'list', length = length(x = vars.missing))
-    names(x = vars.alt) <- vars.missing
-    for (assay in FilterObjects(object = object, classes.keep = 'Assay')) {
-      vars.assay <- Filter(
-        f = function(x) {
-          features.assay <- rownames(x = GetAssayData(
-            object = object,
-            assay = assay,
-            slot = slot
-          ))
-          return(x %in% features.assay)
-        },
-        x = vars.missing
-      )
-      for (var in vars.assay) {
-        vars.alt[[var]] <- append(x = vars.alt[[var]], values = assay)
-      }
-    }
-    # Vars found in multiple alternative assays are truly ambiguous, will not pull
-    vars.many <- names(x = Filter(
-      f = function(x) {
-        return(length(x = x) > 1)
-      },
-      x = vars.alt
-    ))
-    if (length(x = vars.many) > 0) {
-      warning(
-        "Found the following features in more than one assay, excluding the default. We will not include these in the final data frame: ",
-        paste(vars.many, collapse = ', '),
-        call. = FALSE,
-        immediate. = TRUE
-      )
-    }
-    vars.missing <- names(x = Filter(
-      f = function(x) {
-        return(length(x = x) != 1)
-      },
-      x = vars.alt
-    ))
-    # Pull vars found in only one alternative assay
-    # Key this var to highlight that it was found in an alternate assay
-    vars.alt <- Filter(
-      f = function(x) {
-        return(length(x = x) == 1)
-      },
-      x = vars.alt
-    )
-    for (var in names(x = vars.alt)) {
-      assay <- vars.alt[[var]]
-      warning(
-        'Could not find ',
-        var,
-        ' in the default search locations, found in ',
-        assay,
-        ' assay instead',
-        immediate. = TRUE,
-        call. = FALSE
-      )
-      keyed.var <- paste0(Key(object = object[[assay]]), var)
-      data.fetched[[keyed.var]] <- as.vector(
-        x = GetAssayData(object = object, assay = assay, slot = slot)[var, cells]
-      )
-      vars <- sub(
-        pattern = paste0('^', var, '$'),
-        replacement = keyed.var,
-        x = vars
-      )
-    }
-    fetched <- names(x = data.fetched)
-  }
-  # Name the vars not found in a warning (or error if no vars found)
-  m2 <- if (length(x = vars.missing) > 10) {
-    paste0(' (10 out of ', length(x = vars.missing), ' shown)')
-  } else {
-    ''
-  }
-  if (length(x = vars.missing) == length(x = vars)) {
-    stop(
-      "None of the requested variables were found",
-      m2,
-      ': ',
-      paste(head(x = vars.missing, n = 10L), collapse = ', ')
-    )
-  } else if (length(x = vars.missing) > 0) {
-    warning(
-      "The following requested variables were not found",
-      m2,
-      ': ',
-      paste(head(x = vars.missing, n = 10L), collapse = ', ')
-    )
-  }
-  # Assembled fetched vars in a data frame
-  data.fetched <- as.data.frame(
-    x = data.fetched,
-    row.names = cells,
-    stringsAsFactors = FALSE
-  )
-  data.order <- na.omit(object = pmatch(
-    x = vars,
-    table = fetched
-  ))
-  if (length(x = data.order) > 1) {
-    data.fetched <- data.fetched[, data.order]
-  }
-  colnames(x = data.fetched) <- vars[vars %in% fetched]
-  return(data.fetched)
-}
-
 #' Find Sub-objects of a Certain Class
 #'
 #' Get the names of objects within a \code{Seurat} object that are of a
@@ -522,7 +303,10 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
 #' @examples
 #' FilterObjects(pbmc_small)
 #'
-FilterObjects <- function(object, classes.keep = c('Assay', 'DimReduc')) {
+FilterObjects <- function(
+  object,
+  classes.keep = c('Assay', 'StdAssay', 'DimReduc')
+) {
   object <- UpdateSlots(object = object)
   slots <- na.omit(object = Filter(
     f = function(x) {
@@ -954,6 +738,18 @@ UpdateSeuratObject <- function(object) {
 #'
 AddMetaData.Seurat <- .AddMetaData
 
+#' @method Cells Seurat
+#' @export
+#'
+Cells.Seurat <- function(x, assay = NULL, ...) {
+  assay <- assay[1L] %||% DefaultAssay(object = x)
+  if (is.na(x = assay)) {
+    return(colnames(x = x))
+  }
+  assay <- match.arg(arg = assay, choices = Assays(object = x))
+  return(Cells(x = x[[assay]], ...))
+}
+
 #' @param command Name of the command to pull, pass \code{NULL} to get the
 #' names of all commands run
 #' @param value Name of the parameter to pull the value for
@@ -983,54 +779,38 @@ Command.Seurat <- function(object, command = NULL, value = NULL, ...) {
   return(params[[value]])
 }
 
-#' @param row.names When \code{counts} is a \code{data.frame} or
-#' \code{data.frame}-derived object: an optional vector of feature names to be
-#' used
-#'
+# @param row.names When \code{counts} is a \code{data.frame} or
+# \code{data.frame}-derived object: an optional vector of feature names to be
+# used
+#
 #' @rdname CreateSeuratObject
 #' @method CreateSeuratObject default
 #' @export
 #'
 CreateSeuratObject.default <- function(
   counts,
-  project = 'SeuratProject',
   assay = 'RNA',
-  names.field = 1,
+  names.field = 1L,
   names.delim = '_',
   meta.data = NULL,
   min.cells = 0,
   min.features = 0,
-  row.names = NULL,
+  project = 'SeuratProject',
   ...
 ) {
-  if (!is.null(x = meta.data)) {
-    if (!all(rownames(x = meta.data) %in% colnames(x = counts))) {
-      warning("Some cells in meta.data not present in provided counts matrix")
-    }
-  }
-  assay.data <- CreateAssayObject(
+  assay.data <- CreateAssay5Object(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
-    row.names = row.names
+    ...
   )
-  if (!is.null(x = meta.data)) {
-    common.cells <- intersect(
-      x = rownames(x = meta.data), y = colnames(x = assay.data)
-    )
-    meta.data <- meta.data[common.cells, , drop = FALSE]
-  }
-  Key(object = assay.data) <- suppressWarnings(expr = UpdateKey(key = tolower(
-    x = assay
-  )))
   return(CreateSeuratObject(
     counts = assay.data,
-    project = project,
     assay = assay,
     names.field = names.field,
     names.delim = names.delim,
     meta.data = meta.data,
-    ...
+    project = project
   ))
 }
 
@@ -1040,36 +820,21 @@ CreateSeuratObject.default <- function(
 #'
 CreateSeuratObject.Assay <- function(
   counts,
-  project = 'SeuratProject',
   assay = 'RNA',
-  names.field = 1,
+  names.field = 1L,
   names.delim = '_',
   meta.data = NULL,
+  project = 'SeuratProject',
   ...
 ) {
-  if (!is.null(x = meta.data)) {
-    if (is.null(x = rownames(x = meta.data))) {
-      stop("Row names not set in metadata. Please ensure that rownames of metadata match column names of data matrix")
-    }
-    if (length(x = setdiff(x = rownames(x = meta.data), y = colnames(x = counts)))) {
-      warning("Some cells in meta.data not present in provided counts matrix.")
-      meta.data <- meta.data[intersect(x = rownames(x = meta.data), y = colnames(x = counts)), , drop = FALSE]
-    }
-    if (is.data.frame(x = meta.data)) {
-      new.meta.data <- data.frame(row.names = colnames(x = counts))
-      for (ii in 1:ncol(x = meta.data)) {
-        new.meta.data[rownames(x = meta.data), colnames(x = meta.data)[ii]] <- meta.data[, ii, drop = FALSE]
-      }
-      meta.data <- new.meta.data
-    }
+  # Check the assay key
+  if (!isTRUE(x = nzchar(x = Key(object = counts)))) {
+    Key(object = counts) <- Key(object = tolower(x = assay), quiet = TRUE)
   }
-  # Check assay key
-  if (!length(x = Key(object = counts)) || !nchar(x = Key(object = counts))) {
-    Key(object = counts) <- UpdateKey(key = tolower(x = assay))
-  }
+  # Assemble the assay list
   assay.list <- list(counts)
   names(x = assay.list) <- assay
-  # Set idents
+  # Create identity classes
   idents <- factor(x = unlist(x = lapply(
     X = colnames(x = counts),
     FUN = ExtractField,
@@ -1082,35 +847,61 @@ CreateSeuratObject.Assay <- function(
       call. = FALSE,
       immediate. = TRUE
     )
+    idents <- factor(x = rep_len(x = project, length.out = ncol(x = counts)))
   }
-  # if there are more than 100 idents, set all idents to ... name
-  ident.levels <- length(x = unique(x = idents))
-  if (ident.levels > 100 || ident.levels == 0 || ident.levels == length(x = idents)) {
-    idents <- rep.int(x = factor(x = project), times = ncol(x = counts))
+  nidents <- length(x = levels(x = idents))
+  if (nidents > 100L || nidents == 0L || nidents == length(x = idents)) {
+    idents <- factor(x = rep_len(x = project, length.out = ncol(x = counts)))
   }
   names(x = idents) <- colnames(x = counts)
-  object <- new(
+  # Initialize meta data
+  meta.init <- EmptyDF(n = ncol(x = counts))
+  row.names(x = meta.init) <- colnames(x = counts)
+  # Create the object
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
+  object <- suppressWarnings(expr = new(
     Class = 'Seurat',
     assays = assay.list,
-    meta.data = data.frame(row.names = colnames(x = counts)),
+    meta.data = meta.init,
     active.assay = assay,
     active.ident = idents,
+    graphs = list(),
+    neighbors = list(),
+    reductions = list(),
+    images = list(),
     project.name = project,
-    version = packageVersion(pkg = 'SeuratObject')
-  )
+    misc = list(),
+    version = packageVersion(pkg = 'SeuratObject'),
+    commands = list(),
+    tools = list()
+  ))
+  options(op)
   object[['orig.ident']] <- idents
-  # Calculate nCount and nFeature
-  n.calc <- CalcN(object = counts)
-  if (!is.null(x = n.calc)) {
-    names(x = n.calc) <- paste(names(x = n.calc), assay, sep = '_')
-    object[[names(x = n.calc)]] <- n.calc
-  }
-  # Add metadata
+  # Add provided meta data
   if (!is.null(x = meta.data)) {
-    object <- AddMetaData(object = object, metadata = meta.data)
+    tryCatch(
+      expr = object[[]] <- meta.data,
+      error = function(e) {
+        warning(e$message, call. = FALSE, immediate. = TRUE)
+      }
+    )
   }
+  # Calculate nCount and nFeature
+  ncalc <- CalcN(object = counts)
+  if (!is.null(x = ncalc)) {
+    names(x = ncalc) <- paste(names(x = ncalc), assay, sep = '_')
+    object[[]] <- ncalc
+  }
+  # Validate and return
+  validObject(object = object)
   return(object)
 }
+
+#' @method CreateSeuratObject StdAssay
+#' @export
+#'
+CreateSeuratObject.StdAssay <- CreateSeuratObject.Assay
 
 #' @rdname DefaultAssay
 #' @export
@@ -1142,9 +933,8 @@ DefaultAssay.Seurat <- function(object, ...) {
 "DefaultAssay<-.Seurat" <- function(object, ..., value) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
-  if (!value %in% names(x = slot(object = object, name = 'assays'))) {
-    stop("Cannot find assay ", value)
-  }
+  value <- value[1L]
+  value <- match.arg(arg = value, choices = Assays(object = object))
   slot(object = object, name = 'active.assay') <- value
   return(object)
 }
@@ -1241,10 +1031,20 @@ Embeddings.Seurat <- function(object, reduction = 'pca', ...) {
   return(Embeddings(object = object[[reduction]], ...))
 }
 
+#' @method Features Seurat
+#' @export
+#'
+Features.Seurat <- function(x, assay = NULL, ...) {
+  assay <- assay[1L] %||% DefaultAssay(object = x)
+  assay <- match.arg(arg = assay, choices = Assays(object = x))
+  return(Features(x = x[[assay]], ...))
+}
+
 #' @param vars List of all variables to fetch, use keyword \dQuote{ident} to
 #' pull identity classes
 #' @param cells Cells to collect data for (default is all cells)
-#' @param slot Slot to pull feature data for
+#' @param layer Layer to pull feature data for
+#' @param slot Deprecated in favor of \code{layer}
 #'
 #' @return A data frame with cells as rows and cellular data as columns
 #'
@@ -1259,15 +1059,32 @@ Embeddings.Seurat <- function(object, reduction = 'pca', ...) {
 #' head(x = pc1)
 #' head(x = FetchData(object = pbmc_small, vars = c('groups', 'ident')))
 #'
-FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
+FetchData.Seurat <- function(
+  object,
+  vars,
+  cells = NULL,
+  layer = NULL,
+  # slot = 'data',
+  slot = deprecated(),
+  ...
+) {
+  if (is_present(arg = slot)) {
+    deprecate_soft(
+      when = '4.9.0',
+      what = 'FetchData(slot = )',
+      with = 'FetchData(layer = )'
+    )
+    layer <- layer %||% slot
+  }
   object <- UpdateSlots(object = object)
+  # Find cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
     cells <- colnames(x = object)[cells]
   }
   if (is.null(x = vars)) {
     df <- EmptyDF(n = length(x = cells))
-    rownames(x = df) <- cells
+    row.names(x = df) <- cells
     return(df)
   }
   # Get a list of all objects to search through and their keys
@@ -1279,16 +1096,18 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
       if (length(x = key) == 0 || nchar(x = key) == 0) {
         return(integer(length = 0L))
       }
-      return(grep(pattern = paste0('^', key), x = vars))
+      return(grep(pattern = paste0('^', key), x = vars, value = TRUE))
     }
   )
   keyed.vars <- Filter(f = length, x = keyed.vars)
+  # Check spatial keyed vars
   ret.spatial2 <- vapply(
     X = names(x = keyed.vars),
     FUN = function(x) {
       return(inherits(x = object[[x]], what = 'FOV'))
     },
-    FUN.VALUE = logical(length = 1L)
+    FUN.VALUE = logical(length = 1L),
+    USE.NAMES = FALSE
   )
   if (any(ret.spatial2) && !all(ret.spatial2)) {
     warning(
@@ -1298,43 +1117,62 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
     )
     keyed.vars <- keyed.vars[ret.spatial2]
   }
+  # Find all keyed.vars
   data.fetched <- lapply(
     X = names(x = keyed.vars),
     FUN = function(x) {
-      vars.use <- vars[keyed.vars[[x]]]
-      key.use <- object.keys[x]
-      data.return <- if (inherits(x = object[[x]], what = 'DimReduc')) {
-        tryCatch(
-          expr = FetchData(object = object[[x]], vars = vars.use, cells = cells),
-          error = function(e) {
-            return(NULL)
-          }
+      data.return <- switch(
+        EXPR = x,
+        meta.data = {
+          md <- gsub(pattern = '^md', replacement = '', x = keyed.vars[[x]])
+          df <- object[[md]][cells, , drop = FALSE]
+          names(x = df) <- paste0('md_', names(x = df))
+          df
+        },
+        FetchData(
+          object = object[[x]],
+          vars = keyed.vars[[x]],
+          cells = cells,
+          layer = layer,
+          # slot = layer,
+          ...
         )
-      } else if (inherits(x = object[[x]], what = 'Assay')) {
-        vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
-        data.assay <- GetAssayData(
-          object = object,
-          slot = slot,
-          assay = x
-        )
-        vars.use <- vars.use[vars.use %in% rownames(x = data.assay)]
-        data.vars <- t(x = as.matrix(data.assay[vars.use, cells, drop = FALSE]))
-        if (ncol(data.vars) > 0) {
-          colnames(x = data.vars) <- paste0(key.use, vars.use)
-        }
-        data.vars
-      } else if (inherits(x = object[[x]], what = 'FOV')) {
-        vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
-        FetchData(object = object[[x]], vars = vars.use, cells = cells)
-      } else if (inherits(x = object[[x]], what = 'SpatialImage')) {
-        vars.unkeyed <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
-        names(x = vars.use) <- vars.unkeyed
-        coords <- GetTissueCoordinates(object = object[[x]])[cells, vars.unkeyed, drop = FALSE]
-        colnames(x = coords) <- vars.use[colnames(x = coords)]
-        coords
-      }
-      data.return <- as.list(x = as.data.frame(x = data.return))
-      return(data.return)
+      )
+      return(as.list(x = data.return))
+      # vars.use <- vars[keyed.vars[[x]]]
+      # key.use <- object.keys[x]
+      # data.return <- if (inherits(x = object[[x]], what = 'DimReduc')) {
+      #   tryCatch(
+      #     expr = FetchData(object = object[[x]], vars = vars.use, cells = cells),
+      #     error = function(e) {
+      #       return(NULL)
+      #     }
+      #   )
+      # } else if (inherits(x = object[[x]], what = 'Assay')) {
+      #   vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
+      #   data.assay <- GetAssayData(
+      #     object = object,
+      #     slot = slot,
+      #     assay = x
+      #   )
+      #   vars.use <- vars.use[vars.use %in% rownames(x = data.assay)]
+      #   data.vars <- t(x = as.matrix(data.assay[vars.use, cells, drop = FALSE]))
+      #   if (ncol(data.vars) > 0) {
+      #     colnames(x = data.vars) <- paste0(key.use, vars.use)
+      #   }
+      #   data.vars
+      # } else if (inherits(x = object[[x]], what = 'FOV')) {
+      #   vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
+      #   FetchData(object = object[[x]], vars = vars.use, cells = cells)
+      # } else if (inherits(x = object[[x]], what = 'SpatialImage')) {
+      #   vars.unkeyed <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
+      #   names(x = vars.use) <- vars.unkeyed
+      #   coords <- GetTissueCoordinates(object = object[[x]])[cells, vars.unkeyed, drop = FALSE]
+      #   colnames(x = coords) <- vars.use[colnames(x = coords)]
+      #   coords
+      # }
+      # data.return <- as.list(x = as.data.frame(x = data.return))
+      # return(data.return)
     }
   )
   data.fetched <- unlist(x = data.fetched, recursive = FALSE)
@@ -1342,9 +1180,11 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
     return(as.data.frame(x = data.fetched))
   }
   # Pull vars from object metadata
-  meta.vars <- vars[vars %in% colnames(x = object[[]]) & !(vars %in% names(x = data.fetched))]
-  data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
-  meta.default <- meta.vars[meta.vars %in% rownames(x = GetAssayData(object = object, slot = slot))]
+  default.assay <- DefaultAssay(object = object)
+  features.default <- Features(x = object, assay = default.assay, layer = layer)
+  meta.vars <- intersect(x = vars, y = names(x = object[[]]))
+  meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
+  meta.default <- intersect(x = meta.vars, y = features.default)
   if (length(x = meta.default)) {
     warning(
       "The following variables were found in both object metadata and the default assay: ",
@@ -1355,22 +1195,22 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
       call. = FALSE
     )
   }
+  data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
   # Pull vars from the default assay
-  default.vars <- vars[vars %in% rownames(x = GetAssayData(object = object, slot = slot)) & !(vars %in% names(x = data.fetched))]
-  data.fetched <- c(
-    data.fetched,
-    tryCatch(
-      expr = as.data.frame(x = t(x = as.matrix(x = GetAssayData(
-        object = object,
-        slot = slot
-      )[default.vars, cells, drop = FALSE]))),
-      error = function(...) {
-        return(NULL)
-      }
-    )
+  default.vars <- intersect(
+    x = vars,
+    y = setdiff(x = names(x = data.fetched), y = features.default)
   )
+  if (length(x = default.vars)) {
+    data.fetched[default.vars] <- as.list(x = FetchData(
+      object = object[[default.assay]],
+      vars = default.vars,
+      cells = cells,
+      layer = layer
+    ))
+  }
   # Pull identities
-  if ('ident' %in% vars && !'ident' %in% colnames(x = object[[]])) {
+  if ('ident' %in% vars && !'ident' %in% names(x = object[[]])) {
     data.fetched[['ident']] <- Idents(object = object)[cells]
   }
   # Try to find ambiguous vars
@@ -1380,15 +1220,10 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
     # Search for vars in alternative assays
     vars.alt <- vector(mode = 'list', length = length(x = vars.missing))
     names(x = vars.alt) <- vars.missing
-    for (assay in FilterObjects(object = object, classes.keep = 'Assay')) {
+    for (assay in Assays(object = object)) {
       vars.assay <- Filter(
         f = function(x) {
-          features.assay <- rownames(x = GetAssayData(
-            object = object,
-            assay = assay,
-            slot = slot
-          ))
-          return(x %in% features.assay)
+          return(x %in% Features(x = object, assay = assay, layer = layer))
         },
         x = vars.missing
       )
@@ -1437,9 +1272,10 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
         call. = FALSE
       )
       keyed.var <- paste0(Key(object = object[[assay]]), var)
-      data.fetched[[keyed.var]] <- as.vector(
-        x = GetAssayData(object = object, assay = assay, slot = slot)[var, cells]
-      )
+      # data.fetched[[keyed.var]] <- as.vector(
+      #   x = GetAssayData(object = object, assay = assay, slot = slot)[var, cells]
+      # )
+      data.fetched[[keyed.var]] <- as.list(x = FetchData(object = object[[assay]], vars = var, cells = cells, layer = layer))
       vars <- sub(
         pattern = paste0('^', var, '$'),
         replacement = keyed.var,
@@ -1475,14 +1311,14 @@ FetchData.Seurat <- function(object, vars, cells = NULL, slot = 'data', ...) {
     row.names = cells,
     stringsAsFactors = FALSE
   )
-  data.order <- na.omit(object = pmatch(
-    x = vars,
-    table = fetched
-  ))
-  if (length(x = data.order) > 1) {
-    data.fetched <- data.fetched[, data.order]
-  }
-  colnames(x = data.fetched) <- vars[vars %in% fetched]
+  # data.order <- na.omit(object = pmatch(
+  #   x = vars,
+  #   table = fetched
+  # ))
+  # if (length(x = data.order) > 1) {
+  #   data.fetched <- data.fetched[, data.order]
+  # }
+  # colnames(x = data.fetched) <- vars[vars %in% fetched]
   return(data.fetched)
 }
 
@@ -1621,7 +1457,7 @@ HVFInfo.Seurat <- function(
 #'
 Idents.Seurat <- function(object, ...) {
   CheckDots(...)
-  object <- UpdateSlots(object = object)
+  # object <- UpdateSlots(object = object)
   return(slot(object = object, name = 'active.ident'))
 }
 
@@ -1692,7 +1528,7 @@ Key.Seurat <- function(object, ...) {
   object <- UpdateSlots(object = object)
   keyed.objects <- FilterObjects(
     object = object,
-    classes.keep = c('Assay', 'DimReduc', 'SpatialImage')
+    classes.keep = c('Assay', 'StdAssay', 'DimReduc', 'SpatialImage')
   )
   keys <- vapply(
     X = keyed.objects,
@@ -2238,7 +2074,7 @@ WhichCells.Seurat <- function(
   if (!missing(x = expression)) {
     objects.use <- FilterObjects(
       object = object,
-      classes.keep = c('Assay', 'DimReduc', 'SpatialImage')
+      classes.keep = c('Assay', 'StdAssay', 'DimReduc', 'SpatialImage')
     )
     object.keys <- sapply(
       X = objects.use,
@@ -2458,7 +2294,7 @@ NULL
 #' pbmc_small[["pca"]]
 #'
 "[[.Seurat" <- function(x, i, ..., drop = FALSE) {
-  x <- UpdateSlots(object = x)
+  # x <- UpdateSlots(object = x)
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
@@ -2516,8 +2352,9 @@ NULL
 #' ncol(pbmc_small)
 #'
 dim.Seurat <- function(x) {
-  x <- UpdateSlots(object = x)
-  return(dim(x = x[[DefaultAssay(object = x)]]))
+  # x <- UpdateSlots(object = x)
+  # return(dim(x = x[[DefaultAssay(object = x)]]))
+  return(c(nrow(x = x[[DefaultAssay(object = x)]]), length(x = colnames(x = x))))
 }
 
 #' @describeIn Seurat-methods The cell and feature names for the active assay
@@ -2537,8 +2374,128 @@ dim.Seurat <- function(x) {
 #' colnames(pbmc_small)
 #'
 dimnames.Seurat <- function(x) {
-  x <- UpdateSlots(object = x)
-  return(dimnames(x = x[[DefaultAssay(object = x)]]))
+  # x <- UpdateSlots(object = x)
+  # return(dimnames(x = x[[DefaultAssay(object = x)]]))
+  return(list(
+    rownames(x = x[[DefaultAssay(object = x)]]),
+    row.names(x = slot(object = x, name = 'meta.data'))
+  ))
+}
+
+#' @method dimnames<- Seurat
+#' @export
+#'
+"dimnames<-.Seurat" <- function(x, value) {
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
+  # Check the provided dimnames
+  msg <- "Invalid 'dimnames' given for a Seurat object"
+  if (!is_bare_list(x = value, n = 2L)) {
+    stop(msg, call. = FALSE)
+  } else if (!all(sapply(X = value, FUN = length) == dim(x = x))) {
+    stop(msg, call. = FALSE)
+  }
+  value <- lapply(X = value, FUN = as.character)
+  onames <- dimnames(x = x)
+  # Rename cells at the Seurat level
+  names(x = slot(object = x, name = 'active.ident')) <-
+    row.names(x = slot(object = x, name = 'meta.data')) <-
+    value[[2L]]
+  # Rename features/cells at the Assay level
+  v3warn <- FALSE
+  for (assay in Assays(object = x)) {
+    anames <- dimnames(x = x[[assay]])
+    if (inherits(x = x[[assay]], what = 'StdAssay')) {
+      afeatures <- MatchCells(
+        new = onames[[1L]],
+        orig = anames[[1L]],
+        ordered = TRUE
+      )
+      if (length(x = afeatures)) {
+        idx <- MatchCells(new = anames[[1L]], orig = onames[[1L]])
+        anames[[1L]][idx] <- value[[1L]][afeatures]
+      }
+    } else if (isFALSE(x = v3warn) && any(onames[[1L]] != value[[1L]])) {
+      warning(
+        "Renaming features in v3/v4 assays is not supported",
+        call. = FALSE,
+        immediate. = TRUE
+      )
+      v3warn <- TRUE
+    }
+    acells <- MatchCells(new = onames[[2L]], orig = anames[[2L]])
+    anames[[2L]] <- value[[2L]][acells]
+    suppressWarnings(expr = dimnames(x = x[[assay]]) <- anames)
+  }
+  # Rename features/cells at the DimReduc level
+  for (reduc in Reductions(object = x)) {
+    rnames <- Cells(x = x[[reduc]])
+    rcells <- MatchCells(new = onames[[2L]], orig = rnames)
+    suppressWarnings(
+      expr = x[[reduc]] <- RenameCells(
+        object = x[[reduc]],
+        old.names = rnames,
+        new.names = value[[2L]][rcells]
+      )
+    )
+    if (!is.null(x = Features(x = x[[reduc]]))) {
+      rfnames <- Features(x = x[[reduc]])
+      rfeatures <- MatchCells(
+        new = onames[[1L]],
+        orig = rfnames,
+        ordered = TRUE
+      )
+      if (length(x = rfeatures)) {
+        suppressWarnings(
+          expr = x[[reduc]] <- .RenameFeatures(
+            object = x[[reduc]],
+            old.names = rfnames,
+            new.names = value[[1L]][rfeatures]
+          )
+        )
+      }
+    }
+  }
+  # TODO: Rename features/cells at the image level
+  for (img in Images(object = x)) {
+    inames <- Cells(x = x[[img]])
+    icells <- MatchCells(new = onames[[2L]], orig = inames)
+    suppressWarnings(
+      # TODO: replace with `x[[img]] <-`
+      expr = slot(object = x, name = 'images')[[img]] <- RenameCells(
+        object = x[[img]],
+        old.names = inames,
+        new.names = value[[2L]][icells]
+      )
+    )
+    # TODO: rename features
+  }
+  # Rename cells at the Graph level
+  for (graph in Graphs(object = x)) {
+    gnames <- dimnames(x = x[[graph]])
+    for (i in seq_along(along.with = gnames)) {
+      gcells <- MatchCells(new = onames[[2L]], orig = gnames[[i]])
+      gnames[[i]] <- value[[2L]][gcells]
+    }
+    suppressWarnings(expr = dimnames(x = x[[graph]]) <- gnames)
+  }
+  # Rename cells at the Neighbor level
+  for (nn in Neighbors(object = x)) {
+    nnames <- Cells(x = x[[nn]])
+    ncells <- MatchCells(new = onames[[2L]], orig = nnames)
+    suppressWarnings(
+      # TODO: replace with `x[[nn]] <-`
+      expr = slot(object = x, name = 'neighbors')[[nn]] <- RenameCells(
+        object = x[[nn]],
+        orig.names = nnames,
+        new.names = value[[2L]][ncells]
+      )
+    )
+  }
+  # Validate and return
+  options(op)
+  validObject(object = x)
+  return(x)
 }
 
 #' @rdname Idents
@@ -2646,6 +2603,7 @@ merge.Seurat <- function(
   x = NULL,
   y = NULL,
   add.cell.ids = NULL,
+  collapse = FALSE,
   merge.data = TRUE,
   merge.dr = NULL,
   project = "SeuratProject",
@@ -2653,15 +2611,34 @@ merge.Seurat <- function(
 ) {
   CheckDots(...)
   objects <- c(x, y)
+  # Check cell names
+  if (is_na(x = add.cell.ids)) {
+    add.cell.ids <- as.character(x = seq_along(along.with = objects))
+  } else if (isTRUE(x = add.cell.ids)) {
+    add.cell.ids <- vapply(
+      X = objects,
+      FUN = Project,
+      FUN.VALUE = character(length = 1L)
+    )
+  }
   if (!is.null(x = add.cell.ids)) {
     if (length(x = add.cell.ids) != length(x = objects)) {
-      stop("Please provide a cell identifier for each object provided to merge")
+      stop(
+        "Please provide a cell identifier for each object provided to merge",
+        call. = FALSE
+      )
     }
-    for (i in 1:length(x = objects)) {
-      objects[[i]] <- RenameCells(object = objects[[i]], add.cell.id = add.cell.ids[i])
+    for (i in seq_along(along.with = add.cell.ids)) {
+      colnames(x = objects[[i]]) <- paste(
+        colnames(x = objects[[i]]),
+        add.cell.ids[[i]],
+        sep = '_'
+      )
     }
+    # for (i in 1:length(x = objects)) {
+    #   objects[[i]] <- RenameCells(object = objects[[i]], add.cell.id = add.cell.ids[i])
+    # }
   }
-  # ensure unique cell names
   objects <- CheckDuplicateCellNames(object.list = objects)
   assays <- lapply(
     X = objects,
@@ -2801,10 +2778,11 @@ merge.Seurat <- function(
 #' names(pbmc_small)
 #'
 names.Seurat <- function(x) {
-  return(FilterObjects(
+  return(.FilterObjects(
     object = x,
-    classes.keep = c('Assay', 'DimReduc', 'Graph', 'SpatialImage')
+    classes.keep = c('Assay', 'StdAssay', 'DimReduc', 'Graph', 'SpatialImage')
   ))
+
 }
 
 #' @describeIn Seurat-methods Subset a \code{\link{Seurat}} object
@@ -2951,7 +2929,7 @@ tail.Seurat <- .tail
 #'
 setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   f = '[[<-',
-  signature = c('x' = 'Seurat'),
+  signature = c('x' = 'Seurat', i = 'character', value = 'ANY'),
   definition = function(x, i, ..., value) {
     x <- UpdateSlots(object = x)
     # Require names, no index setting
@@ -3125,7 +3103,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
     } else {
       # Add other object to Seurat object
       # Ensure cells match in value and order
-      if (!inherits(x = value, what = c('SeuratCommand', 'NULL', 'SpatialImage', 'Neighbor')) && !all(Cells(x = value) == Cells(x = x))) {
+      if (!inherits(x = value, what = c('SeuratCommand', 'NULL', 'SpatialImage', 'Neighbor')) && !all(Cells(x = value) == colnames(x = x))) {
         stop("All cells in the object being added must match the cells in this object", call. = FALSE)
       }
       # Ensure we're not duplicating object names
@@ -3247,6 +3225,505 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   }
 )
 
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'Assay'
+  ),
+  definition = function(x, i, ..., value) {
+    validObject(object = value)
+    i <- make.names(names = i)
+    # Checks for if the assay or name already exists
+    if (i %in% names(x = x)) {
+      if (!inherits(x = x[[i]], what = c('Assay', 'StdAssay'))) {
+        .DuplicateError(name = i, cls = class(x = x[[i]]))
+      }
+      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+        warning(
+          "Assay ",
+          i,
+          " changing from ",
+          class(x = x[[i]]),
+          " to ",
+          class(x = value),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+      if (!all(dim(x = value) == dim(x = x[[i]]))) {
+        warning(
+          "Different cells and/or features from existing assay ", i,
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+    }
+    # Check for cells
+    if (!all(colnames(x = value) %in% colnames(x = x))) {
+      stop("Cannot add new cells with [[<-", call. = FALSE)
+    }
+    cell.order <- MatchCells(
+      new = colnames(x = value),
+      orig = colnames(x = x),
+      ordered = TRUE
+    )
+    # TODO: enable reordering cells in assay
+    if (is.unsorted(x = cell.order)) {
+      if (inherits(x = value, what = 'Assay')) {
+        for (s in c('counts', 'data', 'scale.data')) {
+          if (!IsMatrixEmpty(x = slot(object = value, name = s))) {
+            slot(object = value, name = s) <- slot(object = value, name = s)[, cell.order]
+          }
+        }
+      } else {
+        stop("Cannot add assays with unordered cells", call. = FALSE)
+      }
+      validObject(object = value)
+    }
+    # Check keys
+    Key(object = value) <- .CheckKey(
+      key = Key(object = value),
+      existing = Key(object = x),
+      name = i
+    )
+    # TODO: Run CalcN
+    # Add the assay
+    slot(object = x, name = 'assays')[[i]] <- value
+    slot(object = x, name = 'assays') <- Filter(
+      f = Negate(f = is.null),
+      x = slot(object = x, name = 'assays')
+    )
+    # Validate and return
+    validObject(object = x)
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'data.frame'
+  ),
+  definition = function(x, i, ..., value) {
+    # Check that the `i` we're adding are present in the data frame
+    if (!is.null(x = names(x = value))) {
+      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
+    } else if (length(x = i) != ncol(x = value)) {
+      stop(
+        "Cannot assign ",
+        length(x = i),
+        " names to ",
+        ncol(x = value),
+        " bits of meta data",
+        call. = FALSE
+      )
+    }
+    # Handle meta data for different cells
+    names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
+    if (length(x = names.intersect)) {
+      value <- value[names.intersect, , drop = FALSE]
+      if (!nrow(x = value)) {
+        stop(
+          "None of the cells provided are in this Seurat object",
+          call. = FALSE
+        )
+      }
+    } else if (nrow(x = value) == ncol(x = x)) {
+      # When no cell names are provided in value, assume it's in cell order
+      row.names(x = value) <- colnames(x = x)
+    } else {
+      # Throw an error when no cell names provided and cannot assume cell order
+      stop(
+        "Cannot add more or less meta data without cell names",
+        call. = FALSE
+      )
+    }
+    # Add the cell-level meta data using the `value = vector` method
+    for (n in i) {
+      v <- value[[n]]
+      names(x = v) <- row.names(x = value)
+      x[[n]] <- v
+    }
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'missing',
+    j = 'missing',
+    value = 'data.frame'
+  ),
+  definition = function(x, i, ..., value) {
+    # Allow removing all meta data
+    if (IsMatrixEmpty(x = value)) {
+      x[[names(x = x[[]])]] <- NULL
+    } else {
+      # If no `i` provided, use the column names from value
+      x[[names(x = value)]] <- value
+    }
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'DimReduc'
+  ),
+  definition = function(x, i, ..., value) {
+    # callNextMethod(x = x, i = i, value = value)
+    validObject(object = value)
+    i <- make.names(names = i)
+    # Checks for if the DimReduc or name already exists
+    if (i %in% names(x = x)) {
+      if (!inherits(x = x[[i]], what = 'DimReduc')) {
+        .DuplicateError(name = i, cls = class(x = x[[i]]))
+      }
+      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+        warning(
+          "DimReduc ",
+          i,
+          " changing from ",
+          class(x = x[[i]]),
+          " to ",
+          class(x = value),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+      if (length(x = value) != length(x = x[[i]])) {
+        warning(
+          "Number of dimensions changing from ",
+          length(x = x[[i]]),
+          " to ",
+          length(x = value),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+      if (length(x = Cells(x = value)) != length(x = Cells(x = x[[i]]))) {
+        warning(
+          "Number of cells changing from ",
+          length(x = Cells(x = x[[i]])),
+          " to ",
+          length(x = Cells(x = value)),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+    }
+    # Check default assay
+    if (is.null(x = DefaultAssay(object = value))) {
+      stop("Cannot add a DimReduc without an associated assay", call. = FALSE)
+    } else if (!any(DefaultAssay(object = value) %in% Assays(object = x))) {
+      warning(
+        "Adding a dimensional reduction (",
+        i,
+        ") without the associated assay being present",
+        call. = FALSE,
+        immediate. = TRUE
+      )
+    }
+    # Check for cells
+    if (!all(Cells(x = value) %in% colnames(x = x))) {
+      stop("Cannot add new cells with [[<-", call. = FALSE)
+    }
+    cell.order <- MatchCells(
+      new = Cells(x = value),
+      orig = colnames(x = x),
+      ordered = TRUE
+    )
+    # TODO: enable reordering cells in assay
+    if (is.unsorted(x = cell.order)) {
+      stop("Cannot add assays with unordered cells", call. = FALSE)
+      validObject(object = value)
+    }
+    # Check keys
+    Key(object = value) <- .CheckKey(
+      key = Key(object = value),
+      existing = Key(object = x),
+      name = i
+    )
+    slot(object = x, name = 'reductions')[[i]] <- value
+    slot(object = x, name = 'reductions') <- Filter(
+      f = Negate(f = is.null),
+      x = slot(object = x, name = 'reductions')
+    )
+    # Validate and return
+    validObject(object = x)
+    return(x)
+  }
+)
+
+# Add cell-level meta data
+#' @importFrom methods selectMethod
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'factor'),
+  definition = function(x, i, ..., value) {
+    # Reuse the `value = vector` method
+    fn <- slot(
+      object = selectMethod(
+        f = '[[<-',
+        signature = c(
+          x = 'Seurat',
+          i = 'character',
+          j = 'missing',
+          value = 'vector'
+        )
+      ),
+      name = '.Data'
+    )
+    return(fn(x = x, i = i, value = value))
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'Graph'),
+  definition = function(x, i, ..., value) {
+    # callNextMethod(x = x, i = i, value = value)
+    validObject(object = value)
+    i <- make.names(names = i)
+    # Checks for if the DimReduc or name already exists
+    if (i %in% names(x = x)) {
+      if (!inherits(x = x[[i]], what = 'Graph')) {
+        .DuplicateError(name = i, cls = class(x = x[[i]]))
+      }
+      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+        warning(
+          "Graph ",
+          i,
+          " changing from ",
+          class(x = x[[i]]),
+          " to ",
+          class(x = value),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+      if (!all(dim(x = value) == dim(x = x[[i]]))) {
+        warning(
+          "Different cells from existing graph ", i,
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+    }
+    # Check cells
+    gcells <- Cells(x = value, margin = NA_integer_)
+    if (!all(gcells %in% colnames(x = x))) {
+      stop("Cannot add cells with [[<-", call. = FALSE)
+    }
+    cell.order <- MatchCells(
+      new = gcells,
+      orig = colnames(x = x),
+      ordered = TRUE
+    )
+    # TODO: enable reordering cells in graph
+    if (is.unsorted(x = cell.order)) {
+      stop("Cannot add graphs with unordered cells", call. = FALSE)
+      validObject(object = value)
+    }
+    # Add the graph
+    slot(object = x, name = 'graphs')[[i]] <- value
+    slot(object = x, name = 'graphs') <- Filter(
+      f = Negate(f = is.null),
+      x = slot(object = x, name = 'graphs')
+    )
+    # Validate and return
+    validObject(object = x)
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Seurat', i = 'missing', j = 'missing', value = 'list'),
+  definition = function(x, i, ..., value) {
+    stopifnot(IsNamedList(x = value))
+    for (y in names(x = value)) {
+      x[[y]] <- value[[y]]
+    }
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'Neighbor'
+  ),
+  definition = function(x, i, ..., value) {
+    callNextMethod(x = x, i = i, value = value)
+  }
+)
+
+# Remove objects and cell-level meta data
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'NULL'),
+  definition = function(x, i, ..., value) {
+    # Allow removing multiple objects or bits of cell-level meta data at once
+    for (name in i) {
+      # Determine the slot to use
+      # If no subobject found, check cell-level meta data
+      slot.use <- .FindObject(object = x, name = name) %||% 'meta.data'
+      switch(
+        EXPR = slot.use,
+        'meta.data' = {
+          # If we can't find the cell-level meta data, throw a warning and move
+          # to the next name
+          if (!name %in% names(x = x[[]])) {
+            warning(
+              "Cannot find cell-level meta data named ",
+              name,
+              call. = FALSE,
+              immediate. = TRUE
+            )
+            next
+          }
+          # Remove the column of meta data
+          slot(object = x, name = 'meta.data')[, name] <- value
+        },
+        'assays' = {
+          # Cannot remove the default assay
+          if (isTRUE(x = name == DefaultAssay(object = x))) {
+            stop("Cannot delete default assay", call. = FALSE)
+          }
+          # Remove the assay
+          slot(object = x, name = slot.use)[[i]] <- value
+          # # Remove the assay entry from the LogMap
+          # slot(object = x, name = 'cells') <- droplevels(x = slot(
+          #   object = x,
+          #   name = 'cells'
+          # ))
+        },
+        # Remove other subobjects
+        slot(object = x, name = slot.use)[[name]] <- value
+      )
+    }
+    # Validate and return
+    validObject(object = x)
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'SeuratCommand'
+  ),
+  definition = function(x, i, ..., value) {
+    callNextMethod(x = x, i = i, value = value)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'SpatialImage'
+  ),
+  definition = function(x, i, ..., value) {
+    callNextMethod(x = x, i = i, value = value)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'StdAssay'
+  ),
+  definition = function(x, i, ..., value) {
+    # Reuse the `value = Assay` method
+    fn <- slot(
+      object = selectMethod(
+        f = '[[<-',
+        signature = c(
+          x = 'Seurat',
+          i = 'character',
+          j = 'missing',
+          value = 'Assay'
+        )
+      ),
+      name = '.Data'
+    )
+    return(fn(x = x, i = i, value = value))
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'vector'
+  ),
+  definition = function(x, i, ..., value) {
+    # Add multiple objects
+    if (length(x = i) > 1L) {
+      value <- rep_len(x = value, length.out = length(x = i))
+      for (idx in seq_along(along.with = i)) {
+        x[[i[idx]]] <- value[[idx]]
+      }
+      return(x)
+    }
+    # Add a column of cell-level meta data
+    if (is.null(x = names(x = value))) {
+      # Handle cases where new meta data is unnamed
+      value <- rep_len(x = value, length.out = ncol(x = x))
+      names(x = value) <- colnames(x = x)
+    } else {
+      # Check cell names for new objects
+      names.intersect <- intersect(x = names(x = value), y = colnames(x = x))
+      if (!length(x = names.intersect)) {
+        stop(
+          "No cell overlap between new meta data and Seurat object",
+          call. = FALSE
+        )
+      }
+      value <- value[names.intersect]
+    }
+    df <- EmptyDF(n = ncol(x = x))
+    row.names(x = df) <- colnames(x = x)
+    df[[i]] <- if (i %in% names(x = x[[]])) {
+      x[[i]]
+    } else {
+      NA
+    }
+    df[names(x = value), i] <- value
+    slot(object = x, name = 'meta.data')[, i] <- df[[i]]
+    validObject(object = x)
+    return(x)
+  }
+)
+
 #' @describeIn Seurat-methods Calculate \code{\link[base]{colMeans}} on a
 #' \code{Seurat} object
 #'
@@ -3357,13 +3834,13 @@ setMethod(
   signature = "Seurat",
   definition = function(object) {
     object <- UpdateSlots(object = object)
-    assays <- FilterObjects(object = object, classes.keep = 'Assay')
+    assays <- FilterObjects(object = object, classes.keep = c('Assay', 'StdAssay'))
     nfeatures <- sum(vapply(
       X = assays,
       FUN = function(x) {
         return(nrow(x = object[[x]]))
       },
-      FUN.VALUE = integer(length = 1L)
+      FUN.VALUE = numeric(length = 1L)
     ))
     num.assays <- length(x = assays)
     cat("An object of class", class(x = object), "\n")
@@ -3379,7 +3856,13 @@ setMethod(
     cat(
       "Active assay:",
       DefaultAssay(object = object),
-      paste0('(', nrow(x = object), ' features, ', length(x = VariableFeatures(object = object)), ' variable features)')
+      paste0(
+        '(',
+        nrow(x = object),
+        ' features, ',
+        length(x = suppressWarnings(expr = VariableFeatures(object = object))),
+        ' variable features)'
+      )
     )
     other.assays <- assays[assays != DefaultAssay(object = object)]
     if (length(x = other.assays) > 0) {
@@ -3449,9 +3932,165 @@ setMethod(
   }
 )
 
+setValidity(
+  Class = 'Seurat',
+  method = function(object) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warning("Not validating Seurat objects", call. = FALSE, immediate. = TRUE)
+      return(TRUE)
+    }
+    valid <- NULL
+    # TODO: Check meta data
+    md <- slot(object = object, name = 'meta.data')
+    if (length(x = class(x = md)) != 1L || class(x = md) != 'data.frame') {
+      valid <- c(valid, "'meta.data' must be a base-R data.frame")
+    }
+    if (ncol(x = md)) {
+      if (is.null(x = names(x = md)) || any(!nzchar(x = names(x = md)))) {
+        valid <- c(valid, "all columns in 'meta.data' must be named")
+      }
+    }
+    # TODO: Check cells
+    ocells <- colnames(x = object)
+    if (anyDuplicated(x = ocells)) {
+      valid <- c(valid, "cell names may not be duplicated")
+    }
+    # TODO: Check assays
+    if (!IsNamedList(x = slot(object = object, name = 'assays'))) {
+      valid <- c(valid, "'assays' must be a named list")
+    } else {
+      for (assay in Assays(object = object)) {
+        if (!inherits(x = object[[assay]], what = c('Assay', 'StdAssay'))) {
+          valid <- c(valid, "'assays' must be a list of 'Assay' objects")
+          break
+        }
+        acells <- colnames(x = object[[assay]])
+        if (!all(acells %in% ocells)) {
+          valid <- c(valid, "all cells in assays must be present in the Seurat object")
+        } else if (is.unsorted(x = MatchCells(new = acells, orig = ocells, ordered = TRUE))) {
+          valid <- c(
+            valid,
+            "all cells in assays must be in the same order as the Seurat object"
+          )
+        }
+        if (!isTRUE(x = nzchar(x = Key(object = object[[assay]])))) {
+          valid <- c(valid, "all assays must have a key")
+        }
+      }
+    }
+    # TODO: Check reductions
+    if (!IsNamedList(x = slot(object = object, name = 'reductions'), pass.zero = TRUE)) {
+      valid <- c(valid, "'reductions' must be a named list")
+    } else {
+      for (reduc in Reductions(object = object)) {
+        # Check cells
+        rcells <- Cells(x = object[[reduc]])
+        if (!all(rcells %in% ocells)) {
+          valid <- c(valid, "All cells in reductions must be present in the Seurat object")
+        } else if (is.unsorted(x = MatchCells(new = rcells, orig = ocells, ordered = TRUE))) {
+          valid <- c(valid, "all cells in reductions must be in the same order as the Seurat object")
+        }
+        # TODO: Check features
+        # TODO: Check default assay
+      }
+    }
+    # Check graphs
+    if (!IsNamedList(x = slot(object = object, name = 'graphs'), pass.zero = TRUE)) {
+      valid <- c(valid, "'graphs' must be a named list")
+    } else {
+      for (graph in Graphs(object = object)) {
+        gnames <- Cells(x = object[[graph]], margin = NA_integer_)
+        if (!DefaultAssay(object = object[[graph]]) %in% Assays(object = object)) {
+          valid <- c(
+            valid,
+            "the default assay for graphs must be present in the Seurat object"
+          )
+        }
+        if (!all(gnames %in% colnames(x = object))) {
+          valid <- c(valid, "all cells in graphs must be present in the Seurat object")
+        } else if (is.unsorted(x = MatchCells(new = gnames, orig = ocells, ordered = TRUE))) {
+          valid <- c(
+            valid,
+            paste0(
+              "all cells in graphs must be in the same order as the Seurat object (offending: ",
+              graph,
+              ")"
+            )
+          )
+        }
+      }
+    }
+    # Check neighbors
+    if (!IsNamedList(x = slot(object = object, name = 'neighbors'), pass.zero = TRUE)) {
+      valid <- c(valid, "'neighbors' must be a named list")
+    } else {
+      for (nn in Neighbors(object = object)) {
+        ncells <- Cells(x = object[[nn]])
+        if (!all(ncells %in% ocells)) {
+          valid <- c(valid, "All cells in neighbor objects must be present in the Seurat object")
+        } else if (is.unsorted(x = MatchCells(new = ncells, orig = ocells, ordered = TRUE))) {
+          valid <- c(valid, "All cells in neighbor objects must be in the same order as the Seurat object")
+        }
+      }
+    }
+    # TODO: Check images
+    if (!IsNamedList(x = slot(object = object, name = 'images'), pass.zero = TRUE)) {
+      valid <- c(valid, "'images' must be a named list")
+    } else {
+      for (img in Images(object = object)) {
+        icells <- Cells(x = object[[img]])
+        if (!all(icells %in% ocells)) {
+          valid <- c(valid, "All cells in images must be present in the Seurat object")
+        } else if (is.unsorted(x = MatchCells(new = icells, orig = ocells, ordered = TRUE))) {
+          valid <- c(valid, "All cells in images must be in the same order as the Seurat object")
+        }
+      }
+    }
+    # TODO: Check project
+    proj <- Project(object = object)
+    if (length(x = proj) != 1L) {
+      valid <- c(valid, "'project' must be a 1-length character vector")
+    } else if (is.na(x = proj)) {
+      valid <- c(valid, "'project' cannot be NA")
+    } else if (!nzchar(x = proj)) {
+      valid <- c(valid, "'project' cannot be an empty character")
+    }
+    # TODO: Check idents
+    idents <- Idents(object = object)
+    if (length(x = idents) != ncol(x = object)) {
+      valid <- c(
+        valid,
+        "'active.idents' must be as long as the number of cells present"
+      )
+    } else if (!all(names(x = idents) == colnames(x = object))) {
+      valid <- c(valid, "'active.idents' must be named with cell names")
+    }
+    # TODO: Check version
+    if (length(x = slot(object = object, name = 'version')) > 1) {
+      valid <- c(valid, "Only one version is allowed")
+    }
+    return(valid %||% TRUE)
+  }
+)
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+.FilterCells <- function(object, validate = TRUE) {
+  objs <- .FilterObjects(
+    object = object,
+    classes.keep = c(
+      'Assay', # assays
+      'StdAssay', # assays
+      'Graph', # graphs
+      'Neighbor', # neighbors
+      'DimReduc', # reductions
+      'SpatialImage' # images
+    )
+  )
+  ''
+}
 
 #' Object Collections
 #'
