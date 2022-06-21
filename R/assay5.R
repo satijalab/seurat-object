@@ -1735,6 +1735,44 @@ CalcN5 <- function(object) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+setAs(
+  from = 'Assay',
+  to = 'Assay5',
+  def = function(from) {
+    # Initialize the new object
+    to <- new(
+      Class = 'Assay5',
+      cells = LogMap(y = colnames(x = from)),
+      features = LogMap(y = rownames(x = from)),
+      assay.orig = DefaultAssay(object = from) %||% character(length = 0L),
+      meta.data = EmptyDF(n = nrow(x = from)),
+      key = Key(object = from)
+    )
+    # Add the expression matrices
+    for (i in c('counts', 'data', 'scale.data')) {
+      adata <- GetAssayData(object = from, slot = i)
+      if (IsMatrixEmpty(x = adata)) {
+        next
+      }
+      LayerData(object = to, layer = i) <- adata
+    }
+    # Set the default layer
+    DefaultLayer(object = to) <- ifelse(
+      test = 'counts' %in% Layers(object = to) && !'scale.data' %in% Layers(object = to),
+      yes = 'counts',
+      no = 'data'
+    )
+    # Add feature-level meta data
+    to[[]] <- from[[]]
+    # Add miscellaneous data
+    mdata <- Misc(object = from)
+    for (i in names(x = mdata)) {
+      Misc(object = to, slot = i) <- mdata[[i]]
+    }
+    return(to)
+  }
+)
+
 #' @details \code{[[<-}: Add or remove pieces of meta data
 #'
 #' @return \code{[[<-}: \code{x} with the metadata updated
@@ -1750,6 +1788,9 @@ setMethod(
     value = 'data.frame'
   ),
   definition = function(x, i, ..., value) {
+    if (!length(x = i) && !ncol(x = value)) {
+      return(x)
+    }
     i <- match.arg(arg = i, choices = colnames(x = value), several.ok = TRUE)
     names.intersect <- intersect(
       x = row.names(x = value),
@@ -1770,6 +1811,26 @@ setMethod(
       names(x = v) <- row.names(value)
       x[[n]] <- v
     }
+    return(x)
+  }
+)
+
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'StdAssay',
+    i = 'missing',
+    j = 'missing',
+    value = 'data.frame'
+  ),
+  definition = function(x, ..., value) {
+    # Allow removing all meta data
+    if (IsMatrixEmpty(x = value)) {
+      x[[names(x = x[[]])]] <- NULL
+      return(x)
+    }
+    # If no `i` provided, use the column names from value
+    x[[names(x = value)]] <- value
     return(x)
   }
 )
@@ -1804,6 +1865,7 @@ setMethod(
   f = '[[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'NULL'),
   definition = function(x, i, ..., value) {
+    browser()
     for (name in i) {
       slot(object = x, name = 'meta.data')[[name]] <- NULL
     }
@@ -2017,14 +2079,6 @@ setMethod(
       )
     }
     return(invisible(x = NULL))
-  }
-)
-
-setAs(
-  from = 'Assay',
-  to = 'Assay5',
-  def = function(from) {
-    ''
   }
 )
 
