@@ -1202,7 +1202,7 @@ VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, colla
       hvf.info <- HVFInfo(
         object = object,
         method = method,
-        layer = layer,
+        layer = lyr,
         status = TRUE,
         strip = TRUE
       )
