@@ -2293,45 +2293,53 @@ NULL
 #' pbmc_small[["RNA"]]
 #' pbmc_small[["pca"]]
 #'
-"[[.Seurat" <- function(x, i, ..., drop = FALSE) {
+"[[.Seurat" <- function(x, i, ..., drop = FALSE, na.rm = FALSE) {
   # x <- UpdateSlots(object = x)
   if (missing(x = i)) {
-    i <- colnames(x = slot(object = x, name = 'meta.data'))
-  }
-  if (length(x = i) == 0) {
+    return(slot(object = x, name = 'meta.data'))
+  } else if (!length(x = i)) {
     return(data.frame(row.names = colnames(x = x)))
-  } else if (length(x = i) > 1 || any(i %in% colnames(x = slot(object = x, name = 'meta.data')))) {
-    if (any(!i %in% colnames(x = slot(object = x, name = 'meta.data')))) {
-      warning(
-        "Cannot find the following bits of meta data: ",
-        paste0(
-          i[!i %in% colnames(x = slot(object = x, name = 'meta.data'))],
-          collapse = ', '
-        )
+  }
+  # Correct invalid `i`
+  meta.cols <- names(x = slot(object = x, name = 'meta.data'))
+  if (is.numeric(x = i)) {
+    stopifnot(any(i <= length(x = meta.cols)))
+    i <- i[i <= length(x = meta.cols)]
+    i <- meta.cols[as.integer(x = i)]
+  }
+  stopifnot(is.character(x = i))
+  # Determine if we're pulling cell-level meta data
+  # or a sub-object
+  slot.use <- if (length(x = i) == 1L) {
+    .FindObject(object = x, name = i)
+  } else {
+    NULL
+  }
+  # Pull cell-level meta data
+  if (is.null(x = slot.use)) {
+    # Identify the cell-level meta data to use
+    i <- match.arg(arg = i, choices = meta.cols, several.ok = TRUE)
+    # Pull the cell-level meta data
+    data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
+    # If requested, remove NAs
+    if (isTRUE(x = na.rm)) {
+      idx.na <- apply(X = is.na(x = data.return), MARGIN = 1L, FUN = all)
+      data.return <- data.return[!idx.na, , drop = FALSE]
+    } else {
+      idx.na <- rep_len(x = FALSE, length.out = ncol(x = x))
+    }
+    # If requested, coerce to a vector
+    if (isTRUE(x = drop)) {
+      data.return <- unlist(x = data.return, use.names = FALSE)
+      names(x = data.return) <- rep.int(
+        x = colnames(x = x)[!idx.na],
+        times = length(x = i)
       )
     }
-    i <- i[i %in% colnames(x = slot(object = x, name = 'meta.data'))]
-    data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
-    if (drop) {
-      data.return <- unlist(x = data.return, use.names = FALSE)
-      names(x = data.return) <- rep.int(x = colnames(x = x), times = length(x = i))
-    }
-  } else {
-    slot.use <- unlist(x = lapply(
-      X = c('assays', 'reductions', 'graphs', 'neighbors', 'commands', 'images'),
-      FUN = function(s) {
-        if (any(i %in% names(x = slot(object = x, name = s)))) {
-          return(s)
-        }
-        return(NULL)
-      }
-    ))
-    if (is.null(x = slot.use)) {
-      stop("Cannot find '", i, "' in this Seurat object", call. = FALSE)
-    }
-    data.return <- slot(object = x, name = slot.use)[[i]]
+    return(data.return)
   }
-  return(data.return)
+  # Pull a sub-object
+  return(slot(object = x, name = slot.use)[[i]])
 }
 
 #' @describeIn Seurat-methods Number of cells and features for the active assay
@@ -2611,15 +2619,19 @@ merge.Seurat <- function(
 ) {
   CheckDots(...)
   objects <- c(x, y)
+  projects <- vapply(
+    X = objects,
+    FUN = Project,
+    FUN.VALUE = character(length = 1L)
+  )
+  if (anyDuplicated(x = projects)) {
+    projects <- as.character(x = seq_along(along.with = objects))
+  }
   # Check cell names
   if (is_na(x = add.cell.ids)) {
     add.cell.ids <- as.character(x = seq_along(along.with = objects))
   } else if (isTRUE(x = add.cell.ids)) {
-    add.cell.ids <- vapply(
-      X = objects,
-      FUN = Project,
-      FUN.VALUE = character(length = 1L)
-    )
+    add.cell.ids <- projects
   }
   if (!is.null(x = add.cell.ids)) {
     if (length(x = add.cell.ids) != length(x = objects)) {
@@ -2640,95 +2652,84 @@ merge.Seurat <- function(
     # }
   }
   objects <- CheckDuplicateCellNames(object.list = objects)
-  assays <- lapply(
-    X = objects,
-    FUN = FilterObjects,
-    classes.keep = 'Assay'
-  )
-  fake.feature <- RandomName(length = 17)
-  assays <- unique(x = unlist(x = assays, use.names = FALSE))
-  combined.assays <- vector(mode = 'list', length = length(x = assays))
-  names(x = combined.assays) <- assays
-  for (assay in assays) {
-    assays.merge <- lapply(
-      X = objects,
-      FUN = function(object) {
-        return(tryCatch(
-          expr = object[[assay]],
-          error = function(e) {
-            return(CreateAssayObject(counts = Matrix(
-              data = 0,
-              ncol = ncol(x = object),
-              dimnames = list(fake.feature, colnames(x = object)),
-              sparse = TRUE
-            )))
-          }
-        ))
-      }
-    )
-    merged.assay <- merge(
-      x = assays.merge[[1]],
-      y = assays.merge[2:length(x = assays.merge)],
-      merge.data = merge.data
-    )
-    merged.assay <- subset(
-      x = merged.assay,
-      features = rownames(x = merged.assay)[rownames(x = merged.assay) != fake.feature]
-    )
-    if (length(x = Key(object = merged.assay)) == 0) {
-      Key(object = merged.assay) <- paste0(assay, '_')
-    }
-    combined.assays[[assay]] <- merged.assay
-  }
-  # Merge the meta.data
-  combined.meta.data <- data.frame(row.names = colnames(x = combined.assays[[1]]))
-  new.idents <- c()
-  for (object in objects) {
-    old.meta.data <- object[[]]
-    if (any(!colnames(x = old.meta.data) %in% colnames(x = combined.meta.data))) {
-      cols.to.add <- colnames(x = old.meta.data)[!colnames(x = old.meta.data) %in% colnames(x = combined.meta.data)]
-      combined.meta.data[, cols.to.add] <- NA
-    }
-    # unfactorize any factor columns
-    i <- sapply(X = old.meta.data, FUN = is.factor)
-    old.meta.data[i] <- lapply(X = old.meta.data[i], FUN = as.vector)
-    combined.meta.data[rownames(x = old.meta.data), colnames(x = old.meta.data)] <- old.meta.data
-    new.idents <- c(new.idents, as.vector(Idents(object = object)))
-  }
-  names(x = new.idents) <- rownames(x = combined.meta.data)
-  new.idents <- factor(x = new.idents)
-  if (DefaultAssay(object = x) %in% assays) {
-    new.default.assay <- DefaultAssay(object = x)
-  } else if (DefaultAssay(object = y) %in% assays) {
-    new.default.assay <- DefaultAssay(object = y)
-  } else {
-    new.default.assay <- assays[1]
-  }
-  # Merge images
-  combined.images <- vector(
-    mode = 'list',
-    length = length(x = unlist(x = lapply(X = objects, FUN = Images)))
-  )
-  index <- 1L
-  for (i in 1:length(x = objects)) {
-    object <- objects[[i]]
-    for (image in Images(object = object)) {
-      image.obj <- object[[image]]
-      if (image %in% names(x = combined.images)) {
-        image <- if (is.null(x = add.cell.ids)) {
-          make.unique(names = c(
-            na.omit(object = names(x = combined.images)),
-            image
-          ))[index]
+  # Merge assays
+  assays <- Reduce(f = union, x = lapply(X = objects, FUN = Assays))
+  assay.classes <- sapply(
+    X = assays,
+    FUN = function(a) {
+      cls <- vector(mode = 'character', length = length(x = objects))
+      for (i in seq_along(along.with = cls)) {
+        cls[i] <- if (a %in% Assays(object = objects[[i]])) {
+          class(x = objects[[i]][[a]])[1L]
         } else {
-          paste(image, add.cell.ids[i], sep = '_')
+          NA_character_
         }
       }
-      combined.images[[index]] <- image.obj
-      names(x = combined.images)[index] <- image
-      index <- index + 1L
+      return(unique(x = cls[!is.na(x = cls)]))
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  # TODO: Handle merging v3 and v5 assays
+  if (any(sapply(X = assay.classes, FUN = length) != 1L)) {
+    stop("Cannot merge assays of different classes")
+  }
+  assays.all <- vector(mode = 'list', length = length(x = assays))
+  names(x = assays.all) <- assays
+  for (assay in assays) {
+    assay.objs <- which(x = vapply(
+      X = lapply(X = objects, FUN = names),
+      FUN = '%in%',
+      FUN.VALUE = logical(length = 1L),
+      x = assay
+    ))
+    if (length(x = assay.objs) == 1L) {
+      assays.all[[assay]] <- objects[[assay.objs]][[assay]]
+      next
+    }
+    idx.x <- assay.objs[[1L]]
+    idx.y <- setdiff(x = assay.objs, y = idx.x)
+    assays.all[[assay]] <- merge(
+      x = objects[[idx.x]][[assay]],
+      y = lapply(X = objects[idx.y], FUN = '[[', assay),
+      labels = projects,
+      add.cell.ids = NULL,
+      collapse = collapse,
+      merge.data = merge.data
+    )
+  }
+  all.cells <- Reduce(f = union, x = lapply(X = objects, FUN = colnames))
+  idents.all <- unlist(x = lapply(X = objects, FUN = Idents))
+  idents.all <- idents.all[all.cells]
+  md.all <- EmptyDF(n = length(x = all.cells))
+  row.names(x = md.all) <- all.cells
+  obj.combined <- new(
+    Class = 'Seurat',
+    assays = assays.all,
+    reductions = list(),
+    images = list(),
+    meta.data = md.all,
+    active.assay = DefaultAssay(object = x),
+    active.ident = idents.all,
+    project.name = project,
+    version = packageVersion(pkg = 'SeuratObject')
+  )
+  # Merge cell-level  meta data, images
+  for (i in seq_along(along.with = objects)) {
+    obj.combined[[]] <- objects[[i]][[]]
+    for (img in Images(object = objects[[i]])) {
+      dest <- ifelse(
+        test = img %in% Images(object = obj.combined),
+        yes = paste(img, projects[i], sep = '.'),
+        no = img
+      )
+      obj.combined[[dest]] <- objects[[i]][[img]]
     }
   }
+  # TODO: Merge dimensional reductions
+  # Validate and return
+  validObject(object = obj.combined)
+  return(obj.combined)
   # Merge DimReducs
   combined.reductions <- list()
   if (!is.null(x = merge.dr)) {
@@ -2750,19 +2751,6 @@ merge.Seurat <- function(
       }
     }
   }
-  # Create merged Seurat object
-  merged.object <- new(
-    Class = 'Seurat',
-    assays = combined.assays,
-    reductions = combined.reductions,
-    images = combined.images,
-    meta.data = combined.meta.data,
-    active.assay = new.default.assay,
-    active.ident = new.idents,
-    project.name = project,
-    version = packageVersion(pkg = 'SeuratObject')
-  )
-  return(merged.object)
 }
 
 #' @describeIn Seurat-methods Common associated objects
@@ -3311,6 +3299,10 @@ setMethod(
     value = 'data.frame'
   ),
   definition = function(x, i, ..., value) {
+    # Because R is stupid sometimes
+    if (!length(x = i) && !ncol(x = value)) {
+      return(x)
+    }
     # Check that the `i` we're adding are present in the data frame
     if (!is.null(x = names(x = value))) {
       i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
