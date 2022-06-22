@@ -34,7 +34,7 @@
 
 \method{[}{Seurat}(x, i, j, ...)
 
-\method{[[}{Seurat}(x, i, ..., drop = FALSE)
+\method{[[}{Seurat}(x, i, ..., drop = FALSE, na.rm = FALSE)
 
 \method{dim}{Seurat}(x)
 
@@ -46,6 +46,7 @@
   x = NULL,
   y = NULL,
   add.cell.ids = NULL,
+  collapse = FALSE,
   merge.data = TRUE,
   merge.dr = NULL,
   project = "SeuratProject",
@@ -106,6 +107,9 @@ can pass \code{NULL} to remove metadata or an associated object}
 
 \item{drop}{See \code{\link[base]{drop}}}
 
+\item{na.rm}{logical.  Should missing values (including \code{NaN})
+    be omitted from the calculations?}
+
 \item{n}{The number of rows of metadata to return}
 
 \item{y}{A single \code{Seurat} object or a list of \code{Seurat} objects}
@@ -129,9 +133,6 @@ are shared across all objects.}
 
 \item{return.null}{If no cells are request, return a \code{NULL};
 by default, throws an error}
-
-\item{na.rm}{logical.  Should missing values (including \code{NaN})
-    be omitted from the calculations?}
 
 \item{dims}{completely ignored by the \code{Matrix} methods.}
 
