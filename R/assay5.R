@@ -1192,33 +1192,76 @@ SetAssayData.StdAssay <- function(object, slot, new.data, ...) {
 #' @export
 #' @method VariableFeatures StdAssay
 #'
-VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, ...) {
-  hvf.info <- HVFInfo(
-    object = object,
-    method = method,
-    layer = layer,
-    status = TRUE,
-    strip = TRUE
-  )
+VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, collapse = TRUE, ...) {
   msg <- 'No variable features found'
-  if (is.null(x = hvf.info)) {
+  layer.orig <- layer
+  layer <- Layers(object = object, search = layer)
+  vf <- sapply(
+    X = layer,
+    FUN = function(lyr) {
+      hvf.info <- HVFInfo(
+        object = object,
+        method = method,
+        layer = layer,
+        status = TRUE,
+        strip = TRUE
+      )
+      if (is.null(x = hvf.info)) {
+        return(NULL)
+      } else if (!'variable' %in% names(x = hvf.info)) {
+        return(NA)
+      }
+      vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
+      if ('rank' %in% names(x = hvf.info)) {
+        vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
+      } else {
+        warning(
+          "No variable feature rank found for ",
+          lyr,
+          ", returning features in assay order",
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  if (is.null(x = unlist(x = vf))) {
     warning(msg, call. = FALSE, immediate. = TRUE)
     return(NULL)
-  }
-  if (!'variable' %in% names(x = hvf.info)) {
+  } else if (all(is.na(x = unlist(x = vf)))) {
     stop(msg, call. = FALSE)
   }
-  vf <- rownames(x = hvf.info)[which(x = hvf.info$variable)]
-  if ('rank' %in% names(x = hvf.info)) {
-    vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-  } else {
-    warning(
-      "No variable feature rank found, returning features in assay order",
-      call. = FALSE,
-      immediate. = TRUE
-    )
+  if (length(x = vf) == 1L && isTRUE(x = collapse)) {
+    vf <- vf[[1L]]
   }
   return(vf)
+  # hvf.info <- HVFInfo(
+  #   object = object,
+  #   method = method,
+  #   layer = layer,
+  #   status = TRUE,
+  #   strip = TRUE
+  # )
+  # if (is.null(x = hvf.info)) {
+  #   warning(msg, call. = FALSE, immediate. = TRUE)
+  #   return(NULL)
+  # }
+  # if (!'variable' %in% names(x = hvf.info)) {
+  #   stop(msg, call. = FALSE)
+  # }
+  # vf <- rownames(x = hvf.info)[which(x = hvf.info$variable)]
+  # if ('rank' %in% names(x = hvf.info)) {
+  #   vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
+  # } else {
+  #   warning(
+  #     "No variable feature rank found, returning features in assay order",
+  #     call. = FALSE,
+  #     immediate. = TRUE
+  #   )
+  # }
+  # return(vf)
 }
 
 #' @rdname VariableFeatures
