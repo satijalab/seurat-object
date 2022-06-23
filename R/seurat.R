@@ -888,7 +888,8 @@ CreateSeuratObject.Assay <- function(
     )
   }
   # Calculate nCount and nFeature
-  ncalc <- CalcN(object = counts)
+  #ncalc <- CalcN(object = counts)
+  ncalc <- NULL
   if (!is.null(x = ncalc)) {
     names(x = ncalc) <- paste(names(x = ncalc), assay, sep = '_')
     object[[]] <- ncalc
@@ -1092,21 +1093,21 @@ FetchData.Seurat <- function(
     cells <- colnames(x = object)[cells]
   }
   if (is.null(x = vars)) {
-    df <- EmptyDF(n = length(x = cells))
-    row.names(x = df) <- cells
-    return(df)
+    return(data.frame(row.names = cells))
   }
   # Get a list of all objects to search through and their keys
-  object.keys <- Key(object = object)
+  object.keys <- Keys(object = object)
   # Find all vars that are keyed
-  keyed.vars <- lapply(
+  keyed.vars <- sapply(
     X = object.keys,
     FUN = function(key) {
-      if (length(x = key) == 0 || nchar(x = key) == 0) {
-        return(integer(length = 0L))
+      if (length(x = key) == 0 || !nzchar(x = key)) {
+        return(character(length = 0L))
       }
       return(grep(pattern = paste0('^', key), x = vars, value = TRUE))
-    }
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
   )
   keyed.vars <- Filter(f = length, x = keyed.vars)
   # Check spatial keyed vars
@@ -1189,33 +1190,31 @@ FetchData.Seurat <- function(
     return(as.data.frame(x = data.fetched))
   }
   # Pull vars from object metadata
-  default.assay <- DefaultAssay(object = object)
-  features.default <- Features(x = object, assay = default.assay, layer = layer)
   meta.vars <- intersect(x = vars, y = names(x = object[[]]))
   meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
-  meta.default <- intersect(x = meta.vars, y = features.default)
+  meta.default <- intersect(x = meta.vars, y = rownames(x = object))
   if (length(x = meta.default)) {
     warning(
       "The following variables were found in both object metadata and the default assay: ",
-      paste0(meta.default, collapse = ", "),
+      paste0(meta.default, collapse = ', '),
       "\nReturning metadata; if you want the feature, please use the assay's key (eg. ",
-      paste0(Key(object = object[[DefaultAssay(object = object)]]), meta.default[1]),
+      paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
       ")",
-      call. = FALSE
+      call. = FALSE,
+      immediate. = TRUE
     )
   }
   data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
   # Pull vars from the default assay
-  default.vars <- intersect(
-    x = vars,
-    y = setdiff(x = names(x = data.fetched), y = features.default)
-  )
+  default.vars <- intersect(x = vars, y = rownames(x = object))
+  default.vars <- setdiff(x = default.vars, y = names(x = data.fetched))
   if (length(x = default.vars)) {
     data.fetched[default.vars] <- as.list(x = FetchData(
-      object = object[[default.assay]],
+      object = object[[DefaultAssay(object = object)]],
       vars = default.vars,
       cells = cells,
-      layer = layer
+      layer = layer,
+      ...
     ))
   }
   # Pull identities
@@ -1223,12 +1222,14 @@ FetchData.Seurat <- function(
     data.fetched[['ident']] <- Idents(object = object)[cells]
   }
   # Try to find ambiguous vars
-  fetched <- names(x = data.fetched)
-  vars.missing <- setdiff(x = vars, y = fetched)
-  if (length(x = vars.missing) > 0) {
-    # Search for vars in alternative assays
+  vars.missing <- setdiff(x = vars, y = names(x = data.fetched))
+  if (length(x = vars.missing)) {
+    # Search for vars in alternate assays
+    # Create a list to hold vars and the alternate assays they're found in
     vars.alt <- vector(mode = 'list', length = length(x = vars.missing))
     names(x = vars.alt) <- vars.missing
+    # Search through features in alternate assays to see if
+    # they contain our missing vars
     for (assay in Assays(object = object)) {
       vars.assay <- Filter(
         f = function(x) {
@@ -1236,6 +1237,7 @@ FetchData.Seurat <- function(
         },
         x = vars.missing
       )
+      # Add the alternate assay to our holding list for our found vars
       for (var in vars.assay) {
         vars.alt[[var]] <- append(x = vars.alt[[var]], values = assay)
       }
@@ -1247,7 +1249,7 @@ FetchData.Seurat <- function(
       },
       x = vars.alt
     ))
-    if (length(x = vars.many) > 0) {
+    if (length(x = vars.many)) {
       warning(
         "Found the following features in more than one assay, excluding the default. We will not include these in the final data frame: ",
         paste(vars.many, collapse = ', '),
@@ -1255,6 +1257,7 @@ FetchData.Seurat <- function(
         immediate. = TRUE
       )
     }
+    # Missing vars are either ambiguous or not found in exactly one assay
     vars.missing <- names(x = Filter(
       f = function(x) {
         return(length(x = x) != 1)
@@ -1281,19 +1284,23 @@ FetchData.Seurat <- function(
         call. = FALSE
       )
       keyed.var <- paste0(Key(object = object[[assay]]), var)
-      # data.fetched[[keyed.var]] <- as.vector(
-      #   x = GetAssayData(object = object, assay = assay, slot = slot)[var, cells]
-      # )
-      data.fetched[[keyed.var]] <- as.list(x = FetchData(object = object[[assay]], vars = var, cells = cells, layer = layer))
+      data.fetched[[keyed.var]] <- as.list(x = FetchData(
+        object = object[[assay]],
+        vars = var,
+        cells = cells,
+        layer = layer
+      ))
+      # Update our initial vars list with the keyed version
       vars <- sub(
         pattern = paste0('^', var, '$'),
         replacement = keyed.var,
         x = vars
       )
     }
-    fetched <- names(x = data.fetched)
+    # fetched <- names(x = data.fetched)
   }
   # Name the vars not found in a warning (or error if no vars found)
+  # `m2` is an additional message if we're missing more than 10 vars
   m2 <- if (length(x = vars.missing) > 10) {
     paste0(' (10 out of ', length(x = vars.missing), ' shown)')
   } else {
@@ -1535,20 +1542,20 @@ Idents.Seurat <- function(object, ...) {
 Key.Seurat <- function(object, ...) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
-  keyed.objects <- FilterObjects(
-    object = object,
-    classes.keep = c('Assay', 'StdAssay', 'DimReduc', 'SpatialImage')
-  )
-  keys <- vapply(
-    X = keyed.objects,
-    FUN = function(x) {
-      return(Key(object = object[[x]]))
-    },
-    FUN.VALUE = character(length = 1L),
-    USE.NAMES = FALSE
-  )
-  names(x = keys) <- keyed.objects
-  return(keys)
+  return(c(
+    meta.data = Key(object = 'md', quiet = TRUE),
+    vapply(
+      X = .FilterObjects(
+        object = object,
+        classes.keep = c('Assay', 'SpatialImage', 'KeyMixin')
+      ),
+      FUN = function(x) {
+        return(Key(object = object[[x]]))
+      },
+      FUN.VALUE = character(length = 1L),
+      USE.NAMES = TRUE
+    )
+  ))
 }
 
 #' @rdname Key
@@ -2007,7 +2014,7 @@ VariableFeatures.Seurat <- function(
   CheckDots(...)
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
-  return(VariableFeatures(object = object[[assay]], selection.method = selection.method))
+  return(VariableFeatures(object = object[[assay]], selection.method = selection.method, ...))
 }
 
 #' @rdname VariableFeatures
@@ -3475,20 +3482,41 @@ setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'factor'),
   definition = function(x, i, ..., value) {
-    # Reuse the `value = vector` method
-    fn <- slot(
-      object = selectMethod(
-        f = '[[<-',
-        signature = c(
-          x = 'Seurat',
-          i = 'character',
-          j = 'missing',
-          value = 'vector'
+    # Add multiple objects
+    if (length(x = i) > 1L) {
+      value <- rep_len(x = value, length.out = length(x = i))
+      for (idx in seq_along(along.with = i)) {
+        x[[i[idx]]] <- value[[idx]]
+      }
+      return(x)
+    }
+    # Add a column of cell-level meta data
+    if (is.null(x = names(x = value))) {
+      # Handle cases where new meta data is unnamed
+      value <- rep_len(x = value, length.out = ncol(x = x))
+      names(x = value) <- colnames(x = x)
+    } else {
+      # Check cell names for new objects
+      names.intersect <- intersect(x = names(x = value), y = colnames(x = x))
+      if (!length(x = names.intersect)) {
+        stop(
+          "No cell overlap between new meta data and Seurat object",
+          call. = FALSE
         )
-      ),
-      name = '.Data'
-    )
-    return(fn(x = x, i = i, value = value))
+      }
+      value <- value[names.intersect]
+    }
+    df <- EmptyDF(n = ncol(x = x))
+    row.names(x = df) <- colnames(x = x)
+    df[[i]] <- if (i %in% names(x = x[[]])) {
+      x[[i]]
+    } else {
+      factor(x = NA, levels = levels(x = value))
+    }
+    df[names(x = value), i] <- value
+    slot(object = x, name = 'meta.data')[, i] <- df[[i]]
+    validObject(object = x)
+    return(x)
   }
 )
 
