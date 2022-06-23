@@ -241,6 +241,7 @@ FetchData.Seurat5 <- function(
       return(as.list(x = data.return))
     }
   )
+  data.fetched <- unlist(x = data.fetched, recursive = FALSE)
   # data.fetched <- do.call(what = 'cbind', args = data.fetched)
   # Pull vars from object metadata
   meta.vars <- intersect(x = vars, y = names(x = object[[]]))
@@ -430,6 +431,21 @@ VariableFeatures.Seurat5 <- function(
   VariableFeatures(object = object[[assay]], ...) <- value
   return(object)
 }
+
+
+LayerIntersectFeatures <- function(
+  object,
+  assay = NULL,
+  layers
+  ) {
+  assay <- assay %||% DefaultAssay(object = object)
+  feature.df <- object[[assay]]@features@.Data[,layers]
+  features.inte <- rownames(feature.df)[rowSums2(feature.df)  == length(layers)]
+  return(features.inte)
+}
+
+
+
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
