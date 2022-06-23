@@ -26,7 +26,7 @@ Layers(object, ...)
 
 \method{LayerData}{StdAssay}(object, layer, features = NULL, cells = NULL, ...) <- value
 
-\method{Layers}{StdAssay}(object, search = NULL, ...)
+\method{Layers}{StdAssay}(object, search = NA, ...)
 }
 \arguments{
 \item{object}{An object}
@@ -49,7 +49,12 @@ Layers(object, ...)
   names to the layer data}
 }}
 
-\item{search}{A pattern to search layer names for}
+\item{search}{A pattern to search layer names for; pass one of:
+\itemize{
+ \item \dQuote{\code{NA}} to pull all layers
+ \item \dQuote{\code{NULL}} to pull the default layer(s)
+ \item a \link[base:grep]{regular expression} that matches layer names
+}}
 }
 \value{
 \code{LayerData}: the layer data for \code{layer} from \code{object}

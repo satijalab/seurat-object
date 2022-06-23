@@ -4,6 +4,7 @@
 \alias{Embeddings}
 \alias{Embeddings.DimReduc}
 \alias{Embeddings.Seurat}
+\alias{Embeddings.Seurat5}
 \title{Get Cell Embeddings}
 \usage{
 Embeddings(object, ...)
@@ -11,6 +12,8 @@ Embeddings(object, ...)
 \method{Embeddings}{DimReduc}(object, ...)
 
 \method{Embeddings}{Seurat}(object, reduction = "pca", ...)
+
+\method{Embeddings}{Seurat5}(object, reduction = "pca", ...)
 }
 \arguments{
 \item{object}{An object}
