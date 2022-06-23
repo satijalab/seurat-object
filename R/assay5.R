@@ -353,12 +353,19 @@ CastAssay.StdAssay <- function(object, to, layers = NULL, verbose = TRUE, ...) {
 #' @export
 #'
 Cells.StdAssay <- function(x, layer = NULL, ...) {
-  layer <- layer[1L] %||% DefaultLayer(object = x)
+  layer <- layer %||% DefaultLayer(object = x)
   if (is_na(x = layer)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
-  layer <- match.arg(arg = layer, choices = Layers(object = x))
-  return(slot(object = x, name = 'cells')[[layer]])
+  layer <- Layers(object = x, search = layer)
+  cells <- lapply(
+    X = layer,
+    FUN = function(lyr) {
+      return(slot(object = x, name = 'cells')[[lyr]])
+    }
+  )
+  return(Reduce(f = union, x = cells))
+  # return(slot(object = x, name = 'cells')[[layer]])
 }
 
 #' @rdname CreateAssay5Object
@@ -535,17 +542,15 @@ DefaultLayer.StdAssay <- function(object, ...) {
 #' @method DefaultLayer<- StdAssay
 #'
 "DefaultLayer<-.StdAssay" <- function(object, ..., value) {
-  # value <- value[1]
   layers <- Layers(object = object)
-  # value <- match.arg(arg = value, choices = layers, several.ok = TRUE)
   value <- Layers(object = object, search = value)
-  # idx <- which(x = layers == value)
   idx <- MatchCells(new = layers, orig = value, ordered = TRUE)
   slot(object = object, name = 'layers') <- c(
     slot(object = object, name = 'layers')[idx],
     slot(object = object, name = 'layers')[-idx]
   )
   slot(object = object, name = 'default') <- length(x = value)
+  validObject(object = object)
   return(object)
 }
 
@@ -1058,15 +1063,23 @@ LayerData.StdAssay <- function(
   return(object)
 }
 
-#' @param search A pattern to search layer names for
+#' @param search A pattern to search layer names for; pass one of:
+#' \itemize{
+#'  \item \dQuote{\code{NA}} to pull all layers
+#'  \item \dQuote{\code{NULL}} to pull the default layer(s)
+#'  \item a \link[base:grep]{regular expression} that matches layer names
+#' }
 #'
 #' @rdname Layers
 #' @method Layers StdAssay
 #' @export
 #'
-Layers.StdAssay <- function(object, search = NULL, ...) {
+Layers.StdAssay <- function(object, search = NA, ...) {
   layers <- names(x = slot(object = object, name = 'layers'))
-  if (!is.null(x = search)) {
+  if (is.null(x = search)) {
+    return(DefaultLayer(object = object))
+  }
+  if (!is_na(x = search)) {
     layers <- unique(x = unlist(x = lapply(
       X = search,
       FUN = function(lyr) {
@@ -1674,7 +1687,7 @@ tail.StdAssay <- .tail
 .VFLayers <- function(
   object,
   type = c('hvf', 'svf'),
-  layers = NULL,
+  layers = NA,
   missing = FALSE
 ) {
   type <- type[1L]
@@ -1723,7 +1736,7 @@ tail.StdAssay <- .tail
 .VFMethods <- function(
   object,
   type = c('hvf', 'svf'),
-  layers = NULL,
+  layers = NA,
   missing = FALSE
 ) {
   type <- type[1L]
