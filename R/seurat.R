@@ -1149,40 +1149,6 @@ FetchData.Seurat <- function(
         )
       )
       return(as.list(x = data.return))
-      # vars.use <- vars[keyed.vars[[x]]]
-      # key.use <- object.keys[x]
-      # data.return <- if (inherits(x = object[[x]], what = 'DimReduc')) {
-      #   tryCatch(
-      #     expr = FetchData(object = object[[x]], vars = vars.use, cells = cells),
-      #     error = function(e) {
-      #       return(NULL)
-      #     }
-      #   )
-      # } else if (inherits(x = object[[x]], what = 'Assay')) {
-      #   vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
-      #   data.assay <- GetAssayData(
-      #     object = object,
-      #     slot = slot,
-      #     assay = x
-      #   )
-      #   vars.use <- vars.use[vars.use %in% rownames(x = data.assay)]
-      #   data.vars <- t(x = as.matrix(data.assay[vars.use, cells, drop = FALSE]))
-      #   if (ncol(data.vars) > 0) {
-      #     colnames(x = data.vars) <- paste0(key.use, vars.use)
-      #   }
-      #   data.vars
-      # } else if (inherits(x = object[[x]], what = 'FOV')) {
-      #   vars.use <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
-      #   FetchData(object = object[[x]], vars = vars.use, cells = cells)
-      # } else if (inherits(x = object[[x]], what = 'SpatialImage')) {
-      #   vars.unkeyed <- gsub(pattern = paste0('^', key.use), replacement = '', x = vars.use)
-      #   names(x = vars.use) <- vars.unkeyed
-      #   coords <- GetTissueCoordinates(object = object[[x]])[cells, vars.unkeyed, drop = FALSE]
-      #   colnames(x = coords) <- vars.use[colnames(x = coords)]
-      #   coords
-      # }
-      # data.return <- as.list(x = as.data.frame(x = data.return))
-      # return(data.return)
     }
   )
   data.fetched <- unlist(x = data.fetched, recursive = FALSE)
