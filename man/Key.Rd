@@ -7,8 +7,8 @@
 \alias{Keys}
 \alias{Key.Assay}
 \alias{Key<-.Assay}
-\alias{Key.StdAssay}
-\alias{Key<-.StdAssay}
+\alias{Key.Assay5}
+\alias{Key<-.Assay5}
 \alias{Key.DimReduc}
 \alias{Key<-.DimReduc}
 \alias{Key.Seurat}
@@ -25,9 +25,9 @@ Keys(object, ...)
 
 \method{Key}{Assay}(object, ...) <- value
 
-\method{Key}{StdAssay}(object, ...)
+\method{Key}{Assay5}(object, ...)
 
-\method{Key}{StdAssay}(object, ...) <- value
+\method{Key}{Assay5}(object, ...) <- value
 
 \method{Key}{DimReduc}(object, ...)
 
@@ -61,17 +61,6 @@ Key(pbmc_small[["RNA"]])
 # Set the key for an Assay
 Key(pbmc_small[["RNA"]]) <- "newkey_"
 Key(pbmc_small[["RNA"]])
-
-\dontrun{
-# Get an Assay key
-Key(pbmc_small[["RNA"]])
-}
-
-\dontrun{
-# Set the key for an Assay
-Key(pbmc_small[["RNA"]]) <- "newkey_"
-Key(pbmc_small[["RNA"]])
-}
 
 # Get a DimReduc key
 Key(object = pbmc_small[["pca"]])

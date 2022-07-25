@@ -16,9 +16,9 @@
 \alias{SVFInfo.Assay}
 \alias{VariableFeatures.Assay}
 \alias{VariableFeatures<-.Assay}
-\alias{HVFInfo.StdAssay}
-\alias{VariableFeatures.StdAssay}
-\alias{VariableFeatures<-.StdAssay}
+\alias{HVFInfo.Assay5}
+\alias{VariableFeatures.Assay5}
+\alias{VariableFeatures<-.Assay5}
 \title{Highly Variable Features}
 \usage{
 HVFInfo(object, method, status = FALSE, ...)
@@ -80,11 +80,11 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{VariableFeatures}{Assay}(object, ...) <- value
 
-\method{HVFInfo}{StdAssay}(object, method = NULL, status = FALSE, layer = NULL, strip = TRUE, ...)
+\method{HVFInfo}{Assay5}(object, method = NULL, status = FALSE, layer = NULL, strip = TRUE, ...)
 
-\method{VariableFeatures}{StdAssay}(object, method = NULL, layer = NULL, collapse = TRUE, ...)
+\method{VariableFeatures}{Assay5}(object, method = NULL, layer = NULL, collapse = TRUE, ...)
 
-\method{VariableFeatures}{StdAssay}(object, method = "custom", layer = NULL, ...) <- value
+\method{VariableFeatures}{Assay5}(object, method = "custom", layer = NULL, ...) <- value
 }
 \arguments{
 \item{object}{An object}
@@ -138,11 +138,6 @@ HVFInfo(object = pbmc_small, assay = "RNA")[1:5, ]
 
 # Get the HVF info directly from an Assay object
 HVFInfo(pbmc_small[["RNA"]], method = 'vst')[1:5, ]
-
-\dontrun{
-# Get the HVF info directly from an Assay object
-HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
-}
 
 }
 \concept{data-access}

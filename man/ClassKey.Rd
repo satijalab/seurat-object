@@ -23,3 +23,10 @@ structure: \dQuote{\code{package:class}}
 ClassKey("Seurat")
 
 }
+\seealso{
+Other s4list: 
+\code{\link{s4list}}
+}
+\concept{s4list}
+\concept{utils}
+\keyword{internal}

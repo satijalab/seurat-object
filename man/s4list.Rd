@@ -22,7 +22,8 @@ ListToS4(x)
 \arguments{
 \item{object}{An S4 object}
 
-\item{x}{A list with an S4 class definition attribute}
+\item{x}{A list with an S4 class definition
+(\dQuote{\code{classDef}}) attribute}
 }
 \value{
 \code{S4ToList}: A list with an S4 class definition attribute
@@ -37,16 +38,40 @@ attribute
 Convert S4 objects to lists and vice versa. Useful for declassing an S4
 object while keeping track of it's class using attributes (see section
 \strong{S4 Class Definition Attributes} below for more details). Both
-\code{ListToS4} and \code{S4ToList} are recursive functions, affecting all
-lists/S4 objects contained as sub-lists/sub-objects.
+\code{ListToS4} and \code{S4ToList} are recursive functions, affecting
+all lists/S4 objects contained as sub-lists/sub-objects
 }
 \section{S4 Class Definition Attributes}{
 
 S4 classes are scoped to the package and class name. In order to properly
 track which class a list is generated from in order to build a new one,
 these function use an \code{\link[base:attr]{attribute}} to denote the
-class name and package of origin. This attribute is stored as
-\dQuote{classDef} and takes the form of \dQuote{\code{package:class}}.
+class name and package of origin. This attribute is stored as 1-length
+character vector named \dQuote{\code{classDef}} and takes the form
+of \dQuote{\code{package:class}}
 }
 
+\examples{
+# Turn an S4 object into a list
+pbmc.list <- S4ToList(pbmc_small)
+class(pbmc.list)
+attributes(pbmc.list)
+
+str(pbmc.list$reductions)
+
+IsS4List(pbmc.list)
+
+pbmc2 <- ListToS4(pbmc.list)
+pbmc2
+class(pbmc2)
+Reductions(pbmc2)
+validObject(pbmc2)
+
+}
+\seealso{
+Other s4list: 
+\code{\link{ClassKey}()}
+}
+\concept{s4list}
 \concept{utils}
+\keyword{internal}

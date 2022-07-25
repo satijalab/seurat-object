@@ -18,7 +18,7 @@ as.Graph(x, ...)
 \arguments{
 \item{x}{The matrix to convert}
 
-\item{...}{Arguments passed to other methods (ignored for now)}
+\item{...}{Ignored}
 
 \item{weighted}{If TRUE, fill entries in Graph matrix with value from the
 nn.dist slot of the Neighbor object}

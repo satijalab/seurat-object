@@ -9,20 +9,13 @@
 \alias{CreateAssay5Object.spam}
 \title{Create a v5 Assay object}
 \usage{
-CreateAssay5Object(
-  counts,
-  min.cells = 0,
-  min.features = 0,
-  transpose = FALSE,
-  ...
-)
+CreateAssay5Object(counts, min.cells = 0, min.features = 0, ...)
 
 \method{CreateAssay5Object}{default}(
   counts,
   min.cells = 0,
   min.features = 0,
   layer = "counts",
-  transpose = FALSE,
   csum = NULL,
   fsum = NULL,
   ...
@@ -32,7 +25,6 @@ CreateAssay5Object(
   counts,
   min.cells = 0,
   min.features = 0,
-  transpose = FALSE,
   csum = NULL,
   fsum = NULL,
   ...
@@ -42,7 +34,6 @@ CreateAssay5Object(
   counts,
   min.cells = 0,
   min.features = 0,
-  transpose = FALSE,
   layer = "counts",
   ...
 )
@@ -51,7 +42,6 @@ CreateAssay5Object(
   counts,
   min.cells = 0,
   min.features = 0,
-  transpose = FALSE,
   layer = "counts",
   ...
 )
@@ -60,7 +50,6 @@ CreateAssay5Object(
   counts,
   min.cells = 0,
   min.features = 0,
-  transpose = FALSE,
   layer = "counts",
   ...
 )
@@ -75,9 +64,7 @@ create a new object with a lower cutoff}
 \item{min.features}{Include cells where at least this many features
 are detected}
 
-\item{transpose}{Create a transposed assay}
-
-\item{...}{Arguments passed on to other methods}
+\item{...}{Arguments passed to other methods}
 
 \item{layer}{Name of layer to store \code{counts} as}
 
@@ -92,3 +79,4 @@ An \code{\link{Assay5}} object
 Create an \code{\link{Assay5}} object from a feature expression matrix;
 the expected format of the matrix is features x cells
 }
+\concept{assay}

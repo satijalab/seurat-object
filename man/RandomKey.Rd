@@ -12,7 +12,7 @@ RandomKey(length = 7L, ...)
 \item{...}{Extra parameters passed to \code{\link[base]{sample}}}
 }
 \value{
-...
+Returns a valid key
 }
 \description{
 Generate a Random Key
@@ -22,3 +22,11 @@ set.seed(42L)
 RandomKey()
 
 }
+\seealso{
+Other key: 
+\code{\link{.KeyPattern}()},
+\code{\link{Key-validity}},
+\code{\link{KeyMixin-class}}
+}
+\concept{key}
+\keyword{internal}

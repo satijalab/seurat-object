@@ -51,4 +51,15 @@ pbmc_rna
 }
 
 }
+\seealso{
+Other assay: 
+\code{\link{Assay-class}},
+\code{\link{Assay-validity}},
+\code{\link{[.Assay}()},
+\code{\link{[[.Assay}()},
+\code{\link{dim.Assay}()},
+\code{\link{dimnames.Assay}()},
+\code{\link{merge.Assay}()},
+\code{\link{subset.Assay}()}
+}
 \concept{assay}

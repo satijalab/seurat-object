@@ -29,4 +29,10 @@ Degrees(pi)
 Radians(180)
 
 }
+\seealso{
+Other angles: 
+\code{\link{PolyVtx}()}
+}
+\concept{angles}
+\concept{utils}
 \keyword{internal}

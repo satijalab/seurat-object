@@ -37,3 +37,4 @@ as.Segmentation(x, ...)
 \description{
 Convert Segmentation Layers
 }
+\concept{spatial}

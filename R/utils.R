@@ -4,8 +4,6 @@
 #' @include segmentation.R
 #' @importFrom Rcpp evalCpp
 #' @importFrom methods as setAs
-#' @importFrom rlang is_bare_list
-#' @useDynLib SeuratObject
 #'
 NULL
 
@@ -13,40 +11,39 @@ NULL
 # Generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @export
-#'
-StitchMatrix <- function(x, y, rowmap, colmap, ...) {
-  stopifnot(inherits(x = rowmap, what = 'LogMap'))
-  stopifnot(inherits(x = colmap, what = 'LogMap'))
-  UseMethod(generic = 'StitchMatrix', object = x)
-}
-
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Set If or If Not \code{NULL}
+#'
 #' Set a default value depending on if an object is \code{NULL}
 #'
 #' @param x An object to test
 #' @param y A default value
 #'
-#' @return For \code{\%||\%}: \code{y} if \code{x} is \code{NULL} otherwise
-#' \code{x}
+#' @return For \code{\%||\%}: \code{y} if \code{x} is \code{NULL};
+#' otherwise \code{x}
 #'
 #' @importFrom rlang %||%
 #'
 #' @name set-if-null
 #' @rdname set-if-null
 #'
+#' @author For \code{\%||\%}: \pkg{rlang} developers
+#'
+#' @seealso \code{\link[rlang:op-null-default]{rlang::\%||\%}}
+#'
 #' @export
 #'
 #' @concept utils
 #'
 #' @examples
+#' # Set if NULL
 #' 1 %||% 2
 #' NULL %||% 2
 #'
-rlang::`%||%`
+`%||%` <- rlang::`%||%`
 
 #' @rdname set-if-null
 #'
@@ -58,6 +55,7 @@ rlang::`%||%`
 #' @export
 #'
 #' @examples
+#' # Set if *not* NULL
 #' 1 %iff% 2
 #' NULL %iff% 2
 #'
@@ -68,7 +66,7 @@ rlang::`%||%`
   return(x)
 }
 
-#' Set if \code{NA}
+#' Set If or If Not \code{NA}
 #'
 #' Set a default value depending on if an object is \code{\link[base]{NA}}
 #'
@@ -82,11 +80,14 @@ rlang::`%||%`
 #'
 #' @importFrom rlang is_na
 #'
+#' @keywords internal
+#'
 #' @export
 #'
 #' @concept utils
 #'
 #' @examples
+#' # Set if NA
 #' 1 %NA% 2
 #' NA %NA% 2
 #'
@@ -113,6 +114,7 @@ rlang::`%||%`
 #' @export
 #'
 #' @examples
+#' # Set if *not* NA
 #' 1 %!NA% 2
 #' NA %!NA% 2
 #'
@@ -129,6 +131,236 @@ rlang::`%||%`
 #'
 `%!na%` <- `%!NA%`
 
+#' Identify Object Collections
+#'
+#' Find all collection (named lists) slots in an S4 object
+#'
+#' @inheritParams .Contains
+#' @param exclude A character vector of slot names to exclude
+#' @param ... Arguments passed to \code{\link{IsNamedList}}
+#'
+#' @return A character vector of names of collection slots
+#'
+#' @importFrom methods slotNames
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#' @family subobjects
+#'
+#' @examples
+#' .Collections(pbmc_small)
+#'
+.Collections <- function(object, exclude = character(length = 0L), ...) {
+  if (!isS4(object)) {
+    abort(message = "'object' is not an S4 object")
+  }
+  collections <- slotNames(x = object)
+  collections <- Filter(
+    f = function(s) {
+      return(IsNamedList(x = slot(object = object, name = s), ...))
+    },
+    x = collections
+  )
+  if (is.character(x = exclude) && length(x = exclude)) {
+    collections <- setdiff(x = collections, y = exclude)
+  }
+  return(collections)
+}
+
+#' Get Parent S4 Classes
+#'
+#' @param object An \link[methods:Classes_Details]{S4} object
+#'
+#' @return A vector of class names that \code{object} inherits from
+#'
+#' @importFrom methods getClass slot
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' .Contains(pbmc_small)
+#'
+.Contains <- function(object) {
+  if (!isS4(object)) {
+    abort(message = "'object' not an S4 object")
+  }
+  return(names(x = slot(
+    object = getClass(Class = class(x = object)),
+    name = 'contains'
+  )))
+}
+
+#' Find the Default FOV
+#'
+#' Attempts to find the \dQuote{default} FOV using the revamped
+#' spatial framework
+#'
+#' @param object A \code{{Seurat}} object
+#'
+#' @return ...
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#'
+.DefaultFOV <- function(object, assay = NULL) {
+  images <- FilterObjects(object = object, classes.keep = 'FOV')
+  if (!is.null(x = assay)) {
+    assays <- c(assay, DefaultAssay(object = object[[assay]]))
+    images <- Filter(
+      f = function(x) {
+        return(DefaultAssay(object = object[[x]]) %in% assays)
+      },
+      x = images
+    )
+  }
+  if (!length(x = images)) {
+    return(NULL)
+  }
+  return(images)
+}
+
+#' Find Subobjects Of A Certain Class
+#'
+#' @inheritParams .Collections
+#' @param classes.keep A vector of classes to keep
+#'
+#' @return A vector of object names that are of class \code{classes.keep}
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#' @family subobjects
+#'
+#' @examples
+#' .FilterObjects(pbmc_small)
+#' .FilterObjects(pbmc_small, "Graph")
+#'
+.FilterObjects <- function(
+  object,
+  classes.keep = c('Assay', 'StdAssay', 'DimReduc')
+) {
+  collections <- .Collections(object = object, exclude = c('misc', 'tools'))
+  subobjects <- unlist(x = lapply(
+    X = collections,
+    FUN = function(x) {
+      return(Filter(
+        f = function(i) {
+          return(inherits(
+            x = slot(object = object, name = x)[[i]],
+            what = classes.keep
+          ))
+        },
+        x = names(x = slot(object = object, name = x))
+      ))
+    }
+  ))
+  if (!length(x = subobjects)) {
+    subobjects <- NULL
+  }
+  return(subobjects)
+}
+
+#' Find A Subobject
+#'
+#' Determine the slot that a subobject is contained in
+#'
+#' @inheritParams .Collections
+#' @param name Name of subobject to find
+#'
+#' @return The name of the slot that contains \code{name}; returns \code{NULL}
+#' if a subobject named \code{name} cannot be found
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#' @family subobjects
+#'
+#' @examples
+#' .FindObject(pbmc_small, "tsne")
+#'
+.FindObject <- function(object, name, exclude = c('misc', 'tools')) {
+  collections <- .Collections(object = object, exclude = exclude)
+  object.names <- sapply(
+    X = collections,
+    FUN = function(x) {
+      return(names(x = slot(object = object, name = x)))
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  object.names <- Filter(f = Negate(f = is.null), x = object.names)
+  for (i in names(x = object.names)) {
+    if (name %in% names(x = slot(object = object, name = i))) {
+      return(i)
+    }
+  }
+  return(NULL)
+}
+
+#' Get a Method
+#'
+#' @param fxn Name of a function as a character
+#' @param cls ...
+#'
+#' @return ...
+#'
+#' @importFrom utils getS3method isS3stdGeneric
+#' @importFrom methods isClass isGeneric selectMethod
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' .GetMethod('t', 'Matrix')
+#' .GetMethod('t', 'data.frame')
+#'
+.GetMethod <- function(fxn, cls) {
+  if (is.function(x = fxn)) {
+    fxn <- as.character(x = substitute(expr = fxn))
+  }
+  if (!(isS3stdGeneric(f = fxn) || isGeneric(f = fxn))) {
+    abort(message = paste0("'", fxn, "' is not a generic function"))
+  }
+  if (isGeneric(f = fxn) && isClass(Class = cls[1L])) {
+    method <- selectMethod(f = fxn, signature = cls)
+    if (!inherits(x = method, what = 'derivedDefaultMethod')) {
+      return(slot(object = method, name = '.Data'))
+    }
+  }
+  method <- NULL
+  for (i in c(cls, 'default')) {
+    method <- getS3method(f = fxn, class = i, optional = TRUE)
+    if (!is.null(x = method)) {
+      break
+    }
+  }
+  if (is.null(x = method)) {
+    abort(message = paste0(
+      "Unable to find a method for '",
+      fxn,
+      "' for '",
+      cls[1L],
+      "' objects"
+    ))
+  }
+  return(method)
+}
+
 #' Attach Required Packages
 #'
 #' Helper function to attach required packages. Detects if a package is already
@@ -136,11 +368,17 @@ rlang::`%||%`
 #'
 #' @param deps A character vector of packages to attach
 #'
-#' @return Invisibly returns \code{NULL}
+#' @template return-null
 #'
 #' @export
 #'
 #' @concept utils
+#'
+#' @template lifecycle-superseded
+#' @section Lifecycle:
+#' \code{AttachDeps} has been superseded as of \pkg{SeuratObject} v5.0.0;
+#' as an alternative, list dependencies in the \code{Depends} section of
+#' \code{DESCRIPTION}
 #'
 #' @examples
 #' # Use in your .onAttach hook
@@ -160,13 +398,190 @@ AttachDeps <- function(deps) {
   return(invisible(x = NULL))
 }
 
+#' Check the Use of Dots
+#'
+#' Function to check the use of unused arguments passed to \code{...}; this
+#' function is designed to be called from another function to see if an
+#' argument passed to \code{...} remains unused and alert the user if so. Also
+#' accepts a vector of function or function names to see if \code{...} can be
+#' used in a downstream function
+#'
+#' Behavior of \code{CheckDots} can be controlled by the following option(s):
+#' \describe{
+#'  \item{\dQuote{\code{Seurat.checkdots}}}{Control how to alert the presence
+#'  of unused arguments in \code{...}; choose from
+#'  \itemize{
+#'   \item \dQuote{\code{warn}}: emit a warning (default)
+#'   \item \dQuote{\code{error}}: throw an error
+#'   \item \dQuote{\code{silent}}: no not alert the presence of unused
+#'   arguments in \code{...}
+#'  }
+#'  }
+#' }
+#'
+#' @param ... Arguments passed to a function that fall under \code{...}
+#' @param fxns A list/vector of functions or function names
+#'
+#' @return Emits either an error or warning if an argument passed is unused;
+#' invisibly returns \code{NULL}
+#'
+#' @importFrom utils isS3stdGeneric methods argsAnywhere isS3method
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' \dontrun{
+#' f <- function(x, ...) {
+#'   CheckDots(...)
+#'   return(x ^ 2)
+#' }
+#' f(x = 3, y = 9)
+#' }
+#'
+CheckDots <- function(..., fxns = NULL) {
+  args.names <- names(x = list(...))
+  if (length(x = list(...)) == 0) {
+    return(invisible(x = NULL))
+  }
+  if (is.null(x = args.names)) {
+    abort(message = "No named arguments passed")
+  }
+  if (length(x = fxns) == 1) {
+    fxns <- list(fxns)
+  }
+  for (f in fxns) {
+    if (!(is.character(x = f) || is.function(x = f))) {
+      abort(message = paste(
+        "CheckDots only works on characters or functions, not",
+        class(x = f)[1L]
+      ))
+    }
+  }
+  fxn.args <- suppressWarnings(expr = sapply(
+    X = fxns,
+    FUN = function(x) {
+      x <- tryCatch(
+        expr = if (isS3stdGeneric(f = x)) {
+          as.character(x = methods(generic.function = x))
+        } else {
+          x
+        },
+        error = function(...) {
+          return(x)
+        }
+      )
+      x <- if (is.character(x = x)) {
+        sapply(X = x, FUN = argsAnywhere, simplify = FALSE, USE.NAMES = TRUE)
+      } else if (length(x = x) <= 1) {
+        list(x)
+      }
+      return(sapply(
+        X = x,
+        FUN = function(f) {
+          return(names(x = formals(fun = f)))
+        },
+        simplify = FALSE,
+        USE.NAMES = TRUE
+      ))
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  ))
+  fxn.args <- unlist(x = fxn.args, recursive = FALSE)
+  fxn.null <- vapply(
+    X = fxn.args,
+    FUN = is.null,
+    FUN.VALUE = logical(length = 1L)
+  )
+  if (all(fxn.null) && !is.null(x = fxns)) {
+    stop("None of the functions passed could be found", call. = FALSE)
+  } else if (any(fxn.null)) {
+    warning(
+      "The following functions passed could not be found: ",
+      paste(names(x = which(x = fxn.null)), collapse = ', '),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    fxn.args <- Filter(f = Negate(f = is.null), x = fxn.args)
+  }
+  dfxns <- vector(mode = 'logical', length = length(x = fxn.args))
+  names(x = dfxns) <- names(x = fxn.args)
+  for (i in 1:length(x = fxn.args)) {
+    dfxns[i] <- any(grepl(pattern = '...', x = fxn.args[[i]], fixed = TRUE))
+  }
+  if (any(dfxns)) {
+    dfxns <- names(x = which(x = dfxns))
+    if (any(nchar(x = dfxns) > 0)) {
+      fx <- vapply(
+        X = Filter(f = nchar, x = dfxns),
+        FUN = function(x) {
+          if (isS3method(method = x)) {
+            x <- unlist(x = strsplit(x = x, split = '\\.'))
+            x <- x[length(x = x) - 1L]
+          }
+          return(x)
+        },
+        FUN.VALUE = character(length = 1L)
+      )
+      message(
+        "The following functions and any applicable methods accept the dots: ",
+        paste(unique(x = fx), collapse = ', ')
+      )
+      if (any(nchar(x = dfxns) < 1)) {
+        message(
+          "In addition, there is/are ",
+          length(x = Filter(f = Negate(f = nchar), x = dfxns)),
+          " other function(s) that accept(s) the dots"
+        )
+      }
+    } else {
+      message("There is/are ", length(x = dfxns), 'function(s) that accept(s) the dots')
+    }
+  } else {
+    unused <- Filter(
+      f = function(x) {
+        return(!x %in% unlist(x = fxn.args))
+      },
+      x = args.names
+    )
+    if (length(x = unused) > 0) {
+      msg <- paste0(
+        "The following arguments are not used: ",
+        paste(unused, collapse = ', ')
+      )
+      switch(
+        EXPR = getOption(x = "Seurat.checkdots", default = 'warn'),
+        "warn" = warning(msg, call. = FALSE, immediate. = TRUE),
+        "stop" = stop(msg),
+        "silent" = NULL,
+        stop("Invalid Seurat.checkdots option. Please choose one of warn, stop, silent")
+      )
+      # unused.hints <- sapply(X = unused, FUN = OldParamHints)
+      # names(x = unused.hints) <- unused
+      # unused.hints <- na.omit(object = unused.hints)
+      # if (length(x = unused.hints) > 0) {
+      #   message(
+      #     "Suggested parameter: ",
+      #     paste(unused.hints, "instead of", names(x = unused.hints), collapse = '; '),
+      #     "\n"
+      #   )
+      # }
+    }
+  }
+  return(invisible(x = NULL))
+}
+
 #' Conditional Garbage Collection
 #'
 #' Call \code{gc} only when desired
 #'
 #' @param option ...
 #'
-#' @return Invisibly returns \code{NULL}
+#' @template return-null
 #'
 #' @export
 #'
@@ -177,6 +592,38 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
     gc(verbose = FALSE)
   }
   return(invisible(x = NULL))
+}
+
+#' Generate a Class Key
+#'
+#' Generate class keys for S4 classes. A class key follows the following
+#' structure: \dQuote{\code{package:class}}
+#'
+#' @param class Class name
+#' @param package Optional name of package; by default, will search namespaces
+#' of loaded packages to determine the providing package
+#'
+#' @return The class key (\dQuote{\code{package:class}})
+#'
+#' @importFrom methods getClass slot
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#' @family s4list
+#'
+#' @examples
+#' ClassKey("Seurat")
+#'
+ClassKey <- function(class, package = NULL) {
+  class <- class[1L]
+  package <- package %||% slot(
+    object = getClass(Class = class),
+    name = 'package'
+  )
+  return(paste(package, class, sep = ':'))
 }
 
 #' Find the default \code{\link{DimReduc}}
@@ -210,7 +657,7 @@ DefaultDimReduc <- function(object, assay = NULL) {
     },
     x = dim.reducs
   )
-  if (length(x = drs.assay) > 0) {
+  if (length(x = drs.assay)) {
     index <- lapply(
       X = drs.use,
       FUN = grep,
@@ -218,7 +665,7 @@ DefaultDimReduc <- function(object, assay = NULL) {
       ignore.case = TRUE
     )
     index <- Filter(f = length, x = index)
-    if (length(x = index) > 0) {
+    if (length(x = index)) {
       return(drs.assay[min(index[[1]])])
     }
   }
@@ -229,44 +676,98 @@ DefaultDimReduc <- function(object, assay = NULL) {
     ignore.case = TRUE
   )
   index <- Filter(f = length, x = index)
-  if (length(x = index) < 1) {
-    stop(
-      "Unable to find a DimReduc matching one of '",
-      paste(drs.use[1:(length(x = drs.use) - 1)], collapse = "', '"),
-      "', or '",
-      drs.use[length(x = drs.use)],
-      "', please specify a dimensional reduction to use",
-      call. = FALSE
-    )
+  if (!length(x = index)) {
+    abort(message = paste0(
+      "Unable to find a DimReduc matching one of ",
+      .Oxford(drs.use),
+      "; please specify a dimensional reduction to use"
+    ))
   }
   return(dim.reducs[min(index[[1]])])
 }
 
-#' Generate a Class Key
+#' Radian/Degree Conversions
 #'
-#' Generate class keys for S4 classes. A class key follows the following
-#' structure: \dQuote{\code{package:class}}
+#' Convert degrees to radians and vice versa
 #'
-#' @param class Class name
-#' @param package Optional name of package; by default, will search namespaces
-#' of loaded packages to determine the providing package
+#' @param rad Angle in radians
 #'
-#' @return The class key (\dQuote{\code{package:class}})
+#' @return \code{Degrees}: \code{rad} in degrees
 #'
-#' @importFrom methods getClass slot
+#' @name Angles
+#' @rdname angles
+#'
+#' @keywords internal
 #'
 #' @export
 #'
-#' @examples
-#' ClassKey("Seurat")
+#' @concept utils
+#' @family angles
 #'
-ClassKey <- function(class, package = NULL) {
-  class <- class[1L]
-  package <- package %||% slot(
-    object = getClass(Class = class),
-    name = 'package'
-  )
-  return(paste(package, class, sep = ':'))
+#' @examples
+#' Degrees(pi)
+#'
+Degrees <- function(rad) {
+  return(rad * (180 / pi))
+}
+
+#' Empty Data Frames
+#'
+#' Create an empty \link[base:data.frame]{data frame} with no row names and
+#' zero columns
+#'
+#' @param n Number of rows for the data frame
+#'
+#' @return A \link[base:data.frame]{data frame} with \code{n} rows and
+#' zero columns
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' EmptyDF(4L)
+#'
+EmptyDF <- function(n) {
+  return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
+}
+
+#' Extract delimiter information from a string.
+#'
+#' Parses a string (usually a cell name) and extracts fields based
+#' on a delimiter
+#'
+#' @param string String to parse.
+#' @param field Integer(s) indicating which field(s) to extract. Can be a
+#' vector multiple numbers.
+#' @param delim Delimiter to use, set to underscore by default.
+#'
+#' @return A new string, that parses out the requested fields, and
+#' (if multiple), rejoins them with the same delimiter
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' ExtractField('Hello World', field = 1, delim = '_')
+#'
+ExtractField <- function(string, field = 1, delim = "_") {
+  fields <- as.numeric(x = unlist(x = strsplit(
+    x = as.character(x = field),
+    split = ","
+  )))
+  if (length(x = fields) == 1) {
+    return(strsplit(x = string, split = delim)[[1]][field])
+  }
+  return(paste(
+    strsplit(x = string, split = delim)[[1]][fields],
+    collapse = delim
+  ))
 }
 
 #' Check List Names
@@ -284,6 +785,18 @@ ClassKey <- function(class, package = NULL) {
 #' @importFrom rlang is_bare_list
 #'
 #' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' IsNamedList(list())
+#' IsNamedList(list(), pass.zero = TRUE)
+#' IsNamedList(list(1, 2, 3))
+#' IsNamedList(list(a = 1, b = 2, c = 3))
+#' IsNamedList(list(a = 1, 2, c = 3))
+#' IsNamedList(list(a = 1, 2, c = 3), allow.empty = TRUE)
+#' IsNamedList(list(a = 1, a = 2, a = 3))
+#' IsNamedList(list(a = 1, a = 2, a = 3), all.unique = FALSE)
 #'
 IsNamedList <- function(
   x,
@@ -320,9 +833,12 @@ IsNamedList <- function(
 #'
 #' @export
 #'
+#' @examples
+#' IsS4List(pbmc.list)
+#'
 IsS4List <- function(x) {
   return(
-    inherits(x = x, what = 'list') &&
+    is_bare_list(x = x) &&
       isTRUE(x = grepl(
         pattern = '^[[:alnum:]]+:[[:alnum:]]+$',
         x = attr(x = x, which = 'classDef')
@@ -340,8 +856,15 @@ IsS4List <- function(x) {
 #'
 #' @export
 #'
+#' @examples
+#' pbmc2 <- ListToS4(pbmc.list)
+#' pbmc2
+#' class(pbmc2)
+#' Reductions(pbmc2)
+#' validObject(pbmc2)
+#'
 ListToS4 <- function(x) {
-  if (!inherits(x = x, what = 'list')) {
+  if (!is_bare_list(x = x)) {
     return(x)
   }
   for (i in seq_along(along.with = x)) {
@@ -359,8 +882,8 @@ ListToS4 <- function(x) {
     x = attr(x = x, which = 'classDef'),
     split = ':'
   ))
-  pkg <- classdef[1]
-  cls <- classdef[2]
+  pkg <- classdef[1L]
+  cls <- classdef[2L]
   formal <- getClassDef(Class = cls, package = pkg, inherits = FALSE)
   return(do.call(what = new, args = c(list(Class = formal), x)))
 }
@@ -395,6 +918,79 @@ PackageCheck <- function(..., error = TRUE) {
     )
   }
   invisible(x = package.installed)
+}
+
+#' Polygon Vertices
+#'
+#' Calculate the vertices of a regular polygon given the number of sides and
+#' its radius (distance from center to vertex). Also permits transforming the
+#' resulting coordinates by moving the origin and altering the initial angle
+#'
+#' @param n Number of sides of the polygon
+#' @param r Radius of the polygon
+#' @param xc,yc X/Y coordinates for the center of the polygon
+#' @param t1 Angle of the first vertex in degrees
+#'
+#' @return A \code{\link[base]{data.frame}} with \code{n} rows and two columns:
+#' \describe{
+#'  \item{\code{x}}{X positions of each coordinate}
+#'  \item{\code{y}}{Y positions of each coordinate}
+#' }
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#' @family angles
+#'
+#' @references \url{https://stackoverflow.com/questions/3436453/calculate-coordinates-of-a-regular-polygons-vertices}
+#'
+#' @examples
+#' coords <- PolyVtx(5, t1 = 90)
+#' coords
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   ggplot2::ggplot(coords, ggplot2::aes(x = x, y = y)) + ggplot2::geom_polygon()
+#' }
+#'
+PolyVtx <- function(n, r = 1L, xc = 0L, yc = 0L, t1 = 0) {
+  if (!is_bare_integerish(x = n, n = 1L, finite = TRUE)) {
+    abort(message = "'n' must be a single integer")
+  } else if (n < 3L) {
+    abort(message = "'n' must be greater than or equal to 3")
+  }
+  stopifnot(is_bare_integerish(x = r, n = 1L, finite = TRUE))
+  stopifnot(is_bare_integerish(x = xc, n = 1L, finite = TRUE))
+  stopifnot(is_bare_integerish(x = yc, n = 1L, finite = TRUE))
+  stopifnot(is_bare_numeric(x = t1, n = 1L))
+  t1 <- Radians(deg = t1)
+  coords <- matrix(data = 0, nrow = n, ncol = 2)
+  colnames(x = coords) <- c('x', 'y')
+  for (i in seq_len(length.out = n)) {
+    theta <- 2 * pi * (i - 1) / n + t1
+    coords[i, ] <- c(
+      xc + r * cos(x = theta),
+      yc + r * sin(x = theta)
+    )
+  }
+  return(as.data.frame(x = coords))
+}
+
+#' @param deg Angle in degrees
+#'
+#' @return \code{Radians}: \code{deg} in radians
+#'
+#' @rdname angles
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' Radians(180)
+#'
+Radians <- function(deg) {
+  return(deg * (pi / 180))
 }
 
 #' Generate a random name
@@ -639,22 +1235,22 @@ CheckMatrix.dMatrix <- function(
   checks = c('infinite', 'logical', 'integer', 'na'),
   ...
 ) {
-  checks <- match.arg(arg = checks, several.ok = TRUE)
+  checks <- arg_match(arg = checks, multiple = TRUE)
   x <- slot(object = object, name = 'x')
   for (i in checks) {
     switch(
       EXPR = i,
       'infinite' = if (any(is.infinite(x = x))) {
-        warning("Input matrix contains infinite values")
+        warn(message = "Input matrix contains infinite values")
       },
       'logical' = if (any(is.logical(x = x))) {
-        warning("Input matrix contains logical values")
+        warn(message = "Input matrix contains logical values")
       },
       'integer' = if (!all(round(x = x) == x, na.rm = TRUE)) {
-        warning("Input matrix contains non-integer values")
+        warn(message = "Input matrix contains non-integer values")
       },
       'na' = if (anyNA(x = x)) {
-        warning("Input matrix contains NA/NaN values")
+        warn(message = "Input matrix contains NA/NaN values")
       },
     )
   }
@@ -670,7 +1266,7 @@ CheckMatrix.lMatrix <- function(
   checks = c('infinite', 'logical', 'integer', 'na'),
   ...
 ) {
-  warning("Input matrix contains logical values")
+  warn(message = "Input matrix contains logical values")
   return(invisible(x = NULL))
 }
 
@@ -835,129 +1431,6 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   return(x)
 }
 
-#' Identify Object Collections
-#'
-#' Find all collection (named lists) slots in an S4 object
-#'
-#' @param object An S4 object
-#' @param exclude A character vector of slot names to exclude
-#' @inheritDotParams IsNamedList
-#'
-#' @return A character vector of names of collection slots
-#'
-#' @importFrom methods slotNames
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.Collections <- function(object, exclude = character(length = 0L), ...) {
-  if (!isS4(object)) {
-    stop("Not an S4 object")
-  }
-  collections <- slotNames(x = object)
-  collections <- Filter(
-    f = function(s) {
-      return(IsNamedList(x = slot(object = object, name = s), ...))
-    },
-    x = collections
-  )
-  if (is.character(x = exclude) && length(x = exclude)) {
-    collections <- setdiff(x = collections, y = exclude)
-  }
-  return(collections)
-}
-
-#' Get Parent S4 Classes
-#'
-#' @param object An \link[methods:Classes_Details]{S4} object
-#'
-#' @return A vector of class names that \code{object} inherits from
-#'
-#' @importFrom methods getClass slot
-#'
-#' @keywords internal
-#'
-#' @export
-#'
-#' @examples
-#' .Contains(pbmc_small)
-#'
-.Contains <- function(object) {
-  if (!isS4(object)) {
-    stop("'object' not an S4 object")
-  }
-  return(names(x = slot(
-    object = getClass(Class = class(x = object)),
-    name = 'contains'
-  )))
-}
-
-#' Find A Subobject
-#'
-#' Determine the slot that a subobject is contained in
-#'
-#' @inheritParams .Collections
-#' @param name Name of subobject to find
-#'
-#' @return The name of the slot that contains \code{name}
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.FindObject <- function(object, name, exclude = c('misc', 'tools'), ...) {
-  collections <- .Collections(object = object, exclude = exclude)
-  object.names <- sapply(
-    X = collections,
-    FUN = function(x) {
-      return(names(x = slot(object = object, name = x)))
-    },
-    simplify = FALSE,
-    USE.NAMES = TRUE
-  )
-  object.names <- Filter(f = Negate(f = is.null), x = object.names)
-  for (i in names(x = object.names)) {
-    if (name %in% names(x = slot(object = object, name = i))) {
-      return(i)
-    }
-  }
-  return(NULL)
-}
-
-#' Find Subobjects Of A Certain Class
-#'
-#' @inheritParams .Contains
-#' @param classes.keep A vector of classes to keep
-#'
-#' @return A vector of object names that are of class \code{classes.keep}
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.FilterObjects <- function(object, classes.keep = c('StdAssay', 'DimReduc')) {
-  collections <- .Collections(object = object, exclude = c('misc', 'tools'))
-  subobjects <- unlist(x = lapply(
-    X = collections,
-    FUN = function(x) {
-      return(Filter(
-        f = function(i) {
-          return(inherits(
-            x = slot(object = object, name = x)[[i]],
-            what = classes.keep
-          ))
-        },
-        x = names(x = slot(object = object, name = x))
-      ))
-    }
-  ))
-  if (!length(x = subobjects)) {
-    subobjects <- NULL
-  }
-  return(subobjects)
-}
-
 #' Get An Option
 #'
 #' @inheritParams base::getOption
@@ -1033,210 +1506,19 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   return(classes)
 }
 
-.Vowels <- function() {
-  return(c('a', 'e', 'i', 'o', 'u'))
-}
-
-#' Find the Default FOV
+#' Get English Vowels
 #'
-#' Attempts to find the \dQuote{default} FOV using the revamped
-#' spatial framework
-#'
-#' @param object A \code{{Seurat}} object
-#'
-#' @return ...
-#'
-#' @export
+#' @return A vector with English vowels in lower case
 #'
 #' @keywords internal
-#'
-.DefaultFOV <- function(object, assay = NULL) {
-  images <- FilterObjects(object = object, classes.keep = 'FOV')
-  if (!is.null(x = assay)) {
-    assays <- c(assay, DefaultAssay(object = object[[assay]]))
-    images <- Filter(
-      f = function(x) {
-        return(DefaultAssay(object = object[[x]]) %in% assays)
-      },
-      x = images
-    )
-  }
-  if (!length(x = images)) {
-    return(NULL)
-  }
-  return(images)
-}
-
-#' Check the Use of Dots
-#'
-#' Function to check the use of unused arguments passed to \code{...}; this
-#' function is designed to be called from another function to see if an
-#' argument passed to \code{...} remains unused and alert the user if so. Also
-#' accepts a vector of function or function names to see if \code{...} can be
-#' used in a downstream function
-#'
-#' Behavior of \code{CheckDots} can be controlled by the following option(s):
-#' \describe{
-#'  \item{\dQuote{\code{Seurat.checkdots}}}{Control how to alert the presence
-#'  of unused arguments in \code{...}; choose from
-#'  \itemize{
-#'   \item \dQuote{\code{warn}}: emit a warning (default)
-#'   \item \dQuote{\code{error}}: throw an error
-#'   \item \dQuote{\code{silent}}: no not alert the presence of unused
-#'   arguments in \code{...}
-#'  }
-#'  }
-#' }
-#'
-#' @param ... Arguments passed to a function that fall under \code{...}
-#' @param fxns A list/vector of functions or function names
-#'
-#' @return Emits either an error or warning if an argument passed is unused;
-#' invisibly returns \code{NULL}
-#'
-#' @importFrom utils isS3stdGeneric methods argsAnywhere isS3method
-#'
-#' @keywords internal
-#'
-#' @export
 #'
 #' @examples
-#' \dontrun{
-#' f <- function(x, ...) {
-#'   CheckDots(...)
-#'   return(x ^ 2)
-#' }
-#' f(x = 3, y = 9)
-#' }
+#' .Vowels()
 #'
-CheckDots <- function(..., fxns = NULL) {
-  args.names <- names(x = list(...))
-  if (length(x = list(...)) == 0) {
-    return(invisible(x = NULL))
-  }
-  if (is.null(x = args.names)) {
-    stop("No named arguments passed")
-  }
-  if (length(x = fxns) == 1) {
-    fxns <- list(fxns)
-  }
-  for (f in fxns) {
-    if (!(is.character(x = f) || is.function(x = f))) {
-      stop("CheckDots only works on characters or functions, not ", class(x = f))
-    }
-  }
-  fxn.args <- suppressWarnings(expr = sapply(
-    X = fxns,
-    FUN = function(x) {
-      x <- tryCatch(
-        expr = if (isS3stdGeneric(f = x)) {
-          as.character(x = methods(generic.function = x))
-        } else {
-          x
-        },
-        error = function(...) {
-          return(x)
-        }
-      )
-      x <- if (is.character(x = x)) {
-        sapply(X = x, FUN = argsAnywhere, simplify = FALSE, USE.NAMES = TRUE)
-      } else if (length(x = x) <= 1) {
-        list(x)
-      }
-      return(sapply(
-        X = x,
-        FUN = function(f) {
-          return(names(x = formals(fun = f)))
-        },
-        simplify = FALSE,
-        USE.NAMES = TRUE
-      ))
-    },
-    simplify = FALSE,
-    USE.NAMES = TRUE
-  ))
-  fxn.args <- unlist(x = fxn.args, recursive = FALSE)
-  fxn.null <- vapply(
-    X = fxn.args,
-    FUN = is.null,
-    FUN.VALUE = logical(length = 1L)
-  )
-  if (all(fxn.null) && !is.null(x = fxns)) {
-    stop("None of the functions passed could be found", call. = FALSE)
-  } else if (any(fxn.null)) {
-    warning(
-      "The following functions passed could not be found: ",
-      paste(names(x = which(x = fxn.null)), collapse = ', '),
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    fxn.args <- Filter(f = Negate(f = is.null), x = fxn.args)
-  }
-  dfxns <- vector(mode = 'logical', length = length(x = fxn.args))
-  names(x = dfxns) <- names(x = fxn.args)
-  for (i in 1:length(x = fxn.args)) {
-    dfxns[i] <- any(grepl(pattern = '...', x = fxn.args[[i]], fixed = TRUE))
-  }
-  if (any(dfxns)) {
-    dfxns <- names(x = which(x = dfxns))
-    if (any(nchar(x = dfxns) > 0)) {
-      fx <- vapply(
-        X = Filter(f = nchar, x = dfxns),
-        FUN = function(x) {
-          if (isS3method(method = x)) {
-            x <- unlist(x = strsplit(x = x, split = '\\.'))
-            x <- x[length(x = x) - 1L]
-          }
-          return(x)
-        },
-        FUN.VALUE = character(length = 1L)
-      )
-      message(
-        "The following functions and any applicable methods accept the dots: ",
-        paste(unique(x = fx), collapse = ', ')
-      )
-      if (any(nchar(x = dfxns) < 1)) {
-        message(
-          "In addition, there is/are ",
-          length(x = Filter(f = Negate(f = nchar), x = dfxns)),
-          " other function(s) that accept(s) the dots"
-        )
-      }
-    } else {
-      message("There is/are ", length(x = dfxns), 'function(s) that accept(s) the dots')
-    }
-  } else {
-    unused <- Filter(
-      f = function(x) {
-        return(!x %in% unlist(x = fxn.args))
-      },
-      x = args.names
-    )
-    if (length(x = unused) > 0) {
-      msg <- paste0(
-        "The following arguments are not used: ",
-        paste(unused, collapse = ', ')
-      )
-      switch(
-        EXPR = getOption(x = "Seurat.checkdots", default = 'warn'),
-        "warn" = warning(msg, call. = FALSE, immediate. = TRUE),
-        "stop" = stop(msg),
-        "silent" = NULL,
-        stop("Invalid Seurat.checkdots option. Please choose one of warn, stop, silent")
-      )
-      # unused.hints <- sapply(X = unused, FUN = OldParamHints)
-      # names(x = unused.hints) <- unused
-      # unused.hints <- na.omit(object = unused.hints)
-      # if (length(x = unused.hints) > 0) {
-      #   message(
-      #     "Suggested parameter: ",
-      #     paste(unused.hints, "instead of", names(x = unused.hints), collapse = '; '),
-      #     "\n"
-      #   )
-      # }
-    }
-  }
-  return(invisible(x = NULL))
+#' @noRd
+#'
+.Vowels <- function() {
+  return(c('a', 'e', 'i', 'o', 'u'))
 }
 
 #' Check a list of objects for duplicate cell names
@@ -1273,83 +1555,6 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
     }
   }
   return(object.list)
-}
-
-#' Radian/Degree Conversions
-#'
-#' Convert degrees to radians and vice versa
-#'
-#' @param rad Angle in radians
-#'
-#' @return \code{Degrees}: \code{rad} in degrees
-#'
-#' @name Angles
-#' @rdname Angles
-#'
-#' @keywords internal
-#'
-#' @export
-#'
-#' @examples
-#' Degrees(pi)
-#'
-Degrees <- function(rad) {
-  return(rad * (180 / pi))
-}
-
-#' Empty Data Frames
-#'
-#' Create an empty \link[base:data.frame]{data frame} with no row names and
-#' zero columns
-#'
-#' @param n Number of rows for the data frame
-#'
-#' @return A \link[base:data.frame]{data frame} with \code{n} rows and
-#' zero columns
-#'
-#' @keywords internal
-#'
-#' @export
-#'
-#'
-EmptyDF <- function(n) {
-  return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
-}
-
-#' Extract delimiter information from a string.
-#'
-#' Parses a string (usually a cell name) and extracts fields based
-#'  on a delimiter
-#'
-#' @param string String to parse.
-#' @param field Integer(s) indicating which field(s) to extract. Can be a
-#' vector multiple numbers.
-#' @param delim Delimiter to use, set to underscore by default.
-#'
-#' @return A new string, that parses out the requested fields, and
-#' (if multiple), rejoins them with the same delimiter
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-#' @examples
-#' \donttest{
-#' SeuratObject:::ExtractField('Hello World', field = 1, delim = '_')
-#' }
-#'
-ExtractField <- function(string, field = 1, delim = "_") {
-  fields <- as.numeric(x = unlist(x = strsplit(
-    x = as.character(x = field),
-    split = ","
-  )))
-  if (length(x = fields) == 1) {
-    return(strsplit(x = string, split = delim)[[1]][field])
-  }
-  return(paste(
-    strsplit(x = string, split = delim)[[1]][fields],
-    collapse = delim
-  ))
 }
 
 #' Check List Names
@@ -1421,7 +1626,7 @@ IsNullPtr <- function(x) {
 #' Test Empty Characters
 #'
 #' Check to see if a \code{\link[base]{character}} vector is empty. A character
-#' is empty if it has no length or an \code{nchar == 0}
+#' is empty if it has no length or an \code{nzchar == FALSE}
 #'
 #' @param x A \code{\link[base]{character}} vector
 #' @param mode Stringency of emptiness test:
@@ -1454,103 +1659,30 @@ IsCharEmpty <- function(
   if (!is.character(x = x)) {
     return(FALSE)
   }
-  mode <- mode[1]
-  mode <- match.arg(arg = mode)
-  na <- na[1]
-  na <- match.arg(arg = na)
-  switch(
+  mode <- arg_match(arg = mode)
+  na <- arg_match(arg = na)
+  x <- switch(
     EXPR = na,
-    'empty' = {
-      x[is.na(x = x)] <- ''
-    },
-    'remove' = {
-      x <- x[!is.na(x = x)]
-    }
+    empty = x[is.na(x = x)] <- '',
+    remove = x <- x[!is.na(x = x)],
+    x
   )
   if (!length(x = x)) {
     return(TRUE)
   }
   empty <- vapply(
     X = x,
-    FUN = Negate(f = nchar),
+    FUN = Negate(f = nzchar),
     FUN.VALUE = logical(length = 1L),
     USE.NAMES = FALSE
   )
   empty <- switch(
     EXPR = mode,
-    'any' = any(empty),
-    'all' = all(empty),
+    any = any(empty),
+    all = all(empty),
     empty
   )
   return(empty)
-}
-#' Polygon Vertices
-#'
-#' Calculate the vertices of a regular polygon given the number of sides and
-#' its radius (distance from center to vertex). Also permits transforming the
-#' resulting coordinates by moving the origin and altering the initial angle
-#'
-#' @param n Number of sides of the polygon
-#' @param r Radius of the polygon
-#' @param xc,yc X/Y coordinates for the center of the polygon
-#' @param t1 Angle of the first vertex in degrees
-#'
-#' @return A \code{\link[base]{data.frame}} with \code{n} rows and two columns:
-#' \describe{
-#'  \item{\code{x}}{X positions of each coordinate}
-#'  \item{\code{y}}{Y positions of each coordinate}
-#' }
-#'
-#' @keywords internal
-#'
-#' @export
-#'
-#' @references \url{https://stackoverflow.com/questions/3436453/calculate-coordinates-of-a-regular-polygons-vertices}
-#'
-#' @examples
-#' coords <- PolyVtx(5, t1 = 90)
-#' coords
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   ggplot2::ggplot(coords, ggplot2::aes(x = x, y = y)) + ggplot2::geom_polygon()
-#' }
-#'
-PolyVtx <- function(n, r = 1L, xc = 0L, yc = 0L, t1 = 0) {
-  n <- n[1]
-  r <- r[1]
-  xc <- xc[1]
-  yc <- yc[1]
-  t1 <- t1[1]
-  if (n < 3) {
-    stop("'n' must be greater than or equal to 3", call. = FALSE)
-  }
-  t1 <- Radians(deg = t1)
-  coords <- matrix(data = 0, nrow = n, ncol = 2)
-  colnames(x = coords) <- c('x', 'y')
-  for (i in seq_len(length.out = n)) {
-    theta <- 2 * pi * (i - 1) / n + t1
-    coords[i, ] <- c(
-      xc + r * cos(x = theta),
-      yc + r * sin(x = theta)
-    )
-  }
-  return(as.data.frame(x = coords))
-}
-
-#' @param deg Angle in degrees
-#'
-#' @return \code{Radians}: \code{deg} in radians
-#'
-#' @rdname Angles
-#'
-#' @keywords internal
-#'
-#' @export
-#'
-#' @examples
-#' Radians(180)
-#'
-Radians <- function(deg) {
-  return(deg * (pi / 180))
 }
 
 #' Update a Class's Package
@@ -1580,7 +1712,7 @@ Radians <- function(deg) {
 #' @noRd
 #'
 SwapClassPkg <- function(x, from = NULL, to = NULL) {
-  if (!inherits(x = x, what = 'list')) {
+  if (!is_bare_list(x = x)) {
     return(x)
   }
   to <- to[1] %||% environmentName(env = environment(
@@ -1664,7 +1796,6 @@ Top <- function(data, num = 20, balanced = FALSE) {
   return(top)
 }
 
-#' @name classpkg
 #' @rdname classpkg
 #'
 #' @return \code{UpdateClassPkg}: \code{object} with the updated
@@ -1680,7 +1811,6 @@ UpdateClassPkg <- function(object, from = NULL, to = NULL) {
   }
   obj.list <- S4ToList(object = object)
   obj.list <- SwapClassPkg(x = obj.list, from = from, to = to)
-  # browser()
   return(ListToS4(x = obj.list))
 }
 
@@ -1697,6 +1827,9 @@ UpdateClassPkg <- function(object, from = NULL, to = NULL) {
 #' @noRd
 #'
 UpdateSlots <- function(object) {
+  if (!isS4(object)) {
+    return(object)
+  }
   object.list <- sapply(
     X = slotNames(x = object),
     FUN = function(x) {
@@ -1724,7 +1857,6 @@ UpdateSlots <- function(object) {
       )
     }
   }
-  # options(op)
   return(object)
 }
 

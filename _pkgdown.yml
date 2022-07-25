@@ -3,7 +3,8 @@ destination: docs
 
 template:
   params:
-    bootswatch: united
+    # bootswatch: united
+    bootswatch: flatly
 
 development:
   mode: auto
@@ -14,15 +15,17 @@ reference:
       - Seurat-class
       - Seurat-methods
       - has_concept("seurat")
-  - title: The Assay Class and Interaction Methods
+  - title: The v5 Assay Class and Interaction Methods
+    contents:
+      - has_concept("assay5")
+  - title: The v3 Assay Class and Interaction Methods
     contents:
       - Assay-class
-      - Assay-methods
       - has_concept("assay")
   - title: The DimReduc and JackStrawData Classes and Interaction Methods
     contents:
       - DimReduc-class
-      - DimReduc-methods
+      - DimReduc-validity
       - has_concept("dimreduc")
       - JackStrawData-class
       - JackStrawData-methods
@@ -54,4 +57,3 @@ reference:
     contents:
       - SeuratObject-package
       - pbmc_small
-      - reexports

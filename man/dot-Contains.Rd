@@ -19,4 +19,5 @@ Get Parent S4 Classes
 .Contains(pbmc_small)
 
 }
+\concept{utils}
 \keyword{internal}

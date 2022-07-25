@@ -51,3 +51,12 @@ settable using \code{\link{Idents}}}
 filled by developers only using \code{\link{Tool}<-}}
 }}
 
+\seealso{
+Other seurat: 
+\code{\link{$.Seurat}()},
+\code{\link{Seurat-validity}},
+\code{\link{[[.Seurat}()},
+\code{\link{names.Seurat}()},
+\code{\link{subset.Seurat}()}
+}
+\concept{seurat}

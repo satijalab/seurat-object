@@ -8,34 +8,56 @@
 \description{
 The \code{StdAssay} class is a virtual class that provides core
 infrastructure for assay data in \pkg{Seurat}. Assays contain expression
-data (layers) and associated feature-level metadata. Derived classes
-(eg. \link[Assay-class]{the v5 Assay}) may optionally define additional
+data (layers) and associated feature-level meta data. Derived classes
+(eg. \link[Assay5-class]{the v5 Assay}) may optionally define additional
 functionality
 }
 \section{Slots}{
 
 \describe{
-\item{\code{layers}}{A named list containing alternate representations of
-\code{data}; layers must have the same cells as \code{data} and either the
-same or a subset of the features present in \code{data}}
+\item{\code{layers}}{A named list containing expression matrices; each matrix should
+be a two-dimensional object containing some subset of cells and features
+defined in the \code{cells} and \code{features} slots. Cell and feature
+membership is recorded in the \code{cells} and \code{features} slots,
+respectively}
 
-\item{\code{cells}}{A \code{\link{LogMap}} describing the cell membership for
-each layer}
+\item{\code{cells}}{A \link[LogMap]{logical mapping} of cell names and layer
+membership; this map contains all the possible cells that this assay can
+contain. New layers must have some subset of cells present in this map}
 
-\item{\code{features}}{A \code{\link{LogMap}} describing the feature membership
-for each layer}
+\item{\code{features}}{A \link[LogMap]{logical mapping} of feature names and layer
+membership; this map contains all the possible features that this assay can
+contain. New layers must have some subset of features present in this map}
 
-\item{\code{assay.orig}}{...}
+\item{\code{default}}{A one-length integer with the end index of the
+\link[DefaultLayer]{default layer}; the default layer be all layers up to
+and including the layer at index \code{default}}
 
-\item{\code{meta.data}}{...}
+\item{\code{assay.orig}}{Original assay that this assay is based off of;
+used to track assay provenance}
 
-\item{\code{misc}}{...}
+\item{\code{meta.data}}{A \link[base:data.frame]{data frame} with feature-level
+meta data; should have the same number of rows as \code{features}}
+
+\item{\code{misc}}{A named list of unstructured miscellaneous data}
 
 \item{\code{key}}{A one-length character vector with the object's key; keys must
 be one or more alphanumeric characters followed by an underscore
-\dQuote{\code{_}} (regex pattern \dQuote{\code{^[[:alnum:]]+_$}})}
+\dQuote{\code{_}} (regex pattern
+\dQuote{\code{\Sexpr[stage=build]{SeuratObject:::.KeyPattern()}}})}
 }}
 
 \seealso{
-\code{\link{Assay5-class}}
+\code{\link{Assay5-class}} \code{\link{Assay5T-class}}
+
+Other stdassay: 
+\code{\link{StdAssay-validity}},
+\code{\link{[.StdAssay}()},
+\code{\link{[[.StdAssay}()},
+\code{\link{dim.StdAssay}()},
+\code{\link{dimnames.StdAssay}()},
+\code{\link{show,StdAssay-method}},
+\code{\link{subset.StdAssay}()}
 }
+\concept{stdassay}
+\keyword{internal}

@@ -20,8 +20,6 @@ cell expression data such as RNA-seq, protein, or imputed expression data.
 
 \item{\code{scale.data}}{Scaled expression data}
 
-\item{\code{key}}{Key for the Assay}
-
 \item{\code{assay.orig}}{Original assay that this assay is based off of. Used to
 track assay provenance}
 
@@ -30,10 +28,23 @@ single cells}
 
 \item{\code{meta.features}}{Feature-level metadata}
 
-\item{\code{misc}}{Utility slot for storing additional data associated with the assay}
+\item{\code{misc}}{A named list of unstructured miscellaneous data}
+
+\item{\code{key}}{A one-length character vector with the object's key; keys must
+be one or more alphanumeric characters followed by an underscore
+\dQuote{\code{_}} (regex pattern
+\dQuote{\code{\Sexpr[stage=build]{SeuratObject:::.KeyPattern()}}})}
 }}
 
 \seealso{
-\code{\link{Assay-methods}}
+Other assay: 
+\code{\link{Assay-validity}},
+\code{\link{CreateAssayObject}()},
+\code{\link{[.Assay}()},
+\code{\link{[[.Assay}()},
+\code{\link{dim.Assay}()},
+\code{\link{dimnames.Assay}()},
+\code{\link{merge.Assay}()},
+\code{\link{subset.Assay}()}
 }
 \concept{assay}

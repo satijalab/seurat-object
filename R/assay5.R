@@ -15,29 +15,23 @@ NULL
 #'
 #' The \code{StdAssay} class is a virtual class that provides core
 #' infrastructure for assay data in \pkg{Seurat}. Assays contain expression
-#' data (layers) and associated feature-level metadata. Derived classes
-#' (eg. \link[Assay-class]{the v5 Assay}) may optionally define additional
+#' data (layers) and associated feature-level meta data. Derived classes
+#' (eg. \link[Assay5-class]{the v5 Assay}) may optionally define additional
 #' functionality
 #'
-#' @slot layers A named list containing alternate representations of
-#' \code{data}; layers must have the same cells as \code{data} and either the
-#' same or a subset of the features present in \code{data}
-#' @slot cells A \code{\link{LogMap}} describing the cell membership for
-#' each layer
-#' @slot features A \code{\link{LogMap}} describing the feature membership
-#' for each layer
-#' @slot assay.orig ...
-#' @slot meta.data ...
-#' @slot misc ...
-#' @slot key A one-length character vector with the object's key; keys must
-#' be one or more alphanumeric characters followed by an underscore
-#' \dQuote{\code{_}} (regex pattern \dQuote{\code{^[[:alnum:]]+_$}})
+#' @template slot-stdassay
+#' @template slot-misc
+#' @template slot-key
+#'
+#' @keywords internal
 #'
 #' @exportClass StdAssay
 #'
 #' @aliases StdAssay
 #'
-#' @seealso \code{\link{Assay5-class}}
+#' @family stdassay
+#'
+#' @seealso \code{\link{Assay5-class}} \code{\link{Assay5T-class}}
 #'
 setClass(
   Class = 'StdAssay',
@@ -47,7 +41,6 @@ setClass(
     cells = 'LogMap',
     features = 'LogMap',
     default = 'integer',
-    # var.features = 'character',
     assay.orig = 'character',
     meta.data = 'data.frame',
     misc = 'list'
@@ -59,17 +52,33 @@ setClass(
 #' The v5 \code{Assay} is the typical \code{Assay} class used in \pkg{Seurat}
 #' v5; ...
 #'
+#' @template slot-stdassay
+#' @template slot-misc
+#' @template slot-key
+#'
 #' @exportClass Assay5
 #'
 #' @aliases Assay5
 #'
-#' @seealso \code{\link{StdAssay-class}}
+#' @family assay5
 #'
 setClass(
   Class = 'Assay5',
   contains = 'StdAssay'
 )
 
+#' The Transposed v5 \code{Assay} Object
+#'
+#' @template slot-stdassay
+#' @template slot-misc
+#' @template slot-key
+#'
+#' @template lifecycle-experimental
+#'
+#' @keywords internal
+#'
+#' @aliases Assay5T
+#'
 setClass(
   Class = 'Assay5T',
   contains = 'StdAssay'
@@ -278,16 +287,25 @@ setClass(
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
 }
 
-#' @rdname AddMetaData
+#' @templateVar fxn AddMetaData
+#' @template method-stdassay
+#'
 #' @method AddMetaData StdAssay
-#' @export
 #'
 AddMetaData.StdAssay <- .AddMetaData
 
+#' @rdname AddMetaData
+#' @method AddMetaData Assay5
+#' @export
+#'
+AddMetaData.Assay5 <- AddMetaData.StdAssay
+
+#' @templateVar fxn CastAssay
+#' @template method-stdassay
+#'
 #' @importFrom methods as
 #'
 #' @method CastAssay StdAssay
-#' @export
 #'
 CastAssay.StdAssay <- function(object, to, layers = NULL, verbose = TRUE, ...) {
   layers <- Layers(object = object, search = layers)
@@ -348,9 +366,19 @@ CastAssay.StdAssay <- function(object, to, layers = NULL, verbose = TRUE, ...) {
   return(object)
 }
 
-#' @rdname Cells
-#' @method Cells StdAssay
+#' @template param-verbose
+#' @param layers A vector of layers to cast; defaults to all layers
+#'
+#' @rdname CastAssay
+#' @method CastAssay Assay5
 #' @export
+#'
+CastAssay.Assay5 <- CastAssay.StdAssay
+
+#' @templateVar fxn Cells
+#' @template method-stdassay
+#'
+#' @method Cells StdAssay
 #'
 Cells.StdAssay <- function(x, layer = NULL, ...) {
   layer <- layer %||% DefaultLayer(object = x)
@@ -365,8 +393,16 @@ Cells.StdAssay <- function(x, layer = NULL, ...) {
     }
   )
   return(Reduce(f = union, x = cells))
-  # return(slot(object = x, name = 'cells')[[layer]])
 }
+
+#' @param layer Layer to pull cells/features for; defaults to default layer;
+#' if \code{NA}, returns all cells for the assay
+#'
+#' @rdname Cells
+#' @method Cells Assay5
+#' @export
+#'
+Cells.Assay5 <- Cells.StdAssay
 
 #' @rdname CreateAssay5Object
 #' @method CreateAssay5Object default
@@ -377,11 +413,12 @@ CreateAssay5Object.default <- function(
   min.cells = 0,
   min.features = 0,
   layer = 'counts',
-  transpose = FALSE,
+  # transpose = FALSE,
   csum = NULL,
   fsum = NULL,
   ...
 ) {
+  transpose <- FALSE
   if (isTRUE(x = transpose)) {
     type <- 'Assay5T'
     csum <- csum %||% Matrix::rowSums
@@ -412,12 +449,14 @@ CreateAssay5Object.list <- function(
   counts,
   min.cells = 0,
   min.features = 0,
-  transpose = FALSE,
+  # transpose = FALSE,
   csum = NULL,
   fsum = NULL,
   ...
 ) {
+  transpose <- FALSE
   if (any(sapply(X = counts, FUN = inherits, what = 'spam'))) {
+    check_installed(pkg = 'spam', reason = 'for working with spam matrices')
     colsums <- spam::colSums
     rowsums <- spam::rowSums
   } else {
@@ -453,7 +492,7 @@ CreateAssay5Object.Matrix <- function(
   counts,
   min.cells = 0,
   min.features = 0,
-  transpose = FALSE,
+  # transpose = FALSE,
   layer = 'counts',
   ...
 ) {
@@ -461,8 +500,8 @@ CreateAssay5Object.Matrix <- function(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
-    transpose = transpose,
-    type = ifelse(test = isTRUE(x = transpose), yes = 'Assay5T', no = 'Assay5'),
+    # transpose = transpose,
+    # type = ifelse(test = isTRUE(x = transpose), yes = 'Assay5T', no = 'Assay5'),
     layer = layer,
     ...
   ))
@@ -482,10 +521,12 @@ CreateAssay5Object.spam <- function(
   counts,
   min.cells = 0,
   min.features = 0,
-  transpose = FALSE,
+  # transpose = FALSE,
   layer = 'counts',
   ...
 ) {
+  transpose <- FALSE
+  check_installed(pkg = 'spam', reason = 'for working with spam matrices')
   if (isTRUE(x = transpose)) {
     type <- 'Assay5T'
     csum <- spam::rowSums
@@ -508,8 +549,9 @@ CreateAssay5Object.spam <- function(
   ))
 }
 
-#' @rdname DefaultAssay
-#' @export
+#' @templateVar fxn DefaultAssay
+#' @template method-stdassay
+#'
 #' @method DefaultAssay StdAssay
 #'
 DefaultAssay.StdAssay <- function(object, ...) {
@@ -517,16 +559,29 @@ DefaultAssay.StdAssay <- function(object, ...) {
 }
 
 #' @rdname DefaultAssay
+#' @method DefaultAssay Assay5
 #' @export
+#'
+DefaultAssay.Assay5 <- DefaultAssay.StdAssay
+
+#' @rdname DefaultAssay-StdAssay
 #' @method DefaultAssay<- StdAssay
+#' @export
 #'
 "DefaultAssay<-.StdAssay" <- function(object, ..., value) {
   slot(object = object, name = 'assay.orig') <- value
   return(object)
 }
 
-#' @rdname DefaultLayer
+#' @rdname DefaultAssay
+#' @method DefaultAssay<- Assay5
 #' @export
+#'
+"DefaultAssay<-.Assay5" <- `DefaultAssay<-.StdAssay`
+
+#' @templateVar fxn DefaultLayer
+#' @template method-stdassay
+#'
 #' @method DefaultLayer StdAssay
 #'
 DefaultLayer.StdAssay <- function(object, ...) {
@@ -538,8 +593,14 @@ DefaultLayer.StdAssay <- function(object, ...) {
 }
 
 #' @rdname DefaultLayer
+#' @method DefaultLayer Assay5
 #' @export
+#'
+DefaultLayer.Assay5 <- DefaultLayer.StdAssay
+
+#' @rdname DefaultLayer-StdAssay
 #' @method DefaultLayer<- StdAssay
+#' @export
 #'
 "DefaultLayer<-.StdAssay" <- function(object, ..., value) {
   layers <- Layers(object = object)
@@ -554,11 +615,15 @@ DefaultLayer.StdAssay <- function(object, ...) {
   return(object)
 }
 
-#' @param layer
-#'
-#' @rdname Cells
+#' @rdname DefaultLayer
+#' @method DefaultLayer<- Assay5
 #' @export
+#'
+"DefaultLayer<-.Assay5" <- `DefaultLayer<-.StdAssay`
+
+#' @rdname Cells-StdAssay
 #' @method Features StdAssay
+#' @export
 #'
 Features.StdAssay <- function(x, layer = NULL, ...) {
   layer <- layer[1L] %||% DefaultLayer(object = x)[1L]
@@ -568,6 +633,12 @@ Features.StdAssay <- function(x, layer = NULL, ...) {
   layer <- match.arg(arg = layer, choices = Layers(object = x))
   return(slot(object = x, name = 'features')[[layer]])
 }
+
+#' @rdname Cells
+#' @method Features Assay5
+#' @export
+#'
+Features.Assay5 <- Features.StdAssay
 
 #' @method FetchData StdAssay
 #' @export
@@ -729,32 +800,44 @@ FetchData.StdAssay <- function(
   # return(data.fetched)
 }
 
-#' @rdname AssayData
-#' @export
+FetchData.Assay5 <- FetchData.StdAssay
+
+#' @templateVar fxn AssayData
+#' @template method-stdassay
+#'
 #' @method GetAssayData StdAssay
 #'
-#' @examples
-#' \dontrun{
-#' # Get the data directly from an Assay object
-#' GetAssayData(pbmc_small[["RNA"]], slot = "data")[1:5,1:5]
-#' }
-#'
-GetAssayData.StdAssay <- function(object, slot = 'data', ...) {
+GetAssayData.StdAssay <- function(
+  object,
+  layer = NULL,
+  slot = deprecated(),
+  ...
+) {
   CheckDots(..., fxns = LayerData)
-  return(LayerData(object = object, layer = slot, ...))
+  if (is_present(arg = slot)) {
+    f <- if (.IsFutureSeurat(version = '5.1.0')) {
+      deprecate_stop
+    } else if (.IsFutureSeurat(version = '5.0.0')) {
+      deprecate_warn
+    } else {
+      deprecate_soft
+    }
+    f(
+      when = '5.0.0',
+      what = 'GetAssayData(slot = )',
+      with = 'GetAssayData(layer = )'
+    )
+    layer <- slot
+  }
+  return(LayerData(object = object, layer = layer, ...))
 }
 
+#' @templateVar fxn VariableFeatures
+#' @template method-stdassay
+#'
 #' @importFrom utils adist
 #'
-#' @rdname VariableFeatures
-#' @export
 #' @method HVFInfo StdAssay
-#'
-#' @examples
-#' \dontrun{
-#' # Get the HVF info directly from an Assay object
-#' HVFInfo(pbmc_small[["RNA"]], selection.method = 'vst')[1:5, ]
-#' }
 #'
 HVFInfo.StdAssay <- function(
   object,
@@ -809,51 +892,28 @@ HVFInfo.StdAssay <- function(
   return(hvf.info)
 }
 
-#' @rdname Key
+#' @rdname VariableFeatures
+#' @method HVFInfo Assay5
 #' @export
-#' @method Key StdAssay
 #'
-#' @examples
-#' \dontrun{
-#' # Get an Assay key
-#' Key(pbmc_small[["RNA"]])
-#' }
-#'
-Key.StdAssay <- function(object, ...) {
-  CheckDots(...)
-  return(NextMethod())
-}
+HVFInfo.Assay5 <- HVFInfo.StdAssay
 
 #' @rdname Key
+#' @method Key Assay5
 #' @export
-#' @method Key<- StdAssay
 #'
-#' @examples
-#' \dontrun{
-#' # Set the key for an Assay
-#' Key(pbmc_small[["RNA"]]) <- "newkey_"
-#' Key(pbmc_small[["RNA"]])
-#' }
-#'
-"Key<-.StdAssay" <- function(object, ..., value) {
-  CheckDots(...)
-  object <- NextMethod()
-  return(object)
-}
+Key.Assay5 <- .Key
 
-#' @param fast Determine how to return the layer data; choose from:
-#' \describe{
-#'  \item{\code{FALSE}}{Apply any transpositions and attempt to add
-#'   feature/cell names (if supported) back to the layer data}
-#'  \item{\code{NA}}{Attempt to add feature/cell names back to the layer data,
-#'   skip any transpositions}
-#'  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell
-#'   names to the layer data}
-#' }
+#' @rdname Key
+#' @method Key<- Assay5
+#' @export
 #'
-#' @rdname Layers
+"Key<-.Assay5" <- `.Key<-`
+
+#' @templateVar fxn Layers
+#' @template method-stdassay
+#'
 #' @method LayerData StdAssay
-#' @export
 #'
 LayerData.StdAssay <- function(
   object,
@@ -900,27 +960,49 @@ LayerData.StdAssay <- function(
   # Add dimnames and transpose if requested
   ldat <- if (isTRUE(x = fast)) {
     ldat
-  } else if (is.na(x = fast)) {
-    .GetLayerData(
-      x = ldat,
-      dnames = dnames,
-      fmargin = 1L,
-      ...
-    )
+  } else if (is_na(x = fast)) {
+    .GetLayerData2(x = ldat, dnames = dnames, fmargin = 1L)
+    # .GetLayerData(
+    #   x = ldat,
+    #   dnames = dnames,
+    #   fmargin = 1L,
+    #   ...
+    # )
   } else {
-    .GetLayerData(
+    .GetLayerData2(
       x = ldat,
       dnames = dnames,
-      fmargin = .MARGIN(object = object, type = 'features'),
-      ...
+      fmargin = .MARGIN(object = object, type = 'features')
     )
+    # .GetLayerData(
+    #   x = ldat,
+    #   dnames = dnames,
+    #   fmargin = .MARGIN(object = object, type = 'features'),
+    #   ...
+    # )
   }
   return(ldat)
 }
 
-#' @param features,cells Vectors of features/cells to include ...
+#' @param features,cells Vectors of features/cells to include
+#' @param fast Determine how to return the layer data; choose from:
+#' \describe{
+#'  \item{\code{FALSE}}{Apply any transpositions and attempt to add
+#'   feature/cell names (if supported) back to the layer data}
+#'  \item{\code{NA}}{Attempt to add feature/cell names back to the layer data,
+#'   skip any transpositions}
+#'  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell
+#'   names to the layer data}
+#' }
 #'
 #' @rdname Layers
+#' @method LayerData Assay5
+#' @export
+#'
+LayerData.Assay5 <- LayerData.StdAssay
+
+#'
+#' @rdname Layers-StdAssay
 #' @method LayerData<- StdAssay
 #' @export
 #'
@@ -969,9 +1051,7 @@ LayerData.StdAssay <- function(
   cdim <- .MARGIN(object = object, type = 'cells')
   # Assume input matrix is features x cells
   dnames <- list(
-    # features %||% dimnames(x = value)[[fdim]],
     features %||% dimnames(x = value)[[1L]],
-    # cells %||% dimnames(x = value)[[cdim]]
     cells %||% dimnames(x = value)[[2L]]
   )
   if (length(x = unique(x = dim(x = value))) > 1L) {
@@ -986,13 +1066,20 @@ LayerData.StdAssay <- function(
     )
     dnames <- dnames[didx]
   }
-  value <- .PrepLayerData(
+  value <- .PrepLayerData2(
     x = value,
     target = dim(x = object),
     dnames = dnames,
     fmargin = fdim,
     ...
   )
+  # value <- .PrepLayerData(
+  #   x = value,
+  #   target = dim(x = object),
+  #   dnames = dnames,
+  #   fmargin = fdim,
+  #   ...
+  # )
   # Check features and cells
   features <- attr(x = value, which = 'features') %||% seq_len(length.out = dim(x = value)[fdim])
   cells <- attr(x = value, which = 'cells') %||% seq_len(length.out = dim(x = value)[cdim])
@@ -1063,14 +1150,13 @@ LayerData.StdAssay <- function(
   return(object)
 }
 
-#' @param search A pattern to search layer names for; pass one of:
-#' \itemize{
-#'  \item \dQuote{\code{NA}} to pull all layers
-#'  \item \dQuote{\code{NULL}} to pull the default layer(s)
-#'  \item a \link[base:grep]{regular expression} that matches layer names
-#' }
-#'
 #' @rdname Layers
+#' @method LayerData<- Assay5
+#' @export
+#'
+"LayerData<-.Assay5" <- `LayerData<-.StdAssay`
+
+#' @rdname Layers-StdAssay
 #' @method Layers StdAssay
 #' @export
 #'
@@ -1096,114 +1182,78 @@ Layers.StdAssay <- function(object, search = NA, ...) {
   return(layers)
 }
 
-#' @param slot Name of specific bit of meta data to pull
+#' @param search A pattern to search layer names for; pass one of:
+#' \itemize{
+#'  \item \dQuote{\code{NA}} to pull all layers
+#'  \item \dQuote{\code{NULL}} to pull the default layer(s)
+#'  \item a \link[base:grep]{regular expression} that matches layer names
+#' }
 #'
-#' @rdname Misc
+#' @rdname Layers
+#' @method Layers Assay5
 #' @export
+#'
+Layers.Assay5 <- Layers.StdAssay
+
+#' @templateVar fxn Misc
+#' @template method-stdassay
+#'
 #' @method Misc StdAssay
 #'
 Misc.StdAssay <- .Misc
 
 #' @rdname Misc
+#' @method Misc Assay5
 #' @export
+#'
+Misc.Assay5 <- Misc.StdAssay
+
+#' @templateVar fxn Misc
+#' @template method-stdassay
+#'
 #' @method Misc<- StdAssay
 #'
 "Misc<-.StdAssay" <- `.Misc<-`
 
-#' @importFrom stats na.omit
-#'
-#' @rdname AssayData
+#' @rdname Misc
+#' @method Misc Assay5
 #' @export
+#'
+"Misc<-Assay5" <- `Misc<-.StdAssay`
+
+#' @rdname AssayData-StdAssay
 #' @method SetAssayData StdAssay
+#' @export
 #'
-#' @examples
-#' \dontrun{
-#' # Set an Assay slot directly
-#' count.data <- GetAssayData(pbmc_small[["RNA"]], slot = "counts")
-#' count.data <- as.matrix(x = count.data + 1)
-#' new.assay <- SetAssayData(pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
-#' }
-#'
-SetAssayData.StdAssay <- function(object, slot, new.data, ...) {
-  .NotYetImplemented()
+SetAssayData.StdAssay <- function(
+  object,
+  layer,
+  slot = deprecated(),
+  new.data,
+  ...
+) {
+  if (is_present(arg = slot)) {
+    f <- if (.IsFutureSeurat(version = '5.1.0')) {
+      deprecate_stop
+    } else if (.IsFutureSeurat(version = '5.0.0')) {
+      deprecate_warn
+    } else {
+      deprecate_soft
+    }
+    f(
+      when = '5.0.0',
+      what = 'SetAssayData(slot = )',
+      with = 'SetAssayData(layer = )'
+    )
+    layer <- slot
+  }
   LayerData(object = object, layer = slot) <- new.data
-  return(object)
-  CheckDots(...)
-  slot <- slot[1]
-  # slot <- match.arg(arg = slot, choices = '')
-  if (!IsMatrixEmpty(x = new.data)) {
-    if (any(grepl(pattern = '_', x = rownames(x = new.data)))) {
-      warning(
-        "Feature names cannot have underscores ('_'), replacing with dashes ('-')",
-        call. = FALSE,
-        immediate. = TRUE
-      )
-      rownames(x = new.data) <- gsub(
-        pattern = '_',
-        replacement = '-',
-        x = rownames(x = new.data)
-      )
-    }
-    if (ncol(x = new.data) != ncol(x = object)) {
-      stop(
-        "The new data doesn't have the same number of cells as the current data",
-        call. = FALSE
-      )
-    }
-    num.counts <- nrow(x = object)
-    counts.names <- rownames(x = object)
-    if (slot == 'scale.data' && nrow(x = new.data) > num.counts) {
-      warning(
-        "Adding more features than present in current data",
-        call. = FALSE,
-        immediate. = TRUE
-      )
-    } else if (slot %in% c('counts', 'data') && nrow(x = new.data) != num.counts) {
-      warning(
-        "The new data doesn't have the same number of features as the current data",
-        call. = FALSE,
-        immediate. = TRUE
-      )
-    }
-    if (!all(rownames(x = new.data) %in% counts.names)) {
-      warning(
-        "Adding features not currently present in the object",
-        call. = FALSE,
-        immediate. = TRUE
-      )
-    }
-    new.features <- na.omit(object = match(
-      x = counts.names,
-      table = rownames(x = new.data)
-    ))
-    new.cells <- colnames(x = new.data)
-    if (!all(new.cells %in% colnames(x = object))) {
-      stop(
-        "All cell names must match current cell names",
-        call. = FALSE
-      )
-    }
-    new.data <- new.data[new.features, colnames(x = object), drop = FALSE]
-    if (slot %in% c('counts', 'data') && !all(dim(x = new.data) == dim(x = object))) {
-      stop(
-        "Attempting to add a different number of cells and/or features",
-        call. = FALSE
-      )
-    }
-  }
-  if (!is.vector(x = rownames(x = new.data))) {
-    rownames(x = new.data) <- as.vector(x = rownames(x = new.data))
-  }
-  if (!is.vector(x = colnames(x = new.data))) {
-    colnames(x = new.data) <- as.vector(x = colnames(x = new.data))
-  }
-  slot(object = object, name = slot) <- new.data
   return(object)
 }
 
-#' @rdname VariableFeatures
-#' @export
+#' @rdname VariableFeatures-StdAssay
 #' @method VariableFeatures StdAssay
+#' @export
 #'
 VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, collapse = TRUE, ...) {
   msg <- 'No variable features found'
@@ -1278,8 +1328,14 @@ VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, colla
 }
 
 #' @rdname VariableFeatures
+#' @method VariableFeatures Assay5
 #' @export
+#'
+VariableFeatures.Assay5 <- VariableFeatures.StdAssay
+
+#' @rdname VariableFeatures-StdAssay
 #' @method VariableFeatures<- StdAssay
+#' @export
 #'
 "VariableFeatures<-.StdAssay" <- function(object, method = 'custom', layer = NULL, ..., value) {
   value <- intersect(x = value, y = rownames(x = object))
@@ -1295,43 +1351,23 @@ VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, colla
   return(object)
 }
 
+#' @rdname VariableFeatures
+#' @method VariableFeatures<- Assay5
+#' @export
+#'
+"VariableFeatures<-.Assay5" <- `VariableFeatures<-.StdAssay`
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' \code{StdAssay} Methods
+#' @inherit [.Assay5 params return title description details sections
 #'
-#' Methods for \code{\link{StdAssay}} objects for generics defined in
-#' other packages
-#'
-#' @param x,object An \code{\link{StdAssay}} object
-#' @param i,features For \code{[[}: metadata names; for all other methods,
-#' feature names or indices
-#' @param j,cells Cell names or indices
-#' @param value For \code{[[} Feature-level metadata to add to the assay; for
-#' \code{dimnames<-}, a list of two character vectors with the first entry being
-#' new feature names and the second being new cell names for the assay
-#' @param ... Arguments passed to other methods
-#'
-#' @details The following methods are provided for interacting with a
-#' \code{StdAssay} object
-#'
-#' @name StdAssay-methods
-#' @rdname StdAssay-methods
-#'
-#' @concept assay
-#'
-NULL
-
-#' @details \code{[}: Get expression data from an \code{StdAssay}
-#'
-#' @return \code{[}: The \code{data} slot for features \code{i} and cells
-#' \code{j}
-#'
-#' @rdname StdAssay-methods
-#'
+#' @keywords internal
 #' @method [ StdAssay
 #' @export
+#'
+#' @family stdassay
 #'
 "[.StdAssay" <- function(x, i, j, ...) {
   if (missing(x = i)) {
@@ -1343,23 +1379,38 @@ NULL
   return(LayerData(object = x, cells = j, features = i, ...))
 }
 
-#' @details \code{[[}: Get feature-level metadata
+#' Get Expression Data
 #'
-#' @inheritParams base::`[[.data.frame`
+#' @param x An \code{\link{Assay5}} object
+#' @param i Feature names or indices
+#' @param j Cell names or indices
+#' @param ... Arguments passed to \code{\link{LayerData}}
 #'
-#' @return \code{[[}: The feature-level metadata for \code{i}
+#' @return The expression matrix for the default layer of \code{x}
+#' for the \code{i} features and \code{j} cells
 #'
-#' @rdname StdAssay-methods
+#' @method [ Assay5
+#' @export
 #'
+#' @family assay5
+#'
+#' @seealso \code{\link{LayerData}}
+#'
+"[.Assay5" <- `[.StdAssay`
+
+#' @inherit [[.Assay5 params return title description details sections
+#'
+#' @keywords internal
 #' @method [[ StdAssay
 #' @export
+#'
+#' @family stdassay
 #'
 "[[.StdAssay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
   data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
-  # row.names(x = data.return) <- Features(x = x, layer = NA)
   row.names(x = data.return) <- rownames(x = x)
   if (isTRUE(x = drop)) {
     data.return <- unlist(x = data.return, use.names = FALSE)
@@ -1371,15 +1422,34 @@ NULL
   return(data.return)
 }
 
-#' @details \code{dim}: Number of cells and features for an \code{StdAssay}
+#' Feature-Level Meta Data
 #'
-#' @return \code{dim}: The number of features (\code{nrow}) and cells
-#' (\code{ncol})
+#' Get and set feature-level meta data
 #'
-#' @rdname StdAssay-methods
+#' @inheritParams [.Assay5
+#' @param i Name of feature-level meta data to fetch or add
+#' @param j Ignored
+#' @param drop See \code{\link{drop}}
+#' @template param-dots-ignored
 #'
+#' @return \code{[[}: The feature-level meta data for \code{i}
+#'
+#' @method [[ Assay5
+#' @export
+#'
+#' @family assay5
+#'
+#' @order 1
+#'
+"[[.Assay5" <- `[[.StdAssay`
+
+#' @inherit dim.Assay5 params return title description details sections
+#'
+#' @keywords internal
 #' @method dim StdAssay
 #' @export
+#'
+#' @family stdassay
 #'
 dim.StdAssay <- function(x) {
   return(vapply(
@@ -1392,27 +1462,54 @@ dim.StdAssay <- function(x) {
   ))
 }
 
-#' @details \code{dimnames}: Get the feature and cell names
+#' Feature and Cell Numbers
 #'
-#' @return \code{dimnames}: A list with feature (row) and cell (column) names
+#' @inheritParams [.Assay5
 #'
-#' @rdname StdAssay-methods
+#' @return A two-length numeric vector with the total number of
+#' features and cells in \code{x}
 #'
+#' @method dim Assay5
+#' @export
+#'
+#' @family assay5
+#'
+dim.Assay5 <- dim.StdAssay
+
+#' @inherit dimnames.Assay5 params return title description details sections
+#'
+#' @keywords internal
 #' @method dimnames StdAssay
 #' @export
 #'
 #' @seealso \code{\link{Cells}} \code{\link{Features}}
+#' @family stdassay
 #'
 dimnames.StdAssay <- function(x) {
   return(list(Features(x = x, layer = NA), Cells(x = x, layer = NA)))
 }
 
-#' @details \code{dimnames<-}: Set the feature and cell names
+#' Assay-Level Feature and Cell Names
 #'
-#' @return \code{dimnames<-}: \code{x} with the cell and/or feature
-#' names updated to \code{value}
+#' Get and set feature and cell names in v5 Assays
 #'
-#' @rdname StdAssay-methods
+#' @inheritParams [.Assay5
+#'
+#' @return \code{dimnames}: A two-length list with the following values:
+#' \itemize{
+#'  \item A character vector will all features in \code{x}
+#'  \item A character vector will all cells in \code{x}
+#' }
+#'
+#' @method dimnames Assay5
+#' @export
+#'
+#' @family assay5
+#' @family dimnames
+#'
+dimnames.Assay5 <- dimnames.StdAssay
+
+#' @rdname dimnames.StdAssay
 #'
 #' @method dimnames<- StdAssay
 #' @export
@@ -1431,26 +1528,42 @@ dimnames.StdAssay <- function(x) {
   return(x)
 }
 
-#' @details \code{head} and \code{tail}: Get the first or last rows of feature
-#' level meta data
+#' @param value A two-length list with updated feature and/or cells names
 #'
-#' @return \code{head}: The first \code{n} rows of feature-level metadata
+#' @return \code{dimnames<-}: \code{x} with the feature and/or cell
+#' names updated to \code{value}
 #'
-#' @importFrom utils head
+#' @rdname dimnames.Assay5
 #'
-#' @rdname StdAssay-methods
+#' @method dimnames<- Assay5
+#' @export
+#'
+"dimnames<-.Assay5" <- `dimnames<-.StdAssay`
+
+#' @rdname sub-sub-.StdAssay
 #'
 #' @method head StdAssay
 #' @export
 #'
 head.StdAssay <- .head
 
-#' @details \code{merge}: Merge multiple assays together
+#' @param n Number of meta data rows to show
 #'
-#' @return \code{merge}: A new assay ...
+#' @return \code{head}: The first \code{n} rows of feature-level meta data
 #'
-#' @rdname StdAssay-methods
+#' @rdname sub-sub-.Assay5
 #'
+#' @method head Assay5
+#' @export
+#'
+head.Assay5 <- head.StdAssay
+
+#' @inherit merge.Assay5 params return title description details sections
+#'
+#' @note All assays must be of the same type; merging different v5 assays (eg.
+#' \code{\link{Assay5}} and \code{\link{Assay5T}}) is currently unsupported
+#'
+#' @keywords internal
 #' @method merge StdAssay
 #' @export
 #'
@@ -1465,19 +1578,19 @@ merge.StdAssay <- function(
   assays <- c(x, y)
   # TODO: Support multiple types of assays
   if (length(x = unique(x = sapply(X = assays, FUN = class))) != 1L) {
-    stop("Multiple types of assays provided", call. = FALSE)
+    abort(message = "Multiple types of assays provided")
   }
   labels <- labels %||% as.character(x = seq_along(along.with = assays))
   # add.cell.ids <- add.cell.ids %||% labels
   # TODO: Support collapsing layers
   if (isTRUE(x = collapse)) {
-    stop("Collapsing layers is not yet supported", call. = FALSE)
+    abort(message = "Collapsing layers is not yet supported")
   }
   for (i in seq_along(along.with = assays)) {
-    if (is.na(x = labels[i])) {
+    if (is_na(x = labels[i])) {
       labels[i] <- as.character(x = i)
     }
-    if (isTRUE(x = is.na(x = add.cell.ids[i]))) {
+    if (is_na(x = add.cell.ids[i])) {
       add.cell.ids[i] <- as.character(x = i)
     }
     if (!is.null(x = add.cell.ids[i])) {
@@ -1506,7 +1619,7 @@ merge.StdAssay <- function(
   # Add layers
   # TODO: Support collapsing layers
   if (isTRUE(x = collapse)) {
-    stop("Collapsing layers is not yet supported", call. = FALSE)
+    abort(message = "Collapsing layers is not yet supported")
   } else {
     for (i in seq_along(along.with = assays)) {
       for (lyr in Layers(object = assays[[i]])) {
@@ -1555,16 +1668,39 @@ merge.StdAssay <- function(
   return(combined)
 }
 
-#' @details \code{subset}: Subset an assay to a given set of cells
-#' and/or features. \strong{Note}: reordering of cells/features is
-#' \emph{not} permitted
+#' Merge Assays
 #'
-#' @return \code{subset}: The assay subsetted to the cells and/or features given
+#' Merge one or more v5 assays together
 #'
-#' @rdname StdAssay-methods
+#' \strong{Note}: collapsing layers is currently not supported
 #'
+#' @inheritParams [.Assay5
+#' @template param-dots-ignored
+#' @param y One or more \code{\link{Assay5}} objects
+#' @param labels A character vector equal to the number of objects; defaults to
+#' \code{as.character(seq_along(c(x, y)))}
+#' @param add.cell.ids A character vector equal to the number of objects
+#' provided to append to all cell names; if \code{TRUE}, uses \code{labels} as
+#' \code{add.cell.ids}
+#' @param collapse If \code{TRUE}, merge layers of the same name together; if
+#' \code{FALSE}, appends \code{labels} to the layer name
+#'
+#' @return A new v5 assay with data merged from \code{c(x, y)}
+#'
+#' @method merge Assay5
+#' @export
+#'
+#' @family assay5
+#'
+merge.Assay5 <- merge.StdAssay
+
+#' @inherit subset.Assay5 params return title description details sections
+#'
+#' @keywords internal
 #' @method subset StdAssay
 #' @export
+#'
+#' @family stdassay
 #'
 subset.StdAssay <- function(
   x,
@@ -1669,16 +1805,38 @@ subset.StdAssay <- function(
   return(x)
 }
 
-#' @return \code{tail}: The last \code{n} rows of feature-level metadata
+#' Subset an Assay
 #'
-#' @importFrom utils tail
+#' @inheritParams [.Assay5
+#' @param cells Cell names
+#' @param features Feature names
+#' @param layers Layer to keep; defaults to all layers
 #'
-#' @rdname StdAssay-methods
+#' @return \code{x} with just the cells and features specified by
+#' \code{cells} and \code{features} for the layers specified by \code{layers}
+#'
+#' @method subset Assay5
+#' @export
+#'
+#' @family assay5
+#'
+subset.Assay5 <- subset.StdAssay
+
+#' @rdname sub-sub-.StdAssay
 #'
 #' @method tail StdAssay
 #' @export
 #'
 tail.StdAssay <- .tail
+
+#' @return \code{tail}: the last \code{n} rows of feature-level meta data
+#'
+#' @rdname sub-sub-.Assay5
+#'
+#' @method tail Assay5
+#' @export
+#'
+tail.Assay5 <- tail.StdAssay
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
@@ -1829,11 +1987,21 @@ setAs(
   }
 )
 
-#' @details \code{[[<-}: Add or remove pieces of meta data
+#' @return \code{[[<-}: \code{x} with \code{value} added as \code{i}
+#' in feature-level meta data
+#' @rdname sub-sub-.Assay5
 #'
-#' @return \code{[[<-}: \code{x} with the metadata updated
+#' @order 2
 #'
-#' @rdname StdAssay-methods
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Assay5'),
+  definition = function(x, i, ..., value) {
+    return(callNextMethod(x = x, i = i, value = value, ...))
+  }
+)
+
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
   f = '[[<-',
@@ -1871,6 +2039,7 @@ setMethod(
   }
 )
 
+#' @rdname sub-sub-.StdAssay
 setMethod(
   f = '[[<-',
   signature = c(
@@ -1893,7 +2062,7 @@ setMethod(
 
 #' @importFrom methods selectMethod
 #'
-#' @rdname StdAssay-methods
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
   f = '[[<-',
@@ -1915,13 +2084,12 @@ setMethod(
   }
 )
 
-#' @rdname StdAssay-methods
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
   f = '[[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'NULL'),
   definition = function(x, i, ..., value) {
-    browser()
     for (name in i) {
       slot(object = x, name = 'meta.data')[[name]] <- NULL
     }
@@ -1929,7 +2097,7 @@ setMethod(
   }
 )
 
-#' @rdname StdAssay-methods
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
   f = '[[<-',
@@ -1974,7 +2142,7 @@ setMethod(
   }
 )
 
-#' @rdname StdAssay-methods
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
   f = '[[<-',
@@ -1991,7 +2159,7 @@ setMethod(
   }
 )
 
-#' @rdname StdAssay-methods
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
   f = '[[<-',
@@ -2013,7 +2181,7 @@ setMethod(
   }
 )
 
-#' @rdname StdAssay-methods
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
   f = '[[<-',
@@ -2072,15 +2240,17 @@ setMethod(
   }
 )
 
-#' @details \code{show}: Overview of an \code{StdAssay} object
+#' V5 Assay Overview
 #'
-#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
-#' invisibly returns \code{NULL}
+#' Overview of a \code{\link{StdAssay}} object
 #'
-#' @importFrom utils head
-#' @importFrom methods show
+#' @param object A v5 Assay
 #'
-#' @rdname StdAssay-methods
+#' @template return-show
+#'
+#' @keywords internal
+#'
+#' @family stdassay
 #'
 setMethod(
   f = 'show',
@@ -2138,6 +2308,24 @@ setMethod(
   }
 )
 
+#' V5 Assay Validity
+#'
+#' @templateVar cls StdAssay
+#' @template desc-validity
+#'
+#' @section Layer Validation:
+#' blah
+#'
+#' @inheritSection Key-validity Key Validation
+#'
+#' @keywords internal
+#'
+#' @name StdAssay-validity
+#'
+#' @family stdassay
+#'
+#' @seealso \code{\link[methods]{validObject}}
+#'
 setValidity(
   Class = 'StdAssay',
   method = function(object) {
@@ -2220,3 +2408,16 @@ setValidity(
     return(valid %||% TRUE)
   }
 )
+
+#' @inherit StdAssay-validity title details sections
+#'
+#' @templateVar cls Assay5
+#' @template desc-validity
+#'
+#' @name Assay5-validity
+#'
+#' @family assay5
+#'
+#' @seealso \code{\link[methods]{validObject}}
+#'
+NULL

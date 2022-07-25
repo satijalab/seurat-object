@@ -9,6 +9,49 @@
 The v5 \code{Assay} is the typical \code{Assay} class used in \pkg{Seurat}
 v5; ...
 }
+\section{Slots}{
+
+\describe{
+\item{\code{layers}}{A named list containing expression matrices; each matrix should
+be a two-dimensional object containing some subset of cells and features
+defined in the \code{cells} and \code{features} slots. Cell and feature
+membership is recorded in the \code{cells} and \code{features} slots,
+respectively}
+
+\item{\code{cells}}{A \link[LogMap]{logical mapping} of cell names and layer
+membership; this map contains all the possible cells that this assay can
+contain. New layers must have some subset of cells present in this map}
+
+\item{\code{features}}{A \link[LogMap]{logical mapping} of feature names and layer
+membership; this map contains all the possible features that this assay can
+contain. New layers must have some subset of features present in this map}
+
+\item{\code{default}}{A one-length integer with the end index of the
+\link[DefaultLayer]{default layer}; the default layer be all layers up to
+and including the layer at index \code{default}}
+
+\item{\code{assay.orig}}{Original assay that this assay is based off of;
+used to track assay provenance}
+
+\item{\code{meta.data}}{A \link[base:data.frame]{data frame} with feature-level
+meta data; should have the same number of rows as \code{features}}
+
+\item{\code{misc}}{A named list of unstructured miscellaneous data}
+
+\item{\code{key}}{A one-length character vector with the object's key; keys must
+be one or more alphanumeric characters followed by an underscore
+\dQuote{\code{_}} (regex pattern
+\dQuote{\code{\Sexpr[stage=build]{SeuratObject:::.KeyPattern()}}})}
+}}
+
 \seealso{
-\code{\link{StdAssay-class}}
+Other assay5: 
+\code{\link{Assay5-validity}},
+\code{\link{[.Assay5}()},
+\code{\link{[[.Assay5}()},
+\code{\link{dim.Assay5}()},
+\code{\link{dimnames.Assay5}()},
+\code{\link{merge.Assay5}()},
+\code{\link{subset.Assay5}()}
 }
+\concept{assay5}

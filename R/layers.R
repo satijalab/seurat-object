@@ -79,6 +79,122 @@ setGeneric(
   return(setdiff(x = seq.int(from = 1L, to = 2L), y = fmargin))
 }
 
+#' Get and Prepare Layer Data
+#'
+#' Assemble layer data pulled from and prepare layer data for addition to
+#' v5 assays; v5 assays allow layers to be in multiple formats and support
+#' both regular and transposed orientations
+#'
+#' When transposition is required, \code{.GetLayerData2} and
+#' \code{.PrepLayerData2} will attempt to
+#' \link[.GetMethod]{determine the optimal method} of \code{\link[base:t]{t()}}
+#' to use; if no optimal method is found, \code{base::t.default} will be used
+#' for transposition, which may be slow
+#'
+#' @param x A matrix-like object
+#' @param dnames An optional list with feature and cell names
+#' (in order for \code{.GetLayerData2})
+#' @param fmargin Margin for features (1 or 2); for \code{.GetLayerData2}, if
+#' \code{fmargin} is 2, \code{x} will be transposed (see details)
+#'
+#' @return \code{.GetLayerData2}: \code{x}, potentially transposed and
+#' potentially with \code{dnames} set as the \code{\link{dimnames}}
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.GetLayerData2 <- function(x, dnames = NULL, fmargin = 1L) {
+  # Check dimnames
+  if (!is.null(x = dnames)) {
+    ndims <- length(x = dim(x = x))
+    if (!is_bare_list(x = dnames, n = ndims)) {
+      abort(message = paste("'dnames' must be a list of length", ndims))
+    }
+    didx <- match(
+      x = sapply(X = dnames, FUN = length, USE.NAMES = FALSE),
+      table = dim(x = x)
+    )
+    didx[duplicated(x = didx)] <- NA
+    didx[is.na(x = didx)] <- setdiff(x = seq_len(length.out = ndims), y = didx)
+    dnames <- dnames[didx]
+  }
+  # Check fmargin
+  fmargin <- fmargin %/% 1L
+  if (!fmargin %in% c(1L, 2L)) {
+    abort(message = "'fmargin' must be either 1 or 2")
+  }
+  # Do we transpose
+  if (fmargin == 2L) {
+    tf <- .GetMethod(fxn = 't', cls = class(x = x))
+    x <- tf(x)
+    dnames <- rev(x = dnames)
+  }
+  suppressWarnings(expr = suppressMessages(expr = dimnames(x = x) <- dnames))
+  return(x)
+}
+
+#' @param target An optional two-length integer vector with dimensions of
+#' the v5 assay that \code{x} will be added to; used only if
+#' \code{transpose} is \code{NULL}
+#' @param transpose Transpose \code{x} before returning it; if \code{NULL} and
+#' \code{target} is provided, will attempt to determine if transposition is
+#' necessary (see details)
+#'
+#' @return \code{.PrepLayerData2}: \code{x} with \code{\link{dimnames}} removed
+#' and \code{dnames} added as attributes \dQuote{\code{features}} and
+#' \dQuote{\code{cells}} and potentially transposed
+#'
+#' @rdname dot-GetLayerData2
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.PrepLayerData2 <- function(
+  x,
+  target = NULL,
+  transpose = NULL,
+  dnames = NULL,
+  fmargin = 1L
+) {
+  if (is.null(x = x)) {
+    return(x)
+  }
+  # Check fmargin
+  fmargin <- fmargin %/% 1L
+  if (!fmargin %in% c(1L, 2L)) {
+    abort(message = "'fmargin' must be either 1 or 2")
+  }
+  cmargin <- c(2L, 1L)[fmargin]
+  # Auto-check transposition
+  if (!is.null(x = target) && is.null(x = transpose)) {
+    if (!is_bare_integerish(x = target, n = 2L, finite = TRUE)) {
+      abort(message = "'target' must be a two-length integer vector")
+    }
+    xdim <- dim(x)[c(fmargin, cmargin)]
+    if (all(rev(xdim) == target)) {
+      transpose <- TRUE
+    }
+  }
+  # Check dimnames
+  if (is.null(x = dnames)) {
+    dnames <- dimnames(x = x)
+  } else if (!is_bare_list(x = dnames, n = 2L)) {
+    abort(message = "'dnames' must be a two-length list")
+  }
+  # Handle transposition
+  if (isTRUE(x = transpose)) {
+    tf <- .GetMethod(fxn = 't', cls = class(x = x))
+    x <- tf(x)
+    dnames <- rev(x = dnames)
+  }
+  x <- suppressMessages(expr = unname(x))
+  attr(x = x, which = 'features') <- dnames[[fmargin]]
+  attr(x = x, which = 'cells') <- dnames[[cmargin]]
+  return(x)
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -2,11 +2,6 @@
 % Please edit documentation in R/seurat.R
 \name{Seurat-methods}
 \alias{Seurat-methods}
-\alias{.DollarNames.Seurat}
-\alias{$.Seurat}
-\alias{$<-.Seurat}
-\alias{[.Seurat}
-\alias{[[.Seurat}
 \alias{dim.Seurat}
 \alias{dimnames.Seurat}
 \alias{head.Seurat}
@@ -14,28 +9,14 @@
 \alias{merge}
 \alias{MergeSeurat}
 \alias{AddSamples}
-\alias{names.Seurat}
-\alias{subset.Seurat}
-\alias{subset}
 \alias{tail.Seurat}
 \alias{[[<-,Seurat,character,ANY,ANY-method}
 \alias{colMeans,Seurat-method}
 \alias{colSums,Seurat-method}
 \alias{rowMeans,Seurat-method}
 \alias{rowSums,Seurat-method}
-\alias{show,Seurat-method}
 \title{Seurat Methods}
 \usage{
-\method{.DollarNames}{Seurat}(x, pattern = "")
-
-\method{$}{Seurat}(x, i, ...)
-
-\method{$}{Seurat}(x, i, ...) <- value
-
-\method{[}{Seurat}(x, i, j, ...)
-
-\method{[[}{Seurat}(x, i, ..., drop = FALSE, na.rm = FALSE)
-
 \method{dim}{Seurat}(x)
 
 \method{dimnames}{Seurat}(x)
@@ -53,18 +34,6 @@
   ...
 )
 
-\method{names}{Seurat}(x)
-
-\method{subset}{Seurat}(
-  x,
-  subset,
-  cells = NULL,
-  features = NULL,
-  idents = NULL,
-  return.null = FALSE,
-  ...
-)
-
 \method{tail}{Seurat}(x, n = 10L, ...)
 
 \S4method{[[}{Seurat,character,ANY,ANY}(x, i, j, ...) <- value
@@ -76,41 +45,13 @@
 \S4method{rowMeans}{Seurat}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
 
 \S4method{rowSums}{Seurat}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
-
-\S4method{show}{Seurat}(object)
 }
 \arguments{
 \item{x, object}{A \code{\link{Seurat}} object}
 
-\item{pattern}{ A regular expression.  Only matching names are
-    returned.
-  }
-
-\item{i, features}{Depends on the method
-\describe{
- \item{\code{[}, \code{subset}}{Feature names or indices}
- \item{\code{$}, \code{$<-}}{Name of a single metadata column}
- \item{\code{[[}, \code{[[<-}}{
-  Name of one or more metadata columns or an associated object; associated
-  objects include \code{\link{Assay}}, \code{\link{DimReduc}},
-  \code{\link{Graph}}, \code{\link{SeuratCommand}}, or
-  \code{\link{SpatialImage}} objects
- }
-}}
+\item{n}{The number of rows of metadata to return}
 
 \item{...}{Arguments passed to other methods}
-
-\item{value}{Additional metadata or associated objects to add; \strong{note}:
-can pass \code{NULL} to remove metadata or an associated object}
-
-\item{j, cells}{Cell names or indices}
-
-\item{drop}{See \code{\link[base]{drop}}}
-
-\item{na.rm}{logical.  Should missing values (including \code{NaN})
-    be omitted from the calculations?}
-
-\item{n}{The number of rows of metadata to return}
 
 \item{y}{A single \code{Seurat} object or a list of \code{Seurat} objects}
 
@@ -127,12 +68,25 @@ are shared across all objects.}
 
 \item{project}{\link{Project} name for the \code{Seurat} object}
 
-\item{subset}{Logical expression indicating features/variables to keep}
+\item{i, features}{Depends on the method
+\describe{
+ \item{\code{[}, \code{subset}}{Feature names or indices}
+ \item{\code{$}, \code{$<-}}{Name of a single metadata column}
+ \item{\code{[[}, \code{[[<-}}{
+  Name of one or more metadata columns or an associated object; associated
+  objects include \code{\link{Assay}}, \code{\link{DimReduc}},
+  \code{\link{Graph}}, \code{\link{SeuratCommand}}, or
+  \code{\link{SpatialImage}} objects
+ }
+}}
 
-\item{idents}{A vector of identity classes to keep}
+\item{j, cells}{Cell names or indices}
 
-\item{return.null}{If no cells are request, return a \code{NULL};
-by default, throws an error}
+\item{value}{Additional metadata or associated objects to add; \strong{note}:
+can pass \code{NULL} to remove metadata or an associated object}
+
+\item{na.rm}{logical.  Should missing values (including \code{NaN})
+    be omitted from the calculations?}
 
 \item{dims}{completely ignored by the \code{Matrix} methods.}
 
@@ -140,19 +94,6 @@ by default, throws an error}
 means/sums on}
 }
 \value{
-\code{$}: metadata column \code{i} for object \code{x};
-\strong{note}: unlike \code{[[}, \code{$} drops the shape of the metadata
-to return a vector instead of a data frame
-
-\code{$<-}: object \code{x} with metadata \code{value} saved as
-\code{i}
-
-\code{[}: object \code{x} with features \code{i} and cells \code{j}
-
-\code{[[}: If \code{i} is missing, the metadata data frame; if
-\code{i} is a vector of metadata names, a data frame with the requested
-metadata, otherwise, the requested associated object
-
 \code{dim}: The number of features (\code{nrow}) and cells
 (\code{ncol}) for the default assay; \strong{note}: while the number of
 features changes depending on the active assay, the number of cells remains
@@ -166,20 +107,11 @@ cell names remain the same across all assays
 
 \code{merge}: Merged object
 
-\code{names}: The names of all \code{\link{Assay}},
-\code{\link{DimReduc}}, \code{\link{Graph}}, and \code{\link{SpatialImage}}
-objects in the \code{Seurat} object
-
-\code{subset}: A subsetted \code{Seurat} object
-
 \code{tail}: The last \code{n} rows of cell-level metadata
 
 \code{[[<-}: \code{x} with the metadata or associated objects added
 as \code{i}; if \code{value} is \code{NULL}, removes metadata or associated
 object \code{i} from object \code{x}
-
-\code{show}: Prints summary to \code{\link[base]{stdout}} and
-invisibly returns \code{NULL}
 }
 \description{
 Methods for \code{\link{Seurat}} objects for generics defined in other
@@ -187,17 +119,6 @@ packages
 }
 \section{Functions}{
 \itemize{
-\item \code{.DollarNames.Seurat}: Autocompletion for \code{$} access on a
-\code{Seurat} object
-
-\item \code{$.Seurat}: Metadata access for \code{Seurat} objects
-
-\item \code{$<-.Seurat}: Metadata setter for \code{Seurat} objects
-
-\item \code{[.Seurat}: Simple subsetter for \code{Seurat} objects
-
-\item \code{[[.Seurat}: Metadata and associated object accessor
-
 \item \code{dim.Seurat}: Number of cells and features for the active assay
 
 \item \code{dimnames.Seurat}: The cell and feature names for the active assay
@@ -205,10 +126,6 @@ packages
 \item \code{head.Seurat}: Get the first rows of cell-level metadata
 
 \item \code{merge.Seurat}: Merge two or more \code{Seurat} objects together
-
-\item \code{names.Seurat}: Common associated objects
-
-\item \code{subset.Seurat}: Subset a \code{\link{Seurat}} object
 
 \item \code{tail.Seurat}: Get the last rows of cell-level metadata
 
@@ -225,8 +142,6 @@ packages
 
 \item \code{rowSums,Seurat-method}: Calculate \code{\link[base]{rowSums}} on a
 \code{Seurat} object
-
-\item \code{show,Seurat-method}: Overview of a \code{Seurat} object
 }}
 
 \section{Merge Details}{
@@ -247,29 +162,6 @@ with _X, where X is the numeric index of the object in c(x, y).
 }
 
 \examples{
-# Get metadata using `$'
-head(pbmc_small$groups)
-
-# Add metadata using the `$' operator
-set.seed(42)
-pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
-head(pbmc_small[["value"]])
-
-# `[' examples
-pbmc_small[VariableFeatures(object = pbmc_small), ]
-pbmc_small[, 1:10]
-
-# Get the cell-level metadata data frame
-head(pbmc_small[[]])
-
-# Pull specific metadata information
-head(pbmc_small[[c("letter.idents", "groups")]])
-head(pbmc_small[["groups", drop = TRUE]])
-
-# Get a sub-object (eg. an `Assay' or `DimReduc')
-pbmc_small[["RNA"]]
-pbmc_small[["pca"]]
-
 # Get the number of features in an object
 nrow(pbmc_small)
 
@@ -291,15 +183,6 @@ merge(pbmc_small, y = pbmc_small)
 # to merge more than two objects, pass one to x and a list of objects to y
 merge(pbmc_small, y = c(pbmc_small, pbmc_small))
 
-names(pbmc_small)
-
-# `subset' examples
-subset(pbmc_small, subset = MS4A1 > 4)
-subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
-subset(pbmc_small, idents = '0', invert = TRUE)
-subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
-subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
-
 # Get the last 10 rows of cell-level metadata
 tail(pbmc_small)
 
@@ -311,8 +194,5 @@ head(rowMeans(pbmc_small))
 
 head(rowSums(pbmc_small))
 
-}
-\seealso{
-\code{\link[base]{subset}} \code{\link{WhichCells}}
 }
 \concept{seurat}
