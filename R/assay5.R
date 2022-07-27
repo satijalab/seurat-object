@@ -116,7 +116,37 @@ setClass(
   layer = 'counts',
   ...
 ) {
-  .NotYetImplemented()
+  # .NotYetImplemented()
+  if (!is_bare_integerish(x = dim(x = counts), n = 2L, finite = TRUE)) {
+    abort(message = "'counts' must be a two-dimensional object")
+  }
+  cls <- class(x = counts)
+  dnames <- dimnames(x = cls)
+  if (isTRUE(x = transpose)) {
+    csum <- .GetMethod(fxn = 'rowSums', cls = cls)
+    cells <- cells %||% dnames[[1L]]
+    fsum <- .GetMethod(fxn = 'colSums', cls = cls)
+    features <- features %||% dnames[[2L]]
+  } else {
+    csum <- .GetMethod(fxn = 'colSums', cls = cls)
+    cells <- cells %||% dnames[[2L]]
+    fsum <- .GetMethod(fxn = 'rowSums', cls = cls)
+    features <- features %||% dnames[[1L]]
+  }
+  counts <- list(counts)
+  names(x = counts) <- layer
+  return(.CreateStdAssay(
+    counts = counts,
+    min.cells = min.cells,
+    min.features = min.features,
+    cells = cells,
+    features = features,
+    transpose = transpose,
+    type = type,
+    fsum = fsum,
+    csum = csum,
+    ...
+  ))
 }
 
 #' @param csum Function for calculating cell sums
@@ -418,25 +448,26 @@ CreateAssay5Object.default <- function(
   fsum = NULL,
   ...
 ) {
-  transpose <- FALSE
-  if (isTRUE(x = transpose)) {
-    type <- 'Assay5T'
-    csum <- csum %||% Matrix::rowSums
-    fsum <- fsum %||% Matrix::colSums
-  } else {
-    type <- 'Assay5'
-    csum <- csum %||% Matrix::colSums
-    fsum <- fsum %||% Matrix::rowSums
-  }
+  # transpose <- FALSE
+  # if (isTRUE(x = transpose)) {
+  #   type <- 'Assay5T'
+  #   csum <- csum %||% Matrix::rowSums
+  #   fsum <- fsum %||% Matrix::colSums
+  # } else {
+  #   type <- 'Assay5'
+  #   csum <- csum %||% Matrix::colSums
+  #   fsum <- fsum %||% Matrix::rowSums
+  # }
   return(.CreateStdAssay(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
-    transpose = transpose,
-    type = type,
+    # transpose = transpose,
+    # type = type,
+    type = 'Assay5',
     layer = layer,
-    csum = csum,
-    fsum = fsum,
+    # csum = csum,
+    # fsum = fsum,
     ...
   ))
 }
