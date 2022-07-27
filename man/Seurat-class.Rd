@@ -56,6 +56,7 @@ Other seurat:
 \code{\link{$.Seurat}()},
 \code{\link{Seurat-validity}},
 \code{\link{[[.Seurat}()},
+\code{\link{[[<-,Seurat}},
 \code{\link{names.Seurat}()},
 \code{\link{subset.Seurat}()}
 }

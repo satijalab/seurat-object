@@ -14,6 +14,7 @@ Other seurat:
 \code{\link{$.Seurat}()},
 \code{\link{Seurat-class}},
 \code{\link{[[.Seurat}()},
+\code{\link{[[<-,Seurat}},
 \code{\link{names.Seurat}()},
 \code{\link{subset.Seurat}()}
 }

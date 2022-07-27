@@ -41,19 +41,20 @@ head(pbmc_small[[]])
 head(pbmc_small[[c("letter.idents", "groups")]])
 head(pbmc_small[["groups", drop = TRUE]])
 
-# Get a sub-object (eg. an `Assay' or `DimReduc')
+# Get a sub-object (eg. an `Assay` or `DimReduc`)
 pbmc_small[["RNA"]]
 pbmc_small[["pca"]]
 
 }
 \seealso{
-See \link[$.Seurat]{here} for adding meta data with \code{[[<-} and
-\link[]{here} for adding subobjects with \code{[[<-}
+See \link[=$.Seurat]{here} for adding meta data with \code{[[<-}
+and \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
 
 Other seurat: 
 \code{\link{$.Seurat}()},
 \code{\link{Seurat-class}},
 \code{\link{Seurat-validity}},
+\code{\link{[[<-,Seurat}},
 \code{\link{names.Seurat}()},
 \code{\link{subset.Seurat}()}
 }

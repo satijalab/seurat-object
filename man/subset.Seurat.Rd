@@ -63,6 +63,7 @@ Other seurat:
 \code{\link{Seurat-class}},
 \code{\link{Seurat-validity}},
 \code{\link{[[.Seurat}()},
+\code{\link{[[<-,Seurat}},
 \code{\link{names.Seurat}()}
 }
 \concept{seurat}
