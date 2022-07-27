@@ -336,11 +336,13 @@ NULL
   if (!(isS3stdGeneric(f = fxn) || isGeneric(f = fxn))) {
     abort(message = paste0("'", fxn, "' is not a generic function"))
   }
+  default <- NULL
   if (isGeneric(f = fxn) && isClass(Class = cls[1L])) {
     method <- selectMethod(f = fxn, signature = cls)
     if (!inherits(x = method, what = 'derivedDefaultMethod')) {
       return(slot(object = method, name = '.Data'))
     }
+    default <- slot(object = method, name = '.Data')
   }
   method <- NULL
   for (i in c(cls, 'default')) {
@@ -349,6 +351,7 @@ NULL
       break
     }
   }
+  method <- method %||% default
   if (is.null(x = method)) {
     abort(message = paste0(
       "Unable to find a method for '",
