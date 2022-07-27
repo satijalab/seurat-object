@@ -2312,8 +2312,8 @@ NULL
 #'
 #' @family seurat
 #'
-#' @seealso See \link[$.Seurat]{here} for adding meta data with \code{[[<-} and
-#' \link[]{here} for adding subobjects with \code{[[<-}
+#' @seealso See \link[=$.Seurat]{here} for adding meta data with \code{[[<-}
+#' and \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
 #'
 #' @examples
 #' # Get the cell-level metadata data frame
@@ -2323,7 +2323,7 @@ NULL
 #' head(pbmc_small[[c("letter.idents", "groups")]])
 #' head(pbmc_small[["groups", drop = TRUE]])
 #'
-#' # Get a sub-object (eg. an `Assay' or `DimReduc')
+#' # Get a sub-object (eg. an `Assay` or `DimReduc`)
 #' pbmc_small[["RNA"]]
 #' pbmc_small[["pca"]]
 #'
@@ -3266,6 +3266,25 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   }
 )
 
+#' Add Subobjects
+#'
+#' @inheritParams .DollarNames.Seurat
+#' @inheritParams [[.Assay5
+#' @param i Name to add subobject as
+#' @param value A valid subobject (eg. a \link[Assay]{v3} or
+#' \link[Assay5]{v5} assay or a \link[DimReduc]{dimensional reduction})
+#'
+#' @return \code{x} with \code{value} added as \code{i}
+#'
+#' @name [[<-,Seurat
+#'
+#' @family seurat
+#'
+#' @seealso See \link[=[[.Seurat]{here} for pulling subobjects using \code{[[}
+#' and \link[=$.Seurat]{here} for adding metadata with \code{[[<-}
+#'
+#' @aliases [[<-.Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -3343,6 +3362,23 @@ setMethod(
   }
 )
 
+#' @rdname sub-subset-Seurat
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'Assay5'
+  ),
+  definition = function(x, i, ..., value) {
+    return(callNextMethod(x = x, i = i, ..., value = value))
+  }
+)
+
+#' @rdname cash-.Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -3399,6 +3435,8 @@ setMethod(
   }
 )
 
+#' @rdname cash-.Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -3419,6 +3457,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-subset-Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -3512,7 +3552,8 @@ setMethod(
   }
 )
 
-# Add cell-level meta data
+#' @rdname cash-.Seurat
+#'
 #' @importFrom methods selectMethod
 #'
 setMethod(
@@ -3582,6 +3623,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-subset-Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'Graph'),
@@ -3641,6 +3684,8 @@ setMethod(
   }
 )
 
+#' @rdname cash-.Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(x = 'Seurat', i = 'missing', j = 'missing', value = 'list'),
@@ -3653,6 +3698,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-subset-Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -3716,6 +3763,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-subset-Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -3729,6 +3778,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-subset-Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -3742,6 +3793,10 @@ setMethod(
   }
 )
 
+#' @inherit [[<-,Seurat
+#'
+#' @keywords internal
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -3768,6 +3823,8 @@ setMethod(
   }
 )
 
+#' @rdname cash-.Seurat
+#'
 setMethod(
   f = '[[<-',
   signature = c(
@@ -4231,6 +4288,34 @@ setValidity(
     )
   )
   ''
+}
+
+.SubobjectAssign <- function() {
+  classes <- slot(
+    object = methods::findMethods(f = '[[<-', classes = 'Seurat'),
+    name = 'signatures'
+  )
+  classes <- Filter(f = function(x) x[1] == 'Seurat', x = classes)
+  classes <- vapply(
+    X = classes,
+    FUN = function(x) {
+      return(x[length(x = x)])
+    },
+    FUN.VALUE = character(length = 1L)
+  )
+  classes <- unique(x = classes)
+  classes <- setdiff(
+    x = classes,
+    y = c('Seurat', 'ANY', 'NULL', 'vector', 'list', 'StdAssay')
+  )
+  classes <- Filter(
+    f = function(x) {
+      cdef <- methods::getClass(Class = x)
+      return(!'oldClass' %in% names(x = slot(object = cdef, name = 'contains')))
+    },
+    x = classes
+  )
+
 }
 
 #' Object Collections
