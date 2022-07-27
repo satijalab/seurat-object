@@ -3,7 +3,6 @@ destination: docs
 
 template:
   params:
-    # bootswatch: united
     bootswatch: flatly
 
 development:
