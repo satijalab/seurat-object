@@ -805,24 +805,27 @@ tail.Seurat5 <- .tail
         n <- n + 2L
       }
     }
-    warning(
-      "Key '",
-      old,
-      "' taken, using '",
-      key,
-      "' instead",
-      call. = FALSE,
-      immediate. = TRUE
+    warn(
+      message = paste(
+        "Key",
+        sQuote(x = old),
+        "taken, using",
+        sQuote(x = key),
+        "instead"
+      )
     )
   }
   return(key)
 }
 
+#' @importFrom rlang caller_env
+#'
 .DuplicateError <- function(name, cls, error = TRUE) {
   letter <- tolower(x = substr(x = cls[1L], start = 1L, stop = 1L))
   article <- ifelse(test = letter %in% .Vowels(), yes = 'an', no = 'a')
   msg <- paste0("'", name[1L], "' already taken for ", paste(article, cls))
   if (isTRUE(x = error)) {
+    abort(message = msg, call = caller_env())
     stop(msg, call. = FALSE)
   }
   return(msg)
