@@ -17,7 +17,7 @@ features and cells in \code{x}
 Feature and Cell Numbers
 }
 \seealso{
-Other assay5: 
+v5 Assay object, validity, and interaction methods:
 \code{\link{Assay5-class}},
 \code{\link{Assay5-validity}},
 \code{\link{[.Assay5}()},

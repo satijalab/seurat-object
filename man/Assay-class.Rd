@@ -37,7 +37,7 @@ be one or more alphanumeric characters followed by an underscore
 }}
 
 \seealso{
-Other assay: 
+v3 Assay object, validity, and interaction methods
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
 \code{\link{[.Assay}()},

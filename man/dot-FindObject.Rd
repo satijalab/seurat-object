@@ -25,9 +25,10 @@ Determine the slot that a subobject is contained in
 
 }
 \seealso{
-Other subobjects: 
+
 \code{\link{.Collections}()},
-\code{\link{.FilterObjects}()}
+\code{\link{.FilterObjects}()},
+\code{\link{.Subobjects}()}
 }
 \concept{subobjects}
 \concept{utils}

@@ -42,7 +42,7 @@ head(colnames(rna))
 
 }
 \seealso{
-Other assay: 
+v3 Assay object, validity, and interaction methods
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
@@ -52,9 +52,10 @@ Other assay:
 \code{\link{merge.Assay}()},
 \code{\link{subset.Assay}()}
 
-Other dimnames: 
+
 \code{\link{Cells}()},
-\code{\link{dimnames.Assay5}()}
+\code{\link{dimnames.Assay5}()},
+\code{\link{dimnames.Seurat}()}
 }
 \concept{assay}
 \concept{dimnames}

@@ -53,10 +53,10 @@ be one or more alphanumeric characters followed by an underscore
 }}
 
 \seealso{
-Other key: 
+
 \code{\link{.KeyPattern}()},
-\code{\link{Key-validity}},
-\code{\link{RandomKey}()}
+\code{\link{.RandomKey}()},
+\code{\link{Key-validity}}
 }
 \concept{key}
 \keyword{internal}

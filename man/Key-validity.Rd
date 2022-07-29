@@ -22,10 +22,10 @@ Keys that are not empty strings are validated with the regex
 }
 
 \seealso{
-Other key: 
+
 \code{\link{.KeyPattern}()},
-\code{\link{KeyMixin-class}},
-\code{\link{RandomKey}()}
+\code{\link{.RandomKey}()},
+\code{\link{KeyMixin-class}}
 }
 \concept{key}
 \keyword{internal}

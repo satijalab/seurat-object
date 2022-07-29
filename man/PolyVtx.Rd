@@ -39,7 +39,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 \url{https://stackoverflow.com/questions/3436453/calculate-coordinates-of-a-regular-polygons-vertices}
 }
 \seealso{
-Other angles: 
+
 \code{\link{Angles}}
 }
 \concept{angles}

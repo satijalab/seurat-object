@@ -50,7 +50,7 @@ be one or more alphanumeric characters followed by an underscore
 \seealso{
 \code{\link{Assay5-class}} \code{\link{Assay5T-class}}
 
-Other stdassay: 
+v5 Standard Assay object, validity, and interaction methods
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},
 \code{\link{[[.StdAssay}()},

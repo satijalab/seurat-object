@@ -29,7 +29,7 @@ Keys that are not empty strings are validated with the regex
 \seealso{
 \code{\link[methods]{validObject}}
 
-Other assay5: 
+v5 Assay object, validity, and interaction methods:
 \code{\link{Assay5-class}},
 \code{\link{[.Assay5}()},
 \code{\link{[[.Assay5}()},

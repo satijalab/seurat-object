@@ -17,8 +17,8 @@
 \value{
 \code{dimnames}: A two-length list with the following values:
 \itemize{
- \item A character vector will all features in \code{x}
- \item A character vector will all cells in \code{x}
+ \item A character vector with all features in \code{x}
+ \item A character vector with all cells in \code{x}
 }
 
 \code{dimnames<-}: \code{x} with the feature and/or cell
@@ -30,7 +30,7 @@ Get and set feature and cell names in v5 Assays
 \seealso{
 \code{\link{Cells}} \code{\link{Features}}
 
-Other stdassay: 
+v5 Standard Assay object, validity, and interaction methods
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

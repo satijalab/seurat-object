@@ -23,7 +23,7 @@ for the \code{i} features and \code{j} cells
 Get Expression Data
 }
 \seealso{
-Other stdassay: 
+v5 Standard Assay object, validity, and interaction methods
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[[.StdAssay}()},

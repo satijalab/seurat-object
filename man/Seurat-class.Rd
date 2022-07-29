@@ -52,11 +52,15 @@ filled by developers only using \code{\link{Tool}<-}}
 }}
 
 \seealso{
-Other seurat: 
+Seurat object, validity, and interaction methods
 \code{\link{$.Seurat}()},
 \code{\link{Seurat-validity}},
 \code{\link{[[.Seurat}()},
+\code{\link{[[<-,Seurat,NULL}},
 \code{\link{[[<-,Seurat}},
+\code{\link{dim.Seurat}()},
+\code{\link{dimnames.Seurat}()},
+\code{\link{merge.Seurat}()},
 \code{\link{names.Seurat}()},
 \code{\link{subset.Seurat}()}
 }

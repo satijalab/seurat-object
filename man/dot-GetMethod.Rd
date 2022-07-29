@@ -22,4 +22,5 @@ Get a Method
 .GetMethod('t', 'data.frame')
 
 }
+\concept{utils}
 \keyword{internal}

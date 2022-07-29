@@ -27,7 +27,7 @@
 Identify Sparse Slots
 }
 \seealso{
-Other sparse: 
+
 \code{\link{IsSparse}()},
 \code{\link{RegisterSparseMatrix}()}
 }

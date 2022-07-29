@@ -62,7 +62,7 @@ in feature-level meta data
 Get and set feature-level meta data
 }
 \seealso{
-Other stdassay: 
+v5 Standard Assay object, validity, and interaction methods
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

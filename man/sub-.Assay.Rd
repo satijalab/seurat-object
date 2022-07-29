@@ -26,7 +26,7 @@ rna[1:10, 1:4]
 \seealso{
 \code{\link{GetAssayData}}
 
-Other assay: 
+v3 Assay object, validity, and interaction methods
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},

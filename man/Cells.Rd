@@ -46,9 +46,10 @@ Cells(x = pbmc_small)
 
 }
 \seealso{
-Other dimnames: 
+
 \code{\link{dimnames.Assay5}()},
-\code{\link{dimnames.Assay}()}
+\code{\link{dimnames.Assay}()},
+\code{\link{dimnames.Seurat}()}
 }
 \concept{data-access}
 \concept{dimnames}

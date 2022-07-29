@@ -30,7 +30,7 @@ Radians(180)
 
 }
 \seealso{
-Other angles: 
+
 \code{\link{PolyVtx}()}
 }
 \concept{angles}

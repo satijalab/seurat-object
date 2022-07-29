@@ -37,7 +37,7 @@ pca[1:10, 1:5]
 \seealso{
 \code{\link{Loadings}}
 
-Other dimreduc: 
+Dimensional reduction object, validity, and interaction methods
 \code{\link{CreateDimReducObject}()},
 \code{\link{DimReduc-class}},
 \code{\link{DimReduc-validity}},

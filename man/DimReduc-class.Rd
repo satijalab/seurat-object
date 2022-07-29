@@ -38,7 +38,7 @@ be one or more alphanumeric characters followed by an underscore
 }}
 
 \seealso{
-Other dimreduc: 
+Dimensional reduction object, validity, and interaction methods
 \code{\link{CreateDimReducObject}()},
 \code{\link{DimReduc-validity}},
 \code{\link{[.DimReduc}()},

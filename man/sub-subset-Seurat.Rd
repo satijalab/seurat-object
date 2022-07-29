@@ -44,14 +44,20 @@
 Add Subobjects
 }
 \seealso{
-See \link[=[[.Seurat]{here} for pulling subobjects using \code{[[}
-and \link[=$.Seurat]{here} for adding metadata with \code{[[<-}
+See \link[=[[.Seurat]{here} for pulling subobjects using \code{[[},
+\link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
+\link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
+data with \code{[[<-}
 
-Other seurat: 
+Seurat object, validity, and interaction methods
 \code{\link{$.Seurat}()},
 \code{\link{Seurat-class}},
 \code{\link{Seurat-validity}},
 \code{\link{[[.Seurat}()},
+\code{\link{[[<-,Seurat,NULL}},
+\code{\link{dim.Seurat}()},
+\code{\link{dimnames.Seurat}()},
+\code{\link{merge.Seurat}()},
 \code{\link{names.Seurat}()},
 \code{\link{subset.Seurat}()}
 }

@@ -19,7 +19,7 @@ Invisibly returns \code{NULL}
 Register Sparse Matrix Classes
 }
 \seealso{
-Other sparse: 
+
 \code{\link{.SparseSlots}()},
 \code{\link{IsSparse}()}
 }

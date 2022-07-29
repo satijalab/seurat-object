@@ -69,7 +69,7 @@ validObject(pbmc2)
 
 }
 \seealso{
-Other s4list: 
+
 \code{\link{ClassKey}()}
 }
 \concept{s4list}

@@ -27,7 +27,7 @@ A new assay with data merged from \code{c(x, y)}
 Merge one or more v3 assays together
 }
 \seealso{
-Other assay: 
+v3 Assay object, validity, and interaction methods
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},

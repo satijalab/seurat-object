@@ -14,10 +14,10 @@ Returns the regex pattern for keys
 Regex Pattern for Keys
 }
 \seealso{
-Other key: 
+
+\code{\link{.RandomKey}()},
 \code{\link{Key-validity}},
-\code{\link{KeyMixin-class}},
-\code{\link{RandomKey}()}
+\code{\link{KeyMixin-class}}
 }
 \concept{key}
 \keyword{internal}

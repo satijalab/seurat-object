@@ -21,7 +21,7 @@ IsSparse(LayerData(pbmc_small, "counts"))
 
 }
 \seealso{
-Other sparse: 
+
 \code{\link{.SparseSlots}()},
 \code{\link{RegisterSparseMatrix}()}
 }

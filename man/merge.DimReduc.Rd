@@ -24,7 +24,7 @@ A new \code{DimReduc} object with data merged from \code{c(x, y)}
 Merge two or more \link[DimReduc]{dimensional reductions} together
 }
 \seealso{
-Other dimreduc: 
+Dimensional reduction object, validity, and interaction methods
 \code{\link{CreateDimReducObject}()},
 \code{\link{DimReduc-class}},
 \code{\link{DimReduc-validity}},

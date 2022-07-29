@@ -4,10 +4,10 @@
 \name{SeuratCommand-class}
 \alias{SeuratCommand-class}
 \alias{SeuratCommand}
-\title{The SeuratCommand Class}
+\title{The \code{SeuratCommand} Class}
 \description{
-The SeuratCommand is used for logging commands that are run on a
-\code{Seurat} object; it stores parameters and timestamps
+The \code{SeuratCommand} is used for logging commands that are run
+on a \code{Seurat} object; it stores parameters and timestamps
 }
 \section{Slots}{
 
@@ -24,3 +24,12 @@ The SeuratCommand is used for logging commands that are run on a
 \item{\code{params}}{List of parameters used in the command call}
 }}
 
+\seealso{
+Command log object and interaction methods
+\code{\link{$.SeuratCommand}()},
+\code{\link{.DollarNames.SeuratCommand}()},
+\code{\link{LogSeuratCommand}()},
+\code{\link{[.SeuratCommand}()},
+\code{\link{as.list.SeuratCommand}()}
+}
+\concept{command}

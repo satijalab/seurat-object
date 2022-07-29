@@ -41,7 +41,7 @@ Keys that are not empty strings are validated with the regex
 }
 
 \seealso{
-Other dimreduc: 
+Dimensional reduction object, validity, and interaction methods
 \code{\link{CreateDimReducObject}()},
 \code{\link{DimReduc-class}},
 \code{\link{[.DimReduc}()},

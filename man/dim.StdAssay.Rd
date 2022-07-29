@@ -17,7 +17,7 @@ features and cells in \code{x}
 Feature and Cell Numbers
 }
 \seealso{
-Other stdassay: 
+v5 Standard Assay object, validity, and interaction methods
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

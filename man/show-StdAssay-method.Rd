@@ -17,7 +17,7 @@ returns \code{NULL}
 Overview of a \code{\link{StdAssay}} object
 }
 \seealso{
-Other stdassay: 
+v5 Standard Assay object, validity, and interaction methods
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

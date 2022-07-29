@@ -58,7 +58,7 @@ head(names(pca))
 \seealso{
 \code{Cells}
 
-Other dimreduc: 
+Dimensional reduction object, validity, and interaction methods
 \code{\link{CreateDimReducObject}()},
 \code{\link{DimReduc-class}},
 \code{\link{DimReduc-validity}},

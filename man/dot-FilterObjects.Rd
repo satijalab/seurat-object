@@ -23,9 +23,10 @@ Find Subobjects Of A Certain Class
 
 }
 \seealso{
-Other subobjects: 
+
 \code{\link{.Collections}()},
-\code{\link{.FindObject}()}
+\code{\link{.FindObject}()},
+\code{\link{.Subobjects}()}
 }
 \concept{subobjects}
 \concept{utils}

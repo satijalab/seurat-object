@@ -17,8 +17,8 @@
 \value{
 \code{dimnames}: A two-length list with the following values:
 \itemize{
- \item A character vector will all features in \code{x}
- \item A character vector will all cells in \code{x}
+ \item A character vector with all features in \code{x}
+ \item A character vector with all cells in \code{x}
 }
 
 \code{dimnames<-}: \code{x} with the feature and/or cell
@@ -28,7 +28,7 @@ names updated to \code{value}
 Get and set feature and cell names in v5 Assays
 }
 \seealso{
-Other assay5: 
+v5 Assay object, validity, and interaction methods:
 \code{\link{Assay5-class}},
 \code{\link{Assay5-validity}},
 \code{\link{[.Assay5}()},
@@ -37,9 +37,10 @@ Other assay5:
 \code{\link{merge.Assay5}()},
 \code{\link{subset.Assay5}()}
 
-Other dimnames: 
+
 \code{\link{Cells}()},
-\code{\link{dimnames.Assay}()}
+\code{\link{dimnames.Assay}()},
+\code{\link{dimnames.Seurat}()}
 }
 \concept{assay5}
 \concept{dimnames}

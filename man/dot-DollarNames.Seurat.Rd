@@ -2,7 +2,7 @@
 % Please edit documentation in R/seurat.R
 \name{.DollarNames.Seurat}
 \alias{.DollarNames.Seurat}
-\title{Dollar-sign Autocomplete}
+\title{Dollar-sign Autocompletion}
 \usage{
 \method{.DollarNames}{Seurat}(x, pattern = "")
 }

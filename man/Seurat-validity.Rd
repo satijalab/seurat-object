@@ -10,11 +10,15 @@ Validation of \code{Seurat} objects is handled by
 \seealso{
 \code{\link[methods]{validObject}}
 
-Other seurat: 
+Seurat object, validity, and interaction methods
 \code{\link{$.Seurat}()},
 \code{\link{Seurat-class}},
 \code{\link{[[.Seurat}()},
+\code{\link{[[<-,Seurat,NULL}},
 \code{\link{[[<-,Seurat}},
+\code{\link{dim.Seurat}()},
+\code{\link{dimnames.Seurat}()},
+\code{\link{merge.Seurat}()},
 \code{\link{names.Seurat}()},
 \code{\link{subset.Seurat}()}
 }

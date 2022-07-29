@@ -25,7 +25,7 @@
 Subset an Assay
 }
 \seealso{
-Other assay5: 
+v5 Assay object, validity, and interaction methods:
 \code{\link{Assay5-class}},
 \code{\link{Assay5-validity}},
 \code{\link{[.Assay5}()},

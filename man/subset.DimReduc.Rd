@@ -20,7 +20,7 @@
 Subset a \code{\link{DimReduc}} object
 }
 \seealso{
-Other dimreduc: 
+Dimensional reduction object, validity, and interaction methods
 \code{\link{CreateDimReducObject}()},
 \code{\link{DimReduc-class}},
 \code{\link{DimReduc-validity}},

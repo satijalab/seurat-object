@@ -58,12 +58,16 @@ pbmc_small[, 1:10]
 \seealso{
 \code{\link{WhichCells}}
 
-Other seurat: 
+Seurat object, validity, and interaction methods
 \code{\link{$.Seurat}()},
 \code{\link{Seurat-class}},
 \code{\link{Seurat-validity}},
 \code{\link{[[.Seurat}()},
+\code{\link{[[<-,Seurat,NULL}},
 \code{\link{[[<-,Seurat}},
+\code{\link{dim.Seurat}()},
+\code{\link{dimnames.Seurat}()},
+\code{\link{merge.Seurat}()},
 \code{\link{names.Seurat}()}
 }
 \concept{seurat}

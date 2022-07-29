@@ -2,9 +2,15 @@
 % Please edit documentation in R/seurat.R
 \name{[[.Seurat}
 \alias{[[.Seurat}
+\alias{head.Seurat}
+\alias{tail.Seurat}
 \title{Subobjects and Cell-Level Meta Data}
 \usage{
 \method{[[}{Seurat}(x, i, ..., drop = FALSE, na.rm = FALSE)
+
+\method{head}{Seurat}(x, n = 10L, ...)
+
+\method{tail}{Seurat}(x, n = 10L, ...)
 }
 \arguments{
 \item{x}{A \code{\link{Seurat}} object}
@@ -26,6 +32,10 @@ Varies based on the value of \code{i}:
  \item If \code{i} is a one-length character with the
  \link[names.Seurat]{name of a subobject}, the subobject specified by \code{i}
 }
+
+\code{head}: The first \code{n} rows of cell-level metadata
+
+\code{tail}: The last \code{n} rows of cell-level metadata
 }
 \description{
 The \code{[[} operator pulls either subobjects (eg. \link[Assay]{v3} or
@@ -45,16 +55,28 @@ head(pbmc_small[["groups", drop = TRUE]])
 pbmc_small[["RNA"]]
 pbmc_small[["pca"]]
 
+# Get the first 10 rows of cell-level metadata
+head(pbmc_small)
+
+# Get the last 10 rows of cell-level metadata
+tail(pbmc_small)
+
 }
 \seealso{
-See \link[=$.Seurat]{here} for adding meta data with \code{[[<-}
-and \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
+See \link[=$.Seurat]{here} for adding meta data with \code{[[<-},
+\link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}, and
+\link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
+data with \code{[[<-}
 
-Other seurat: 
+Seurat object, validity, and interaction methods
 \code{\link{$.Seurat}()},
 \code{\link{Seurat-class}},
 \code{\link{Seurat-validity}},
+\code{\link{[[<-,Seurat,NULL}},
 \code{\link{[[<-,Seurat}},
+\code{\link{dim.Seurat}()},
+\code{\link{dimnames.Seurat}()},
+\code{\link{merge.Seurat}()},
 \code{\link{names.Seurat}()},
 \code{\link{subset.Seurat}()}
 }

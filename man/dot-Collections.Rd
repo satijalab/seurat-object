@@ -24,9 +24,10 @@ Find all collection (named lists) slots in an S4 object
 
 }
 \seealso{
-Other subobjects: 
+
 \code{\link{.FilterObjects}()},
-\code{\link{.FindObject}()}
+\code{\link{.FindObject}()},
+\code{\link{.Subobjects}()}
 }
 \concept{subobjects}
 \concept{utils}

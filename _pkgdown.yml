@@ -12,7 +12,7 @@ reference:
   - title: The Seurat Class and Interaction Methods
     contents:
       - Seurat-class
-      - Seurat-methods
+      - Seurat-validity
       - has_concept("seurat")
   - title: The v5 Assay Class and Interaction Methods
     contents:
@@ -29,6 +29,9 @@ reference:
       - JackStrawData-class
       - JackStrawData-methods
       - has_concept("jackstraw")
+  - title: segmentations
+  - contents:
+      - has_concept("segmentation")
   - title: The SeuratCommand Class and Interaction Methods
     contents:
       - SeuratCommand-class

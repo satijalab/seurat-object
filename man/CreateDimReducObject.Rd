@@ -57,7 +57,7 @@ pca.dr <- CreateDimReducObject(
 
 }
 \seealso{
-Other dimreduc: 
+Dimensional reduction object, validity, and interaction methods
 \code{\link{DimReduc-class}},
 \code{\link{DimReduc-validity}},
 \code{\link{[.DimReduc}()},
