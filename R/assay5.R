@@ -1528,8 +1528,8 @@ dimnames.StdAssay <- function(x) {
 #'
 #' @return \code{dimnames}: A two-length list with the following values:
 #' \itemize{
-#'  \item A character vector will all features in \code{x}
-#'  \item A character vector will all cells in \code{x}
+#'  \item A character vector with all features in \code{x}
+#'  \item A character vector with all cells in \code{x}
 #' }
 #'
 #' @method dimnames Assay5
