@@ -8,10 +8,10 @@ NULL
 # Class definitions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' The SeuratCommand Class
+#' The \code{SeuratCommand} Class
 #'
-#' The SeuratCommand is used for logging commands that are run on a
-#' \code{Seurat} object; it stores parameters and timestamps
+#' The \code{SeuratCommand} is used for logging commands that are run
+#' on a \code{Seurat} object; it stores parameters and timestamps
 #'
 #' @slot name Command name
 #' @slot time.stamp Timestamp of when command was tun
@@ -24,7 +24,11 @@ NULL
 #' @rdname SeuratCommand-class
 #' @exportClass SeuratCommand
 #'
-SeuratCommand <- setClass(
+#' @family command
+#'
+#' @aliases SeuratCommand
+#'
+setClass(
   Class = 'SeuratCommand',
   slots = c(
     name = 'character',
@@ -45,14 +49,14 @@ SeuratCommand <- setClass(
 #' the Seurat object
 #'
 #' @param object Name of Seurat object
-#' @param return.command Return a \link{SeuratCommand} object instead
+#' @param return.command Return a \code{\link{SeuratCommand}} object instead
 #'
-#' @return If \code{return.command}, returns a SeuratCommand object. Otherwise,
-#' returns the Seurat object with command stored
+#' @return If \code{return.command}, returns a \code{\link{SeuratCommand}}
+#' object; otherwise, returns the Seurat object with command stored
 #'
 #' @export
 #'
-#' @concept command
+#' @family command
 #'
 #' @seealso \code{\link{Command}}
 #'
@@ -145,7 +149,7 @@ LogSeuratCommand <- function(object, return.command = FALSE) {
     call.string = call.string,
     assay.used = cmd.assay
   )
-  if (return.command) {
+  if (isTRUE(x = return.command)) {
     return(seurat.command)
   }
   object[[command.name]] <- seurat.command
@@ -169,89 +173,100 @@ DefaultAssay.SeuratCommand <- function(object, ...) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' \code{SeuratCommand} Methods
+#' @inherit .DollarNames.Seurat title
 #'
-#' Methods for \code{\link{SeuratCommand}} objects for generics defined in
-#' other packages
-#'
-#' @param x,object A \code{\link{SeuratCommand}} object
-#' @param ... Arguments passed to other methods
-#'
-#' @name SeuratCommand-methods
-#' @rdname SeuratCommand-methods
-#'
-#' @concept command
-#'
-NULL
-
-#' @describeIn SeuratCommand-methods Autocompletion for \code{$} access on a
-#' \code{SeuratCommand} object
+#' @description Autocompletion for \code{$} access on a
+#' \code{\link{SeuratCommand}} object
 #'
 #' @inheritParams utils::.DollarNames
+#' @param x A \code{\link{SeuratCommand}} object
+#'
+#' @return The parameter name matches for \code{pattern}
 #'
 #' @importFrom utils .DollarNames
-#' @export
+#'
 #' @method .DollarNames SeuratCommand
+#' @export
+#'
+#' @family command
 #'
 ".DollarNames.SeuratCommand" <- function(x, pattern = '') {
   return(.DollarNames(x = slot(object = x, name = "params"), pattern = pattern))
 }
 
-#' @describeIn SeuratCommand-methods Access a parameter from a
-#' \code{SeuratCommand} object
+#' Command Log Parameter Access
 #'
-#' @param i For a \code{$}, a parameter name; for \code{[}, a
-#' \code{SeuratCommand} slot name
+#' Pull parameter values from a \code{\link{SeuratCommand}} object
 #'
-#' @return \code{$}: The value for parameter \code{i}
+#' @inheritParams .DollarNames.SeuratCommand
+#' @param i A parameter name
 #'
+#' @return The value for parameter \code{i}
+#'
+#' @method $ SeuratCommand
 #' @export
+#'
+#' @family command
+#'
+#' @examples
+#' cmd <- pbmc_small[["NormalizeData.RNA"]]
+#' cmd$normalization.method
 #'
 "$.SeuratCommand" <- function(x, i, ...) {
   params <- slot(object = x, name = "params")
   return(params[[i]])
 }
 
-#' @describeIn SeuratCommand-methods Access data from a \code{SeuratCommand}
-#' object
+#' Command Log Data Access
+#'
+#' Access data from a \code{SeuratCommand} object
+#'
+#' @inheritParams .DollarNames.SeuratCommand
+#' @param i The name of a command log slot
 #'
 #' @return \code{[}: Slot \code{i} from \code{x}
 #'
-#' @export
 #' @method [ SeuratCommand
+#' @export
+#'
+#' @family command
+#'
+#' @examples
+#' cmd <- pbmc_small[["NormalizeData.RNA"]]
+#' cmd["call.string"]
 #'
 "[.SeuratCommand" <- function(x, i, ...) {
-  slot.use <- c("name", "timestamp", "call_string", "params")
-  if (!i %in% slot.use) {
-    stop("Invalid slot")
-  }
+  i <- arg_match(arg = i, values = slotNames(x = x))
   return(slot(object = x, name = i))
 }
 
-#' @describeIn SeuratCommand-methods Coerce a \code{SeuratCommand} to a list
+#' Coerce a \code{SeuratCommand} to a list
 #'
+#' @inheritParams .DollarNames.SeuratCommand
 #' @param complete Include slots besides just parameters
 #' (eg. call string, name, timestamp)
 #'
-#' @return \code{as.list}: A list with the parameters and, if
-#' \code{complete = TRUE}, the call string, name, and timestamp
+#' @return A list with the parameters and, if \code{complete = TRUE},
+#' the call string, name, and timestamp
 #'
-#' @export
 #' @method as.list SeuratCommand
+#' @export
+#'
+#' @family command
+#'
+#' @examples
+#' cmd <- pbmc_small[["NormalizeData.RNA"]]
+#' as.list(cmd)
+#' as.list(cmd, complete = TRUE)
 #'
 as.list.SeuratCommand <- function(x, complete = FALSE, ...) {
   CheckDots(...)
   cmd <- slot(object = x, name = 'params')
-  if (complete) {
+  if (isTRUE(x = complete)) {
     cmd <- append(
       x = cmd,
       values = sapply(
-        X = grep(
-          pattern = 'params',
-          x = slotNames(x = x),
-          invert = TRUE,
-          value = TRUE
-        ),
+        X = setdiff(x = slotNames(x = x), y = 'params'),
         FUN = slot,
         object = x,
         simplify = FALSE,
@@ -260,7 +275,7 @@ as.list.SeuratCommand <- function(x, complete = FALSE, ...) {
       after = 0
     )
   }
-  for (i in 1:length(x = cmd)) {
+  for (i in seq_along(along.with = cmd)) {
     if (is.character(x = cmd[[i]])) {
       cmd[[i]] <- paste(trimws(x = cmd[[i]]), collapse = ' ')
     }
@@ -272,14 +287,19 @@ as.list.SeuratCommand <- function(x, complete = FALSE, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @describeIn SeuratCommand-methods Overview of a \code{SeuratCommand} object
+#' Command Log Overview
 #'
-#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
-#' invisibly returns \code{NULL}
+#' Overview of a \code{\link{SeuratCommand}} object
 #'
-#' @importFrom methods show
+#' @template return-show
 #'
-#' @export
+#' @keywords internal
+#'
+#' @concept command
+#'
+#' @examples
+#' cmd <- pbmc_small[["NormalizeData.RNA"]]
+#' cmd
 #'
 setMethod(
   f = 'show',
