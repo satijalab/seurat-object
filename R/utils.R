@@ -147,8 +147,8 @@ NULL
 #'
 #' @export
 #'
-#' @concept utils
 #' @family subobjects
+#' @concept utils
 #'
 #' @examples
 #' .Collections(pbmc_small)
@@ -240,8 +240,8 @@ NULL
 #'
 #' @export
 #'
-#' @concept utils
 #' @family subobjects
+#' @concept utils
 #'
 #' @examples
 #' .FilterObjects(pbmc_small)
@@ -286,8 +286,8 @@ NULL
 #'
 #' @export
 #'
-#' @concept utils
 #' @family subobjects
+#' @concept utils
 #'
 #' @examples
 #' .FindObject(pbmc_small, "tsne")
@@ -324,6 +324,8 @@ NULL
 #' @keywords internal
 #'
 #' @export
+#'
+#' @concept utils
 #'
 #' @examples
 #' .GetMethod('t', 'Matrix')
@@ -362,6 +364,45 @@ NULL
     ))
   }
   return(method)
+}
+
+#' Get the Subobject Names
+#'
+#' @inheritParams .Collections
+#' @param collapse Collapse the list into a vector
+#'
+#' @return If \code{collapse = TRUE}, then a vector with the names of all
+#' subobjects; otherwise, a named list where the names are the names of the
+#' collections and the values are the names of subobjects within the collection
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @family subobjects
+#' @keywords utils
+#'
+#' @examples
+#' .Subobjects(pbmc_small)
+#'
+.Subobjects <- function(
+  object,
+  exclude = c('misc', 'tools'),
+  collapse = TRUE,
+  ...
+) {
+  subobjects <- sapply(
+    X = .Collections(object = object, exclude = exclude, ...),
+    FUN = function(x) {
+      return(names(x = slot(object = object, name = x)))
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  if (isTRUE(x = collapse)) {
+    subobjects <- unlist(x = subobjects, use.names = FALSE)
+  }
+  return(subobjects)
 }
 
 #' Attach Required Packages
