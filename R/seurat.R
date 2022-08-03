@@ -2895,7 +2895,7 @@ subset.Seurat <- function(
     f = Negate(f = is.null),
     x = slot(object = x, name = 'assays')
   )
-  if (length(x = FilterObjects(object = x, classes.keep = 'Assay')) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
+  if (length(x = FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
     stop("Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay.", call. = FALSE)
   }
   # Filter DimReduc objects
@@ -3775,12 +3775,10 @@ setMethod(
           # If we can't find the cell-level meta data, throw a warning and move
           # to the next name
           if (!name %in% names(x = x[[]])) {
-            warning(
+            warn(message = paste(
               "Cannot find cell-level meta data named ",
-              name,
-              call. = FALSE,
-              immediate. = TRUE
-            )
+              name
+            ))
             next
           }
           # Remove the column of meta data
@@ -3843,7 +3841,7 @@ setMethod(
     }
     # Ensure the command gets put at the end of the list
     # slot(object = x, name = 'commands')[[i]] <- NULL
-    x[[i]] <- NULL
+    suppressWarnings(expr = x[[i]] <- NULL)
     slot(object = x, name = 'commands')[[i]] <- value
     slot(object = x, name = 'commands') <- Filter(
       f = Negate(f = is.null),
