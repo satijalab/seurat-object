@@ -127,6 +127,13 @@ Key.KeyMixin <- function(object, ...) {
   return(object)
 }
 
+#' @method Key NULL
+#' @export
+#'
+Key.NULL <- function(object, ...) {
+    return(NULL)
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

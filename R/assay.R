@@ -103,6 +103,7 @@ CreateAssayObject <- function(
   data,
   min.cells = 0,
   min.features = 0,
+  key = NULL,
   check.matrix = FALSE,
   ...
 ) {
@@ -236,6 +237,7 @@ CreateAssayObject <- function(
     counts = counts,
     data = data,
     scale.data = new(Class = 'matrix'),
+    key = Key(object = key)[1L] %||% '',
     meta.features = init.meta.features,
     misc = list()
   )
