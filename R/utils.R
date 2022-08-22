@@ -597,7 +597,10 @@ as.sparse.Matrix <- function(x, ...) {
 #' @export
 #' @method as.sparse matrix
 #'
-as.sparse.matrix <- as.sparse.Matrix
+as.sparse.matrix <- function(x, ...) {
+  x <- as(object = x, Class = "Matrix")
+  return(as.sparse.Matrix(x, ...))
+}
 
 #' @rdname as.sparse
 #' @export
