@@ -278,11 +278,13 @@ FetchData.DimReduc <- function(
   object,
   vars,
   cells = NULL,
-  layer = c('embeddings', 'loadings', 'projected'),
+  # layer = c('embeddings', 'loadings', 'projected'),
+  # layer = 'embeddings',
   ...
 ) {
+  layer <- 'embeddings'
   layer <- layer[1L]
-  layer <- match.arg(arg = layer)
+  layer <- match.arg(arg = layer, choices = 'embeddings')
   cells <- cells %||% Cells(x = object)
   if (is.numeric(x = cells)) {
     cells <- Cells(x = object)[cells]
