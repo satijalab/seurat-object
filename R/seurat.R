@@ -3340,21 +3340,20 @@ UpdateAssay <- function(old.assay, assay) {
   counts <- old.assay@raw.data
   data <- old.assay@data
   if (!inherits(x = counts, what = 'dgCMatrix')) {
-    counts <- as(object = as.matrix(x = counts), Class = 'dgCMatrix')
+    counts <- as.sparse(x = as.matrix(x = counts))
   }
   if (!is.null(x = data)) {
     if (!inherits(x = data, what = 'dgCMatrix')) {
-      data <- as(object = as.matrix(x = data), Class = 'dgCMatrix')
+      data <- as.sparse(x = as.matrix(x = data))
     }
   } else {
-    data <- as(
-      object = Matrix(
+    data <- as.sparse(
+      x = Matrix(
         data = 0,
         nrow = nrow(x = counts),
         ncol = ncol(x = counts),
         dimnames = dimnames(x = counts)
       ),
-      Class = "dgCMatrix"
     )
   }
   if (!inherits(x = old.assay@scale.data, what = 'matrix')) {
