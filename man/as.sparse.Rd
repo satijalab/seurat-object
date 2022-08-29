@@ -5,6 +5,7 @@
 \alias{as.sparse.data.frame}
 \alias{as.sparse.Matrix}
 \alias{as.sparse.matrix}
+\alias{as.sparse.ngCMatrix}
 \title{Cast to Sparse}
 \usage{
 as.sparse(x, ...)
@@ -14,6 +15,8 @@ as.sparse(x, ...)
 \method{as.sparse}{Matrix}(x, ...)
 
 \method{as.sparse}{matrix}(x, ...)
+
+\method{as.sparse}{ngCMatrix}(x, ...)
 }
 \arguments{
 \item{x}{An object}
