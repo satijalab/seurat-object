@@ -478,6 +478,49 @@ RenameAssays <- function(object, ...) {
   return(object)
 }
 
+DiskInfo <- function(object, mv.tmp = TRUE, destdir = NULL) {
+  UseMethod(generic = 'DiskInfo', object = object)
+}
+
+#' Save Seurat Objects to RDS files
+#'
+#' @param object A \code{\link{Seurat}} object
+#' @param file Path to save \code{object} to; defaults to
+#' \code{file.path(getwd(), paste0(Project(object), ".Rds"))}
+# @param absolute For on-disk layers, store absolute paths instead of
+# relative ones
+#' @param mv.tmp Move on-disk layers saved in
+#' \dQuote{\code{\Sexpr[stage=render]{tempdir()}}} to \code{destdir}
+#' @param destdir Destination directory for on-disk layers saved in
+SaveSeuratRDS <- function(
+  object,
+  file = NULL,
+  # absolute = TRUE,
+  mv.tmp = TRUE,
+  destdir = NULL,
+  ...
+) {
+  file <- file %||% file.path(getwd(), paste0(Project(object = object), '.Rds'))
+  # Cache v5 assays
+  for (assay in .FilterObjects(object = object, classes.keep = 'StdAssay')) {
+    lyrs <- Filter(
+      f = function(lyr) {
+        return(inherits(
+          x = LayerData(object = object[[assay]], layer = lyr, fast = TRUE),
+          what = 'DelayedArray'
+        ))
+      },
+      x = Layers(object = object[[assay]])
+    )
+    cache <- lapply(
+      X = lyrs,
+      FUN = function(lyr) {
+        ''
+      }
+    )
+  }
+}
+
 #' Update old Seurat object to accommodate new features
 #'
 #' Updates Seurat objects to new structure for storing data/calculations.

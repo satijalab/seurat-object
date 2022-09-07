@@ -9,6 +9,7 @@ CreateAssayObject(
   data,
   min.cells = 0,
   min.features = 0,
+  key = NULL,
   check.matrix = FALSE,
   ...
 )
