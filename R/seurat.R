@@ -888,8 +888,7 @@ CreateSeuratObject.Assay <- function(
     )
   }
   # Calculate nCount and nFeature
-  #ncalc <- CalcN(object = counts)
-  ncalc <- NULL
+  ncalc <- CalcN(object = counts)
   if (!is.null(x = ncalc)) {
     names(x = ncalc) <- paste(names(x = ncalc), assay, sep = '_')
     object[[]] <- ncalc
@@ -3260,7 +3259,12 @@ setMethod(
       existing = Key(object = x),
       name = i
     )
-    # TODO: Run CalcN
+    n.calc <- CalcN(object = value)
+    if (!is.null(x = n.calc)) {
+      names(x = n.calc) <- paste(names(x = n.calc), i, sep = '_')
+      x[[names(x = n.calc)]] <- n.calc
+    }
+
     # Add the assay
     slot(object = x, name = 'assays')[[i]] <- value
     slot(object = x, name = 'assays') <- Filter(
