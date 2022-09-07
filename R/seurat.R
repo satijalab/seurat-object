@@ -2173,6 +2173,7 @@ NULL
   return(.DollarNames(x = meta.data, pattern = pattern))
 }
 
+
 #' @describeIn Seurat-methods Metadata access for \code{Seurat} objects
 #'
 #' @return \code{$}: metadata column \code{i} for object \code{x};

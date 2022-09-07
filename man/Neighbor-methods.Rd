@@ -25,9 +25,9 @@ other packages
 }
 \section{Functions}{
 \itemize{
-\item \code{dim.Neighbor}: Dimensions of the neighbor indices
+\item \code{dim(Neighbor)}: Dimensions of the neighbor indices
 
-\item \code{show,Neighbor-method}: Overview of a \code{Neighbor} object
+\item \code{show(Neighbor)}: Overview of a \code{Neighbor} object
+
 }}
-
 \concept{neighbor}

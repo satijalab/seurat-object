@@ -109,47 +109,47 @@ should only be overridden if necessary
 }
 \section{Functions}{
 \itemize{
-\item \code{Cells.SpatialImage}: Get the cell names from an image
+\item \code{Cells(SpatialImage)}: Get the cell names from an image
 (\strong{[Override]})
 
-\item \code{DefaultAssay.SpatialImage}: Get the associated assay of a
+\item \code{DefaultAssay(SpatialImage)}: Get the associated assay of a
 \code{SpatialImage}-derived object
 
-\item \code{DefaultAssay<-.SpatialImage}: Set the associated assay of a
+\item \code{DefaultAssay(SpatialImage) <- value}: Set the associated assay of a
 \code{SpatialImage}-derived object
 
-\item \code{GetImage.SpatialImage}: Get the image data from a
+\item \code{GetImage(SpatialImage)}: Get the image data from a
 \code{SpatialImage}-derived object
 
-\item \code{GetTissueCoordinates.SpatialImage}: Get tissue coordinates for a
+\item \code{GetTissueCoordinates(SpatialImage)}: Get tissue coordinates for a
 \code{SpatialImage}-derived object (\strong{[Override]})
 
-\item \code{IsGlobal.SpatialImage}: Globality test for
+\item \code{IsGlobal(SpatialImage)}: Globality test for
 \code{SpatialImage}-derived object
 
-\item \code{Key.SpatialImage}: Get the key for a
+\item \code{Key(SpatialImage)}: Get the key for a
 \code{SpatialImage}-derived object
 
-\item \code{Key<-.SpatialImage}: Set the key for a
+\item \code{Key(SpatialImage) <- value}: Set the key for a
 \code{SpatialImage}-derived object
 
-\item \code{Radius.SpatialImage}: Get the spot radius size
+\item \code{Radius(SpatialImage)}: Get the spot radius size
 
-\item \code{RenameCells.SpatialImage}: Rename cells in a
+\item \code{RenameCells(SpatialImage)}: Rename cells in a
 \code{SpatialImage}-derived object (\strong{[Override]})
 
-\item \code{[.SpatialImage}: Subset a \code{SpatialImage}-derived object
+\item \code{[}: Subset a \code{SpatialImage}-derived object
 
-\item \code{dim.SpatialImage}: Get the plotting dimensions of an image
+\item \code{dim(SpatialImage)}: Get the plotting dimensions of an image
 (\strong{[Override]})
 
-\item \code{subset.SpatialImage}: Subset a \code{SpatialImage}-derived object
+\item \code{subset(SpatialImage)}: Subset a \code{SpatialImage}-derived object
 (\strong{[Override]})
 
-\item \code{show,SpatialImage-method}: Overview of a \code{SpatialImage}-derived
+\item \code{show(SpatialImage)}: Overview of a \code{SpatialImage}-derived
 object
-}}
 
+}}
 \section{Provided methods}{
 
 These methods are defined on the \code{SpatialImage} object and should not

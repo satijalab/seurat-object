@@ -110,6 +110,57 @@ setClass(
   .NotYetImplemented()
 }
 
+
+
+#' @describeIn Seurat-methods Autocompletion for \code{$} access on a
+#' \code{StdAssay} object
+#'
+#' @inheritParams utils::.DollarNames
+#'
+#' @importFrom utils .DollarNames
+#' @export
+#' @method .DollarNames StdAssay
+#'
+".DollarNames.StdAssay" <- function(x, pattern = '') {
+  layer.name <- as.list(x = Layers(x))
+  names(x = layer.name) <- unlist(x = layer.name)
+  return(.DollarNames(x = layer.name, pattern = pattern))
+}
+
+
+
+#' @export
+#' @method $ StdAssay
+#'
+#' @examples
+#' # Get LayerData using `$'
+#' head(pbmc_small$groups)
+#'
+"$.StdAssay" <- function(x, i, ...) {
+  return(LayerData(object = x, layer = i))
+}
+
+#' @describeIn xxxxxx
+#'
+#' @return \code{$<-}: object \code{x} with metadata \code{value} saved as
+#' \code{i}
+#'
+#' @export
+#' @method $<- StdAssay
+#'
+#' @examples
+#' # Add metadata using the `$' operator
+#' set.seed(42)
+#' pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
+#' head(pbmc_small[["value"]])
+#'
+"$<-.StdAssay" <- function(x, i, ..., value) {
+  SetAssayData(object = x, slot = i, new.data = value)
+  return(x)
+}
+
+
+
 #' @param csum Function for calculating cell sums
 #' @param fsum Function for calculating feature sums
 #'
@@ -1358,6 +1409,9 @@ NULL
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
+    if (length(i) == 1 && i %in% Layers(x)) {
+      return(LayerData(object = x, layer = i))
+    }
   data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
   # row.names(x = data.return) <- Features(x = x, layer = NA)
   row.names(x = data.return) <- rownames(x = x)
