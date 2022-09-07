@@ -2851,6 +2851,8 @@ subset.Seurat <- function(
   }
   # Remove metadata for cells not present
   slot(object = x, name = 'meta.data') <- slot(object = x, name = 'meta.data')[cells, , drop = FALSE]
+  Idents(object = x, drop = TRUE) <- Idents(object = x)[cells]
+
   # Recalculate nCount and nFeature
   for (assay in FilterObjects(object = x, classes.keep = 'Assay')) {
     n.calc <- CalcN(object = x[[assay]])
@@ -2859,7 +2861,6 @@ subset.Seurat <- function(
       x[[names(x = n.calc)]] <- n.calc
     }
   }
-  Idents(object = x, drop = TRUE) <- Idents(object = x)[cells]
   # subset images
   for (image in Images(object = x)) {
     x[[image]] <- base::subset(x = x[[image]], cells = cells)
