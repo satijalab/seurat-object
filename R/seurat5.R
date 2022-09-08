@@ -766,56 +766,6 @@ tail.Seurat5 <- .tail
   return(names)
 }
 
-#' Check for Duplicate Keys
-#'
-#' Check the uniqueness and validity of a key. If the provided key is not
-#' unique, \code{.CheckKey} will attempt to create a new key based on the name
-#' associated with the key, if provided. If not provided, or still not unique,
-#' \code{.CheckKey} will generate a series of random keys until a unique one
-#' is found
-#'
-#' @param key A key to check
-#' @param existing A vector of existing keys; can optionally be named with
-#' the names of objects corresponding to the keys
-#' @param name Name for object that \code{key} will be associated with
-#'
-#' @return A valid, unique key
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.CheckKey <- function(key, existing = NULL, name = NULL) {
-  if (identical(key, character(0)) ) {
-    key <- Key(object = name %||% RandomName(), quiet = TRUE)
-  }
-  if (!is.null(x = names(x = existing)) && !is.null(x = name)) {
-    existing <- existing[setdiff(x = names(x = existing), y = name)]
-  }
-  if (key %in% existing) {
-    old <- key
-    key <- Key(object = tolower(x = name %||% RandomName()), quiet = TRUE)
-    i <- 1L
-    n <- 5L
-    while (key %in% existing) {
-      key <- Key(object = RandomName(length = n), quiet = TRUE)
-      i <- i + 1L
-      if (!i %% 7L) {
-        n <- n + 2L
-      }
-    }
-    warning(
-      "Key '",
-      old,
-      "' taken, using '",
-      key,
-      "' instead",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-  }
-  return(key)
-}
 
 .DuplicateError <- function(name, cls, error = TRUE) {
   letter <- tolower(x = substr(x = cls[1L], start = 1L, stop = 1L))

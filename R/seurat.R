@@ -4327,3 +4327,40 @@ UpdateJackstraw <- function(old.jackstraw) {
   }
   return(new.jackstraw)
 }
+
+
+.CheckKey <- function(key, existing = NULL, name = NULL) {
+  if (rlang::is_missing(x = key) || !length(x = key) || !nzchar(x = key)) {
+    key <- Key(object = name %||% RandomName(), quiet = TRUE)
+  }
+  # key <- Key(
+  #   object = key %||% Key(object = name %||% RandomName(), quiet = TRUE),
+  #   quiet = !is.null(x = existing)
+  # )
+  if (!is.null(x = names(x = existing)) && !is.null(x = name)) {
+    existing <- existing[setdiff(x = names(x = existing), y = name)]
+  }
+  if (key %in% existing) {
+    old <- key
+    key <- Key(object = tolower(x = name %||% RandomName()), quiet = TRUE)
+    i <- 1L
+    n <- 5L
+    while (key %in% existing) {
+      key <- Key(object = RandomName(length = n), quiet = TRUE)
+      i <- i + 1L
+      if (!i %% 7L) {
+        n <- n + 2L
+      }
+    }
+    warn(
+      message = paste(
+        "Key",
+        sQuote(x = old),
+        "taken, using",
+        sQuote(x = key),
+        "instead"
+      )
+    )
+  }
+  return(key)
+}
