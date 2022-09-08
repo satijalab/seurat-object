@@ -3423,8 +3423,7 @@ setMethod(
     )
     # TODO: enable reordering cells in assay
     if (is.unsorted(x = cell.order)) {
-      stop("Cannot add assays with unordered cells", call. = FALSE)
-      validObject(object = value)
+      value <- subset(x = value, cells = Cells(x))
     }
     # Check keys
     Key(object = value) <- .CheckKey(
