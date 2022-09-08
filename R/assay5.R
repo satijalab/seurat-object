@@ -317,6 +317,53 @@ setClass(
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
 }
 
+
+#' @describeIn Seurat-methods Autocompletion for \code{$} access on a
+#' \code{StdAssay} object
+#'
+#' @inheritParams utils::.DollarNames
+#'
+#' @importFrom utils .DollarNames
+#' @export
+#' @method .DollarNames StdAssay
+#'
+".DollarNames.StdAssay" <- function(x, pattern = '') {
+  layer.name <- as.list(x = Layers(x))
+  names(x = layer.name) <- unlist(x = layer.name)
+  return(.DollarNames(x = layer.name, pattern = pattern))
+}
+
+#' @export
+#' @method $ StdAssay
+#'
+#' @examples
+#' # Get LayerData using `$'
+#' head(pbmc_small$groups)
+#'
+"$.StdAssay" <- function(x, i, ...) {
+  return(LayerData(object = x, layer = i))
+}
+
+#' @describeIn xxxxxx
+#'
+#' @return \code{$<-}: object \code{x} with metadata \code{value} saved as
+#' \code{i}
+#'
+#' @export
+#' @method $<- StdAssay
+#'
+#' @examples
+#' # Add metadata using the `$' operator
+#' set.seed(42)
+#' pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
+#' head(pbmc_small[["value"]])
+#'
+"$<-.StdAssay" <- function(x, i, ..., value) {
+  LayerData(object = x, layer = i) <- value
+  return(x)
+}
+
+
 #' @templateVar fxn AddMetaData
 #' @template method-stdassay
 #'
