@@ -3511,9 +3511,8 @@ setMethod(
       orig = colnames(x = x),
       ordered = TRUE
     )
-    # TODO: enable reordering cells in DimReducs
     if (is.unsorted(x = cell.order)) {
-      abort(message = "Cannot add dimensional reductions with unordered cells")
+      value <- subset(x = value, cells = Cells(x))
       validObject(object = value)
     }
     # Check keys
