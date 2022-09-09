@@ -1457,7 +1457,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   return(LayerData(object = x, cells = j, features = i, ...))
 }
 
-#' Get Expression Data
+#' Get Layer Data
 #'
 #' @param x An \code{\link{Assay5}} object
 #' @param i Feature names or indices
@@ -1486,18 +1486,10 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #'
 "[[.StdAssay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
-    i <- colnames(x = slot(object = x, name = 'meta.data'))
+    return(Layers(x))
+  } else if (i %in% Layers(x)) {
+    return(LayerData(object = x, layer = i))
   }
-  data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
-  row.names(x = data.return) <- rownames(x = x)
-  if (isTRUE(x = drop)) {
-    data.return <- unlist(x = data.return, use.names = FALSE)
-    names(x = data.return) <- rep.int(
-      x = rownames(x = x),
-      times = length(x = i)
-    )
-  }
-  return(data.return)
 }
 
 #' Feature-Level Meta Data
@@ -2072,7 +2064,7 @@ setAs(
 #' @order 2
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'Assay5'),
   definition = function(x, i, ..., value) {
     return(callNextMethod(x = x, i = i, value = value, ...))
@@ -2082,7 +2074,7 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(
     x = 'StdAssay',
     i = 'character',
@@ -2119,7 +2111,7 @@ setMethod(
 
 #' @rdname sub-sub-.StdAssay
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(
     x = 'StdAssay',
     i = 'missing',
@@ -2143,12 +2135,12 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'factor'),
   definition = function(x, i, ..., value) {
     f <- slot(
       object = selectMethod(
-        f = '[[<-',
+        f = '[<-',
         signature = c(
           x = 'StdAssay',
           i = 'character',
@@ -2165,7 +2157,7 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'NULL'),
   definition = function(x, i, ..., value) {
     for (name in i) {
@@ -2178,7 +2170,7 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'vector'),
   definition = function(x, i, ..., value) {
     # Add multiple bits of metadata
@@ -2223,7 +2215,7 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'numeric', j = 'missing', value = 'ANY'),
   definition = function(x, i, ..., value) {
     if (ncol(x = x[[]])) {
@@ -2240,7 +2232,7 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(
     x = 'StdAssay',
     i = 'missing',
@@ -2262,13 +2254,44 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'missing', j = 'missing', value = 'NULL'),
   definition = function(x, ..., value) {
     slot(object = x, name = 'meta.data') <- EmptyDF(n = nrow(x = x))
     return(x)
   }
 )
+
+
+
+#' @rdname sub-sub-.StdAssay
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'NULL'),
+  definition = function(x, i, ..., value) {
+    if ( i %in% Layers(x)) {
+      slot(object = x, name = 'layers')[[i]] <- NULL
+    } else {
+      stop(i, ' is not in Layers')
+    }
+    return(x)
+  }
+)
+
+
+#' @rdname sub-sub-.StdAssay
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'H5ADMatrix'),
+  definition = function(x, i, ..., value) {
+    LayerData(object = x, layer = i) <- value
+    return(x)
+    }
+)
+
+
 
 setMethod(
   f = 'colMeans',
