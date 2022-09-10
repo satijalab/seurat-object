@@ -1096,7 +1096,7 @@ merge.Assay <- function(
   }
   # Merge the counts (if present)
   counts.mats <- lapply(X = assays, FUN = ValidateDataForMerge, slot = "counts")
-  keys <- sapply(X = assays, FUN = Key)
+  keys <- unlist(sapply(X = assays, FUN = Key))
   merged.counts <- RowMergeSparseMatrices(
     mat1 = counts.mats[[1]],
     mat2 = counts.mats[2:length(x = counts.mats)]
