@@ -2291,6 +2291,17 @@ setMethod(
     }
 )
 
+#' @rdname sub-sub-.StdAssay
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'Matrix'),
+  definition = function(x, i, ..., value) {
+    LayerData(object = x, layer = i) <- value
+    return(x)
+  }
+)
+
 
 
 setMethod(
