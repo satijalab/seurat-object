@@ -2951,9 +2951,157 @@ tail.Seurat <- .tail
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Add Subobjects
+#'
+#' @inheritParams .DollarNames.Seurat
+#' @inheritParams [[.Assay5
+#' @param i Name to add subobject as
+#' @param value A valid subobject (eg. a \link[Assay]{v3} or
+#' \link[Assay5]{v5} assay or a \link[DimReduc]{dimensional reduction})
+#'
+#' @return \code{x} with \code{value} added as \code{i}
+#'
+#' @export
+#'
+#' @name [[<-,Seurat
+#'
+#' @family seurat
+#'
+#' @seealso See \link[=[[.Seurat]{here} for pulling subobjects using \code{[[},
+#' \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
+#' \link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
+#' data with \code{[[<-}
+#'
+#' @aliases [[<-.Seurat
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'Assay'
+  ),
+  definition = function(x, i, ..., value) {
+    validObject(object = value)
+    i <- make.names(names = i)
+    # Checks for if the assay or name already exists
+    if (i %in% names(x = x)) {
+      if (!inherits(x = x[[i]], what = c('Assay', 'StdAssay'))) {
+        .DuplicateError(name = i, cls = class(x = x[[i]]))
+      }
+      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+        warning(
+          "Assay ",
+          i,
+          " changing from ",
+          class(x = x[[i]]),
+          " to ",
+          class(x = value),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+      if (!all(dim(x = value) == dim(x = x[[i]]))) {
+        warning(
+          "Different cells and/or features from existing assay ", i,
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+    }
+    # Check for cells
+    if (!all(colnames(x = value) %in% colnames(x = x))) {
+      stop("Cannot add new cells with [[<-", call. = FALSE)
+    }
+    cell.order <- MatchCells(
+      new = colnames(x = value),
+      orig = colnames(x = x),
+      ordered = TRUE
+    )
+    # TODO: enable reordering cells in assay
+    if (is.unsorted(x = cell.order)) {
+      if (inherits(x = value, what = 'Assay')) {
+        for (s in c('counts', 'data', 'scale.data')) {
+          if (!IsMatrixEmpty(x = slot(object = value, name = s))) {
+            slot(object = value, name = s) <- slot(object = value, name = s)[, cell.order]
+          }
+        }
+      } else {
+        stop("Cannot add assays with unordered cells", call. = FALSE)
+      }
+      validObject(object = value)
+    }
+    # Check keys
+    Key(object = value) <- .CheckKey(
+      key = Key(object = value),
+      existing = Key(object = x),
+      name = i
+    )
+    # TODO: Run CalcN
+    # Add the assay
+    slot(object = x, name = 'assays')[[i]] <- value
+    slot(object = x, name = 'assays') <- Filter(
+      f = Negate(f = is.null),
+      x = slot(object = x, name = 'assays')
+    )
+    # Validate and return
+    validObject(object = x)
+    return(x)
+  }
+)
+
+
+#' @rdname sub-subset-Seurat
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'Assay5'
+  ),
+  definition = function(x, i, ..., value) {
+    return(callNextMethod(x = x, i = i, ..., value = value))
+  }
+)
+
+#' @inherit [[<-,Seurat
+#'
+#' @keywords internal
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'StdAssay'
+  ),
+  definition = function(x, i, ..., value) {
+    # Reuse the `value = Assay` method
+    fn <- slot(
+      object = selectMethod(
+        f = '[[<-',
+        signature = c(
+          x = 'Seurat',
+          i = 'character',
+          j = 'missing',
+          value = 'Assay'
+        )
+      ),
+      name = '.Data'
+    )
+    return(fn(x = x, i = i, value = value))
+  }
+)
+
+#' @export
+#' 
 setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   f = '[[<-',
-  signature = c('x' = 'Seurat', i = 'character', value = 'ANY'),
+  signature = c(x = 'Seurat', i = 'character', value = 'ANY'),
   definition = function(x, i, ..., value) {
     x <- UpdateSlots(object = x)
     # Require names, no index setting
@@ -3249,780 +3397,639 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   }
 )
 
-#' Add Subobjects
-#'
-#' @inheritParams .DollarNames.Seurat
-#' @inheritParams [[.Assay5
-#' @param i Name to add subobject as
-#' @param value A valid subobject (eg. a \link[Assay]{v3} or
-#' \link[Assay5]{v5} assay or a \link[DimReduc]{dimensional reduction})
-#'
-#' @return \code{x} with \code{value} added as \code{i}
-#'
-#' @export
-#'
-#' @name [[<-,Seurat
-#'
-#' @family seurat
-#'
-#' @seealso See \link[=[[.Seurat]{here} for pulling subobjects using \code{[[},
-#' \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
-#' \link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
-#' data with \code{[[<-}
-#'
-#' @aliases [[<-.Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'Assay'
-  ),
-  definition = function(x, i, ..., value) {
-    validObject(object = value)
-    i <- make.names(names = i)
-    # Checks for if the assay or name already exists
-    if (i %in% names(x = x)) {
-      if (!inherits(x = x[[i]], what = c('Assay', 'StdAssay'))) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
-      }
-      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
-        warning(
-          "Assay ",
-          i,
-          " changing from ",
-          class(x = x[[i]]),
-          " to ",
-          class(x = value),
-          call. = FALSE,
-          immediate. = TRUE
-        )
-      }
-      if (!all(dim(x = value) == dim(x = x[[i]]))) {
-        warning(
-          "Different cells and/or features from existing assay ", i,
-          call. = FALSE,
-          immediate. = TRUE
-        )
-      }
-    }
-    # Check for cells
-    if (!all(colnames(x = value) %in% colnames(x = x))) {
-      stop("Cannot add new cells with [[<-", call. = FALSE)
-    }
-    cell.order <- MatchCells(
-      new = colnames(x = value),
-      orig = colnames(x = x),
-      ordered = TRUE
-    )
-    # TODO: enable reordering cells in assay
-    if (is.unsorted(x = cell.order)) {
-      if (inherits(x = value, what = 'Assay')) {
-        for (s in c('counts', 'data', 'scale.data')) {
-          if (!IsMatrixEmpty(x = slot(object = value, name = s))) {
-            slot(object = value, name = s) <- slot(object = value, name = s)[, cell.order]
-          }
-        }
-      } else {
-        stop("Cannot add assays with unordered cells", call. = FALSE)
-      }
-      validObject(object = value)
-    }
-    # Check keys
-    Key(object = value) <- .CheckKey(
-      key = Key(object = value),
-      existing = Key(object = x),
-      name = i
-    )
-    # TODO: Run CalcN
-    # Add the assay
-    slot(object = x, name = 'assays')[[i]] <- value
-    slot(object = x, name = 'assays') <- Filter(
-      f = Negate(f = is.null),
-      x = slot(object = x, name = 'assays')
-    )
-    # Validate and return
-    validObject(object = x)
-    return(x)
-  }
-)
+#' 
+#' 
+#' #' @rdname cash-.Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(
+#'     x = 'Seurat',
+#'     i = 'character',
+#'     j = 'missing',
+#'     value = 'data.frame'
+#'   ),
+#'   definition = function(x, i, ..., value) {
+#'     # Because R is stupid sometimes
+#'     if (!length(x = i) && !ncol(x = value)) {
+#'       return(x)
+#'     }
+#'     # Check that the `i` we're adding are present in the data frame
+#'     if (!is.null(x = names(x = value))) {
+#'       i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
+#'     } else if (length(x = i) != ncol(x = value)) {
+#'       stop(
+#'         "Cannot assign ",
+#'         length(x = i),
+#'         " names to ",
+#'         ncol(x = value),
+#'         " bits of meta data",
+#'         call. = FALSE
+#'       )
+#'     }
+#'     # Handle meta data for different cells
+#'     names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
+#'     if (length(x = names.intersect)) {
+#'       value <- value[names.intersect, , drop = FALSE]
+#'       if (!nrow(x = value)) {
+#'         stop(
+#'           "None of the cells provided are in this Seurat object",
+#'           call. = FALSE
+#'         )
+#'       }
+#'     } else if (nrow(x = value) == ncol(x = x)) {
+#'       # When no cell names are provided in value, assume it's in cell order
+#'       row.names(x = value) <- colnames(x = x)
+#'     } else {
+#'       # Throw an error when no cell names provided and cannot assume cell order
+#'       stop(
+#'         "Cannot add more or less meta data without cell names",
+#'         call. = FALSE
+#'       )
+#'     }
+#'     # Add the cell-level meta data using the `value = vector` method
+#'     for (n in i) {
+#'       v <- value[[n]]
+#'       names(x = v) <- row.names(x = value)
+#'       x[[n]] <- v
+#'     }
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' @rdname cash-.Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(
+#'     x = 'Seurat',
+#'     i = 'missing',
+#'     j = 'missing',
+#'     value = 'data.frame'
+#'   ),
+#'   definition = function(x, i, ..., value) {
+#'     # Allow removing all meta data
+#'     if (IsMatrixEmpty(x = value)) {
+#'       x[[names(x = x[[]])]] <- NULL
+#'     } else {
+#'       # If no `i` provided, use the column names from value
+#'       x[[names(x = value)]] <- value
+#'     }
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' @rdname sub-subset-Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(
+#'     x = 'Seurat',
+#'     i = 'character',
+#'     j = 'missing',
+#'     value = 'DimReduc'
+#'   ),
+#'   definition = function(x, i, ..., value) {
+#'     validObject(object = value)
+#'     i <- make.names(names = i)
+#'     # Checks for if the DimReduc or name already exists
+#'     if (i %in% .Subobjects(object = x)) {
+#'       if (!inherits(x = x[[i]], what = 'DimReduc')) {
+#'         .DuplicateError(name = i, cls = class(x = x[[i]]))
+#'       }
+#'       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+#'         warning(
+#'           "DimReduc ",
+#'           i,
+#'           " changing from ",
+#'           class(x = x[[i]]),
+#'           " to ",
+#'           class(x = value),
+#'           call. = FALSE,
+#'           immediate. = TRUE
+#'         )
+#'       }
+#'       if (length(x = value) != length(x = x[[i]])) {
+#'         warning(
+#'           "Number of dimensions changing from ",
+#'           length(x = x[[i]]),
+#'           " to ",
+#'           length(x = value),
+#'           call. = FALSE,
+#'           immediate. = TRUE
+#'         )
+#'       }
+#'       if (length(x = Cells(x = value)) != length(x = Cells(x = x[[i]]))) {
+#'         warning(
+#'           "Number of cells changing from ",
+#'           length(x = Cells(x = x[[i]])),
+#'           " to ",
+#'           length(x = Cells(x = value)),
+#'           call. = FALSE,
+#'           immediate. = TRUE
+#'         )
+#'       }
+#'     }
+#'     # Check default assay
+#'     if (is.null(x = DefaultAssay(object = value))) {
+#'       stop("Cannot add a DimReduc without an associated assay", call. = FALSE)
+#'     } else if (!any(DefaultAssay(object = value) %in% Assays(object = x))) {
+#'       warning(
+#'         "Adding a dimensional reduction (",
+#'         i,
+#'         ") without the associated assay being present",
+#'         call. = FALSE,
+#'         immediate. = TRUE
+#'       )
+#'     }
+#'     # Check for cells
+#'     if (!all(Cells(x = value) %in% colnames(x = x))) {
+#'       stop("Cannot add new cells with [[<-", call. = FALSE)
+#'     }
+#'     cell.order <- MatchCells(
+#'       new = Cells(x = value),
+#'       orig = colnames(x = x),
+#'       ordered = TRUE
+#'     )
+#'     if (is.unsorted(x = cell.order)) {
+#'       value <- subset(x = value, cells = Cells(x))
+#'       validObject(object = value)
+#'     }
+#'     # Check keys
+#'     Key(object = value) <- .CheckKey(
+#'       key = Key(object = value),
+#'       existing = Key(object = x),
+#'       name = i
+#'     )
+#'     slot(object = x, name = 'reductions')[[i]] <- value
+#'     slot(object = x, name = 'reductions') <- Filter(
+#'       f = Negate(f = is.null),
+#'       x = slot(object = x, name = 'reductions')
+#'     )
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' @rdname cash-.Seurat
+#' #'
+#' #' @importFrom methods selectMethod
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'factor'),
+#'   definition = function(x, i, ..., value) {
+#'     # Add multiple objects
+#'     if (length(x = i) > 1L) {
+#'       value <- rep_len(x = value, length.out = length(x = i))
+#'       for (idx in seq_along(along.with = i)) {
+#'         x[[i[idx]]] <- value[[idx]]
+#'       }
+#'       return(x)
+#'     }
+#'     objs <- .FilterObjects(
+#'       object = x,
+#'       classes.keep = c(
+#'         'Assay',
+#'         'StdAssay',
+#'         'DimReduc',
+#'         'Graph',
+#'         'Neighbor',
+#'         'SeuratCommand',
+#'         'SpatialImage'
+#'       )
+#'     )
+#'     if (i %in% objs) {
+#'       cls <- class(x = x[[i]])[1L]
+#'       abort(message = paste(
+#'         sQuote(x = i, q = FALSE),
+#'         "already exists as",
+#'         ifelse(
+#'           test = tolower(x = substr(x = cls, start = 1, stop = 1)) %in% .Vowels(),
+#'           yes = 'an',
+#'           no = 'a'
+#'         ),
+#'         class(x = x[[i]])[1L]
+#'       ))
+#'     }
+#'     # Add a column of cell-level meta data
+#'     if (is.null(x = names(x = value))) {
+#'       # Handle cases where new meta data is unnamed
+#'       value <- rep_len(x = value, length.out = ncol(x = x))
+#'       names(x = value) <- colnames(x = x)
+#'     } else {
+#'       # Check cell names for new objects
+#'       names.intersect <- intersect(x = names(x = value), y = colnames(x = x))
+#'       if (!length(x = names.intersect)) {
+#'         stop(
+#'           "No cell overlap between new meta data and Seurat object",
+#'           call. = FALSE
+#'         )
+#'       }
+#'       value <- value[names.intersect]
+#'     }
+#'     df <- EmptyDF(n = ncol(x = x))
+#'     row.names(x = df) <- colnames(x = x)
+#'     df[[i]] <- if (i %in% names(x = x[[]])) {
+#'       x[[i]]
+#'     } else {
+#'       factor(x = NA, levels = levels(x = value))
+#'     }
+#'     df[names(x = value), i] <- value
+#'     slot(object = x, name = 'meta.data')[, i] <- df[[i]]
+#'     validObject(object = x)
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' @rdname sub-subset-Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'Graph'),
+#'   definition = function(x, i, ..., value) {
+#'     validObject(object = value)
+#'     i <- make.names(names = i)
+#'     # Checks for if the Graph or name already exists
+#'     if (i %in% names(x = x)) {
+#'       if (!inherits(x = x[[i]], what = 'Graph')) {
+#'         .DuplicateError(name = i, cls = class(x = x[[i]]))
+#'       }
+#'       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+#'         warning(
+#'           "Graph ",
+#'           i,
+#'           " changing from ",
+#'           class(x = x[[i]]),
+#'           " to ",
+#'           class(x = value),
+#'           call. = FALSE,
+#'           immediate. = TRUE
+#'         )
+#'       }
+#'       if (!all(dim(x = value) == dim(x = x[[i]]))) {
+#'         warning(
+#'           "Different cells from existing graph ", i,
+#'           call. = FALSE,
+#'           immediate. = TRUE
+#'         )
+#'       }
+#'     }
+#'     # Check cells
+#'     gcells <- Cells(x = value, margin = NA_integer_)
+#'     if (!all(gcells %in% colnames(x = x))) {
+#'       stop("Cannot add cells with [[<-", call. = FALSE)
+#'     }
+#'     cell.order <- MatchCells(
+#'       new = gcells,
+#'       orig = colnames(x = x),
+#'       ordered = TRUE
+#'     )
+#'     # TODO: enable reordering cells in graph
+#'     if (is.unsorted(x = cell.order)) {
+#'       colnames(value) <- rownames(value) <- Cells(x)
+#'       validObject(object = value)
+#'     }
+#'     # Add the graph
+#'     slot(object = x, name = 'graphs')[[i]] <- value
+#'     slot(object = x, name = 'graphs') <- Filter(
+#'       f = Negate(f = is.null),
+#'       x = slot(object = x, name = 'graphs')
+#'     )
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' @rdname cash-.Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(x = 'Seurat', i = 'missing', j = 'missing', value = 'list'),
+#'   definition = function(x, i, ..., value) {
+#'     stopifnot(IsNamedList(x = value))
+#'     for (y in names(x = value)) {
+#'       x[[y]] <- value[[y]]
+#'     }
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' @rdname sub-subset-Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(
+#'     x = 'Seurat',
+#'     i = 'character',
+#'     j = 'missing',
+#'     value = 'Neighbor'
+#'   ),
+#'   definition = function(x, i, ..., value) {
+#'     validObject(object = value)
+#'     i <- make.names(names = i)
+#'     # Checks for if the Neighbor or name already exists
+#'     if (i %in% .Subobjects(object = x)) {
+#'       if (!inherits(x = x[[i]], what = 'Graph')) {
+#'         .DuplicateError(name = i, cls = class(x = x[[i]]))
+#'       }
+#'       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+#'         warn(message = paste(
+#'           "Graph",
+#'           i,
+#'           "changing from",
+#'           class(x = x[[i]])[1L],
+#'           "to",
+#'           class(x = value)[1L]
+#'         ))
+#'       }
+#'       if (length(x = Cells(x = value)) != length(x = Cells(x = x[[i]]))) {
+#'         warn(message = paste(
+#'           "Number of cells changing from",
+#'           length(x = Cells(x = x[[i]])),
+#'           "to",
+#'           length(x = Cells(x = value))
+#'         ))
+#'       }
+#'     }
+#'     # Check for cells
+#'     if (!all(Cells(x = value) %in% colnames(x = x))) {
+#'       abort(message = "Cannot add new cells with [[<-")
+#'     }
+#'     cell.order <- MatchCells(
+#'       new = Cells(x = value),
+#'       orig = colnames(x = x),
+#'       ordered = TRUE
+#'     )
+#'     # TODO: enable reordering cells in Neighbors
+#'     if (is.unsorted(x = cell.order)) {
+#'       abort(message = "Cannot add Neighbors with unordered cells")
+#'       validObject(object = value)
+#'     }
+#'     slot(object = x, name = 'neighbors')[[i]] <- value
+#'     slot(object = x, name = 'neighbors') <- Filter(
+#'       f = Negate(f = is.null),
+#'       x = slot(object = x, name = 'neighbors')
+#'     )
+#'     # Validate and return
+#'     validObject(object = x)
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' Remove Subobjects and Cell-Level Meta Data
+#' #'
+#' #' @inheritParams [[<-,Seurat
+#' #' @param i Name(s) of subobject(s) or cell-level meta data to remove
+#' #' @param value NULL
+#' #'
+#' #' @return \code{x} with \code{i} removed from the object
+#' #'
+#' #' @export
+#' #'
+#' #' @name [[<-,Seurat,NULL
+#' #'
+#' #' @family seurat
+#' #'
+#' #' @seealso See \link[=[[.Seurat]{here} for pulling subobjects using \code{[[},
+#' #' \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
+#' #' \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
+#' #'
+#' #' @aliases remove-object remove-objects
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'NULL'),
+#'   definition = function(x, i, ..., value) {
+#'     # Allow removing multiple objects or bits of cell-level meta data at once
+#'     for (name in i) {
+#'       # Determine the slot to use
+#'       # If no subobject found, check cell-level meta data
+#'       slot.use <- .FindObject(object = x, name = name) %||% 'meta.data'
+#'       switch(
+#'         EXPR = slot.use,
+#'         'meta.data' = {
+#'           # If we can't find the cell-level meta data, throw a warning and move
+#'           # to the next name
+#'           if (!name %in% names(x = x[[]])) {
+#'             warn(message = paste(
+#'               "Cannot find cell-level meta data named ",
+#'               name
+#'             ))
+#'             next
+#'           }
+#'           # Remove the column of meta data
+#'           slot(object = x, name = 'meta.data')[, name] <- value
+#'         },
+#'         'assays' = {
+#'           # Cannot remove the default assay
+#'           if (isTRUE(x = name == DefaultAssay(object = x))) {
+#'             stop("Cannot delete default assay", call. = FALSE)
+#'           }
+#'           # Remove the assay
+#'           slot(object = x, name = slot.use)[[i]] <- value
+#'           # # Remove the assay entry from the LogMap
+#'           # slot(object = x, name = 'cells') <- droplevels(x = slot(
+#'           #   object = x,
+#'           #   name = 'cells'
+#'           # ))
+#'         },
+#'         # Remove other subobjects
+#'         slot(object = x, name = slot.use)[[name]] <- value
+#'       )
+#'     }
+#'     # Validate and return
+#'     validObject(object = x)
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' @rdname sub-subset-Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(
+#'     x = 'Seurat',
+#'     i = 'character',
+#'     j = 'missing',
+#'     value = 'SeuratCommand'
+#'   ),
+#'   definition = function(x, i, ..., value) {
+#'     validObject(object = value)
+#'     i <- make.names(names = i)
+#'     # Checks for if the SeuratCommand or name already exists
+#'     if (i %in% .Subobjects(object = x)) {
+#'       if (!inherits(x = x[[i]], what = 'SeuratCommand')) {
+#'         .DuplicateError(name = i, cls = class(x = x[[i]]))
+#'       }
+#'       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+#'         warn(message = paste(
+#'           "Command",
+#'           i,
+#'           "changing from",
+#'           class(x = x[[i]])[1L],
+#'           "to",
+#'           class(x = value)[1L]
+#'         ))
+#'       }
+#'     }
+#'     if (is.null(x = DefaultAssay(object = value))) {
+#'       warn(message = "Adding a command log without an assay associated with it")
+#'     }
+#'     # Ensure the command gets put at the end of the list
+#'     # slot(object = x, name = 'commands')[[i]] <- NULL
+#'     suppressWarnings(expr = x[[i]] <- NULL)
+#'     slot(object = x, name = 'commands')[[i]] <- value
+#'     slot(object = x, name = 'commands') <- Filter(
+#'       f = Negate(f = is.null),
+#'       x = slot(object = x, name = 'commands')
+#'     )
+#'     # Validate and return
+#'     validObject(object = x)
+#'     return(x)
+#'   }
+#' )
+#' 
+#' #' @rdname sub-subset-Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(
+#'     x = 'Seurat',
+#'     i = 'character',
+#'     j = 'missing',
+#'     value = 'SpatialImage'
+#'   ),
+#'   definition = function(x, i, ..., value) {
+#'     validObject(object = value)
+#'     i <- make.names(names = i)
+#'     # Checks for if the image or name already exists
+#'     if (i %in% .Subobjects(object = x)) {
+#'       if (!inherits(x = x[[i]], what = 'SpatialImage')) {
+#'         .DuplicateError(name = i, cls = class(x = x[[i]]))
+#'       }
+#'       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+#'         warn(message = paste(
+#'           "Image",
+#'           i,
+#'           "changing from",
+#'           class(x = x[[i]])[1L],
+#'           "to",
+#'           class(x = value)[1L]
+#'         ))
+#'       }
+#'     }
+#'     # Check cells
+#'     if (!all(Cells(x = value) %in% colnames(x = x))) {
+#'       abort(message = "Cannot add new cells with [[<-")
+#'     }
+#'     cell.order <- MatchCells(
+#'       new = Cells(x = value),
+#'       orig = colnames(x = x),
+#'       ordered = TRUE
+#'     )
+#'     if (is.unsorted(x = cell.order)) {
+#'       abort(message = "Cannot add images with unordered cells")
+#'       validObject(object = value)
+#'     }
+#'     # Check assay
+#'     if (!DefaultAssay(object = value) %in% Assays(object = x)) {
+#'       warn(message = "Adding image data that isn't associated with any assays")
+#'     }
+#'     # Check keys
+#'     Key(object = value) <- .CheckKey(
+#'       key = Key(object = value),
+#'       existing = Key(object = x),
+#'       name = i
+#'     )
+#'     slot(object = x, name = 'images')[[i]] <- value
+#'     slot(object = x, name = 'images') <- Filter(
+#'       f = Negate(f = is.null),
+#'       x = slot(object = x, name = 'images')
+#'     )
+#'     # Validate and return
+#'     validObject(object = x)
+#'     return(x)
+#'   }
+#' )
 
-#' @rdname sub-subset-Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'Assay5'
-  ),
-  definition = function(x, i, ..., value) {
-    return(callNextMethod(x = x, i = i, ..., value = value))
-  }
-)
 
-#' @rdname cash-.Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'data.frame'
-  ),
-  definition = function(x, i, ..., value) {
-    # Because R is stupid sometimes
-    if (!length(x = i) && !ncol(x = value)) {
-      return(x)
-    }
-    # Check that the `i` we're adding are present in the data frame
-    if (!is.null(x = names(x = value))) {
-      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
-    } else if (length(x = i) != ncol(x = value)) {
-      stop(
-        "Cannot assign ",
-        length(x = i),
-        " names to ",
-        ncol(x = value),
-        " bits of meta data",
-        call. = FALSE
-      )
-    }
-    # Handle meta data for different cells
-    names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
-    if (length(x = names.intersect)) {
-      value <- value[names.intersect, , drop = FALSE]
-      if (!nrow(x = value)) {
-        stop(
-          "None of the cells provided are in this Seurat object",
-          call. = FALSE
-        )
-      }
-    } else if (nrow(x = value) == ncol(x = x)) {
-      # When no cell names are provided in value, assume it's in cell order
-      row.names(x = value) <- colnames(x = x)
-    } else {
-      # Throw an error when no cell names provided and cannot assume cell order
-      stop(
-        "Cannot add more or less meta data without cell names",
-        call. = FALSE
-      )
-    }
-    # Add the cell-level meta data using the `value = vector` method
-    for (n in i) {
-      v <- value[[n]]
-      names(x = v) <- row.names(x = value)
-      x[[n]] <- v
-    }
-    return(x)
-  }
-)
 
-#' @rdname cash-.Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'missing',
-    j = 'missing',
-    value = 'data.frame'
-  ),
-  definition = function(x, i, ..., value) {
-    # Allow removing all meta data
-    if (IsMatrixEmpty(x = value)) {
-      x[[names(x = x[[]])]] <- NULL
-    } else {
-      # If no `i` provided, use the column names from value
-      x[[names(x = value)]] <- value
-    }
-    return(x)
-  }
-)
-
-#' @rdname sub-subset-Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'DimReduc'
-  ),
-  definition = function(x, i, ..., value) {
-    validObject(object = value)
-    i <- make.names(names = i)
-    # Checks for if the DimReduc or name already exists
-    if (i %in% .Subobjects(object = x)) {
-      if (!inherits(x = x[[i]], what = 'DimReduc')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
-      }
-      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
-        warning(
-          "DimReduc ",
-          i,
-          " changing from ",
-          class(x = x[[i]]),
-          " to ",
-          class(x = value),
-          call. = FALSE,
-          immediate. = TRUE
-        )
-      }
-      if (length(x = value) != length(x = x[[i]])) {
-        warning(
-          "Number of dimensions changing from ",
-          length(x = x[[i]]),
-          " to ",
-          length(x = value),
-          call. = FALSE,
-          immediate. = TRUE
-        )
-      }
-      if (length(x = Cells(x = value)) != length(x = Cells(x = x[[i]]))) {
-        warning(
-          "Number of cells changing from ",
-          length(x = Cells(x = x[[i]])),
-          " to ",
-          length(x = Cells(x = value)),
-          call. = FALSE,
-          immediate. = TRUE
-        )
-      }
-    }
-    # Check default assay
-    if (is.null(x = DefaultAssay(object = value))) {
-      stop("Cannot add a DimReduc without an associated assay", call. = FALSE)
-    } else if (!any(DefaultAssay(object = value) %in% Assays(object = x))) {
-      warning(
-        "Adding a dimensional reduction (",
-        i,
-        ") without the associated assay being present",
-        call. = FALSE,
-        immediate. = TRUE
-      )
-    }
-    # Check for cells
-    if (!all(Cells(x = value) %in% colnames(x = x))) {
-      stop("Cannot add new cells with [[<-", call. = FALSE)
-    }
-    cell.order <- MatchCells(
-      new = Cells(x = value),
-      orig = colnames(x = x),
-      ordered = TRUE
-    )
-    if (is.unsorted(x = cell.order)) {
-      value <- subset(x = value, cells = Cells(x))
-      validObject(object = value)
-    }
-    # Check keys
-    Key(object = value) <- .CheckKey(
-      key = Key(object = value),
-      existing = Key(object = x),
-      name = i
-    )
-    slot(object = x, name = 'reductions')[[i]] <- value
-    slot(object = x, name = 'reductions') <- Filter(
-      f = Negate(f = is.null),
-      x = slot(object = x, name = 'reductions')
-    )
-    return(x)
-  }
-)
-
-#' @rdname cash-.Seurat
-#'
-#' @importFrom methods selectMethod
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'factor'),
-  definition = function(x, i, ..., value) {
-    # Add multiple objects
-    if (length(x = i) > 1L) {
-      value <- rep_len(x = value, length.out = length(x = i))
-      for (idx in seq_along(along.with = i)) {
-        x[[i[idx]]] <- value[[idx]]
-      }
-      return(x)
-    }
-    objs <- .FilterObjects(
-      object = x,
-      classes.keep = c(
-        'Assay',
-        'StdAssay',
-        'DimReduc',
-        'Graph',
-        'Neighbor',
-        'SeuratCommand',
-        'SpatialImage'
-      )
-    )
-    if (i %in% objs) {
-      cls <- class(x = x[[i]])[1L]
-      abort(message = paste(
-        sQuote(x = i, q = FALSE),
-        "already exists as",
-        ifelse(
-          test = tolower(x = substr(x = cls, start = 1, stop = 1)) %in% .Vowels(),
-          yes = 'an',
-          no = 'a'
-        ),
-        class(x = x[[i]])[1L]
-      ))
-    }
-    # Add a column of cell-level meta data
-    if (is.null(x = names(x = value))) {
-      # Handle cases where new meta data is unnamed
-      value <- rep_len(x = value, length.out = ncol(x = x))
-      names(x = value) <- colnames(x = x)
-    } else {
-      # Check cell names for new objects
-      names.intersect <- intersect(x = names(x = value), y = colnames(x = x))
-      if (!length(x = names.intersect)) {
-        stop(
-          "No cell overlap between new meta data and Seurat object",
-          call. = FALSE
-        )
-      }
-      value <- value[names.intersect]
-    }
-    df <- EmptyDF(n = ncol(x = x))
-    row.names(x = df) <- colnames(x = x)
-    df[[i]] <- if (i %in% names(x = x[[]])) {
-      x[[i]]
-    } else {
-      factor(x = NA, levels = levels(x = value))
-    }
-    df[names(x = value), i] <- value
-    slot(object = x, name = 'meta.data')[, i] <- df[[i]]
-    validObject(object = x)
-    return(x)
-  }
-)
-
-#' @rdname sub-subset-Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'Graph'),
-  definition = function(x, i, ..., value) {
-    validObject(object = value)
-    i <- make.names(names = i)
-    # Checks for if the Graph or name already exists
-    if (i %in% names(x = x)) {
-      if (!inherits(x = x[[i]], what = 'Graph')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
-      }
-      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
-        warning(
-          "Graph ",
-          i,
-          " changing from ",
-          class(x = x[[i]]),
-          " to ",
-          class(x = value),
-          call. = FALSE,
-          immediate. = TRUE
-        )
-      }
-      if (!all(dim(x = value) == dim(x = x[[i]]))) {
-        warning(
-          "Different cells from existing graph ", i,
-          call. = FALSE,
-          immediate. = TRUE
-        )
-      }
-    }
-    # Check cells
-    gcells <- Cells(x = value, margin = NA_integer_)
-    if (!all(gcells %in% colnames(x = x))) {
-      stop("Cannot add cells with [[<-", call. = FALSE)
-    }
-    cell.order <- MatchCells(
-      new = gcells,
-      orig = colnames(x = x),
-      ordered = TRUE
-    )
-    # TODO: enable reordering cells in graph
-    if (is.unsorted(x = cell.order)) {
-      colnames(value) <- rownames(value) <- Cells(x)
-      validObject(object = value)
-    }
-    # Add the graph
-    slot(object = x, name = 'graphs')[[i]] <- value
-    slot(object = x, name = 'graphs') <- Filter(
-      f = Negate(f = is.null),
-      x = slot(object = x, name = 'graphs')
-    )
-    return(x)
-  }
-)
-
-#' @rdname cash-.Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Seurat', i = 'missing', j = 'missing', value = 'list'),
-  definition = function(x, i, ..., value) {
-    stopifnot(IsNamedList(x = value))
-    for (y in names(x = value)) {
-      x[[y]] <- value[[y]]
-    }
-    return(x)
-  }
-)
-
-#' @rdname sub-subset-Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'Neighbor'
-  ),
-  definition = function(x, i, ..., value) {
-    validObject(object = value)
-    i <- make.names(names = i)
-    # Checks for if the Neighbor or name already exists
-    if (i %in% .Subobjects(object = x)) {
-      if (!inherits(x = x[[i]], what = 'Graph')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
-      }
-      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
-        warn(message = paste(
-          "Graph",
-          i,
-          "changing from",
-          class(x = x[[i]])[1L],
-          "to",
-          class(x = value)[1L]
-        ))
-      }
-      if (length(x = Cells(x = value)) != length(x = Cells(x = x[[i]]))) {
-        warn(message = paste(
-          "Number of cells changing from",
-          length(x = Cells(x = x[[i]])),
-          "to",
-          length(x = Cells(x = value))
-        ))
-      }
-    }
-    # Check for cells
-    if (!all(Cells(x = value) %in% colnames(x = x))) {
-      abort(message = "Cannot add new cells with [[<-")
-    }
-    cell.order <- MatchCells(
-      new = Cells(x = value),
-      orig = colnames(x = x),
-      ordered = TRUE
-    )
-    # TODO: enable reordering cells in Neighbors
-    if (is.unsorted(x = cell.order)) {
-      abort(message = "Cannot add Neighbors with unordered cells")
-      validObject(object = value)
-    }
-    slot(object = x, name = 'neighbors')[[i]] <- value
-    slot(object = x, name = 'neighbors') <- Filter(
-      f = Negate(f = is.null),
-      x = slot(object = x, name = 'neighbors')
-    )
-    # Validate and return
-    validObject(object = x)
-    return(x)
-  }
-)
-
-#' Remove Subobjects and Cell-Level Meta Data
-#'
-#' @inheritParams [[<-,Seurat
-#' @param i Name(s) of subobject(s) or cell-level meta data to remove
-#' @param value NULL
-#'
-#' @return \code{x} with \code{i} removed from the object
-#'
-#' @export
-#'
-#' @name [[<-,Seurat,NULL
-#'
-#' @family seurat
-#'
-#' @seealso See \link[=[[.Seurat]{here} for pulling subobjects using \code{[[},
-#' \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
-#' \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
-#'
-#' @aliases remove-object remove-objects
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'NULL'),
-  definition = function(x, i, ..., value) {
-    # Allow removing multiple objects or bits of cell-level meta data at once
-    for (name in i) {
-      # Determine the slot to use
-      # If no subobject found, check cell-level meta data
-      slot.use <- .FindObject(object = x, name = name) %||% 'meta.data'
-      switch(
-        EXPR = slot.use,
-        'meta.data' = {
-          # If we can't find the cell-level meta data, throw a warning and move
-          # to the next name
-          if (!name %in% names(x = x[[]])) {
-            warn(message = paste(
-              "Cannot find cell-level meta data named ",
-              name
-            ))
-            next
-          }
-          # Remove the column of meta data
-          slot(object = x, name = 'meta.data')[, name] <- value
-        },
-        'assays' = {
-          # Cannot remove the default assay
-          if (isTRUE(x = name == DefaultAssay(object = x))) {
-            stop("Cannot delete default assay", call. = FALSE)
-          }
-          # Remove the assay
-          slot(object = x, name = slot.use)[[i]] <- value
-          # # Remove the assay entry from the LogMap
-          # slot(object = x, name = 'cells') <- droplevels(x = slot(
-          #   object = x,
-          #   name = 'cells'
-          # ))
-        },
-        # Remove other subobjects
-        slot(object = x, name = slot.use)[[name]] <- value
-      )
-    }
-    # Validate and return
-    validObject(object = x)
-    return(x)
-  }
-)
-
-#' @rdname sub-subset-Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'SeuratCommand'
-  ),
-  definition = function(x, i, ..., value) {
-    validObject(object = value)
-    i <- make.names(names = i)
-    # Checks for if the SeuratCommand or name already exists
-    if (i %in% .Subobjects(object = x)) {
-      if (!inherits(x = x[[i]], what = 'SeuratCommand')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
-      }
-      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
-        warn(message = paste(
-          "Command",
-          i,
-          "changing from",
-          class(x = x[[i]])[1L],
-          "to",
-          class(x = value)[1L]
-        ))
-      }
-    }
-    if (is.null(x = DefaultAssay(object = value))) {
-      warn(message = "Adding a command log without an assay associated with it")
-    }
-    # Ensure the command gets put at the end of the list
-    # slot(object = x, name = 'commands')[[i]] <- NULL
-    suppressWarnings(expr = x[[i]] <- NULL)
-    slot(object = x, name = 'commands')[[i]] <- value
-    slot(object = x, name = 'commands') <- Filter(
-      f = Negate(f = is.null),
-      x = slot(object = x, name = 'commands')
-    )
-    # Validate and return
-    validObject(object = x)
-    return(x)
-  }
-)
-
-#' @rdname sub-subset-Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'SpatialImage'
-  ),
-  definition = function(x, i, ..., value) {
-    validObject(object = value)
-    i <- make.names(names = i)
-    # Checks for if the image or name already exists
-    if (i %in% .Subobjects(object = x)) {
-      if (!inherits(x = x[[i]], what = 'SpatialImage')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
-      }
-      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
-        warn(message = paste(
-          "Image",
-          i,
-          "changing from",
-          class(x = x[[i]])[1L],
-          "to",
-          class(x = value)[1L]
-        ))
-      }
-    }
-    # Check cells
-    if (!all(Cells(x = value) %in% colnames(x = x))) {
-      abort(message = "Cannot add new cells with [[<-")
-    }
-    cell.order <- MatchCells(
-      new = Cells(x = value),
-      orig = colnames(x = x),
-      ordered = TRUE
-    )
-    if (is.unsorted(x = cell.order)) {
-      abort(message = "Cannot add images with unordered cells")
-      validObject(object = value)
-    }
-    # Check assay
-    if (!DefaultAssay(object = value) %in% Assays(object = x)) {
-      warn(message = "Adding image data that isn't associated with any assays")
-    }
-    # Check keys
-    Key(object = value) <- .CheckKey(
-      key = Key(object = value),
-      existing = Key(object = x),
-      name = i
-    )
-    slot(object = x, name = 'images')[[i]] <- value
-    slot(object = x, name = 'images') <- Filter(
-      f = Negate(f = is.null),
-      x = slot(object = x, name = 'images')
-    )
-    # Validate and return
-    validObject(object = x)
-    return(x)
-  }
-)
-
-#' @inherit [[<-,Seurat
-#'
-#' @keywords internal
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'StdAssay'
-  ),
-  definition = function(x, i, ..., value) {
-    # Reuse the `value = Assay` method
-    fn <- slot(
-      object = selectMethod(
-        f = '[[<-',
-        signature = c(
-          x = 'Seurat',
-          i = 'character',
-          j = 'missing',
-          value = 'Assay'
-        )
-      ),
-      name = '.Data'
-    )
-    return(fn(x = x, i = i, value = value))
-  }
-)
-
-#' @rdname cash-.Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'vector'
-  ),
-  definition = function(x, i, ..., value) {
-    # Add multiple objects
-    if (length(x = i) > 1L) {
-      value <- rep_len(x = value, length.out = length(x = i))
-      for (idx in seq_along(along.with = i)) {
-        x[[i[idx]]] <- value[[idx]]
-      }
-      return(x)
-    }
-    objs <- .FilterObjects(
-      object = x,
-      classes.keep = c(
-        'Assay',
-        'StdAssay',
-        'DimReduc',
-        'Graph',
-        'Neighbor',
-        'SeuratCommand',
-        'SpatialImage'
-      )
-    )
-    if (i %in% objs) {
-      cls <- class(x = x[[i]])[1L]
-      abort(message = paste(
-        sQuote(x = i, q = FALSE),
-        "already exists as",
-        ifelse(
-          test = tolower(x = substr(x = cls, start = 1, stop = 1)) %in% .Vowels(),
-          yes = 'an',
-          no = 'a'
-        ),
-        class(x = x[[i]])[1L]
-      ))
-    }
-    # Add a column of cell-level meta data
-    if (is.null(x = names(x = value))) {
-      # Handle cases where new meta data is unnamed
-      value <- rep_len(x = value, length.out = ncol(x = x))
-      names(x = value) <- colnames(x = x)
-    } else {
-      # Check cell names for new objects
-      names.intersect <- intersect(x = names(x = value), y = colnames(x = x))
-      if (!length(x = names.intersect)) {
-        stop(
-          "No cell overlap between new meta data and Seurat object",
-          call. = FALSE
-        )
-      }
-      value <- value[names.intersect]
-    }
-    df <- EmptyDF(n = ncol(x = x))
-    row.names(x = df) <- colnames(x = x)
-    df[[i]] <- if (i %in% names(x = x[[]])) {
-      if (is.character(x = value)) {
-        as.character(x = x[[i]])
-      } else {
-        as.vector(x = x[[i]])
-      }
-    } else {
-      NA
-    }
-    df[names(x = value), i] <- value
-    slot(object = x, name = 'meta.data')[, i] <- df[[i]]
-    validObject(object = x)
-    return(x)
-  }
-)
+#' #' @rdname cash-.Seurat
+#' #'
+#' setMethod(
+#'   f = '[[<-',
+#'   signature = c(
+#'     x = 'Seurat',
+#'     i = 'character',
+#'     j = 'missing',
+#'     value = 'vector'
+#'   ),
+#'   definition = function(x, i, ..., value) {
+#'     # Add multiple objects
+#'     if (length(x = i) > 1L) {
+#'       value <- rep_len(x = value, length.out = length(x = i))
+#'       for (idx in seq_along(along.with = i)) {
+#'         x[[i[idx]]] <- value[[idx]]
+#'       }
+#'       return(x)
+#'     }
+#'     objs <- .FilterObjects(
+#'       object = x,
+#'       classes.keep = c(
+#'         'Assay',
+#'         'StdAssay',
+#'         'DimReduc',
+#'         'Graph',
+#'         'Neighbor',
+#'         'SeuratCommand',
+#'         'SpatialImage'
+#'       )
+#'     )
+#'     if (i %in% objs) {
+#'       cls <- class(x = x[[i]])[1L]
+#'       abort(message = paste(
+#'         sQuote(x = i, q = FALSE),
+#'         "already exists as",
+#'         ifelse(
+#'           test = tolower(x = substr(x = cls, start = 1, stop = 1)) %in% .Vowels(),
+#'           yes = 'an',
+#'           no = 'a'
+#'         ),
+#'         class(x = x[[i]])[1L]
+#'       ))
+#'     }
+#'     # Add a column of cell-level meta data
+#'     if (is.null(x = names(x = value))) {
+#'       # Handle cases where new meta data is unnamed
+#'       value <- rep_len(x = value, length.out = ncol(x = x))
+#'       names(x = value) <- colnames(x = x)
+#'     } else {
+#'       # Check cell names for new objects
+#'       names.intersect <- intersect(x = names(x = value), y = colnames(x = x))
+#'       if (!length(x = names.intersect)) {
+#'         stop(
+#'           "No cell overlap between new meta data and Seurat object",
+#'           call. = FALSE
+#'         )
+#'       }
+#'       value <- value[names.intersect]
+#'     }
+#'     df <- EmptyDF(n = ncol(x = x))
+#'     row.names(x = df) <- colnames(x = x)
+#'     df[[i]] <- if (i %in% names(x = x[[]])) {
+#'       if (is.character(x = value)) {
+#'         as.character(x = x[[i]])
+#'       } else {
+#'         as.vector(x = x[[i]])
+#'       }
+#'     } else {
+#'       NA
+#'     }
+#'     df[names(x = value), i] <- value
+#'     slot(object = x, name = 'meta.data')[, i] <- df[[i]]
+#'     validObject(object = x)
+#'     return(x)
+#'   }
+#' )
 
 #' Row and Column Sums and Means
 #'
