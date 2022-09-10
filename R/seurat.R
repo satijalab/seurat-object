@@ -1706,6 +1706,11 @@ RenameCells.Seurat <- function(
     }
   }
   old.names <- colnames(x = object)
+  # rename the cell-level metadata first to rename colname()
+  old.meta.data <- object[[]]
+  rownames(x = old.meta.data) <- new.cell.names
+  slot(object = object, name = "meta.data") <- old.meta.data
+  
   # rename in the assay objects
   assays <- FilterObjects(object = object, classes.keep = 'Assay')
   for (assay in assays) {
@@ -1714,6 +1719,12 @@ RenameCells.Seurat <- function(
       new.names = new.cell.names
     )
   }
+
+  # rename the active.idents
+  old.ids <- Idents(object = object)
+  names(x = old.ids) <- new.cell.names
+  Idents(object = object) <- old.ids
+  
   # rename in the DimReduc objects
   dimreducs <- FilterObjects(object = object, classes.keep = 'DimReduc')
   for (dr in dimreducs) {
@@ -1722,19 +1733,13 @@ RenameCells.Seurat <- function(
       new.names = new.cell.names
     )
   }
-  # rename the active.idents
-  old.ids <- Idents(object = object)
-  names(x = old.ids) <- new.cell.names
-  Idents(object = object) <- old.ids
-  # rename the cell-level metadata
-  old.meta.data <- object[[]]
-  rownames(x = old.meta.data) <- new.cell.names
-  slot(object = object, name = "meta.data") <- old.meta.data
   # rename the graphs
   graphs <- FilterObjects(object = object, classes.keep = "Graph")
   for (g in graphs) {
-    rownames(x = object[[g]]) <- colnames(x = object[[g]]) <- new.cell.names
-  }
+    graph.g <- object[[g]]
+    rownames(graph.g) <- colnames(graph.g) <- new.cell.names
+    object[[g]] <- graph.g
+    }
   # Rename the images
   names(x = new.cell.names) <- old.names
   for (i in Images(object = object)) {
@@ -3526,8 +3531,6 @@ setMethod(
       f = Negate(f = is.null),
       x = slot(object = x, name = 'reductions')
     )
-    # Validate and return
-    validObject(object = x)
     return(x)
   }
 )
@@ -3648,7 +3651,7 @@ setMethod(
     )
     # TODO: enable reordering cells in graph
     if (is.unsorted(x = cell.order)) {
-      stop("Cannot add graphs with unordered cells", call. = FALSE)
+      colnames(value) <- rownames(value) <- Cells(x)
       validObject(object = value)
     }
     # Add the graph
@@ -3657,8 +3660,6 @@ setMethod(
       f = Negate(f = is.null),
       x = slot(object = x, name = 'graphs')
     )
-    # Validate and return
-    validObject(object = x)
     return(x)
   }
 )
