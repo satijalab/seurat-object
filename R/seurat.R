@@ -778,7 +778,13 @@ CreateSeuratObject.default <- function(
   project = 'SeuratProject',
   ...
 ) {
-  assay.data <- CreateAssay5Object(
+  # assay.data <- CreateAssay5Object(
+  #   counts = counts,
+  #   min.cells = min.cells,
+  #   min.features = min.features,
+  #   ...
+  # )
+  assay.data <- CreateAssayObject(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
