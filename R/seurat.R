@@ -3106,6 +3106,29 @@ setMethod(
   }
 )
 
+#' 
+#' @rdname cash-.Seurat
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'missing',
+    j = 'missing',
+    value = 'data.frame'
+  ),
+  definition = function(x, i, ..., value) {
+    # Allow removing all meta data
+    if (IsMatrixEmpty(x = value)) {
+      x[[names(x = x[[]])]] <- NULL
+    } else {
+      # If no `i` provided, use the column names from value
+      x[[names(x = value)]] <- value
+    }
+    return(x)
+  }
+)
+
 #' @export
 #' 
 setMethod( # because R doesn't allow S3-style [[<- for S4 classes
@@ -3245,6 +3268,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       'meta.data'
     }
     if (slot.use == 'meta.data') {
+    
       # Add data to object metadata
       meta.data <- x[[]]
       cell.names <- rownames(x = meta.data)
@@ -3465,29 +3489,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #'     return(x)
 #'   }
 #' )
-#' 
-#' #' @rdname cash-.Seurat
-#' #'
-#' setMethod(
-#'   f = '[[<-',
-#'   signature = c(
-#'     x = 'Seurat',
-#'     i = 'missing',
-#'     j = 'missing',
-#'     value = 'data.frame'
-#'   ),
-#'   definition = function(x, i, ..., value) {
-#'     # Allow removing all meta data
-#'     if (IsMatrixEmpty(x = value)) {
-#'       x[[names(x = x[[]])]] <- NULL
-#'     } else {
-#'       # If no `i` provided, use the column names from value
-#'       x[[names(x = value)]] <- value
-#'     }
-#'     return(x)
-#'   }
-#' )
-#' 
+
+
 #' #' @rdname sub-subset-Seurat
 #' #'
 #' setMethod(
