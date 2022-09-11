@@ -778,12 +778,20 @@ CreateSeuratObject.default <- function(
   project = 'SeuratProject',
   ...
 ) {
-  assay.data <- CreateAssay5Object(
+  if (inherits(x = counts, what = 'Matrix'))
+  assay.data <- CreateAssayObject(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
     ...
-  )
+  ) else {
+    assay.data <- CreateAssay5Object(
+      counts = counts,
+      min.cells = min.cells,
+      min.features = min.features,
+      ...
+    )
+  }
   return(CreateSeuratObject(
     counts = assay.data,
     assay = assay,
