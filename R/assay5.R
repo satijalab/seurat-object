@@ -1449,12 +1449,18 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #'
 "[.StdAssay" <- function(x, i, j, ...) {
   if (missing(x = i)) {
-    i <- seq_len(length.out = nrow(x = x))
+    i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
-  if (missing(x = j)) {
-    j <- seq_len(length.out = ncol(x = x))
+  data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
+  row.names(x = data.return) <- rownames(x = x)
+  if (isTRUE(x = drop)) {
+    data.return <- unlist(x = data.return, use.names = FALSE)
+    names(x = data.return) <- rep.int(
+      x = rownames(x = x),
+      times = length(x = i)
+    )
   }
-  return(LayerData(object = x, cells = j, features = i, ...))
+  return(data.return)
 }
 
 #' Get Layer Data
@@ -1645,6 +1651,7 @@ merge.StdAssay <- function(
   collapse = FALSE,
   ...
 ) {
+
   assays <- c(x, y)
   # TODO: Support multiple types of assays
   if (length(x = unique(x = sapply(X = assays, FUN = class))) != 1L) {
@@ -1686,6 +1693,7 @@ merge.StdAssay <- function(
     misc = list(),
     key = Key(object = x) %||% character(length = 0L)
   )
+
   # Add layers
   # TODO: Support collapsing layers
   if (isTRUE(x = collapse)) {
@@ -1705,7 +1713,7 @@ merge.StdAssay <- function(
   # Add feature-level metadata
   for (i in seq_along(along.with = assays)) {
     # Rename HVF columns
-    mf <- assays[[i]][[]]
+    mf <- assays[[i]][]
     if (!ncol(x = mf)) {
       next
     }
@@ -1731,7 +1739,7 @@ merge.StdAssay <- function(
         )
       }
     }
-    combined[[]] <- mf
+    combined[] <- mf
   }
   # TODO: Add misc
   validObject(object = combined)
@@ -2128,9 +2136,10 @@ setMethod(
     value = 'data.frame'
   ),
   definition = function(x, ..., value) {
+    browser()
     # Allow removing all meta data
     if (IsMatrixEmpty(x = value)) {
-      x[[names(x = x[[]])]] <- NULL
+      x[[names(x = x[])]] <- NULL
       return(x)
     }
     # If no `i` provided, use the column names from value
