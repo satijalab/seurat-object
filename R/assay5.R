@@ -1908,6 +1908,15 @@ tail.StdAssay <- .tail
 #'
 tail.Assay5 <- tail.StdAssay
 
+#' Rename assay5
+#' @export
+RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
+  CheckDots(...)
+  colnames(object) <- new.names
+  return(object)
+}
+
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

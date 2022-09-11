@@ -1710,6 +1710,10 @@ RenameCells.Seurat <- function(
   old.meta.data <- object[[]]
   rownames(x = old.meta.data) <- new.cell.names
   slot(object = object, name = "meta.data") <- old.meta.data
+  # rename the active.idents
+  old.ids <- Idents(object = object)
+  names(x = old.ids) <- new.cell.names
+  Idents(object = object) <- old.ids
   
   # rename in the assay objects
   assays <- FilterObjects(object = object, classes.keep = 'Assay')
@@ -1720,11 +1724,15 @@ RenameCells.Seurat <- function(
     )
   }
 
-  # rename the active.idents
-  old.ids <- Idents(object = object)
-  names(x = old.ids) <- new.cell.names
-  Idents(object = object) <- old.ids
-  
+  # rename in the assay5 objects
+  assays5 <- FilterObjects(object = object, classes.keep = 'Assay5')
+  for (assay5 in assays5) {
+ object[[assays5]] <- RenameCells(
+      object = object[[assays5]],
+      new.names = new.cell.names
+    )
+  }
+
   # rename in the DimReduc objects
   dimreducs <- FilterObjects(object = object, classes.keep = 'DimReduc')
   for (dr in dimreducs) {
@@ -1756,6 +1764,7 @@ RenameCells.Seurat <- function(
       new.names = new.cell.names
     )
   }
+  validObject(object)
   return(object)
 }
 
