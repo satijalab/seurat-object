@@ -2812,12 +2812,12 @@ subset.Seurat <- function(
     slot(object = x, name = 'graphs') <- list()
     slot(object = x, name = 'neighbors') <- list()
   }
-  assays <- FilterObjects(object = x, classes.keep = 'Assay')
+  assays <- FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))
   # Filter Assay objects
   for (assay in assays) {
     assay.features <- features %||% rownames(x = x[[assay]])
     slot(object = x, name = 'assays')[[assay]] <- tryCatch(
-      # because subset is also an argument, we need to explictly use the base::subset function
+      # because subset is also an argument, we need to explicitly use the base::subset function
       expr = base::subset(x = x[[assay]], cells = cells, features = assay.features),
       error = function(e) {
         if (e$message == "Cannot find features provided") {
