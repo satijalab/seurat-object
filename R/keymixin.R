@@ -271,7 +271,7 @@ setValidity(
 
 .CheckKey <- function(key, existing = NULL, name = NULL) {
   if (rlang::is_missing(x = key) || !length(x = key) || !nzchar(x = key)) {
-    key <- Key(object = name %||% RandomName(), quiet = TRUE)
+    key <- Key(object = tolower(name) %||% RandomName(), quiet = TRUE)
   }
   if (!is.null(x = names(x = existing)) && !is.null(x = name)) {
     existing <- existing[setdiff(x = names(x = existing), y = name)]
