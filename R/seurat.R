@@ -3051,7 +3051,7 @@ setMethod(
     Key(object = value) <- .CheckKey(
       key = Key(object = value),
       existing = Key(object = x),
-      name = i
+      name = tolower(i)
     )
     # TODO: Run CalcN
     # Add the assay

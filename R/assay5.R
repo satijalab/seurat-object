@@ -1922,7 +1922,7 @@ tail.Assay5 <- tail.StdAssay
 #' @export
 RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   CheckDots(...)
-  colnames(object) <- new.names
+  colnames(object) <- new.names[colnames(object)]
   return(object)
 }
 
