@@ -1653,10 +1653,11 @@ merge.StdAssay <- function(
 ) {
 
   assays <- c(x, y)
-  # TODO: Support multiple types of assays
-  if (length(x = unique(x = sapply(X = assays, FUN = class))) != 1L) {
-    abort(message = "Multiple types of assays provided")
+  assays.classes <- sapply(X = assays, FUN = class)
+  for (i in which(assays.classes == 'Assay')) {
+    assays[[i]] <- as(object = assays[[i]], Class = 'Assay5')
   }
+
   labels <- labels %||% as.character(x = seq_along(along.with = assays))
   # add.cell.ids <- add.cell.ids %||% labels
   # TODO: Support collapsing layers
@@ -1710,6 +1711,7 @@ merge.StdAssay <- function(
       }
     }
   }
+
   # Add feature-level metadata
   for (i in seq_along(along.with = assays)) {
     # Rename HVF columns
@@ -2064,7 +2066,7 @@ setAs(
       no = 'data'
     )
     # Add feature-level meta data
-    to[[]] <- from[[]]
+    to[] <- from[]
     # Add miscellaneous data
     mdata <- Misc(object = from)
     for (i in names(x = mdata)) {
@@ -2074,19 +2076,20 @@ setAs(
   }
 )
 
-#' @return \code{[[<-}: \code{x} with \code{value} added as \code{i}
-#' in feature-level meta data
-#' @rdname sub-sub-.Assay5
-#'
-#' @order 2
-#'
-setMethod(
-  f = '[<-',
-  signature = c(x = 'Assay5'),
-  definition = function(x, i, ..., value) {
-    return(callNextMethod(x = x, i = i, value = value, ...))
-  }
-)
+#' #' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
+#' #' in feature-level meta data
+#' #' @rdname sub-sub-.Assay5
+#' #' 
+#' #' @order 2
+#' #'
+#' setMethod(
+#'   f = '[<-',
+#'   signature = c(x = 'Assay5'),
+#'   definition = function(x, i, ..., value) {
+#'     print(123)
+#'     return(callNextMethod(x = x, i = i, value = value, ...))
+#'   }
+#' )
 
 #' @rdname sub-sub-.StdAssay
 #'
@@ -2120,7 +2123,7 @@ setMethod(
     for (n in i) {
       v <- value[[n]]
       names(x = v) <- row.names(value)
-      x[[n]] <- v
+      x[n] <- v
     }
     return(x)
   }
@@ -2136,14 +2139,17 @@ setMethod(
     value = 'data.frame'
   ),
   definition = function(x, ..., value) {
-    browser()
     # Allow removing all meta data
     if (IsMatrixEmpty(x = value)) {
-      x[[names(x = x[])]] <- NULL
+      x[names(x = x[])] <- NULL
       return(x)
     }
-    # If no `i` provided, use the column names from value
-    x[[names(x = value)]] <- value
+    if (is.null(names(x = value))) {
+      slot(object = x, name = 'meta.data') <- value
+    } else {
+      # If no `i` provided, use the column names from value
+      x[names(x = value)] <- value
+    }
     return(x)
   }
 )
@@ -2195,7 +2201,7 @@ setMethod(
     if (length(x = i) > 1L) {
       value <- rep_len(x = value, length.out = length(x = i))
       for (idx in seq_along(along.with = i)) {
-        x[i[idx]] <- value[[idx]]
+        x[idx] <- value[idx]
       }
     } else {
       # Add a single column of metadata
@@ -2217,8 +2223,8 @@ setMethod(
       }
       df <- EmptyDF(n = nrow(x = x))
       rownames(x = df) <- Features(x = x, layer = NA)
-      df[[i]] <- if (i %in% names(x = x[[]])) {
-        x[[i]]
+      df[[i]] <- if (i %in% names(x = x[])) {
+        x[i]
       } else {
         NA
       }
@@ -2236,38 +2242,17 @@ setMethod(
   f = '[<-',
   signature = c(x = 'StdAssay', i = 'numeric', j = 'missing', value = 'ANY'),
   definition = function(x, i, ..., value) {
-    if (ncol(x = x[[]])) {
-      i <- colnames(x = x[[]])[as.integer(x = i)]
+    if (ncol(x = x[])) {
+      i <- colnames(x = x[])[as.integer(x = i)]
       i <- i[!is.na(x = i)]
       if (length(x = i)) {
-        x[[i]] <- value
+        x[i] <- value
       }
     }
     return(x)
   }
 )
 
-#' @rdname sub-sub-.StdAssay
-#'
-setMethod(
-  f = '[<-',
-  signature = c(
-    x = 'StdAssay',
-    i = 'missing',
-    j = 'missing',
-    value = 'data.frame'
-  ),
-  definition = function(x, ..., value) {
-    # Allow removing all meta data
-    if (IsMatrixEmpty(x = value)) {
-      x[[names(x = x[[]])]] <- NULL
-      return(x)
-    }
-    # If no `i` provided, use the column names from value
-    x[[names(x = value)]] <- value
-    return(x)
-  }
-)
 
 #' @rdname sub-sub-.StdAssay
 #'

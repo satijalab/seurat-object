@@ -534,7 +534,7 @@ UpdateSeuratObject <- function(object) {
         }
         to.remove <- c("nGene", "nUMI")
         for (i in to.remove) {
-          if (i %in% colnames(x = object[[]])) {
+          if (i %in% colnames(x = object[])) {
             object[[i]] <- NULL
           }
         }
@@ -596,12 +596,12 @@ UpdateSeuratObject <- function(object) {
         rownames(x = slot(object = assay, name = "meta.features")) <-  gsub(
           pattern = '_',
           replacement = '-',
-          x = rownames(x = assay[[]])
+          x = rownames(x = assay[])
         )
         rownames(x = slot(object = assay, name = "meta.features")) <-  gsub(
           pattern = '|',
           replacement = '-',
-          x = rownames(x = assay[[]]),
+          x = rownames(x = assay[]),
           fixed = TRUE
         )
         object[[assay.name]] <- assay
@@ -692,7 +692,6 @@ UpdateSeuratObject <- function(object) {
     call. = FALSE
   )
 }
-
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1722,30 +1721,29 @@ RenameCells.Seurat <- function(
   old.ids <- Idents(object = object)
   names(x = old.ids) <- new.cell.names
   Idents(object = object) <- old.ids
+  names(x = new.cell.names) <- old.names
   
   # rename in the assay objects
   assays <- FilterObjects(object = object, classes.keep = 'Assay')
-  for (assay in assays) {
-    slot(object = object, name = "assays")[[assay]] <- RenameCells(
-      object = object[[assay]],
+  for (i in assays) {
+    slot(object = object, name = "assays")[[i]] <- RenameCells(
+      object = object[[i]],
       new.names = new.cell.names
     )
   }
-
   # rename in the assay5 objects
   assays5 <- FilterObjects(object = object, classes.keep = 'Assay5')
-  for (assay5 in assays5) {
- object[[assays5]] <- RenameCells(
-      object = object[[assays5]],
+  for (i in assays5) {
+    slot(object = object, name = "assays")[[i]] <- RenameCells(
+      object = object[[i]],
       new.names = new.cell.names
     )
   }
-
   # rename in the DimReduc objects
   dimreducs <- FilterObjects(object = object, classes.keep = 'DimReduc')
-  for (dr in dimreducs) {
-    object[[dr]] <- RenameCells(
-      object = object[[dr]],
+  for (i in dimreducs) {
+    slot(object = object, name = "reductions")[[i]] <- RenameCells(
+      object = object[[i]],
       new.names = new.cell.names
     )
   }
@@ -1754,19 +1752,19 @@ RenameCells.Seurat <- function(
   for (g in graphs) {
     graph.g <- object[[g]]
     rownames(graph.g) <- colnames(graph.g) <- new.cell.names
-    object[[g]] <- graph.g
+    slot(object = object, name = "graphs")[[g]] <- graph.g
     }
   # Rename the images
-  names(x = new.cell.names) <- old.names
+
   for (i in Images(object = object)) {
-    object[[i]] <- RenameCells(
+    slot(object = object, name = "images")[[i]] <- RenameCells(
       object = object[[i]],
       new.names = unname(obj = new.cell.names[Cells(x = object[[i]])])
     )
   }
   # Rename the Neighbor
   for (i in Neighbors(object = object)) {
-    object[[i]] <- RenameCells(
+    slot(object = object, name = "neighbors")[[i]] <- RenameCells(
       object = object[[i]],
       old.names = old.names,
       new.names = new.cell.names
@@ -2718,9 +2716,9 @@ merge.Seurat <- function(
     USE.NAMES = TRUE
   )
   # TODO: Handle merging v3 and v5 assays
-  if (any(sapply(X = assay.classes, FUN = length) != 1L)) {
-    stop("Cannot merge assays of different classes")
-  }
+  # if (any(sapply(X = assay.classes, FUN = length) != 1L)) {
+  #   stop("Cannot merge assays of different classes")
+  # }
   assays.all <- vector(mode = 'list', length = length(x = assays))
   names(x = assays.all) <- assays
   for (assay in assays) {

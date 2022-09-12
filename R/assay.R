@@ -902,40 +902,40 @@ WhichCells.Assay <- function(
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#' 
+#' #' @inherit [.Assay5 title description details sections
+#' #'
+#' #' @inheritParams [.Assay5
+#' #' @param x An \code{\link{Assay}} object
+#' #' @template param-dots-method
+#' #'
+#' #' @method [ Assay
+#' #' @export
+#' #'
+#' #' @family assay
+#' #'
+#' #' @seealso \code{\link{GetAssayData}}
+#' #'
+#' #' @examples
+#' #' rna <- pbmc_small[["RNA"]]
+#' #' rna[1:10, 1:4]
+#' #'
+#' "[.Assay" <- function(x, i, j, ...) {
+#'   if (missing(x = i)) {
+#'     i <- seq_len(length.out = nrow(x = x))
+#'   }
+#'   if (missing(x = j)) {
+#'     j <- seq_len(length.out = ncol(x = x))
+#'   }
+#'   return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
+#' }
 
-#' @inherit [.Assay5 title description details sections
-#'
-#' @inheritParams [.Assay5
-#' @param x An \code{\link{Assay}} object
-#' @template param-dots-method
-#'
-#' @method [ Assay
-#' @export
-#'
-#' @family assay
-#'
-#' @seealso \code{\link{GetAssayData}}
-#'
-#' @examples
-#' rna <- pbmc_small[["RNA"]]
-#' rna[1:10, 1:4]
-#'
-"[.Assay" <- function(x, i, j, ...) {
-  if (missing(x = i)) {
-    i <- seq_len(length.out = nrow(x = x))
-  }
-  if (missing(x = j)) {
-    j <- seq_len(length.out = ncol(x = x))
-  }
-  return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
-}
-
-#' @inherit [[.Assay5 return title description details sections
+#' @inherit [.Assay5 return title description details sections
 #'
 #' @inheritParams [.Assay
-#' @inheritParams [[.Assay5
+#' @inheritParams [.Assay5
 #'
-#' @method [[ Assay
+#' @method [ Assay
 #' @export
 #'
 #' @order 1
@@ -944,9 +944,9 @@ WhichCells.Assay <- function(
 #'
 #' @examples
 #' rna <- pbmc_small[["RNA"]]
-#' head(rna[[]])
+#' head(rna[])
 #'
-"[[.Assay" <- function(x, i, ..., drop = FALSE) {
+"[.Assay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.features'))
   }
@@ -1218,7 +1218,7 @@ tail.Assay <- .tail
 #' @order 2
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c('x' = 'Assay'),
   definition = function(x, i, ..., value) {
     meta.data <- x[[]]
