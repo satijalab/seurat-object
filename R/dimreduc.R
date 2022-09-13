@@ -469,6 +469,7 @@ RenameCells.DimReduc <- function(object, new.names = NULL, ...) {
   old.data <- Embeddings(object = object)
   rownames(x = old.data) <- new.names
   slot(object = object, name = "cell.embeddings") <- old.data
+  validObject(object = object)
   return(object)
 }
 

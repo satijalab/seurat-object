@@ -534,7 +534,7 @@ UpdateSeuratObject <- function(object) {
         }
         to.remove <- c("nGene", "nUMI")
         for (i in to.remove) {
-          if (i %in% colnames(x = object[])) {
+          if (i %in% colnames(x = object[[]])) {
             object[[i]] <- NULL
           }
         }

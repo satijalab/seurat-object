@@ -1447,7 +1447,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #'
 #' @family stdassay
 #'
-"[.StdAssay" <- function(x, i, j, ...) {
+"[.StdAssay" <- function(x, i, j, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
@@ -1654,7 +1654,7 @@ merge.StdAssay <- function(
 
   assays <- c(x, y)
   for (i in seq_along(assays)) { 
-    if (inherits(x = assays[[i]], what = 'Assay') {
+    if (inherits(x = assays[[i]], what = 'Assay')) {
       assays[[i]] <- as(object = assays[[i]], Class = "Assay5") # TODO: support Assay5T 
     } 
       }
