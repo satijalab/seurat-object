@@ -3497,97 +3497,97 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #' )
 
 
-#' #' @rdname sub-subset-Seurat
-#' #'
-#' setMethod(
-#'   f = '[[<-',
-#'   signature = c(
-#'     x = 'Seurat',
-#'     i = 'character',
-#'     j = 'missing',
-#'     value = 'DimReduc'
-#'   ),
-#'   definition = function(x, i, ..., value) {
-#'     validObject(object = value)
-#'     i <- make.names(names = i)
-#'     # Checks for if the DimReduc or name already exists
-#'     if (i %in% .Subobjects(object = x)) {
-#'       if (!inherits(x = x[[i]], what = 'DimReduc')) {
-#'         .DuplicateError(name = i, cls = class(x = x[[i]]))
-#'       }
-#'       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
-#'         warning(
-#'           "DimReduc ",
-#'           i,
-#'           " changing from ",
-#'           class(x = x[[i]]),
-#'           " to ",
-#'           class(x = value),
-#'           call. = FALSE,
-#'           immediate. = TRUE
-#'         )
-#'       }
-#'       if (length(x = value) != length(x = x[[i]])) {
-#'         warning(
-#'           "Number of dimensions changing from ",
-#'           length(x = x[[i]]),
-#'           " to ",
-#'           length(x = value),
-#'           call. = FALSE,
-#'           immediate. = TRUE
-#'         )
-#'       }
-#'       if (length(x = Cells(x = value)) != length(x = Cells(x = x[[i]]))) {
-#'         warning(
-#'           "Number of cells changing from ",
-#'           length(x = Cells(x = x[[i]])),
-#'           " to ",
-#'           length(x = Cells(x = value)),
-#'           call. = FALSE,
-#'           immediate. = TRUE
-#'         )
-#'       }
-#'     }
-#'     # Check default assay
-#'     if (is.null(x = DefaultAssay(object = value))) {
-#'       stop("Cannot add a DimReduc without an associated assay", call. = FALSE)
-#'     } else if (!any(DefaultAssay(object = value) %in% Assays(object = x))) {
-#'       warning(
-#'         "Adding a dimensional reduction (",
-#'         i,
-#'         ") without the associated assay being present",
-#'         call. = FALSE,
-#'         immediate. = TRUE
-#'       )
-#'     }
-#'     # Check for cells
-#'     if (!all(Cells(x = value) %in% colnames(x = x))) {
-#'       stop("Cannot add new cells with [[<-", call. = FALSE)
-#'     }
-#'     cell.order <- MatchCells(
-#'       new = Cells(x = value),
-#'       orig = colnames(x = x),
-#'       ordered = TRUE
-#'     )
-#'     if (is.unsorted(x = cell.order)) {
-#'       value <- subset(x = value, cells = Cells(x))
-#'       validObject(object = value)
-#'     }
-#'     # Check keys
-#'     Key(object = value) <- .CheckKey(
-#'       key = Key(object = value),
-#'       existing = Key(object = x),
-#'       name = i
-#'     )
-#'     slot(object = x, name = 'reductions')[[i]] <- value
-#'     slot(object = x, name = 'reductions') <- Filter(
-#'       f = Negate(f = is.null),
-#'       x = slot(object = x, name = 'reductions')
-#'     )
-#'     return(x)
-#'   }
-#' )
-#' 
+#' @rdname sub-subset-Seurat
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Seurat',
+    i = 'character',
+    j = 'missing',
+    value = 'DimReduc'
+  ),
+  definition = function(x, i, ..., value) {
+    validObject(object = value)
+    i <- make.names(names = i)
+    # Checks for if the DimReduc or name already exists
+    if (i %in% .Subobjects(object = x)) {
+      if (!inherits(x = x[[i]], what = 'DimReduc')) {
+        .DuplicateError(name = i, cls = class(x = x[[i]]))
+      }
+      if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
+        warning(
+          "DimReduc ",
+          i,
+          " changing from ",
+          class(x = x[[i]]),
+          " to ",
+          class(x = value),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+      if (length(x = value) != length(x = x[[i]])) {
+        warning(
+          "Number of dimensions changing from ",
+          length(x = x[[i]]),
+          " to ",
+          length(x = value),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+      if (length(x = Cells(x = value)) != length(x = Cells(x = x[[i]]))) {
+        warning(
+          "Number of cells changing from ",
+          length(x = Cells(x = x[[i]])),
+          " to ",
+          length(x = Cells(x = value)),
+          call. = FALSE,
+          immediate. = TRUE
+        )
+      }
+    }
+    # Check default assay
+    if (is.null(x = DefaultAssay(object = value))) {
+      stop("Cannot add a DimReduc without an associated assay", call. = FALSE)
+    } else if (!any(DefaultAssay(object = value) %in% Assays(object = x))) {
+      warning(
+        "Adding a dimensional reduction (",
+        i,
+        ") without the associated assay being present",
+        call. = FALSE,
+        immediate. = TRUE
+      )
+    }
+    # Check for cells
+    if (!all(Cells(x = value) %in% colnames(x = x))) {
+      stop("Cannot add new cells with [[<-", call. = FALSE)
+    }
+    cell.order <- MatchCells(
+      new = Cells(x = value),
+      orig = colnames(x = x),
+      ordered = TRUE
+    )
+    if (is.unsorted(x = cell.order)) {
+      value <- subset(x = value, cells = Cells(x))
+      validObject(object = value)
+    }
+    # Check keys
+    Key(object = value) <- .CheckKey(
+      key = Key(object = value),
+      existing = Key(object = x),
+      name = i
+    )
+    slot(object = x, name = 'reductions')[[i]] <- value
+    slot(object = x, name = 'reductions') <- Filter(
+      f = Negate(f = is.null),
+      x = slot(object = x, name = 'reductions')
+    )
+    return(x)
+  }
+)
+
 #' #' @rdname cash-.Seurat
 #' #'
 #' #' @importFrom methods selectMethod
