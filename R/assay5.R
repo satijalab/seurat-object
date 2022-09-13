@@ -1653,11 +1653,11 @@ merge.StdAssay <- function(
 ) {
 
   assays <- c(x, y)
-  assays.classes <- sapply(X = assays, FUN = class)
-  for (i in which(assays.classes == 'Assay')) {
-    assays[[i]] <- as(object = assays[[i]], Class = 'Assay5')
-  }
-
+  for (i in seq_along(assays)) { 
+    if (inherits(x = assays[[i]], what = 'Assay') {
+      assays[[i]] <- as(object = assays[[i]], Class = "Assay5") # TODO: support Assay5T 
+    } 
+      }
   labels <- labels %||% as.character(x = seq_along(along.with = assays))
   # add.cell.ids <- add.cell.ids %||% labels
   # TODO: Support collapsing layers
@@ -2145,7 +2145,7 @@ setMethod(
       return(x)
     }
     if (is.null(names(x = value))) {
-      slot(object = x, name = 'meta.data') <- value
+      stop('colnames of input cannot be NULL')
     } else {
       # If no `i` provided, use the column names from value
       x[names(x = value)] <- value
@@ -2201,7 +2201,7 @@ setMethod(
     if (length(x = i) > 1L) {
       value <- rep_len(x = value, length.out = length(x = i))
       for (idx in seq_along(along.with = i)) {
-        x[idx] <- value[idx]
+        x[i[idx]] <- value[[idx]]
       }
     } else {
       # Add a single column of metadata
@@ -2269,42 +2269,13 @@ setMethod(
 
 #' @rdname sub-sub-.StdAssay
 #'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'NULL'),
-  definition = function(x, i, ..., value) {
-    if ( i %in% Layers(x)) {
-      slot(object = x, name = 'layers')[[i]] <- NULL
-    } else {
-      stop(i, ' is not in Layers')
-    }
-    return(x)
-  }
-)
-
-
-#' @rdname sub-sub-.StdAssay
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'H5ADMatrix'),
-  definition = function(x, i, ..., value) {
-    LayerData(object = x, layer = i) <- value
-    return(x)
-    }
-)
-
-#' @rdname sub-sub-.StdAssay
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'Matrix'),
-  definition = function(x, i, ..., value) {
-    LayerData(object = x, layer = i) <- value
-    return(x)
-  }
-)
-
+setMethod( f = '[[<-',
+           signature = c(x = 'StdAssay'),
+           definition = function(x, i, ..., value) { 
+             LayerData(x, layer = i) <- value 
+             return(x) 
+             } 
+           )
 
 
 setMethod(
