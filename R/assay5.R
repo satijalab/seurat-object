@@ -2145,7 +2145,7 @@ setMethod(
       return(x)
     }
     if (is.null(names(x = value))) {
-      stop('colnames of input cannot be NULL')
+      warning('colnames of input cannot be NULL')
     } else {
       # If no `i` provided, use the column names from value
       x[names(x = value)] <- value
