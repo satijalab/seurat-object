@@ -1722,7 +1722,7 @@ RenameCells.Seurat <- function(
   names(x = old.ids) <- new.cell.names
   Idents(object = object) <- old.ids
   names(x = new.cell.names) <- old.names
-  
+
   # rename in the assay objects
   assays <- FilterObjects(object = object, classes.keep = 'Assay')
   for (i in assays) {
@@ -2743,6 +2743,7 @@ merge.Seurat <- function(
       merge.data = merge.data
     )
   }
+  names(objects) <- NULL
   all.cells <- Reduce(f = union, x = lapply(X = objects, FUN = colnames))
   idents.all <- unlist(x = lapply(X = objects, FUN = Idents))
   idents.all <- idents.all[all.cells]
@@ -3112,7 +3113,7 @@ setMethod(
   }
 )
 
-#' 
+#'
 #' @rdname cash-.Seurat
 #'
 setMethod(
@@ -3136,7 +3137,7 @@ setMethod(
 )
 
 #' @export
-#' 
+#'
 setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   f = '[[<-',
   signature = c(x = 'Seurat', i = 'character', value = 'ANY'),
@@ -3274,7 +3275,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       'meta.data'
     }
     if (slot.use == 'meta.data') {
-    
+
       # Add data to object metadata
       meta.data <- x[[]]
       cell.names <- rownames(x = meta.data)
@@ -3436,8 +3437,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   }
 )
 
-#' 
-#' 
+#'
+#'
 #' #' @rdname cash-.Seurat
 #' #'
 #' setMethod(
