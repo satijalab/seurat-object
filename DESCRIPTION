@@ -29,7 +29,7 @@ BugReports:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Depends:
   R (>= 4.0.0)
 Imports:
@@ -50,6 +50,7 @@ Imports:
     spam,
     lifecycle
 Suggests:
+    fs (>= 1.5.2),
     ggplot2,
     rmarkdown,
     testthat

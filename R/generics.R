@@ -16,6 +16,10 @@ NULL
   UseMethod(generic = '.AssayClass', object = object)
 }
 
+.ClassPkg <- function(object) {
+  UseMethod(generic = '.ClassPkg', object = object)
+}
+
 #' Generic Assay Creation
 #'
 #' Create an assay object; runs a standardized filtering scheme that
@@ -57,6 +61,18 @@ NULL
   ...
 ) {
   UseMethod(generic = '.CreateStdAssay', object = counts)
+}
+
+#' @export
+#'
+.DiskLoad <- function(object, ...) {
+  UseMethod(generic = '.DiskLoad', object = object)
+}
+
+#' @export
+#'
+.FilePath <- function(x) {
+  UseMethod(generic = '.FilePath', object = x)
 }
 
 #' @export .MARGIN
