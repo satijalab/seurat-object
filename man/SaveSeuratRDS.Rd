@@ -4,14 +4,7 @@
 \alias{SaveSeuratRDS}
 \title{Save Seurat Objects to RDS files}
 \usage{
-SaveSeuratRDS(
-  object,
-  file = NULL,
-  absolute = TRUE,
-  mv.tmp = TRUE,
-  wd = NULL,
-  ...
-)
+SaveSeuratRDS(object, file = NULL, destdir = NULL, relative = FALSE, ...)
 }
 \arguments{
 \item{object}{A \code{\link{Seurat}} object}
@@ -19,11 +12,27 @@ SaveSeuratRDS(
 \item{file}{Path to save \code{object} to; defaults to
 \code{file.path(getwd(), paste0(Project(object), ".Rds"))}}
 
-\item{absolute}{For on-disk layers, store absolute paths instead of
-relative ones}
+\item{destdir}{Destination directory for on-disk layers saved in
+\dQuote{\code{\Sexpr[stage=render]{tempdir()}}}}
 
-\item{mv.tmp}{For on-disk layers saved in \dQuote{\code{\Sexpr[stage=render]{tempdir()}}}}
+\item{relative}{Save relative paths instead of absolute ones}
+}
+\value{
+Invisibly returns \code{file}
 }
 \description{
 Save Seurat Objects to RDS files
+}
+\examples{
+if (requireNamespace("HDF5Array") && requireNamespace("fs")) {
+  out <- tempfile(fileext = ".Rds")
+  pbmc_small[["disk"]] <- CreateAssay5Object(list(
+    mem = LayerData(pbmc_small, "counts"),
+    disk = as(LayerData(pbmc_small, "counts"), "HDF5Array")
+  ))
+  SaveSeuratRDS(pbmc_small, file = out)
+  obj <- readRDS(out)
+  Tool(obj, "SaveSeuratRDS")
+}
+
 }
