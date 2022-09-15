@@ -2813,7 +2813,7 @@ subset.Seurat <- function(
     slot(object = x, name = 'graphs') <- list()
     slot(object = x, name = 'neighbors') <- list()
   }
-  assays <- FilterObjects(object = x, classes.keep = 'Assay')
+  assays <- .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))
   # Filter Assay objects
   for (assay in assays) {
     assay.features <- features %||% rownames(x = x[[assay]])
@@ -2833,7 +2833,7 @@ subset.Seurat <- function(
     f = Negate(f = is.null),
     x = slot(object = x, name = 'assays')
   )
-  if (length(x = FilterObjects(object = x, classes.keep = 'Assay')) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
+  if (length(x = .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
     stop("Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay.", call. = FALSE)
   }
   # Filter DimReduc objects
