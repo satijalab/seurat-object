@@ -1221,7 +1221,7 @@ setMethod(
   f = '[<-',
   signature = c('x' = 'Assay'),
   definition = function(x, i, ..., value) {
-    meta.data <- x[[]]
+    meta.data <- x[]
     feature.names <- rownames(x = meta.data)
     if (is.data.frame(x = value)) {
       value <- lapply(
