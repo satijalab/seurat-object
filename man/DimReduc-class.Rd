@@ -26,13 +26,26 @@ removed when removing its associated assay}
 
 \item{\code{stdev}}{A vector of standard deviations}
 
-\item{\code{key}}{Key for the \code{DimReduc}, must be alphanumeric characters
-followed by an underscore}
-
 \item{\code{jackstraw}}{A \code{\link{JackStrawData-class}} object associated with
 this \code{DimReduc}}
 
-\item{\code{misc}}{Utility slot for storing additional data associated with the
-\code{DimReduc} (e.g. the total variance of the PCA)}
+\item{\code{misc}}{A named list of unstructured miscellaneous data}
+
+\item{\code{key}}{A one-length character vector with the object's key; keys must
+be one or more alphanumeric characters followed by an underscore
+\dQuote{\code{_}} (regex pattern
+\dQuote{\code{\Sexpr[stage=build]{SeuratObject:::.KeyPattern()}}})}
 }}
 
+\seealso{
+Dimensional reduction object, validity, and interaction methods
+\code{\link{CreateDimReducObject}()},
+\code{\link{DimReduc-validity}},
+\code{\link{[.DimReduc}()},
+\code{\link{[[.DimReduc}()},
+\code{\link{dim.DimReduc}()},
+\code{\link{merge.DimReduc}()},
+\code{\link{print.DimReduc}()},
+\code{\link{subset.DimReduc}()}
+}
+\concept{dimreduc}

@@ -14,22 +14,22 @@ Compatible with \code{\link{SpatialImage}}
 \section{Slots}{
 
 \describe{
-\item{\code{molecules}}{(\code{\link[base]{list}}) A named list of
+\item{\code{molecules}}{A named list of
 \code{\link[SeuratObject:Molecules-class]{Molecules}} objects defining
 spatially-resolved molecular coordinates}
 
-\item{\code{boundaries}}{(\code{[named]\link[base]{list}}
-\{\code{\link[SeuratObject:Segmentation-class]{Segmentation}},
-\code{\link[SeuratObject:Centroids-class]{Centroids}}\}) A named list of
+\item{\code{boundaries}}{A named list of
 \code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
 \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 spatially-resolved boundaries}
 
-\item{\code{assay}}{(\code{\link[base:character]{character [1L]}}) A character
-naming the associated assay of the spatial coordinates}
+\item{\code{assay}}{A character naming the associated assay
+of the spatial coordinates}
 
-\item{\code{key}}{(\code{\link[base:character]{character [1L]}}) The key
-for the spatial coordinates}
+\item{\code{key}}{A one-length character vector with the object's key; keys must
+be one or more alphanumeric characters followed by an underscore
+\dQuote{\code{_}} (regex pattern
+\dQuote{\code{\Sexpr[stage=build]{SeuratObject:::.KeyPattern()}}})}
 }}
 
 \seealso{

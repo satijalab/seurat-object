@@ -9,7 +9,18 @@ NULL
 # Generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Identify Sparse Slots
+#'
+#' @param x A sparse matrix
+#' @param type ...
+#'
+#' @return ...
+#'
+#' @keywords internal
+#'
 #' @export
+#'
+#' @family sparse
 #'
 .SparseSlots <- function(x, type = c('pointers', 'indices', 'entries')) {
   UseMethod(generic = '.SparseSlots', object = x)
@@ -19,7 +30,21 @@ NULL
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Is a Matrix Sparse
+#'
+#' @param x A matrix
+#'
+#' @return ...
+#'
+#' @keywords internal
+#'
 #' @export
+#'
+#' @family sparse
+#'
+#' @examples
+#' IsSparse(matrix())
+#' IsSparse(LayerData(pbmc_small, "counts"))
 #'
 IsSparse <- function(x) {
   if (!isS4(x)) {
@@ -44,7 +69,11 @@ IsSparse <- function(x) {
 #'
 #' @return Invisibly returns \code{NULL}
 #'
+#' @keywords internal
+#'
 #' @export
+#'
+#' @family sparse
 #'
 RegisterSparseMatrix <- function(class, package = NULL) {
   classkey <- unlist(x = strsplit(
@@ -81,6 +110,7 @@ RegisterSparseMatrix <- function(class, package = NULL) {
 #'
 .MARGIN.spam <- .MARGIN.RsparseMatrix
 
+#' @rdname dot-SparseSlots
 #' @method .SparseSlots CsparseMatrix
 #' @export
 #'
@@ -88,8 +118,7 @@ RegisterSparseMatrix <- function(class, package = NULL) {
   x,
   type = c('pointers', 'entries', 'indices')
 ) {
-  type <- type[1L]
-  type <- match.arg(arg = type)
+  type <- arg_match(arg = type)
   return(switch(
     EXPR = type,
     'pointers' = 'p',
@@ -98,6 +127,7 @@ RegisterSparseMatrix <- function(class, package = NULL) {
   ))
 }
 
+#' @rdname dot-SparseSlots
 #' @method .SparseSlots RsparseMatrix
 #' @export
 #'
@@ -105,8 +135,7 @@ RegisterSparseMatrix <- function(class, package = NULL) {
   x,
   type = c('pointers', 'indices', 'entries')
 ) {
-  type <- type[1L]
-  type <- match.arg(arg = type)
+  type <- arg_match(arg = type)
   return(switch(
     EXPR = type,
     'pointers' = 'p',
@@ -115,12 +144,13 @@ RegisterSparseMatrix <- function(class, package = NULL) {
   ))
 }
 
+#' @rdname dot-SparseSlots
 #' @method .SparseSlots spam
 #' @export
 #'
 .SparseSlots.spam <- function(x, type = c('pointers', 'indices', 'entries')) {
-  type <- type[1L]
-  type <- match.arg(arg = type)
+  check_installed(pkg = 'spam')
+  type <- arg_match(arg = type)
   return(switch(
     EXPR = type,
     'pointers' = 'rowpointers',

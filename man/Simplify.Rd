@@ -10,14 +10,14 @@ Simplify(coords, tol, topologyPreserve = TRUE)
 \method{Simplify}{Spatial}(coords, tol, topologyPreserve = TRUE)
 }
 \arguments{
-\item{coords}{...}
+\item{coords}{Spatial coordinates to simplify}
 
 \item{tol}{Numerical tolerance value to be used by the Douglas-Peuker algorithm}
 
 \item{topologyPreserve}{Logical determining if the algorithm should attempt to preserve the topology of the original geometry}
 }
 \value{
-...
+A simplified version of \code{coords}
 }
 \description{
 Simplify Geometry

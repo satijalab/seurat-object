@@ -6,7 +6,7 @@
 \alias{\%na\%}
 \alias{\%!NA\%}
 \alias{\%!na\%}
-\title{Set if \code{NA}}
+\title{Set If or If Not \code{NA}}
 \usage{
 x \%NA\% y
 
@@ -32,11 +32,14 @@ For \code{\%!NA\%}: \code{y} if \code{x} is \strong{not}
 Set a default value depending on if an object is \code{\link[base]{NA}}
 }
 \examples{
+# Set if NA
 1 \%NA\% 2
 NA \%NA\% 2
 
+# Set if *not* NA
 1 \%!NA\% 2
 NA \%!NA\% 2
 
 }
 \concept{utils}
+\keyword{internal}

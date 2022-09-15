@@ -36,4 +36,5 @@ Emits warnings for each test and invisibly returns \code{NULL}
 \description{
 Check Matrix Validity
 }
+\concept{utils}
 \keyword{internal}

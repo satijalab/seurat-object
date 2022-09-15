@@ -1,3 +1,4 @@
+#' @include zzz.R
 #' @include generics.R
 #'
 NULL
@@ -6,19 +7,25 @@ NULL
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @rdname dot-AssayClass
 #' @method .AssayClass StdAssay
 #' @export
 #'
 .AssayClass.StdAssay <- function(object) {
-  return('Assay (v5)')
+  cls <- gsub(
+    pattern = '5$|v5$',
+    replacement = '',
+    x = class(x = object)[1L],
+    ignore.case = TRUE
+  )
+  return(paste(cls, '(v5)'))
 }
 
 #' @method .MARGIN default
 #' @export
 #'
 .MARGIN.default <- function(object, type = c('features', 'cells'), ...) {
-  type <- type[1]
-  type <- match.arg(arg = type)
+  type <- arg_match(arg = type)
   return(unname(obj = c(features = 1L, cells = 2L)[type]))
 }
 
@@ -36,14 +43,6 @@ Cells.default <- function(x, ...) {
 #'
 IsGlobal.default <- function(object, ...) {
   return(FALSE)
-}
-
-#' @method Key character
-#' @export
-#'
-Key.character <- function(object, quiet = FALSE, ...) {
-  f <- ifelse(test = isTRUE(x = quiet), yes = suppressWarnings, no = identity)
-  return(f(UpdateKey(key = object)))
 }
 
 #' @importFrom stats na.omit
@@ -90,6 +89,109 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Internal
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Add Object Metadata
+#'
+#' Internal \code{\link{AddMetaData}} definition
+#'
+#' @param object An object
+#' @param metadata A vector, list, or data.frame with metadata to add
+#' @param col.name A name for meta data if not a named list or data.frame
+#'
+#' @return object with metadata added
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.AddMetaData <- function(object, metadata, col.name = NULL) {
+  if (is.null(x = col.name) && (is.atomic(x = metadata) && !is.matrix(x = metadata))) {
+    abort(message = "'col.name' must be provided for atomic meta data")
+  }
+  if (inherits(x = metadata, what = c('matrix', 'Matrix'))) {
+    metadata <- as.data.frame(x = metadata)
+  }
+  col.name <- col.name %||% names(x = metadata) %||% colnames(x = metadata)
+  if (is.null(x = col.name)) {
+    abort(message = "No metadata name provided and could not infer it from metadata object")
+  }
+  object[[col.name]] <- metadata
+  return(object)
+}
+
+#' Internal Cropping Function
+#'
+#' @inheritParams Crop
+#'
+#' @return ...
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.Crop <- function(object, x = NULL, y = NULL, coords = c('plot','tissue'), ...) {
+  if (is.null(x = x) && is.null(x = y)) {
+    return(object)
+  }
+  coords <- coords[1L]
+  coords <- match.arg(arg = coords)
+  switch(
+    EXPR = coords,
+    'plot' = {
+      cx <- 'y'
+      cy <- 'x'
+    },
+    'tissue' = {
+      cx <- 'x'
+      cy <- 'y'
+    }
+  )
+  x <- range(x %||% bbox(obj = object)[cx, , drop = TRUE])
+  y <- range(y %||% bbox(obj = object)[cy, , drop = TRUE])
+  idx <- c(max = 1L, min = 2L)[[getOption(
+    x = 'Seurat.coords.short_range',
+    default = Seurat.options$Seurat.coords.short_range
+  )]]
+  if (x[1L] == x[2L]) {
+    x[idx] <- bbox(obj = object)[cx, idx]
+  }
+  if (y[1L] == y[2L]) {
+    y[idx] <- bbox(obj = object)[cy, idx]
+  }
+  args <- list(x, y)
+  names(x = args) <- switch(
+    EXPR = coords,
+    'plot' = c('y', 'x'),
+    'tissue' = c('x', 'y')
+  )
+  args <- args[c('x', 'y')]
+  df <- do.call(what = expand.grid, args = args)
+  df <- df[c(1, 3, 4, 2), ]
+  df$cell <- 'cell'
+  return(Overlay(x = object, y = CreateSegmentation(coords = df)))
+}
+
+#' Test Finiteness of Centroids
+#'
+#' Determines if a \code{\link{Centroids}} object should be finite; for
+#' \code{Centroids}, this means if their \code{nsides} slot is an integer >= 3
+#'
+#' @param x A \code{\link{Centroids}} object
+#'
+#' @return \code{TRUE} if the \code{Centroids} are finite; otherwise
+#' \code{FALSE}
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.FiniteCentroids <- function(x) {
+  return(as.logical(x = length(x = x)))
+}
+
 #' Head and Tail Object Metadata
 #'
 #' Internal \code{\link[utils]{head}} and \code{\link[utils]{tail}} definitions
@@ -106,6 +208,10 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
 #'
 .head <- function(x, n = 10L, ...) {
   return(head(x = x[[]], n = n, ...))
+}
+
+.tail <- function(x, n = 10L, ...) {
+  return(tail(x = x[[]], n = n, ...))
 }
 
 #' Miscellaneous Data
@@ -158,45 +264,41 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
   return(object)
 }
 
-#' @rdname dot-head
-#'
-#' @noRd
-#'
-.tail <- function(x, n = 10L, ...) {
-  return(tail(x = x[[]], n = n, ...))
+.OverBbox <- function(x, y, invert = FALSE, ...) {
+  df <- .BboxDF(x = bbox(obj = y))
+  df$cell <- 'cell'
+  return(Overlay(
+    x = x,
+    y = CreateSegmentation(coords = df),
+    invert = invert,
+    ...
+  ))
 }
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Internal
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#' Add Object Metadata
+#' Internal Overlay Method
 #'
-#' Internal \code{\link{AddMetaData}} definition
+#' @param x Query spatial object
+#' @param y Target spatial object
+#' @param ... Ignored
 #'
-#' @param object An object
-#' @param metadata A vector, list, or data.frame with metadata to add
-#' @param col.name A name for meta data if not a named list or data.frame
-#'
-#' @return object with metadata added
+#' @return \code{x} with only the components that fall within
+#' the bounds of \code{y}
 #'
 #' @keywords internal
 #'
 #' @noRd
 #'
-.AddMetaData <- function(object, metadata, col.name = NULL) {
-  if (is.null(x = col.name) && is.atomic(x = metadata)) {
-    stop("'col.name' must be provided for atomic metadata types (eg. vectors)")
-  }
-  if (inherits(x = metadata, what = c('matrix', 'Matrix'))) {
-    metadata <- as.data.frame(x = metadata)
-  }
-  col.name <- col.name %||% names(x = metadata) %||% colnames(x = metadata)
-  if (is.null(x = col.name)) {
-    stop("No metadata name provided and could not infer it from metadata object")
-  }
-  object[[col.name]] <- metadata
-  return(object)
+.Overlay <- function(x, y, ...) {
+  idx <- over(x = x, y = y)
+  idx <- idx[!is.na(x = idx)]
+  names(x = idx) <- vapply(
+    X = strsplit(x = names(x = idx), split = '\\.'),
+    FUN = '[[',
+    FUN.VALUE = character(length = 1L),
+    1L,
+    USE.NAMES = FALSE
+  )
+  return(x[names(x = idx)])
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -19,6 +19,14 @@ that are of class \code{classes.keep}
 Get the names of objects within a \code{Seurat} object that are of a
 certain class
 }
+\section{Lifecycle}{
+
+
+\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
+
+\code{FilterObjects} was deprecated in version 5.0.0; use \code{\link{.FilterObjects}} instead
+}
+
 \examples{
 FilterObjects(pbmc_small)
 

@@ -5,8 +5,8 @@
 \alias{Cells}
 \alias{Features}
 \alias{Cells.default}
-\alias{Cells.StdAssay}
-\alias{Features.StdAssay}
+\alias{Cells.Assay5}
+\alias{Features.Assay5}
 \alias{Cells.DimReduc}
 \alias{Cells.Neighbor}
 \title{Cell and Feature Names}
@@ -17,9 +17,9 @@ Features(x, ...)
 
 \method{Cells}{default}(x, ...)
 
-\method{Cells}{StdAssay}(x, layer = NULL, ...)
+\method{Cells}{Assay5}(x, layer = NULL, ...)
 
-\method{Features}{StdAssay}(x, layer = NULL, ...)
+\method{Features}{Assay5}(x, layer = NULL, ...)
 
 \method{Cells}{DimReduc}(x, ...)
 
@@ -30,7 +30,8 @@ Features(x, ...)
 
 \item{...}{Arguments passed to other methods}
 
-\item{layer}{}
+\item{layer}{Layer to pull cells/features for; defaults to default layer;
+if \code{NA}, returns all cells for the assay}
 }
 \value{
 \code{Cell}: A vector of cell names
@@ -44,4 +45,11 @@ Get the cell and feature names of an object
 Cells(x = pbmc_small)
 
 }
+\seealso{
+
+\code{\link{dimnames.Assay5}()},
+\code{\link{dimnames.Assay}()},
+\code{\link{dimnames.Seurat}()}
+}
 \concept{data-access}
+\concept{dimnames}

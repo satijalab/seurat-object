@@ -105,4 +105,5 @@ and features as rows or vice versa) and creates an assay object based
 on the  initialization scheme defined for \code{\link{StdAssay}}-derived
 class \code{type}
 }
+\concept{assay}
 \keyword{internal}

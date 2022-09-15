@@ -4,7 +4,6 @@
 \name{reexports}
 \alias{reexports}
 \alias{plan}
-\alias{colMeans}
 \alias{handlers}
 \alias{with_progress}
 \title{Objects exported from other packages}
@@ -15,8 +14,6 @@ below to see their documentation.
 
 \describe{
   \item{future}{\code{\link[future]{plan}}}
-
-  \item{Matrix}{\code{\link[Matrix:colSums]{colMeans}}}
 
   \item{progressr}{\code{\link[progressr]{handlers}}, \code{\link[progressr]{with_progress}}}
 }}
