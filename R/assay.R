@@ -466,7 +466,7 @@ HVFInfo.Assay <- function(
     stop("Unknown method: '", method, "'", call. = FALSE)
   )
   tryCatch(
-    expr = hvf.info <- object[[paste(method, vars, sep = '.')]],
+    expr = hvf.info <- object[paste(method, vars, sep = '.')],
     error = function(e) {
       stop(
         "Unable to find highly variable feature information for method '",
@@ -478,7 +478,7 @@ HVFInfo.Assay <- function(
   )
   colnames(x = hvf.info) <- vars
   if (status) {
-    hvf.info$variable <- object[[paste0(method, '.variable')]]
+    hvf.info$variable <- object[paste0(method, '.variable')]
   }
   return(hvf.info)
 }

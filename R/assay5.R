@@ -945,7 +945,7 @@ HVFInfo.StdAssay <- function(
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
-    x = colnames(x = object[[]]),
+    x = colnames(x = object[]),
     value = TRUE
   )
   if (!isTRUE(x = status)) {
@@ -954,7 +954,7 @@ HVFInfo.StdAssay <- function(
       y = paste('vf', method, layer, c('variable', 'rank'), sep = '_')
     )
   }
-  hvf.info <- object[[cols]]
+  hvf.info <- object[cols]
   colnames(x = hvf.info) <- gsub(
     pattern = '^vf_',
     replacement = '',
@@ -1946,7 +1946,7 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   )
   vf.cols <- grep(
     pattern = paste0(pattern, '[[:alnum:]]+_'),
-    x = colnames(x = object[[]]),
+    x = colnames(x = object[]),
     value = TRUE
   )
   vf.layers <- unique(x = unlist(x = lapply(
@@ -1995,7 +1995,7 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   )
   vf.cols <- grep(
     pattern = paste0(pattern, '[[:alnum:]]+_'),
-    x = colnames(x = object[[]]),
+    x = colnames(x = object[]),
     value = TRUE
   )
   # layers <- Layers(object = object, search = layers)
