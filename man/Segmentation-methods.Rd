@@ -40,15 +40,10 @@
 
 \item{use.names}{Ignored}
 
-\item{cells}{A vector of cells to keep; if \code{NULL}, defaults
+\item{i, cells}{A vector of cells to keep; if \code{NULL}, defaults
 to all cells}
 
-\item{i}{A vector of cells to keep; if \code{NULL}, defaults
-to all cells}
-
-\item{j}{Ignored}
-
-\item{drop}{Ignored}
+\item{j, drop}{Ignored}
 }
 \value{
 \code{Cells}: A vector of cell names

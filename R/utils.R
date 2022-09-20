@@ -590,14 +590,25 @@ as.sparse.data.frame <- function(x, row.names = NULL, ...) {
 #'
 as.sparse.Matrix <- function(x, ...) {
   CheckDots(...)
-  return(as(object = x, Class = 'dgCMatrix'))
+  return(as(object = as(object = as(object = x, Class = "dMatrix"), Class = "generalMatrix"), Class = "CsparseMatrix"))
 }
 
 #' @rdname as.sparse
 #' @export
 #' @method as.sparse matrix
 #'
-as.sparse.matrix <- as.sparse.Matrix
+as.sparse.matrix <- function(x, ...) {
+  x <- as(object = x, Class = "Matrix")
+  return(as.sparse.Matrix(x, ...))
+}
+
+#' @rdname as.sparse
+#' @export
+#' @method as.sparse ngCMatrix
+#'
+as.sparse.ngCMatrix <- function(x, ...) {
+  return(as(object = x, Class = "dMatrix"))
+}
 
 #' @rdname CheckMatrix
 #' @method CheckMatrix default
