@@ -1,4 +1,4 @@
-# SeuratObject v4.1.1
+# SeuratObject v4.1.2
 
 ## Test environments
 * local ubuntu 20.04 install, R 4.1.3
