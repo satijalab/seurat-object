@@ -286,6 +286,59 @@ DefaultLayer.Assay <- function(object, ...) {
   return('data')
 }
 
+#' @describeIn Seurat-methods Autocompletion for \code{$} access on a
+#' \code{StdAssay} object
+#'
+#' @inheritParams utils::.DollarNames
+#'
+#' @importFrom utils .DollarNames
+#' @export
+#' @method .DollarNames Assay
+#'
+".DollarNames.Assay" <- function(x, pattern = '') {
+ slots <- c('counts', 'data', 'scale.data')
+ slots.avial <- names(x = which(
+   sapply(X = slots,
+          function(s)
+            !IsMatrixEmpty(slot(object = x, name = s)))
+   )
+   )
+ slots.avial <- as.list(slots.avial)
+ names(slots.avial) <- unlist(slots.avial)
+  return(.DollarNames(x = slots.avial, pattern = pattern))
+}
+
+#' @export
+#' @method $ Assay
+#'
+#' @examples
+#' # Get LayerData using `$'
+#' head(pbmc_small$groups)
+#'
+"$.Assay" <- function(x, i, ...) {
+  return(LayerData(object = x, layer = i))
+}
+
+#' @describeIn xxxxxx
+#'
+#' @return \code{$<-}: object \code{x} with metadata \code{value} saved as
+#' \code{i}
+#'
+#' @export
+#' @method $<- Assay
+#'
+#' @examples
+#' # Add metadata using the `$' operator
+#' set.seed(42)
+#' pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
+#' head(pbmc_small[["value"]])
+#'
+"$<-.Assay" <- function(x, i, ..., value) {
+  x <- SetAssayData(object = x, slot = i, new.data = value)
+  return(x)
+}
+
+
 #' @method Features Assay
 #' @export
 #'
