@@ -1195,7 +1195,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
     new(Class = 'matrix')
   }
   VariableFeatures(object = x) <- VariableFeatures(object = x)[VariableFeatures(object = x) %in% features]
-  slot(object = x, name = 'meta.features') <- x[[]][features, , drop = FALSE]
+  slot(object = x, name = 'meta.features') <- x[][features, , drop = FALSE]
   return(x)
 }
 
