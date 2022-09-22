@@ -777,7 +777,7 @@ CreateSeuratObject.default <- function(
   project = 'SeuratProject',
   ...
 ) {
-  if (inherits(x = counts, what = 'Matrix'))
+  if (inherits(x = counts, what = 'Matrix') || inherits(x = counts, what = 'matrix'))
   assay.data <- CreateAssayObject(
     counts = counts,
     min.cells = min.cells,
