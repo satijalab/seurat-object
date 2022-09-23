@@ -486,6 +486,7 @@ RenameAssays <- function(object, ...) {
 #' @param destdir Destination directory for on-disk layers saved in
 #' \dQuote{\code{\Sexpr[stage=render]{tempdir()}}}
 #' @param relative Save relative paths instead of absolute ones
+#' @inheritDotParams base::saveRDS
 #'
 #' @return Invisibly returns \code{file}
 #'
@@ -498,12 +499,12 @@ RenameAssays <- function(object, ...) {
 #'     mem = LayerData(pbmc_small, "counts"),
 #'     disk = as(LayerData(pbmc_small, "counts"), "HDF5Array")
 #'   ))
-#'   SaveSeuratRDS(pbmc_small, file = out)
+#'   SaveSeuratRds(pbmc_small, file = out)
 #'   obj <- readRDS(out)
-#'   Tool(obj, "SaveSeuratRDS")
+#'   Tool(obj, "SaveSeuratRds")
 #' }
 #'
-SaveSeuratRDS <- function(
+SaveSeuratRds <- function(
   object,
   file = NULL,
   destdir = NULL,
@@ -514,6 +515,17 @@ SaveSeuratRDS <- function(
   file <- normalizePath(path = file, mustWork = FALSE)
   # Cache v5 assays
   assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
+  p <- progressor(along = assays, auto_finish = TRUE)
+  on.exit(expr = p(type = 'finish'), add = TRUE)
+  p(
+    message = paste(
+      "Looking for on-disk matrices in",
+      length(x = assays),
+      "assays"
+    ),
+    class = 'sticky',
+    amount = 0
+  )
   cache <- vector(mode = 'list', length = length(x = assays))
   names(x = cache) <- assays
   tdir <- normalizePath(path = tempdir()) # because macOS is weird
@@ -525,6 +537,11 @@ SaveSeuratRDS <- function(
     )
   }
   for (assay in assays) {
+    p(
+      message = paste("Searching through assay", assay),
+      class = 'sticky',
+      amount = 0
+    )
     df <- lapply(
       X = Layers(object = object[[assay]]),
       FUN = function(lyr) {
@@ -537,18 +554,30 @@ SaveSeuratRDS <- function(
           layer = lyr,
           path = path,
           class = paste(class(x = ldat), collapse = ','),
-          pkg = .ClassPkg(object = ldat)
+          pkg = .ClassPkg(object = ldat),
+          fxn = .DiskLoad(x = ldat)
         ))
       }
     )
     df <- do.call(what = 'rbind', args = df)
-    if (!nrow(x = df)) {
+    if (is.null(x = df) || !nrow(x = df)) {
+      p(message = "No on-disk layers found", class = 'sticky', amount = 0)
       next
     }
     if (!is_na(x = destdir)) {
       for (i in seq_len(length.out = nrow(x = df))) {
         pth <- df$path[i]
         if (substr(x = pth, start = 1L, stop = nchar(x = tdir)) == tdir) {
+          p(
+            message = paste(
+              "Moving layer",
+              sQuote(x = df$layer[i], q = FALSE),
+              "out of temporary storage to",
+              sQuote(x = destdir, q = FALSE)
+            ),
+            class = 'sticky',
+            amount = 0
+          )
           df[i, 'path'] <- as.character(x = fs::file_move(
             path = pth,
             new_path = destdir
@@ -557,11 +586,27 @@ SaveSeuratRDS <- function(
       }
     }
     if (isTRUE(x = relative)) {
-      df$path <- as.character(x = fs::path_rel(path = df$path))
+      p(
+        message = paste(
+          "Adjusting paths to be relative to",
+          sQuote(x = dirname(path = file), q = FALSE)
+        ),
+        class = 'sticky',
+        amount = 0
+      )
+      df$path <- as.character(x = fs::path_rel(
+        path = df$path,
+        start = dirname(path = file)
+      ))
     }
     df$assay <- assay
     cache[[assay]] <- df
     if (nrow(x = df) == length(x = Layers(object = object[[assay]]))) {
+      p(
+        message = paste("Clearing layers from", assay),
+        class = 'sticky',
+        amount = 0
+      )
       adata <- S4ToList(object = object[[assay]])
       adata$layers <- list()
       adata$default <- 0L
@@ -569,24 +614,102 @@ SaveSeuratRDS <- function(
       adata$features <- LogMap(y = rownames(x = object[[assay]]))
       object[[assay]] <- ListToS4(x = adata)
     } else {
+      p(
+        message = paste("Clearing", nrow(x = df), "layers from", assay),
+        class = 'sticky',
+        amount = 0
+      )
       for (layer in df$layer) {
         LayerData(object = object[[assay]], layer = layer) <- NULL
       }
     }
+    p()
   }
   cache <- do.call(what = 'rbind', args = cache)
-  if (nrow(x = cache)) {
+  if (!is.null(x = cache) && nrow(x = cache)) {
+    p(message = "Saving on-disk cache to object", class = 'sticky', amount = 0)
+    row.names(x = cache) <- NULL
     Tool(object = object) <- cache
   }
-  saveRDS(object = object, file = file)
+  saveRDS(object = object, file = file, ...)
   return(invisible(x = file))
 }
 
-LoadSeuratRDS <- function(file) {
-  object <- readRDS(file = file)
-  cache <- Tool(object = object, slot = 'SaveSeuratRDS')
+#' @export
+#'
+LoadSeuratRds <- function(file, ...) {
+  object <- readRDS(file = file, ...)
+  cache <- Tool(object = object, slot = 'SaveSeuratRds')
+  reqd.cols <- c('layer', 'path', 'class', 'pkg', 'fxn', 'assay')
+  strict <- isTRUE(x = getOption(x = 'Seurat.io.rds.strict', default = FALSE))
+  emit <- ifelse(test = strict, yes = abort, no = warn)
   if (!is.null(x = cache)) {
-    ''
+    if (interactive()) {
+      check_installed(pkg = 'fs', reason = 'for finding file paths')
+    } else if (!requireNamespace('fs', quietly = TRUE)) {
+      abort(message = "Loading layers from disk requires `fs`")
+    }
+    # Check the format of the cache
+    if (!is.data.frame(x = cache)) {
+      emit(message = "Malformed layer cache: not a data frame")
+      return(object)
+    }
+    if (!all(reqd.cols %in% names(x = cache))) {
+      emit(message = "Malformed layer cache: missing required columns")
+      return(object)
+    }
+    # Check the assays specified
+    assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
+    cache <- cache[cache$assay %in% assays, , drop = FALSE]
+    if (!nrow(x = cache)) {
+      emit(message = "Incorrect layer cache: none of the assays listed present")
+      return(object)
+    }
+    # Check the files
+    exists <- fs::is_file(path = cache$path)
+    exists[is.na(exists)] <- FALSE
+    cache <- cache[exists, , drop = FALSE]
+    if (!nrow(x = cache)) {
+      emit(message = "Cannot find any of the layer files specified")
+      return(object)
+    }
+    # Check the packages
+    missing.pkgs <- pkgs <- unique(x = cache$pkg)
+    for (pkg in pkgs) {
+      if (interactive()) {
+        check_installed(pkg = pkg)
+      }
+      if (requireNamespace(pkg, quietly = TRUE)) {
+        missing.pkgs <- setdiff(x = missing.pkgs, y = pkg)
+      } else {
+        emit(message = paste("Cannot find required package:", sQuote(x = pkg)))
+      }
+    }
+    pkgs <- setdiff(x = pkgs, y = missing.pkgs)
+    if (!length(x = pkgs)) {
+      emit(message = "None of the required layer packages found")
+      return(object)
+    }
+    p <- progressor(steps = nrow(x = cache))
+    # Load the layers
+    for (i in seq_len(length.out = nrow(x = cache))) {
+      lyr <- cache$layer[i]
+      pth <- cache$path[i]
+      fxn <- eval(expr = str2lang(s = cache$fxn[i]))
+      assay <- cache$assay[i]
+      p(
+        message = paste(
+          "Adding layer",
+          sQuote(x = lyr),
+          "to assay",
+          sQuote(x = assay)
+        ),
+        class = 'sticky',
+        amount = 0
+      )
+      LayerData(object = object, assay = assay, layer = lyr) <- fxn(pth)
+      p()
+    }
   }
   return(object)
 }
@@ -1649,6 +1772,17 @@ LayerData.Seurat <- function(object, layer = NULL, assay = NULL, ...) {
   assay <- assay %||% DefaultAssay(object = object)
   assay <- arg_match(arg = assay, values = Assays(object = object))
   return(LayerData(object = object[[assay]], layer = layer, ...))
+}
+
+#' @rdname Layers
+#' @method LayerData<- Seurat
+#' @export
+#'
+"LayerData<-.Seurat" <- function(object, layer, assay = NULL, ..., value) {
+  assay <- assay %||% DefaultAssay(object = object)
+  assay <- arg_match(arg = assay, values = Assays(object = object))
+  LayerData(object = object[[assay]], layer = layer, ...) <- value
+  return(object)
 }
 
 #' @rdname Layers
