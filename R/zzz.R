@@ -1,6 +1,7 @@
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
 #' @importFrom utils head tail
+#' @importFrom progressr progressor
 #' @importFrom rlang abort arg_match check_installed inform is_bare_character
 #' is_bare_integerish is_bare_list is_bare_numeric is_na warn
 #' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
