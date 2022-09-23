@@ -1163,16 +1163,20 @@ UpdateSlots <- function(object) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @importFrom methods getClass
+#'
+#' @rdname dot-ClassPkg
+#'
 #' @method .ClassPkg default
 #' @export
 #'
 .ClassPkg.default <- function(object) {
   if (!isS4(object)) {
-    return(NULL)
+    return(NA_character_)
   }
   return(slot(object = getClass(Class = class(x = object)), name = 'package'))
 }
 
+#' @rdname dot-ClassPkg
 #' @method .ClassPkg R6
 #' @export
 #'
@@ -1187,6 +1191,7 @@ UpdateSlots <- function(object) {
   return('R6')
 }
 
+#' @rdname dot-ClassPkg
 #' @method .ClassPkg R6ClassGenerator
 #' @export
 #'
@@ -1194,6 +1199,7 @@ UpdateSlots <- function(object) {
   return(environmentName(env = object$parent_env))
 }
 
+#' @rdname dot-DiskLoad
 #' @method .DiskLoad default
 #' @export
 #'
@@ -1201,19 +1207,20 @@ UpdateSlots <- function(object) {
   return(NULL)
 }
 
+#' @rdname dot-DiskLoad
 #' @method .DiskLoad H5ADMatrix
 #' @export
 #'
-.DiskLoad.H5ADMatrix <- function(object, ...) {
+.DiskLoad.H5ADMatrix <- function(x) {
   check_installed(
     pkg = 'HDF5Array',
     reason = 'for working with H5AD matrices'
   )
-  sparse <- DelayedArray::is_sparse(x = object)
+  sparse <- DelayedArray::is_sparse(x = x)
   layer <- if (isTRUE(x = sparse)) {
-    slot(object = DelayedArray::seed(x = object), name = 'group')
+    slot(object = DelayedArray::seed(x = x), name = 'group')
   } else {
-    slot(object = DelayedArray::seed(x = object), name = 'name')
+    slot(object = DelayedArray::seed(x = x), name = 'name')
   }
   layer <- if (layer == '/X') {
     NULL
@@ -1221,47 +1228,44 @@ UpdateSlots <- function(object) {
     basename(path = layer)
   }
   f <- paste(
-    "function(x) {",
-    paste0("HDF5Array::H5ADMatrix(filepath = x, layer = '", layer, "')"),
-    "}",
-    sep = '\n'
+    "function(x)",
+    "HDF5Array::H5ADMatrix(filepath = x",
+    if (!is.null(x = layer)) {
+      paste(", layer =", sQuote(x = layer, q = FALSE))
+    },
+    ")"
   )
-  # f <- function(x) {
-  #   return(HDF5Array::H5ADMatrix(filepath = x, layer = eval(expr = layer)))
-  # }
-  return(eval(expr = str2lang(s = f)))
+  return(f)
 }
 
+#' @rdname dot-DiskLoad
 #' @method .DiskLoad HDF5Matrix
 #' @export
 #'
-.DiskLoad.HDF5Matrix <- function(object) {
+.DiskLoad.HDF5Matrix <- function(x) {
   check_installed(
     pkg = 'HDF5Array',
     reason = 'for working with HDF5 matrices'
   )
-  sparse <- DelayedArray::is_sparse(x = object)
-  name <- if (isTRUE(x = sparse)) {
-    slot(object = DelayedArray::seed(x = object), name = 'group')
-  } else {
-    slot(object = DelayedArray::seed(x = object), name = 'group')
-  }
+  sparse <- DelayedArray::is_sparse(x = x)
+  # name <- if (isTRUE(x = sparse)) {
+  #   slot(object = DelayedArray::seed(x = x), name = 'group')
+  # } else {
+  #   slot(object = DelayedArray::seed(x = x), name = 'group')
+  # }
+  name <- slot(object = DelayedArray::seed(x = x), name = 'name')
   f <- paste(
-    "function(x) {",
-    paste0(
-      "HDF5Array::HDF5Array(filepath = x, name = '",
-      name,
-      "', as.sparse = ",
-      sparse,
-      ")"
-    ),
-    "}",
-    sep = '\n'
+    "function(x)",
+    "HDF5Array::HDF5Array(filepath = x, name =",
+    sQuote(x = name, q = FALSE),
+    ", as.sparse =",
+    sparse,
+    ")"
   )
-  return(eval(expr = str2lang(s = f)))
+  return(f)
 }
 
-
+#' @rdname dot-FilePath
 #' @method .FilePath default
 #' @export
 #'
@@ -1269,6 +1273,7 @@ UpdateSlots <- function(object) {
   return(NULL)
 }
 
+#' @rdname dot-FilePath
 #' @method .FilePath DelayedMatrix
 #' @export
 #'

@@ -16,6 +16,19 @@ NULL
   UseMethod(generic = '.AssayClass', object = object)
 }
 
+#' Get the Package that Defines a Class
+#'
+#' @param object An object
+#'
+#' @return The package that defines the class of \code{object}
+#'
+#' @keywords internal
+#'
+#' @export .ClassPkg
+#'
+#' @examples
+#' .ClassPkg(pbmc_small)
+#'
 .ClassPkg <- function(object) {
   UseMethod(generic = '.ClassPkg', object = object)
 }
@@ -63,13 +76,33 @@ NULL
   UseMethod(generic = '.CreateStdAssay', object = counts)
 }
 
-#' @export
+#' Disk Loading Function
 #'
-.DiskLoad <- function(object, ...) {
-  UseMethod(generic = '.DiskLoad', object = object)
+#' Generate a function to load a matrix from an on-disk file
+#'
+#' @inheritParams .FilePath
+#'
+#' @return A one-length character that defines a function to load a matrix from
+#' a file
+#'
+#' @keywords internal
+#'
+#' @export .DiskLoad
+#'
+.DiskLoad <- function(x) {
+  UseMethod(generic = '.DiskLoad', object = x)
 }
 
-#' @export
+#' Find a File Path
+#'
+#' @param x A file-backed object
+#'
+#' @return The path to the file that backs \code{x}; if \code{x} is not a
+#' file-backed object, returns \code{NULL}
+#'
+#' @keywords internal
+#'
+#' @export .FilePath
 #'
 .FilePath <- function(x) {
   UseMethod(generic = '.FilePath', object = x)
