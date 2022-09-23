@@ -17,4 +17,9 @@ zero columns
 Create an empty \link[base:data.frame]{data frame} with no row names and
 zero columns
 }
+\examples{
+EmptyDF(4L)
+
+}
+\concept{utils}
 \keyword{internal}

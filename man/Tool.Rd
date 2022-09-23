@@ -6,7 +6,7 @@
 \alias{Tool<-}
 \alias{Tool.Seurat}
 \alias{Tool<-.Seurat}
-\title{Get and set additional tool data}
+\title{Get and Set Additional Tool Data}
 \usage{
 Tool(object, ...)
 
@@ -36,18 +36,30 @@ will return a vector with the names of tools in the object.
 \note{
 For developers: set tool data using \code{Tool<-}. \code{Tool<-} will
 automatically set the name of the tool to the function that called
-\code{Tool<-},so each function gets one entry in the tools list and cannot
+\code{Tool<-}, so each function gets one entry in the tools list and cannot
 overwrite another function's entry. The automatic naming will also remove any
-method identifiers (eg. RunPCA.Seurat will become RunPCA); please
-plan accordingly.
+method identifiers (eg. \code{RunPCA.Seurat} will become \code{RunPCA});
+please plan accordingly
 }
 \examples{
-Tool(object = pbmc_small)
-
-\dontrun{
-sample.tool.output <- matrix(data = rnorm(n = 16), nrow = 4)
-# must be run from within a function
-Tool(object = pbmc_small) <- sample.tool.output
+# Example function that adds unstructured data to tools
+MyTool <- function(object) {
+  sample.tool.output <- matrix(rnorm(n = 16), nrow = 4)
+  # Note: `Tool<-` must be called from within a function
+  # and the name of the tool will be generated from the function name
+  Tool(object) <- sample.tool.output
+  return(object)
 }
+
+# Run our tool
+set.seed(42L)
+pbmc_small <- MyTool(pbmc_small)
+
+# Get a list of tools run
+Tool(pbmc_small)
+
+# Access specific tool data
+Tool(pbmc_small, slot = "MyTool")
+
 }
 \concept{data-access}

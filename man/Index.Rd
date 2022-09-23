@@ -18,7 +18,7 @@ Index(object, ...) <- value
 \arguments{
 \item{object}{An object}
 
-\item{...}{Arguments passed to other methods;}
+\item{...}{Arguments passed to other methods}
 
 \item{value}{The index to store}
 }

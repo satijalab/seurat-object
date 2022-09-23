@@ -16,6 +16,17 @@ Invisibly returns \code{NULL}
 Helper function to attach required packages. Detects if a package is already
 attached and if so, skips it. Should be called in \code{\link[base]{.onAttach}}
 }
+\section{Lifecycle}{
+
+
+\Sexpr[stage=build,results=rd]{lifecycle::badge("superseded")}
+
+
+\code{AttachDeps} has been superseded as of \pkg{SeuratObject} v5.0.0;
+as an alternative, list dependencies in the \code{Depends} section of
+\code{DESCRIPTION}
+}
+
 \examples{
 # Use in your .onAttach hook
 if (FALSE) {

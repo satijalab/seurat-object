@@ -50,3 +50,4 @@ segmentation boundary set to \code{value}
 \description{
 Get, Set, and Query Segmentation Boundaries
 }
+\concept{spatial}

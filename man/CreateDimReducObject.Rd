@@ -56,4 +56,15 @@ pca.dr <- CreateDimReducObject(
 )
 
 }
+\seealso{
+Dimensional reduction object, validity, and interaction methods
+\code{\link{DimReduc-class}},
+\code{\link{DimReduc-validity}},
+\code{\link{[.DimReduc}()},
+\code{\link{[[.DimReduc}()},
+\code{\link{dim.DimReduc}()},
+\code{\link{merge.DimReduc}()},
+\code{\link{print.DimReduc}()},
+\code{\link{subset.DimReduc}()}
+}
 \concept{dimreduc}

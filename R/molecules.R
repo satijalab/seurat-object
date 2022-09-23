@@ -1,7 +1,6 @@
 #' @include zzz.R
 #' @include generics.R
 #' @include keymixin.R
-#' @importFrom progressr progressor
 #' @importFrom future.apply future_lapply
 #' @importClassesFrom sp CRS SpatialPoints
 #'

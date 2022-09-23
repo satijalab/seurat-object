@@ -28,3 +28,4 @@ future requirements for both \pkg{SeuratObject} and \pkg{Seurat}
 \details{
 Blah blah blah
 }
+\keyword{internal}

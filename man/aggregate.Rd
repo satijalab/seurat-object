@@ -58,3 +58,4 @@ to \pkg{future}, see
 }
 
 \concept{future}
+\keyword{internal}

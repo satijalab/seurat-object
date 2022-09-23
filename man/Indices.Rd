@@ -12,7 +12,7 @@ Indices(object, ...)
 \arguments{
 \item{object}{An object}
 
-\item{...}{Arguments passed to other methods;}
+\item{...}{Arguments passed to other methods}
 }
 \value{
 A matrix with the nearest neighbor indices

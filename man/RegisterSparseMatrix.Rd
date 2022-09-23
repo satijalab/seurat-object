@@ -18,3 +18,10 @@ Invisibly returns \code{NULL}
 \description{
 Register Sparse Matrix Classes
 }
+\seealso{
+
+\code{\link{.SparseSlots}()},
+\code{\link{IsSparse}()}
+}
+\concept{sparse}
+\keyword{internal}
