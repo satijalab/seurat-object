@@ -2322,7 +2322,7 @@ setMethod(
       paste(strwrap(x = paste(top.ten, collapse = ', ')), collapse = '\n'),
       '\n'
     )
-    cat("Default layer:", DefaultLayer(object = object) %||% "NULL")
+    cat("Default layer:", DefaultLayer(object = object) %||% "NULL", '\n')
     # Layer information
     layers <- setdiff(
       x = Layers(object = object),
@@ -2330,7 +2330,7 @@ setMethod(
     )
     if (length(x = layers)) {
       cat(
-        "\nAdditional layers:\n",
+        "Additional layers:\n",
         paste(strwrap(x = paste(layers, collapse = ', ')), collapse = '\n'),
         "\n"
       )
