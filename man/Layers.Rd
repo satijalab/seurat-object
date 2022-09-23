@@ -11,6 +11,7 @@
 \alias{LayerData<-.Assay5}
 \alias{Layers.Assay5}
 \alias{LayerData.Seurat}
+\alias{LayerData<-.Seurat}
 \alias{Layers.Seurat}
 \title{Query and Manipulate Assay Layers}
 \usage{
@@ -40,6 +41,8 @@ Layers(object, ...)
 \method{Layers}{Assay5}(object, search = NA, ...)
 
 \method{LayerData}{Seurat}(object, layer = NULL, assay = NULL, ...)
+
+\method{LayerData}{Seurat}(object, layer, assay = NULL, ...) <- value
 
 \method{Layers}{Seurat}(object, search = NA, assay = NULL, ...)
 }
