@@ -27,7 +27,7 @@ jobs:
           echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os)))' | sudo tee -a /etc/R/Rprofile.site
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "pkgdown"))
+          install.packages(c("remotes", "pkgdown", "Matrix"))
           remotes::install_deps()
         shell: Rscript {0}
       - name: Install package
