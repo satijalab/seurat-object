@@ -304,9 +304,9 @@ setMethod(
   definition = function(x, y, invert = FALSE, ...) {
     idx <- over(x = x, y = y)
     idx <- idx[!is.na(x = idx)]
-    if (length(idx) == 0) {
+    if (!length(idx)) {
       warning("The selected region does not contain any cell segmentations")
-      return(x[NULL])
+      return(NULL)
     }
     names(x = idx) <- vapply(
       X = strsplit(x = names(x = idx), split = '\\.'),
