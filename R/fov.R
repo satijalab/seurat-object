@@ -1016,9 +1016,17 @@ setValidity(
           )
           break
         } else {
+          cells <- Cells(x = object[[s]])
+          if (is.null(cells)) {
+            valid <- c(
+              valid,
+              paste(s, "boundary does not contain any cells")
+            )
+            break
+          }
           matched.cells <- MatchCells(
             new = all.cells,
-            orig = Cells(x = object[[s]]),
+            orig = cells,
             ordered = TRUE
           )
           if (length(x = matched.cells) != length(x = Cells(x = object[[s]]))) {
