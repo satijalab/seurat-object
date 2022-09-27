@@ -373,6 +373,10 @@ setMethod(
   definition = function(x, y, invert = FALSE, ...) {
     idx <- over(x = x, y = y)
     idx <- idx[!is.na(x = idx)]
+    if (!length(idx)) {
+      warning("The selected region does not contain any cell centroids")
+      return(NULL)
+    }
     idx <- sort(x = as.integer(x = names(x = idx)))
     if (isTRUE(x = invert)) {
       idx <- -idx
