@@ -562,6 +562,18 @@ UpdateSeuratObject <- function(object) {
       # Update object slots
       message("Updating object slots")
       object <- UpdateSlots(object = object)
+      # Validate object keys
+      message("Ensuring keys are in the proper structure")
+      for (ko in FilterObjects(object = object)) {
+        key <- Key(object = object[[ko]])
+        if (!length(x = key) || !nzchar(x = key)) {
+          key <- Key(object = ko, quiet = TRUE)
+        }
+        slot(
+          object = slot(object = object, name = FindObject(object, ko))[[ko]],
+          name = 'key'
+        ) <- UpdateKey(key)
+      }
       # Rename assays
       assays <- make.names(names = Assays(object = object))
       names(x = assays) <- Assays(object = object)
@@ -573,11 +585,6 @@ UpdateSeuratObject <- function(object) {
         slot(object = object, name = 'commands')[[cmd]] <- UpdateSlots(
           object = Command(object = object, command = cmd)
         )
-      }
-      # Validate object keys
-      message("Ensuring keys are in the proper strucutre")
-      for (ko in FilterObjects(object = object)) {
-        Key(object = object[[ko]]) <- UpdateKey(key = Key(object = object[[ko]]))
       }
       # Check feature names
       message("Ensuring feature names don't have underscores or pipes")

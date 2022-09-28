@@ -1,3 +1,9 @@
+# Unreleased
+## Change
+
+## Added
+- Add keys to `Assays` and `DimReducs` in `UpdateSeuratObject` when missing
+
 # SeuratObject 4.1.2
 ## Changed
 - Bump required Matrix version to >= 1.5.0
