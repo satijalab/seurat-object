@@ -223,6 +223,8 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   if (is.numeric(x = cells)) {
     cells <- Cells(x = x)[cells]
     cells <- MatchCells(new = Cells(x = x), orig = cells, ordered = TRUE)
+  } else {
+    cells <- intersect(Cells(x), cells)
   }
   if (!length(x = cells)) {
     stop("None of the requested cells found")
