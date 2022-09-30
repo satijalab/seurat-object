@@ -174,7 +174,7 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
   }
   new.names <- make.unique(names = new.names)
   if (length(x = new.names) != length(x = Cells(x = object))) {
-    stop("Cannot partially rename cells", call. = FALSE)
+    stop("Cannot partially rename segmentation cells", call. = FALSE)
   }
   names(x = slot(object = object, name = 'polygons')) <- new.names
   p <- progressor(along = slot(object = object, name = 'polygons'))

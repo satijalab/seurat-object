@@ -1675,7 +1675,9 @@ RenameCells.Seurat <- function(
   for (i in Images(object = object)) {
     object[[i]] <- RenameCells(
       object = object[[i]],
-      new.names = unname(obj = new.cell.names[Cells(x = object[[i]])])
+      new.names = unname(
+        obj = new.cell.names[Cells(x = object[[i]], boundary = NA)]
+      )
     )
   }
   # Rename the Neighbor
