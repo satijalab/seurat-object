@@ -1265,7 +1265,6 @@ Embeddings.Seurat5 <- function(object, reduction = 'pca', ...) {
   return(Embeddings(object = object[[reduction]], ...))
 }
 
-
 #' @param vars List of all variables to fetch, use keyword \dQuote{ident} to
 #' pull identity classes
 #' @param cells Cells to collect data for (default is all cells)
