@@ -1045,6 +1045,9 @@ LayerData.Assay5 <- LayerData.StdAssay
   ...,
   value
 ) {
+  if (!is_scalar_character(x = layer) || !nzchar(x = layer)) {
+    abort(message = "'layer' must be a single non-empty string")
+  }
   # Remove a layer
   if (is.null(x = value)) {
     if (length(x = Layers(object = object)) == 1L) {
@@ -1192,10 +1195,10 @@ LayerData.Assay5 <- LayerData.StdAssay
 #' @export
 #'
 Layers.StdAssay <- function(object, search = NA, ...) {
-  layers <- names(x = slot(object = object, name = 'layers'))
   if (is.null(x = search)) {
     return(DefaultLayer(object = object))
   }
+  layers <- names(x = slot(object = object, name = 'layers'))
   if (!is_na(x = search)) {
     layers <- unique(x = unlist(x = lapply(
       X = search,
@@ -1203,11 +1206,19 @@ Layers.StdAssay <- function(object, search = NA, ...) {
         if (lyr %in% layers) {
           return(lyr)
         }
-        return(grep(pattern = lyr, x = layers, value = TRUE, ...))
+        patterns <- c(paste0('^', lyr), paste0(lyr, '$'), lyr)
+        res <- vector(mode = 'character')
+        for (p in patterns) {
+          res <- grep(pattern = p, x = layers, value = TRUE, ...)
+          if (length(x = res)) {
+            break
+          }
+        }
+        return(res)
       }
     )))
     if (!length(x = layers)) {
-      stop("No layers found matching search pattern provided", call. = FALSE)
+      abort(message = "No layers found matching search pattern provided")
     }
   }
   return(layers)
@@ -1286,7 +1297,13 @@ SetAssayData.StdAssay <- function(
 #' @method VariableFeatures StdAssay
 #' @export
 #'
-VariableFeatures.StdAssay <- function(object, method = NULL, layer = NULL, collapse = TRUE, ...) {
+VariableFeatures.StdAssay <- function(
+  object,
+  method = NULL,
+  layer = NULL,
+  collapse = TRUE,
+  ...
+) {
   msg <- 'No variable features found'
   layer.orig <- layer
   layer <- Layers(object = object, search = layer)
@@ -1368,7 +1385,13 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #' @method VariableFeatures<- StdAssay
 #' @export
 #'
-"VariableFeatures<-.StdAssay" <- function(object, method = 'custom', layer = NULL, ..., value) {
+"VariableFeatures<-.StdAssay" <- function(
+  object,
+  method = 'custom',
+  layer = NULL,
+  ...,
+  value
+) {
   value <- intersect(x = value, y = rownames(x = object))
   if (!length(x = value)) {
     stop("None of the features specified are present in this assay", call. = FALSE)
@@ -1725,6 +1748,127 @@ merge.StdAssay <- function(
 #'
 merge.Assay5 <- merge.StdAssay
 
+#' @inherit split.Assay5 params return title description details sections
+#'
+#' @keywords internal
+#' @method split StdAssay
+#' @export
+#'
+#' @family stdassay
+#'
+split.StdAssay <- function(
+  x,
+  f,
+  drop = FALSE,
+  layers = NA,
+  ret = c('assay', 'multiassays', 'layers'),
+  ...
+) {
+  ret <- ret[1L]
+  ret <- match.arg(arg = ret)
+  layers <- Layers(object = x, search = layers)
+  default <- ifelse(
+    test = DefaultLayer(object = x) %in% layers,
+    yes = DefaultLayer(object = x),
+    no = layers[1L]
+  )
+  cells <- Cells(x = x, layer = layers)
+  if (rlang::is_named(x = f)) {
+    f <- f[cells]
+  }
+  if (length(x = f) != length(x = cells)) {
+    abort(message = "length")
+  }
+  splits <- split(x = cells, f = f)
+  return(switch(
+    EXPR = ret,
+    assay = {
+      for (lyr in layers) {
+        lcells <- Cells(x = x, layer = lyr)
+        for (i in seq_along(along.with = splits)) {
+          group <- paste(lyr, names(x = splits)[i], sep = '.')
+          xcells <- intersect(x = splits[[i]], y = lcells)
+          LayerData(object = x, layer = group, cells = xcells) <- LayerData(
+            object = x,
+            layer = lyr,
+            cells = xcells
+          )
+        }
+        suppressWarnings(expr = LayerData(object = x, layer = lyr) <- NULL)
+        DefaultLayer(object = x) <- default
+        x
+      }
+    },
+    multiassays = {
+      value <- vector(mode = 'list', length = length(x = splits))
+      names(x = value) <- names(x = splits)
+      for (group in names(x = splits)) {
+        value[[group]] <- subset(
+          x = x,
+          cells = splits[[group]],
+          layers = layers
+        )
+        Key(object = value[[group]]) <- Key(object = group, quiet = TRUE)
+      }
+      value
+    },
+    layers = {
+      groups <- apply(
+        X = expand.grid(layers, names(x = splits)),
+        MARGIN = 1L,
+        FUN = paste,
+        collapse = '.'
+      )
+      value <- vector(mode = 'list', length = length(x = groups))
+      names(x = value) <- groups
+      for (lyr in layers) {
+        lcells <- Cells(x = x, layer = lyr)
+        for (i in seq_along(along.with = splits)) {
+          group <- paste(lyr, names(x = splits)[i], sep = '.')
+          xcells <- intersect(x = splits[[i]], y = lcells)
+          value[[group]] <- LayerData(object = x, layer = lyr, cells = xcells)
+        }
+      }
+      value
+    },
+    abort(message = paste("Unknown split return type", sQuote(x = ret)))
+  ))
+}
+
+#' Split an Assay
+#'
+#' @inheritParams [.Assay5
+#' @inheritParams base::split
+#' @param drop Ignored
+#' @param layers Names of layers to include in the split; pass \code{NA} for
+#' all layers; pass \code{NULL} for the \link[DefaultLayer]{default layer}
+#' @param ret Type of return value; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{assay}}: a single \code{\link{Assay5}} object
+#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects
+#'  \item \dQuote{\code{layers}}: a list of layer matrices
+#' }
+#' @template param-dots-ignored
+#'
+#' @return Depends on the value of \code{ret}:
+#' \itemize{
+#'  \item \dQuote{\code{assay}}: \code{x} with the layers requested in
+#'  \code{layers} split based on \code{f}; all other layers are left as-is
+#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects;
+#'  the list contains one value per split and each assay contains only the
+#'  layers requested in \code{layers} with the \link[Key]{key} set to the split
+#'  \item \dQuote{\code{layers}}: a list of matrices of length
+#'  \code{length(assays) * length(unique(f))}; the list is named as
+#'  \dQuote{\code{layer.split}}
+#' }
+#'
+#' @method split Assay5
+#' @export
+#'
+#' @family assay5
+#'
+split.Assay5 <- split.StdAssay
+
 #' @inherit subset.Assay5 params return title description details sections
 #'
 #' @keywords internal
@@ -1868,6 +2012,13 @@ tail.StdAssay <- .tail
 #' @export
 #'
 tail.Assay5 <- tail.StdAssay
+
+#' @method unsplit StdAssay
+#' @export
+#'
+unsplit.StdAssay <- function(value, f, drop = FALSE, ...) {
+  .NotYetImplemented()
+}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal

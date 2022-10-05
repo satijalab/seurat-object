@@ -1530,6 +1530,19 @@ Tool <- function(object, ...) {
   UseMethod(generic = 'Tool<-', object = object)
 }
 
+#' @export
+#'
+unsplit <- function(value, f, drop = FALSE, ...) {
+  UseMethod(generic = 'unsplit', object = value)
+}
+
+#' @method unsplit default
+#' @export
+#'
+unsplit.default <- function(value, f, drop = FALSE, ...) {
+  return(base::unsplit(value = value, f = f, drop = drop))
+}
+
 #' @return \code{VariableFeatures}: a vector of the variable features
 #'
 #' @rdname VariableFeatures

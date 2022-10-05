@@ -32,6 +32,7 @@ v5 Assay object, validity, and interaction methods:
 \code{\link{[[.Assay5}()},
 \code{\link{dim.Assay5}()},
 \code{\link{dimnames.Assay5}()},
-\code{\link{merge.Assay5}()}
+\code{\link{merge.Assay5}()},
+\code{\link{split.Assay5}()}
 }
 \concept{assay5}

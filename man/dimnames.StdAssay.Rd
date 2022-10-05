@@ -37,6 +37,7 @@ v5 Standard Assay object, validity, and interaction methods
 \code{\link{[[.StdAssay}()},
 \code{\link{dim.StdAssay}()},
 \code{\link{show,StdAssay-method}},
+\code{\link{split.StdAssay}()},
 \code{\link{subset.StdAssay}()}
 }
 \concept{stdassay}
