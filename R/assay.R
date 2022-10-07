@@ -296,13 +296,7 @@ DefaultLayer.Assay <- function(object, ...) {
 #' @method .DollarNames Assay
 #'
 ".DollarNames.Assay" <- function(x, pattern = '') {
- slots <- c('counts', 'data', 'scale.data')
- slots.avial <- names(x = which(
-   sapply(X = slots,
-          function(s)
-            !IsMatrixEmpty(slot(object = x, name = s)))
-   )
-   )
+ slots.avial <- Layers(x)
  slots.avial <- as.list(slots.avial)
  names(slots.avial) <- unlist(slots.avial)
   return(.DollarNames(x = slots.avial, pattern = pattern))
@@ -334,7 +328,7 @@ DefaultLayer.Assay <- function(object, ...) {
 #' head(pbmc_small[["value"]])
 #'
 "$<-.Assay" <- function(x, i, ..., value) {
-  x <- SetAssayData(object = x, slot = i, new.data = value)
+  LayerData(object = x, layer = i) <- value
   return(x)
 }
 

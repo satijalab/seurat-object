@@ -2225,20 +2225,19 @@ setAs(
   }
 )
 
-#' #' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
-#' #' in feature-level meta data
-#' #' @rdname sub-sub-.Assay5
-#' #'
-#' #' @order 2
-#' #'
-#' setMethod(
-#'   f = '[<-',
-#'   signature = c(x = 'Assay5'),
-#'   definition = function(x, i, ..., value) {
-#'     print(123)
-#'     return(callNextMethod(x = x, i = i, value = value, ...))
-#'   }
-#' )
+#' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
+#' in feature-level meta data
+#' @rdname sub-.Assay5
+#'
+#' @order 2
+#'
+setMethod(
+  f = '[<-',
+  signature = c(x = 'Assay5'),
+  definition = function(x, i, ..., value) {
+    return(callNextMethod(x = x, i = i, value = value, ...))
+  }
+)
 
 #' @rdname sub-sub-.StdAssay
 #'
