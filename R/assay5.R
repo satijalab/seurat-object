@@ -1779,7 +1779,7 @@ split.StdAssay <- function(
   if (length(x = f) != length(x = cells)) {
     abort(message = "length")
   }
-  splits <- split(x = cells, f = f)
+  splits <- split(x = cells, f = f, drop = drop)
   return(switch(
     EXPR = ret,
     assay = {
@@ -1839,7 +1839,6 @@ split.StdAssay <- function(
 #'
 #' @inheritParams [.Assay5
 #' @inheritParams base::split
-#' @param drop Ignored
 #' @param layers Names of layers to include in the split; pass \code{NA} for
 #' all layers; pass \code{NULL} for the \link[DefaultLayer]{default layer}
 #' @param ret Type of return value; choose from:
