@@ -1045,14 +1045,14 @@ setValidity(
     lds <- Loadings(object = object, projected = FALSE)
     # TODO: Validate projected loadings
     prj <- Loadings(object = object, projected = TRUE)
-    if (!IsMatrixEmpty(x = prj) && IsMatrixEmpty(x = lds)) {
-      valid <- c(
-        valid,
-        "projected loadings may not be present while unprojected loadings are missing"
-      )
-    } else {
-      ''
-    }
+    # if (!IsMatrixEmpty(x = prj) && IsMatrixEmpty(x = lds)) {
+    #   valid <- c(
+    #     valid,
+    #     "projected loadings may not be present while unprojected loadings are missing"
+    #   )
+    # } else {
+    #   ''
+    # }
     # TODO: Validate assay used
     if (!rlang::is_scalar_character(x = DefaultAssay(object = object))) {
       valid <- c(valid, "'assay.orig' must be a 1-length character")

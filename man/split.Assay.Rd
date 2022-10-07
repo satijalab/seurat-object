@@ -53,7 +53,6 @@ v3 Assay object, validity, and interaction methods
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
 \code{\link{[.Assay}()},
-\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},

@@ -286,6 +286,53 @@ DefaultLayer.Assay <- function(object, ...) {
   return('data')
 }
 
+#' @describeIn Seurat-methods Autocompletion for \code{$} access on a
+#' \code{StdAssay} object
+#'
+#' @inheritParams utils::.DollarNames
+#'
+#' @importFrom utils .DollarNames
+#' @export
+#' @method .DollarNames Assay
+#'
+".DollarNames.Assay" <- function(x, pattern = '') {
+ slots.avial <- Layers(x)
+ slots.avial <- as.list(slots.avial)
+ names(slots.avial) <- unlist(slots.avial)
+  return(.DollarNames(x = slots.avial, pattern = pattern))
+}
+
+#' @export
+#' @method $ Assay
+#'
+#' @examples
+#' # Get LayerData using `$'
+#' head(pbmc_small$groups)
+#'
+"$.Assay" <- function(x, i, ...) {
+  return(LayerData(object = x, layer = i))
+}
+
+#' @describeIn xxxxxx
+#'
+#' @return \code{$<-}: object \code{x} with metadata \code{value} saved as
+#' \code{i}
+#'
+#' @export
+#' @method $<- Assay
+#'
+#' @examples
+#' # Add metadata using the `$' operator
+#' set.seed(42)
+#' pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
+#' head(pbmc_small[["value"]])
+#'
+"$<-.Assay" <- function(x, i, ..., value) {
+  LayerData(object = x, layer = i) <- value
+  return(x)
+}
+
+
 #' @method Features Assay
 #' @export
 #'
@@ -466,7 +513,7 @@ HVFInfo.Assay <- function(
     stop("Unknown method: '", method, "'", call. = FALSE)
   )
   tryCatch(
-    expr = hvf.info <- object[[paste(method, vars, sep = '.')]],
+    expr = hvf.info <- object[paste(method, vars, sep = '.')],
     error = function(e) {
       stop(
         "Unable to find highly variable feature information for method '",
@@ -478,7 +525,7 @@ HVFInfo.Assay <- function(
   )
   colnames(x = hvf.info) <- vars
   if (status) {
-    hvf.info$variable <- object[[paste0(method, '.variable')]]
+    hvf.info$variable <- object[paste0(method, '.variable')]
   }
   return(hvf.info)
 }
@@ -1006,40 +1053,40 @@ WhichCells.Assay <- function(
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#' 
+#' #' @inherit [.Assay5 title description details sections
+#' #'
+#' #' @inheritParams [.Assay5
+#' #' @param x An \code{\link{Assay}} object
+#' #' @template param-dots-method
+#' #'
+#' #' @method [ Assay
+#' #' @export
+#' #'
+#' #' @family assay
+#' #'
+#' #' @seealso \code{\link{GetAssayData}}
+#' #'
+#' #' @examples
+#' #' rna <- pbmc_small[["RNA"]]
+#' #' rna[1:10, 1:4]
+#' #'
+#' "[.Assay" <- function(x, i, j, ...) {
+#'   if (missing(x = i)) {
+#'     i <- seq_len(length.out = nrow(x = x))
+#'   }
+#'   if (missing(x = j)) {
+#'     j <- seq_len(length.out = ncol(x = x))
+#'   }
+#'   return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
+#' }
 
-#' @inherit [.Assay5 title description details sections
-#'
-#' @inheritParams [.Assay5
-#' @param x An \code{\link{Assay}} object
-#' @template param-dots-method
-#'
-#' @method [ Assay
-#' @export
-#'
-#' @family assay
-#'
-#' @seealso \code{\link{GetAssayData}}
-#'
-#' @examples
-#' rna <- pbmc_small[["RNA"]]
-#' rna[1:10, 1:4]
-#'
-"[.Assay" <- function(x, i, j, ...) {
-  if (missing(x = i)) {
-    i <- seq_len(length.out = nrow(x = x))
-  }
-  if (missing(x = j)) {
-    j <- seq_len(length.out = ncol(x = x))
-  }
-  return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
-}
-
-#' @inherit [[.Assay5 return title description details sections
+#' @inherit [.Assay5 return title description details sections
 #'
 #' @inheritParams [.Assay
-#' @inheritParams [[.Assay5
+#' @inheritParams [.Assay5
 #'
-#' @method [[ Assay
+#' @method [ Assay
 #' @export
 #'
 #' @order 1
@@ -1048,9 +1095,9 @@ WhichCells.Assay <- function(
 #'
 #' @examples
 #' rna <- pbmc_small[["RNA"]]
-#' head(rna[[]])
+#' head(rna[])
 #'
-"[[.Assay" <- function(x, i, ..., drop = FALSE) {
+"[.Assay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.features'))
   }
@@ -1200,7 +1247,7 @@ merge.Assay <- function(
   }
   # Merge the counts (if present)
   counts.mats <- lapply(X = assays, FUN = ValidateDataForMerge, slot = "counts")
-  keys <- sapply(X = assays, FUN = Key)
+  keys <- unlist(sapply(X = assays, FUN = Key))
   merged.counts <- RowMergeSparseMatrices(
     mat1 = counts.mats[[1]],
     mat2 = counts.mats[2:length(x = counts.mats)]
@@ -1381,7 +1428,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
     new(Class = 'matrix')
   }
   VariableFeatures(object = x) <- VariableFeatures(object = x)[VariableFeatures(object = x) %in% features]
-  slot(object = x, name = 'meta.features') <- x[[]][features, , drop = FALSE]
+  slot(object = x, name = 'meta.features') <- x[][features, , drop = FALSE]
   return(x)
 }
 
@@ -1404,10 +1451,10 @@ tail.Assay <- .tail
 #' @order 2
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c('x' = 'Assay'),
   definition = function(x, i, ..., value) {
-    meta.data <- x[[]]
+    meta.data <- x[]
     feature.names <- rownames(x = meta.data)
     if (is.data.frame(x = value)) {
       value <- lapply(
