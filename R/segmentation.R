@@ -174,7 +174,7 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
   }
   new.names <- make.unique(names = new.names)
   if (length(x = new.names) != length(x = Cells(x = object))) {
-    stop("Cannot partially rename cells", call. = FALSE)
+    stop("Cannot partially rename segmentation cells", call. = FALSE)
   }
   names(x = slot(object = object, name = 'polygons')) <- new.names
   p <- progressor(along = slot(object = object, name = 'polygons'))
@@ -223,6 +223,8 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   if (is.numeric(x = cells)) {
     cells <- Cells(x = x)[cells]
     cells <- MatchCells(new = Cells(x = x), orig = cells, ordered = TRUE)
+  } else {
+    cells <- intersect(Cells(x), cells)
   }
   if (!length(x = cells)) {
     stop("None of the requested cells found")
