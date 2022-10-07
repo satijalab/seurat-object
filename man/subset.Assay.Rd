@@ -37,6 +37,7 @@ v3 Assay object, validity, and interaction methods
 \code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
-\code{\link{merge.Assay}()}
+\code{\link{merge.Assay}()},
+\code{\link{split.Assay}()}
 }
 \concept{assay}

@@ -1238,14 +1238,14 @@ merge.Assay <- function(
 #' @inheritParams [.Assay
 #' @param ret Type of return value; choose from:
 #' \itemize{
-#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects
+#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay}} objects
 #'  \item \dQuote{\code{layers}}: a list of layer matrices
 #' }
 #' @template param-dots-ignored
 #'
 #' @return Depends on the value of \code{ret}:
 #' \itemize{
-#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects;
+#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay}} objects;
 #'  the list contains one value per split and each assay contains only the
 #'  layers requested in \code{layers} with the \link[Key]{key} set to the split
 #'  \item \dQuote{\code{layers}}: a list of matrices of length
@@ -1263,7 +1263,7 @@ split.Assay <- function(
   f,
   drop = FALSE,
   layers = NA,
-  ret = c('mulitassay', 'layers'),
+  ret = c('multiassay', 'layers'),
   ...
 ) {
   ret <- ret[1L]
@@ -1274,13 +1274,23 @@ split.Assay <- function(
     f <- f[cells]
   }
   if (length(x = f) != ncol(x = x)) {
-    abort(message = 'length')
+    abort(message = "Not enough splits for this assay")
   }
   splits <- split(x = cells, f = f, drop = drop)
   return(switch(
     EXPR = ret,
     multiassay = {
-      .NotYetImplemented()
+      value <- vector(mode = 'list', length = length(x = splits))
+      names(x = value) <- names(x = splits)
+      for (group in names(x = value)) {
+        xs <- subset(x = x, cells = splits[[group]])
+        for (lyr in setdiff(x = Layers(object = xs), y = layers)) {
+          LayerData(object = xs, layer = lyr) <- NULL
+        }
+        Key(object = xs) <- Key(object = group, quiet = TRUE)
+        value[[group]] <- xs
+      }
+      value
     },
     layers = {
       groups <- apply(
