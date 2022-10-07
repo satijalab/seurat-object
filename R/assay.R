@@ -523,8 +523,38 @@ LayerData.Assay <- function(
   ...
 ) {
   # Figure out which matrix we're pulling
-  layer <- layer %||% DefaultLayer(object = object)
-  layer <- arg_match(arg = layer, values = Layers(object = object))
+  layer <- layer[1L] %||% DefaultLayer(object = object)
+  layer <- match.arg(
+    arg = layer,
+    choices = Layers(object = object, search = FALSE)
+  )
+  # Handle empty layers
+  if (IsMatrixEmpty(x = slot(object = object, name = layer))) {
+    msg <- paste("Layer", sQuote(x = layer), "is empty")
+    opt <- getOption(
+      x = 'Seurat.object.assay.v3.missing_layer',
+      default = Seurat.options$Seurat.object.assay.v3.missing_layer
+    )
+    opt <- tryCatch(
+      expr = arg_match0(arg = opt, values = c('matrix', 'null', 'error')),
+      error = function(...) {
+        return(Seurat.options$Seurat.object.assay.v3.missing_layer)
+      }
+    )
+    if (opt == 'error') {
+      abort(message = msg)
+    }
+    warn(message = msg)
+    return(switch(
+      EXPR = opt,
+      matrix = switch(
+        EXPR = layer,
+        scale.data = new(Class = 'matrix'),
+        new(Class = 'dgCMatrix')
+      ),
+      NULL
+    ))
+  }
   # Allow cell/feature subsets
   cells <- cells %||% colnames(x = object)
   features <- features %||% Features(x = object, layer = layer)
@@ -553,8 +583,78 @@ LayerData.Assay <- function(
 #' @export
 #'
 "LayerData<-.Assay" <- function(object, layer, ..., value) {
-  layer <- arg_match(arg = layer, values = c('counts', 'data', 'scale.data'))
-  .NotYetImplemented()
+  # Check the layer name
+  layer <- layer[1L]
+  layer <- match.arg(
+    arg = layer,
+    choices = Layers(object = object, search = FALSE)
+  )
+  # Allow short-hand switch
+  if (rlang::is_scalar_character(x = value)) {
+    value <- arg_match0(arg = value, values = Layers(object = object))
+    value <- LayerData(object = object, layer = value)
+  }
+  # Prepare an empty matrix if value is NULL
+  value <- value %||% switch(
+    EXPR = layer,
+    scale.data = new(Class = 'matrix'),
+    counts = new(Class = 'dgCMatrix'),
+    data = {
+      if (IsMatrixEmpty(x = suppressWarnings(expr = LayerData(object = object, layer = 'counts')))) {
+        abort(message = "Cannot remove the data layer")
+      }
+      warn(message = "Resetting the data matrix to the raw counts")
+      LayerData(object = object, layer = 'counts')
+    }
+  )
+  # Check the class of the matrix
+  if (!inherits(x = value, what = c('matrix', 'dgCMatrix'))) {
+    abort(message = "'value' must be a 'matrix' or 'dgCMatrix'")
+  }
+  if (!IsMatrixEmpty(x = value)) {
+    vnames <- dimnames(x = value)
+    # Check presence of cell- and feature-names
+    if (is.null(x = vnames)) {
+      if (!all(dim(x = value) == dim(x = object))) {
+        abort(message = "New data must have feature and cell names")
+      }
+      dimnames(x = value) <- dimnames(x = object)
+    } else if (any(.IsNull(x = vnames)) || !all(unlist(x = lapply(X = vnames, FUN = nzchar)))) {
+      abort(message = "New data must have feature and cell names")
+    }
+    # Remove underscores from feature names
+    if (any(grepl(pattern = '_', x = rownames(x = value)))) {
+      warn(
+        message = "Feature names cannot have underscores ('_'), replacing with dashes ('-')"
+      )
+      rownames(x = value) <- gsub(
+        pattern = '_',
+        replacement = '-',
+        x = rownames(x = value)
+      )
+    }
+    # Check the the cells
+    if (ncol(x = value) != ncol(x = object)) {
+      abort(message = "The new data must have the same number of cells as the current data")
+    } else if (!all(colnames(x = value) %in% colnames(x = object))) {
+      abort(message = "The new data must have the same cells as the current data")
+    }
+    value <- value[, colnames(x = object), drop = FALSE]
+    # Check the features
+    if (!any(rownames(x = value) %in% rownames(x = object))) {
+      abort(message = "None of the features provided are present in the existing data")
+    } else if (!all(rownames(x = value) %in% rownames(x = object))) {
+      warn(message = "Extra features present in the the new data compared to the existing data")
+    }
+    features <- intersect(x = rownames(x = object), y = rownames(x = value))
+    value <- value[features, , drop = FALSE]
+    if (layer %in% c('counts', 'data') && nrow(x = value) != nrow(x = object)) {
+      abort(message = "The new data must have the same number of features as the current data")
+    }
+  }
+  slot(object = object, name = layer) <- value
+  validObject(object = object)
+  return(object)
 }
 
 #' @rdname Layers
@@ -562,11 +662,15 @@ LayerData.Assay <- function(
 #' @export
 #'
 Layers.Assay <- function(object, search = NA, ...) {
+  layers <- c('counts', 'data', 'scale.data')
+  if (isFALSE(x = search)) {
+    return(layers)
+  }
   layers <- Filter(
     f = function(x) {
       return(!IsMatrixEmpty(x = slot(object = object, name = x)))
     },
-    x = c('counts', 'data', 'scale.data')
+    x = layers
   )
   if (!length(x = layers)) {
     abort(message = "All matrices are empty in this Assay")
@@ -1126,6 +1230,78 @@ merge.Assay <- function(
     )
   }
   return(combined.assay)
+}
+
+#' @inherit split.Assay5 title description details sections
+#'
+#' @inheritParams split.Assay5
+#' @inheritParams [.Assay
+#' @param ret Type of return value; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects
+#'  \item \dQuote{\code{layers}}: a list of layer matrices
+#' }
+#' @template param-dots-ignored
+#'
+#' @return Depends on the value of \code{ret}:
+#' \itemize{
+#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects;
+#'  the list contains one value per split and each assay contains only the
+#'  layers requested in \code{layers} with the \link[Key]{key} set to the split
+#'  \item \dQuote{\code{layers}}: a list of matrices of length
+#'  \code{length(assays) * length(unique(f))}; the list is named as
+#'  \dQuote{\code{layer.split}}
+#' }
+#'
+#' @method split Assay
+#' @export
+#'
+#' @family assay
+#'
+split.Assay <- function(
+  x,
+  f,
+  drop = FALSE,
+  layers = NA,
+  ret = c('mulitassay', 'layers'),
+  ...
+) {
+  ret <- ret[1L]
+  ret <- match.arg(arg = ret)
+  layers <- Layers(object = x, search = layers)
+  cells <- colnames(x = x)
+  if (rlang::is_named(x = f)) {
+    f <- f[cells]
+  }
+  if (length(x = f) != ncol(x = x)) {
+    abort(message = 'length')
+  }
+  splits <- split(x = cells, f = f, drop = drop)
+  return(switch(
+    EXPR = ret,
+    multiassay = {
+      .NotYetImplemented()
+    },
+    layers = {
+      groups <- apply(
+        X = expand.grid(layers, names(x = splits)),
+        MARGIN = 1L,
+        FUN = paste,
+        collapse = '.'
+      )
+      value <- vector(mode = 'list', length = length(x = groups))
+      names(x = value) <- groups
+      for (lyr in layers) {
+        for (i in seq_along(along.with = splits)) {
+          group <- paste(lyr, names(x = splits)[i], sep = '.')
+          xcells <- intersect(x = splits[[i]], y = cells)
+          value[[group]] <- LayerData(object = x, layer = lyr, cells = xcells)
+        }
+      }
+      value
+    },
+    abort(message = paste("Unknown split return type", sQuote(x = ret)))
+  ))
 }
 
 #' @inherit subset.Assay5 title description details sections
