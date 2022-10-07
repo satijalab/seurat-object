@@ -251,11 +251,6 @@ setValidity(
         valid <- c(valid, "Keys must be a one-length character vector")
       } else if (is_na(x = key)) {
         valid <- c(valid, "Keys may not be 'NA'")
-      } else if (nzchar(x = key) && 
-                 !grepl(pattern = .KeyPattern(), x = key) &&
-                 grepl(pattern = .KeyPattern(), x = gsub('[.]','',key)) ) {
-        warning('replace key ', key, ' to ', gsub('[.]','',key))
-        key <- gsub('[.]','',key)
       } else if (nzchar(x = key) && !grepl(pattern = .KeyPattern(), x = key)) {
         # Ensure proper key composition
         valid <- c(
