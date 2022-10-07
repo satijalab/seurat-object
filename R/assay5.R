@@ -1777,7 +1777,7 @@ split.StdAssay <- function(
     f <- f[cells]
   }
   if (length(x = f) != length(x = cells)) {
-    abort(message = "length")
+    abort(message = "Not enough splits for this assay")
   }
   splits <- split(x = cells, f = f, drop = drop)
   return(switch(
