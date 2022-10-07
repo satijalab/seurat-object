@@ -2,9 +2,9 @@
 % Please edit documentation in R/assay5.R
 \name{[.StdAssay}
 \alias{[.StdAssay}
-\title{Get Expression Data}
+\title{Get Layer Data}
 \usage{
-\method{[}{StdAssay}(x, i, j, ...)
+\method{[}{StdAssay}(x, i, j, ..., drop = FALSE)
 }
 \arguments{
 \item{x}{An \code{\link{Assay5}} object}
@@ -20,7 +20,7 @@ The expression matrix for the default layer of \code{x}
 for the \code{i} features and \code{j} cells
 }
 \description{
-Get Expression Data
+Get Layer Data
 }
 \seealso{
 v5 Standard Assay object, validity, and interaction methods
@@ -30,6 +30,7 @@ v5 Standard Assay object, validity, and interaction methods
 \code{\link{dim.StdAssay}()},
 \code{\link{dimnames.StdAssay}()},
 \code{\link{show,StdAssay-method}},
+\code{\link{split.StdAssay}()},
 \code{\link{subset.StdAssay}()}
 }
 \concept{stdassay}

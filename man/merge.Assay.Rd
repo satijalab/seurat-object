@@ -7,7 +7,7 @@
 \method{merge}{Assay}(x = NULL, y = NULL, add.cell.ids = NULL, merge.data = TRUE, ...)
 }
 \arguments{
-\item{x}{An \code{\link{Assay}} object}
+\item{x}{An \code{\link{Assay5}} object}
 
 \item{y}{One or more \code{\link{Assay}} objects}
 
@@ -18,7 +18,7 @@ appends the corresponding values to the start of each objects' cell names}
 (which requires renormalization); this is recommended if the same
 normalization approach was applied to all objects}
 
-\item{...}{Arguments passed to other methods}
+\item{...}{Arguments passed to \code{\link{LayerData}}}
 }
 \value{
 A new assay with data merged from \code{c(x, y)}
@@ -32,9 +32,9 @@ v3 Assay object, validity, and interaction methods
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
 \code{\link{[.Assay}()},
-\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
+\code{\link{split.Assay}()},
 \code{\link{subset.Assay}()}
 }
 \concept{assay}

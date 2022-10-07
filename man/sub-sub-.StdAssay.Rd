@@ -4,14 +4,28 @@
 \alias{[[.StdAssay}
 \alias{head.StdAssay}
 \alias{tail.StdAssay}
-\alias{[[<-,StdAssay,character,missing,data.frame-method}
-\alias{[[<-,StdAssay,missing,missing,data.frame-method}
-\alias{[[<-,StdAssay,character,missing,factor-method}
-\alias{[[<-,StdAssay,character,missing,NULL-method}
-\alias{[[<-,StdAssay,character,missing,vector-method}
-\alias{[[<-,StdAssay,numeric,missing,ANY-method}
-\alias{[[<-,StdAssay,missing,missing,NULL-method}
-\title{Feature-Level Meta Data}
+\alias{[<-,StdAssay,character,missing,data.frame-method}
+\alias{[<-,StdAssay,missing,missing,data.frame-method}
+\alias{[<-,StdAssay,character,missing,factor-method}
+\alias{[<-,StdAssay,character,missing,NULL-method}
+\alias{[<-,StdAssay,character,missing,vector-method}
+\alias{[<-,StdAssay,numeric,missing,ANY-method}
+\alias{[<-,StdAssay,missing,missing,NULL-method}
+\alias{[[<-,StdAssay,ANY,ANY,ANY-method}
+\title{#' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
+#' in feature-level meta data
+#' @rdname sub-sub-.Assay5
+#'
+#' @order 2
+#'
+setMethod(
+  f = '[<-',
+  signature = c(x = 'Assay5'),
+  definition = function(x, i, ..., value) {
+    print(123)
+    return(callNextMethod(x = x, i = i, value = value, ...))
+  }
+)}
 \usage{
 \method{[[}{StdAssay}(x, i, ..., drop = FALSE)
 
@@ -19,21 +33,21 @@
 
 \method{tail}{StdAssay}(x, n = 10L, ...)
 
-\S4method{[[}{StdAssay,character,missing,data.frame}(x, i, j, ...) <- value
+\S4method{[}{StdAssay,character,missing,data.frame}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,missing,missing,data.frame}(x, i, j, ...) <- value
+\S4method{[}{StdAssay,missing,missing,data.frame}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,character,missing,factor}(x, i, j, ...) <- value
+\S4method{[}{StdAssay,character,missing,factor}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,character,missing,`NULL`}(x, i, j, ...) <- value
+\S4method{[}{StdAssay,character,missing,`NULL`}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,character,missing,vector}(x, i, j, ...) <- value
+\S4method{[}{StdAssay,character,missing,vector}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,numeric,missing,ANY}(x, i, j, ...) <- value
+\S4method{[}{StdAssay,numeric,missing,ANY}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,missing,missing,data.frame}(x, i, j, ...) <- value
+\S4method{[}{StdAssay,missing,missing,`NULL`}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,missing,missing,`NULL`}(x, i, j, ...) <- value
+\S4method{[[}{StdAssay,ANY,ANY,ANY}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{An \code{\link{Assay5}} object}
@@ -51,9 +65,6 @@
 \value{
 \code{[[}: The feature-level meta data for \code{i}
 
-\code{[[<-}: \code{x} with \code{value} added as \code{i}
-in feature-level meta data
-
 \code{head}: The first \code{n} rows of feature-level meta data
 
 \code{tail}: the last \code{n} rows of feature-level meta data
@@ -69,6 +80,7 @@ v5 Standard Assay object, validity, and interaction methods
 \code{\link{dim.StdAssay}()},
 \code{\link{dimnames.StdAssay}()},
 \code{\link{show,StdAssay-method}},
+\code{\link{split.StdAssay}()},
 \code{\link{subset.StdAssay}()}
 }
 \concept{stdassay}

@@ -58,10 +58,10 @@ v3 Assay object, validity, and interaction methods
 \code{\link{Assay-class}},
 \code{\link{CreateAssayObject}()},
 \code{\link{[.Assay}()},
-\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},
+\code{\link{split.Assay}()},
 \code{\link{subset.Assay}()}
 }
 \concept{assay}

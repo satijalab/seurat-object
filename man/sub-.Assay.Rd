@@ -2,38 +2,88 @@
 % Please edit documentation in R/assay.R
 \name{[.Assay}
 \alias{[.Assay}
-\title{Get Expression Data}
+\title{#' @inherit [.Assay5 title description details sections
+#'
+#' @inheritParams [.Assay5
+#' @param x An \code{\link{Assay}} object
+#' @template param-dots-method
+#'
+#' @method [ Assay
+#' @export
+#'
+#' @family assay
+#'
+#' @seealso \code{\link{GetAssayData}}
+#'
+#' @examples
+#' rna <- pbmc_small[["RNA"]]
+#' rna[1:10, 1:4]
+#'
+"[.Assay" <- function(x, i, j, ...) {
+  if (missing(x = i)) {
+    i <- seq_len(length.out = nrow(x = x))
+  }
+  if (missing(x = j)) {
+    j <- seq_len(length.out = ncol(x = x))
+  }
+  return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
+}}
 \usage{
-\method{[}{Assay}(x, i, j, ...)
+\method{[}{Assay}(x, i, ..., drop = FALSE)
 }
 \arguments{
-\item{x}{An \code{\link{Assay}} object}
+\item{x}{An \code{\link{Assay5}} object}
 
 \item{i}{Feature names or indices}
 
-\item{j}{Cell names or indices}
-
-\item{...}{Arguments passed to other methods}
+\item{...}{Arguments passed to \code{\link{LayerData}}}
+}
+\value{
+The expression matrix for the default layer of \code{x}
+for the \code{i} features and \code{j} cells
 }
 \description{
-Get Expression Data
+#' @inherit [.Assay5 title description details sections
+#'
+#' @inheritParams [.Assay5
+#' @param x An \code{\link{Assay}} object
+#' @template param-dots-method
+#'
+#' @method [ Assay
+#' @export
+#'
+#' @family assay
+#'
+#' @seealso \code{\link{GetAssayData}}
+#'
+#' @examples
+#' rna <- pbmc_small[["RNA"]]
+#' rna[1:10, 1:4]
+#'
+"[.Assay" <- function(x, i, j, ...) {
+  if (missing(x = i)) {
+    i <- seq_len(length.out = nrow(x = x))
+  }
+  if (missing(x = j)) {
+    j <- seq_len(length.out = ncol(x = x))
+  }
+  return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
+}
 }
 \examples{
 rna <- pbmc_small[["RNA"]]
-rna[1:10, 1:4]
+head(rna[])
 
 }
 \seealso{
-\code{\link{GetAssayData}}
-
 v3 Assay object, validity, and interaction methods
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
-\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},
+\code{\link{split.Assay}()},
 \code{\link{subset.Assay}()}
 }
 \concept{assay}

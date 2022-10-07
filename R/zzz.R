@@ -1,8 +1,9 @@
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
 #' @importFrom utils head tail
-#' @importFrom rlang abort arg_match check_installed inform is_bare_character
-#' is_bare_integerish is_bare_list is_bare_numeric is_na warn
+#' @importFrom progressr progressor
+#' @importFrom rlang abort arg_match arg_match0 check_installed inform
+#' is_bare_character is_bare_integerish is_bare_list is_bare_numeric is_na warn
 #' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
 #' deprecate_warn is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
@@ -28,9 +29,21 @@ default.options <- list()
 # Options
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+# \pkg{Seurat} Options
+#
+# @section Package Options:
+# \subsection{Seurat.input.sparse.ratio}{blah}
+#
+# @name SeuratObject-options
+#
+# @keywords internal
+#
+NULL
+
 Seurat.options <- list(
   Seurat.input.sparse_ratio = 0.4,
   Seurat.coords.short_range = 'max',
+  Seurat.object.assay.v3.missing_layer = 'matrix',
   progressr.clear = FALSE
 )
 
@@ -199,6 +212,10 @@ setOldClass(Classes = 'package_version')
       packageVersion(pkg = 'Seurat', lib.loc = lib.loc) >= version
   }
   return(future)
+}
+
+.IsNull <- function(x) {
+  return(vapply(X = x, FUN = is.null, FUN.VALUE = logical(length = 1L)))
 }
 
 #' Create a List with a Serial Comma

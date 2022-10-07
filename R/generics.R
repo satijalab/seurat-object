@@ -16,6 +16,23 @@ NULL
   UseMethod(generic = '.AssayClass', object = object)
 }
 
+#' Get the Package that Defines a Class
+#'
+#' @param object An object
+#'
+#' @return The package that defines the class of \code{object}
+#'
+#' @keywords internal
+#'
+#' @export .ClassPkg
+#'
+#' @examples
+#' .ClassPkg(pbmc_small)
+#'
+.ClassPkg <- function(object) {
+  UseMethod(generic = '.ClassPkg', object = object)
+}
+
 #' Generic Assay Creation
 #'
 #' Create an assay object; runs a standardized filtering scheme that
@@ -57,6 +74,38 @@ NULL
   ...
 ) {
   UseMethod(generic = '.CreateStdAssay', object = counts)
+}
+
+#' Disk Loading Function
+#'
+#' Generate a function to load a matrix from an on-disk file
+#'
+#' @inheritParams .FilePath
+#'
+#' @return A one-length character that defines a function to load a matrix from
+#' a file
+#'
+#' @keywords internal
+#'
+#' @export .DiskLoad
+#'
+.DiskLoad <- function(x) {
+  UseMethod(generic = '.DiskLoad', object = x)
+}
+
+#' Find a File Path
+#'
+#' @param x A file-backed object
+#'
+#' @return The path to the file that backs \code{x}; if \code{x} is not a
+#' file-backed object, returns \code{NULL}
+#'
+#' @keywords internal
+#'
+#' @export .FilePath
+#'
+.FilePath <- function(x) {
+  UseMethod(generic = '.FilePath', object = x)
 }
 
 #' @export .MARGIN
@@ -1479,6 +1528,19 @@ Tool <- function(object, ...) {
 #'
 "Tool<-" <- function(object, ..., value) {
   UseMethod(generic = 'Tool<-', object = object)
+}
+
+#' @export
+#'
+unsplit <- function(value, f, drop = FALSE, ...) {
+  UseMethod(generic = 'unsplit', object = value)
+}
+
+#' @method unsplit default
+#' @export
+#'
+unsplit.default <- function(value, f, drop = FALSE, ...) {
+  return(base::unsplit(value = value, f = f, drop = drop))
 }
 
 #' @return \code{VariableFeatures}: a vector of the variable features

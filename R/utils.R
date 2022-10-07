@@ -1162,6 +1162,138 @@ UpdateSlots <- function(object) {
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @importFrom methods getClass
+#'
+#' @rdname dot-ClassPkg
+#'
+#' @method .ClassPkg default
+#' @export
+#'
+.ClassPkg.default <- function(object) {
+  if (!isS4(object)) {
+    return(NA_character_)
+  }
+  return(slot(object = getClass(Class = class(x = object)), name = 'package'))
+}
+
+#' @rdname dot-ClassPkg
+#' @method .ClassPkg R6
+#' @export
+#'
+.ClassPkg.R6 <- function(object) {
+  for (cls in class(x = object)) {
+    x <- eval(expr = as.symbol(x = cls))
+    if (inherits(x = x, what = 'R6ClassGenerator')) {
+      return(.ClassPkg(object = x))
+    }
+  }
+  warn(message = "No r6")
+  return('R6')
+}
+
+#' @rdname dot-ClassPkg
+#' @method .ClassPkg R6ClassGenerator
+#' @export
+#'
+.ClassPkg.R6ClassGenerator <- function(object) {
+  return(environmentName(env = object$parent_env))
+}
+
+#' @rdname dot-DiskLoad
+#' @method .DiskLoad default
+#' @export
+#'
+.DiskLoad.default <- function(x) {
+  return(NULL)
+}
+
+#' @rdname dot-DiskLoad
+#' @method .DiskLoad H5ADMatrix
+#' @export
+#'
+.DiskLoad.H5ADMatrix <- function(x) {
+  check_installed(
+    pkg = 'HDF5Array',
+    reason = 'for working with H5AD matrices'
+  )
+  sparse <- DelayedArray::is_sparse(x = x)
+  layer <- if (isTRUE(x = sparse)) {
+    slot(object = DelayedArray::seed(x = x), name = 'group')
+  } else {
+    slot(object = DelayedArray::seed(x = x), name = 'name')
+  }
+  layer <- if (layer == '/X') {
+    NULL
+  } else {
+    basename(path = layer)
+  }
+  f <- paste(
+    "function(x)",
+    "HDF5Array::H5ADMatrix(filepath = x",
+    if (!is.null(x = layer)) {
+      paste(", layer =", sQuote(x = layer, q = FALSE))
+    },
+    ")"
+  )
+  return(f)
+}
+
+#' @rdname dot-DiskLoad
+#' @method .DiskLoad HDF5Matrix
+#' @export
+#'
+.DiskLoad.HDF5Matrix <- function(x) {
+  check_installed(
+    pkg = 'HDF5Array',
+    reason = 'for working with HDF5 matrices'
+  )
+  sparse <- DelayedArray::is_sparse(x = x)
+  # name <- if (isTRUE(x = sparse)) {
+  #   slot(object = DelayedArray::seed(x = x), name = 'group')
+  # } else {
+  #   slot(object = DelayedArray::seed(x = x), name = 'group')
+  # }
+  name <- slot(object = DelayedArray::seed(x = x), name = 'name')
+  f <- paste(
+    "function(x)",
+    "HDF5Array::HDF5Array(filepath = x, name =",
+    sQuote(x = name, q = FALSE),
+    ", as.sparse =",
+    sparse,
+    ")"
+  )
+  return(f)
+}
+
+#' @rdname dot-FilePath
+#' @method .FilePath default
+#' @export
+#'
+.FilePath.default <- function(x) {
+  return(NULL)
+}
+
+#' @rdname dot-FilePath
+#' @method .FilePath DelayedMatrix
+#' @export
+#'
+.FilePath.DelayedMatrix <- function(x) {
+  check_installed(
+    pkg = 'DelayedArray',
+    reason = 'for working with delayed matrices'
+  )
+  path <- tryCatch(
+    expr = normalizePath(path = DelayedArray::path(object = x)),
+    error = function(...) {
+      return(NULL)
+    }
+  )
+  if (is.null(x = path)) {
+    warn(message = "The matrix provided does not exist on-disk")
+  }
+  return(path)
+}
+
 #' @rdname as.Centroids
 #' @method as.Centroids Segmentation
 #' @export
@@ -1253,14 +1385,25 @@ as.sparse.data.frame <- function(x, row.names = NULL, ...) {
 #'
 as.sparse.Matrix <- function(x, ...) {
   CheckDots(...)
-  return(as(object = x, Class = 'dgCMatrix'))
+  return(as(object = as(object = as(object = x, Class = "dMatrix"), Class = "generalMatrix"), Class = "CsparseMatrix"))
 }
 
 #' @rdname as.sparse
 #' @export
 #' @method as.sparse matrix
 #'
-as.sparse.matrix <- as.sparse.Matrix
+as.sparse.matrix <- function(x, ...) {
+  x <- as(object = x, Class = "Matrix")
+  return(as.sparse.Matrix(x, ...))
+}
+
+#' @rdname as.sparse
+#' @export
+#' @method as.sparse ngCMatrix
+#'
+as.sparse.ngCMatrix <- function(x, ...) {
+  return(as(object = x, Class = "dMatrix"))
+}
 
 #' @rdname CheckMatrix
 #' @method CheckMatrix default

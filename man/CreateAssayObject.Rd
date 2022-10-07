@@ -9,6 +9,7 @@ CreateAssayObject(
   data,
   min.cells = 0,
   min.features = 0,
+  key = NULL,
   check.matrix = FALSE,
   ...
 )
@@ -56,10 +57,10 @@ v3 Assay object, validity, and interaction methods
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{[.Assay}()},
-\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},
+\code{\link{split.Assay}()},
 \code{\link{subset.Assay}()}
 }
 \concept{assay}

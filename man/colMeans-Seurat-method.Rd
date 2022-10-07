@@ -5,7 +5,7 @@
 \alias{colSums,Seurat-method}
 \alias{rowMeans,Seurat-method}
 \alias{rowSums,Seurat-method}
-\title{Row and Column Sums and Means}
+\title{}
 \usage{
 \S4method{colMeans}{Seurat}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
 

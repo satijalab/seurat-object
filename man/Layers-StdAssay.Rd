@@ -25,9 +25,7 @@
 
 \item{layer}{Name of layer to fetch or set}
 
-\item{cells}{Vectors of features/cells to include}
-
-\item{features}{Vectors of features/cells to include}
+\item{features, cells}{Vectors of features/cells to include}
 
 \item{fast}{Determine how to return the layer data; choose from:
 \describe{

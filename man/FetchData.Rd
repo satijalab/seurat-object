@@ -8,13 +8,7 @@
 \usage{
 FetchData(object, ...)
 
-\method{FetchData}{DimReduc}(
-  object,
-  vars,
-  cells = NULL,
-  layer = c("embeddings", "loadings", "projected"),
-  ...
-)
+\method{FetchData}{DimReduc}(object, vars, cells = NULL, ...)
 
 \method{FetchData}{Seurat}(object, vars, cells = NULL, layer = NULL, slot = deprecated(), ...)
 }

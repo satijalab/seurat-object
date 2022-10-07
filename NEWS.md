@@ -1,3 +1,11 @@
+# SeuratObject 4.1.2
+## Changed
+- Bump required Matrix version to >= 1.5.0
+
+# SeuratObject 4.1.1
+## Changed
+- Update sparse matrix coersions due to Matrix deprecations
+
 # SeuratObject 4.1.0
 ## Changed
 - Allow `UpdateSeuratObject` to work when `data` is `NULL` (#38)
