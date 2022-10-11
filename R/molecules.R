@@ -392,7 +392,13 @@ setMethod(
 setValidity(
   Class = 'Molecules',
   method = function(object) {
-    if (!length(x = object)) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
+      return(TRUE)
+    } else if (!length(x = object)) {
       return(TRUE)
     }
     valid <- NULL

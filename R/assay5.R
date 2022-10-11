@@ -2510,6 +2510,13 @@ setMethod(
 setValidity(
   Class = 'StdAssay',
   method = function(object) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
+      return(TRUE)
+    }
     valid <- NULL
     # Check layers
     dorder <- c(

@@ -3,8 +3,6 @@
 #' @include default.R
 #' @include graph.R
 #' @include keymixin.R
-#' @importFrom methods new setClass setValidity slot slot<-
-#' @importFrom methods new slot slot<-
 #'
 NULL
 
@@ -1652,12 +1650,9 @@ setValidity(
   Class = 'Assay',
   method = function(object) {
     if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
-      warning(
-        "Not validating",
-        class(x = object)[1L],
-        "objects",
-        call. = FALSE,
-        immediate. = TRUE
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
       )
       return(TRUE)
     }

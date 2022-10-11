@@ -4521,7 +4521,10 @@ setValidity(
   Class = 'Seurat',
   method = function(object) {
     if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
-      warning("Not validating Seurat objects", call. = FALSE, immediate. = TRUE)
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
       return(TRUE)
     }
     valid <- NULL
