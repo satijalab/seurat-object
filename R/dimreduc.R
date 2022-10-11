@@ -392,7 +392,27 @@ Key.DimReduc <- .Key
 #' Key(object = pbmc_small[["pca"]]) <- "newkey2_"
 #' Key(object = pbmc_small[["pca"]])
 #'
-"Key<-.DimReduc" <- `.Key<-`
+"Key<-.DimReduc" <- function(object, ..., value) {
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
+  old <- Key(object = object)
+  suppressWarnings(expr = object <- NextMethod(), classes = 'validationWarning')
+  for (i in c("cell.embeddings", "feature.loadings", "feature.loadings.projected")) {
+    mat <- slot(object = object, name = i)
+    if (IsMatrixEmpty(x = mat)) {
+      next
+    }
+    colnames(x = mat) <- gsub(
+      pattern = paste0('^', old),
+      replacement = Key(object = object),
+      x = colnames(x = mat)
+    )
+    slot(object = object, name = i) <- mat
+  }
+  options(op)
+  validObject(object = object)
+  return(object)
+}
 
 #' @param projected Pull the projected feature loadings?
 #'
@@ -1014,7 +1034,10 @@ setValidity(
   Class = 'DimReduc',
   method = function(object) {
     if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
-      warn(message = "Not validating DimReduc objects")
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
       return(TRUE)
     }
     valid <- NULL
