@@ -317,6 +317,53 @@ setClass(
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
 }
 
+
+#' @describeIn Seurat-methods Autocompletion for \code{$} access on a
+#' \code{StdAssay} object
+#'
+#' @inheritParams utils::.DollarNames
+#'
+#' @importFrom utils .DollarNames
+#' @export
+#' @method .DollarNames StdAssay
+#'
+".DollarNames.StdAssay" <- function(x, pattern = '') {
+  layer.name <- as.list(x = Layers(x))
+  names(x = layer.name) <- unlist(x = layer.name)
+  return(.DollarNames(x = layer.name, pattern = pattern))
+}
+
+#' @export
+#' @method $ StdAssay
+#'
+#' @examples
+#' # Get LayerData using `$'
+#' head(pbmc_small$groups)
+#'
+"$.StdAssay" <- function(x, i, ...) {
+  return(LayerData(object = x, layer = i))
+}
+
+#' @describeIn xxxxxx
+#'
+#' @return \code{$<-}: object \code{x} with metadata \code{value} saved as
+#' \code{i}
+#'
+#' @export
+#' @method $<- StdAssay
+#'
+#' @examples
+#' # Add metadata using the `$' operator
+#' set.seed(42)
+#' pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
+#' head(pbmc_small[["value"]])
+#'
+"$<-.StdAssay" <- function(x, i, ..., value) {
+  LayerData(object = x, layer = i) <- value
+  return(x)
+}
+
+
 #' @templateVar fxn AddMetaData
 #' @template method-stdassay
 #'
@@ -898,7 +945,7 @@ HVFInfo.StdAssay <- function(
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
-    x = colnames(x = object[[]]),
+    x = colnames(x = object[]),
     value = TRUE
   )
   if (!isTRUE(x = status)) {
@@ -907,7 +954,7 @@ HVFInfo.StdAssay <- function(
       y = paste('vf', method, layer, c('variable', 'rank'), sep = '_')
     )
   }
-  hvf.info <- object[[cols]]
+  hvf.info <- object[cols]
   colnames(x = hvf.info) <- gsub(
     pattern = '^vf_',
     replacement = '',
@@ -1423,17 +1470,23 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #'
 #' @family stdassay
 #'
-"[.StdAssay" <- function(x, i, j, ...) {
+"[.StdAssay" <- function(x, i, j, ..., drop = FALSE) {
   if (missing(x = i)) {
-    i <- seq_len(length.out = nrow(x = x))
+    i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
-  if (missing(x = j)) {
-    j <- seq_len(length.out = ncol(x = x))
+  data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
+  row.names(x = data.return) <- rownames(x = x)
+  if (isTRUE(x = drop)) {
+    data.return <- unlist(x = data.return, use.names = FALSE)
+    names(x = data.return) <- rep.int(
+      x = rownames(x = x),
+      times = length(x = i)
+    )
   }
-  return(LayerData(object = x, cells = j, features = i, ...))
+  return(data.return)
 }
 
-#' Get Expression Data
+#' Get Layer Data
 #'
 #' @param x An \code{\link{Assay5}} object
 #' @param i Feature names or indices
@@ -1462,18 +1515,10 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #'
 "[[.StdAssay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
-    i <- colnames(x = slot(object = x, name = 'meta.data'))
+    return(Layers(x))
+  } else if (i %in% Layers(x)) {
+    return(LayerData(object = x, layer = i))
   }
-  data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
-  row.names(x = data.return) <- rownames(x = x)
-  if (isTRUE(x = drop)) {
-    data.return <- unlist(x = data.return, use.names = FALSE)
-    names(x = data.return) <- rep.int(
-      x = rownames(x = x),
-      times = length(x = i)
-    )
-  }
-  return(data.return)
 }
 
 #' Feature-Level Meta Data
@@ -1629,11 +1674,13 @@ merge.StdAssay <- function(
   collapse = FALSE,
   ...
 ) {
+
   assays <- c(x, y)
-  # TODO: Support multiple types of assays
-  if (length(x = unique(x = sapply(X = assays, FUN = class))) != 1L) {
-    abort(message = "Multiple types of assays provided")
-  }
+  for (i in seq_along(assays)) {
+    if (inherits(x = assays[[i]], what = 'Assay')) {
+      assays[[i]] <- as(object = assays[[i]], Class = "Assay5") # TODO: support Assay5T
+    }
+      }
   labels <- labels %||% as.character(x = seq_along(along.with = assays))
   # add.cell.ids <- add.cell.ids %||% labels
   # TODO: Support collapsing layers
@@ -1670,6 +1717,7 @@ merge.StdAssay <- function(
     misc = list(),
     key = Key(object = x) %||% character(length = 0L)
   )
+
   # Add layers
   # TODO: Support collapsing layers
   if (isTRUE(x = collapse)) {
@@ -1686,10 +1734,11 @@ merge.StdAssay <- function(
       }
     }
   }
+
   # Add feature-level metadata
   for (i in seq_along(along.with = assays)) {
     # Rename HVF columns
-    mf <- assays[[i]][[]]
+    mf <- assays[[i]][]
     if (!ncol(x = mf)) {
       next
     }
@@ -1715,7 +1764,7 @@ merge.StdAssay <- function(
         )
       }
     }
-    combined[[]] <- mf
+    combined[] <- mf
   }
   # TODO: Add misc
   validObject(object = combined)
@@ -2012,6 +2061,14 @@ tail.StdAssay <- .tail
 #'
 tail.Assay5 <- tail.StdAssay
 
+#' Rename assay5
+#' @export
+RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
+  CheckDots(...)
+  colnames(object) <- new.names[colnames(object)]
+  return(object)
+}
+
 #' @method unsplit StdAssay
 #' @export
 #'
@@ -2038,7 +2095,7 @@ unsplit.StdAssay <- function(value, f, drop = FALSE, ...) {
   )
   vf.cols <- grep(
     pattern = paste0(pattern, '[[:alnum:]]+_'),
-    x = colnames(x = object[[]]),
+    x = colnames(x = object[]),
     value = TRUE
   )
   vf.layers <- unique(x = unlist(x = lapply(
@@ -2087,7 +2144,7 @@ unsplit.StdAssay <- function(value, f, drop = FALSE, ...) {
   )
   vf.cols <- grep(
     pattern = paste0(pattern, '[[:alnum:]]+_'),
-    x = colnames(x = object[[]]),
+    x = colnames(x = object[]),
     value = TRUE
   )
   # layers <- Layers(object = object, search = layers)
@@ -2158,7 +2215,7 @@ setAs(
       no = 'data'
     )
     # Add feature-level meta data
-    to[[]] <- from[[]]
+    to[] <- from[]
     # Add miscellaneous data
     mdata <- Misc(object = from)
     for (i in names(x = mdata)) {
@@ -2168,14 +2225,14 @@ setAs(
   }
 )
 
-#' @return \code{[[<-}: \code{x} with \code{value} added as \code{i}
+#' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
 #' in feature-level meta data
-#' @rdname sub-sub-.Assay5
+#' @rdname sub-.Assay5
 #'
 #' @order 2
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'Assay5'),
   definition = function(x, i, ..., value) {
     return(callNextMethod(x = x, i = i, value = value, ...))
@@ -2185,7 +2242,7 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(
     x = 'StdAssay',
     i = 'character',
@@ -2214,7 +2271,7 @@ setMethod(
     for (n in i) {
       v <- value[[n]]
       names(x = v) <- row.names(value)
-      x[[n]] <- v
+      x[n] <- v
     }
     return(x)
   }
@@ -2222,7 +2279,7 @@ setMethod(
 
 #' @rdname sub-sub-.StdAssay
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(
     x = 'StdAssay',
     i = 'missing',
@@ -2232,11 +2289,15 @@ setMethod(
   definition = function(x, ..., value) {
     # Allow removing all meta data
     if (IsMatrixEmpty(x = value)) {
-      x[[names(x = x[[]])]] <- NULL
+      x[names(x = x[])] <- NULL
       return(x)
     }
-    # If no `i` provided, use the column names from value
-    x[[names(x = value)]] <- value
+    if (is.null(names(x = value))) {
+      warning('colnames of input cannot be NULL')
+    } else {
+      # If no `i` provided, use the column names from value
+      x[names(x = value)] <- value
+    }
     return(x)
   }
 )
@@ -2246,12 +2307,12 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'factor'),
   definition = function(x, i, ..., value) {
     f <- slot(
       object = selectMethod(
-        f = '[[<-',
+        f = '[<-',
         signature = c(
           x = 'StdAssay',
           i = 'character',
@@ -2268,7 +2329,7 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'NULL'),
   definition = function(x, i, ..., value) {
     for (name in i) {
@@ -2281,7 +2342,7 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'vector'),
   definition = function(x, i, ..., value) {
     # Add multiple bits of metadata
@@ -2310,8 +2371,8 @@ setMethod(
       }
       df <- EmptyDF(n = nrow(x = x))
       rownames(x = df) <- Features(x = x, layer = NA)
-      df[[i]] <- if (i %in% names(x = x[[]])) {
-        x[[i]]
+      df[[i]] <- if (i %in% names(x = x[])) {
+        x[i]
       } else {
         NA
       }
@@ -2326,52 +2387,44 @@ setMethod(
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'numeric', j = 'missing', value = 'ANY'),
   definition = function(x, i, ..., value) {
-    if (ncol(x = x[[]])) {
-      i <- colnames(x = x[[]])[as.integer(x = i)]
+    if (ncol(x = x[])) {
+      i <- colnames(x = x[])[as.integer(x = i)]
       i <- i[!is.na(x = i)]
       if (length(x = i)) {
-        x[[i]] <- value
+        x[i] <- value
       }
     }
     return(x)
   }
 )
 
-#' @rdname sub-sub-.StdAssay
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'StdAssay',
-    i = 'missing',
-    j = 'missing',
-    value = 'data.frame'
-  ),
-  definition = function(x, ..., value) {
-    # Allow removing all meta data
-    if (IsMatrixEmpty(x = value)) {
-      x[[names(x = x[[]])]] <- NULL
-      return(x)
-    }
-    # If no `i` provided, use the column names from value
-    x[[names(x = value)]] <- value
-    return(x)
-  }
-)
 
 #' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[[<-',
+  f = '[<-',
   signature = c(x = 'StdAssay', i = 'missing', j = 'missing', value = 'NULL'),
   definition = function(x, ..., value) {
     slot(object = x, name = 'meta.data') <- EmptyDF(n = nrow(x = x))
     return(x)
   }
 )
+
+
+
+#' @rdname sub-sub-.StdAssay
+#'
+setMethod( f = '[[<-',
+           signature = c(x = 'StdAssay'),
+           definition = function(x, i, ..., value) {
+             LayerData(x, layer = i) <- value
+             return(x)
+             }
+           )
+
 
 setMethod(
   f = 'colMeans',

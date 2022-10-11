@@ -2,9 +2,9 @@
 % Please edit documentation in R/assay5.R
 \name{[.Assay5}
 \alias{[.Assay5}
-\title{Get Expression Data}
+\title{Get Layer Data}
 \usage{
-\method{[}{Assay5}(x, i, j, ...)
+\method{[}{Assay5}(x, i, j, ..., drop = FALSE)
 }
 \arguments{
 \item{x}{An \code{\link{Assay5}} object}
@@ -20,7 +20,7 @@ The expression matrix for the default layer of \code{x}
 for the \code{i} features and \code{j} cells
 }
 \description{
-Get Expression Data
+Get Layer Data
 }
 \seealso{
 \code{\link{LayerData}}

@@ -7,7 +7,7 @@
 \method{dim}{Assay}(x)
 }
 \arguments{
-\item{x}{An \code{\link{Assay}} object}
+\item{x}{An \code{\link{Assay5}} object}
 }
 \value{
 A two-length numeric vector with the total number of
@@ -27,7 +27,6 @@ v3 Assay object, validity, and interaction methods
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
 \code{\link{[.Assay}()},
-\code{\link{[[.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},
 \code{\link{split.Assay}()},

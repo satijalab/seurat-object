@@ -2,14 +2,11 @@
 % Please edit documentation in R/assay5.R
 \name{[[.Assay5}
 \alias{[[.Assay5}
-\alias{[[<-,Assay5,ANY,ANY,ANY-method}
 \alias{head.Assay5}
 \alias{tail.Assay5}
 \title{Feature-Level Meta Data}
 \usage{
 \method{[[}{Assay5}(x, i, ..., drop = FALSE)
-
-\S4method{[[}{Assay5,ANY,ANY,ANY}(x, i, j, ...) <- value
 
 \method{head}{Assay5}(x, n = 10L, ...)
 
@@ -24,15 +21,12 @@
 
 \item{drop}{See \code{\link{drop}}}
 
-\item{j}{Ignored}
-
 \item{n}{Number of meta data rows to show}
+
+\item{j}{Ignored}
 }
 \value{
 \code{[[}: The feature-level meta data for \code{i}
-
-\code{[[<-}: \code{x} with \code{value} added as \code{i}
-in feature-level meta data
 
 \code{head}: The first \code{n} rows of feature-level meta data
 
