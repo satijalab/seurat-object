@@ -73,6 +73,8 @@ Layers(object, ...)
  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell
   names to the layer data}
 }}
+
+\item{assay}{Name of assay to fetch layer data from or assign layer data to}
 }
 \value{
 \code{LayerData}: the layer data for \code{layer} from \code{object}

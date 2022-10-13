@@ -26,11 +26,10 @@
     the data frame \code{x} using the usual non-standard evaluation
     rules.}
 
-\item{drop}{logical indicating if levels that do not occur should be dropped
-    (if \code{f} is a \code{factor} or a list).}
+\item{drop}{See \code{\link{drop}}}
 
 \item{layers}{Names of layers to include in the split; pass \code{NA} for
-all layers; pass \code{NULL} for the \link[DefaultLayer]{default layer}}
+all layers; pass \code{NULL} for the \link[=DefaultLayer]{default layer}}
 
 \item{ret}{Type of return value; choose from:
 \itemize{
@@ -59,6 +58,8 @@ Split an Assay
 }
 \seealso{
 v5 Standard Assay object, validity, and interaction methods
+\code{\link{$.StdAssay}()},
+\code{\link{.DollarNames.StdAssay}()},
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

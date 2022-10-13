@@ -16,14 +16,14 @@
 \S4method{rowSums}{Assay}(x, na.rm = FALSE, dims = 1, ..., slot = "data")
 }
 \arguments{
-\item{x}{An \code{\link{Assay5}} object}
+\item{x}{An \code{\link{Assay}} object}
 
 \item{na.rm}{logical.  Should missing values (including \code{NaN})
     be omitted from the calculations?}
 
 \item{dims}{completely ignored by the \code{Matrix} methods.}
 
-\item{...}{Arguments passed to \code{\link{LayerData}}}
+\item{...}{Ignored}
 
 \item{slot}{Name of assay expression matrix to calculate column/row
 means/sums on}

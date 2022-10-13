@@ -31,6 +31,8 @@ Get and set feature and cell names in v5 Assays
 \code{\link{Cells}} \code{\link{Features}}
 
 v5 Standard Assay object, validity, and interaction methods
+\code{\link{$.StdAssay}()},
+\code{\link{.DollarNames.StdAssay}()},
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

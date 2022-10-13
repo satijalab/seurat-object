@@ -1,7 +1,7 @@
 list(
   rd_family_title = list(
     angles = "",
-    assay = "v3 Assay object, validity, and interaction methods",
+    assay = "v3 Assay object, validity, and interaction methods:",
     assay5 = "v5 Assay object, validity, and interaction methods:",
     command = "Command log object and interaction methods",
     dimnames = "",

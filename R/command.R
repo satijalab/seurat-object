@@ -212,7 +212,7 @@ DefaultAssay.SeuratCommand <- function(object, ...) {
 #' cmd <- pbmc_small[["NormalizeData.RNA"]]
 #' cmd$normalization.method
 #'
-"$.SeuratCommand" <- function(x, i, ...) {
+"$.SeuratCommand" <- function(x, i) {
   params <- slot(object = x, name = "params")
   return(params[[i]])
 }
@@ -223,6 +223,7 @@ DefaultAssay.SeuratCommand <- function(object, ...) {
 #'
 #' @inheritParams .DollarNames.SeuratCommand
 #' @param i The name of a command log slot
+#' @template param-dots-ignored
 #'
 #' @return \code{[}: Slot \code{i} from \code{x}
 #'
@@ -245,6 +246,7 @@ DefaultAssay.SeuratCommand <- function(object, ...) {
 #' @inheritParams .DollarNames.SeuratCommand
 #' @param complete Include slots besides just parameters
 #' (eg. call string, name, timestamp)
+#' @template param-dots-ignored
 #'
 #' @return A list with the parameters and, if \code{complete = TRUE},
 #' the call string, name, and timestamp

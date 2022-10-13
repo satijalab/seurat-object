@@ -2,78 +2,36 @@
 % Please edit documentation in R/assay5.R
 \name{[[.StdAssay}
 \alias{[[.StdAssay}
-\alias{head.StdAssay}
-\alias{tail.StdAssay}
-\alias{[<-,StdAssay,character,missing,data.frame-method}
-\alias{[<-,StdAssay,missing,missing,data.frame-method}
-\alias{[<-,StdAssay,character,missing,factor-method}
-\alias{[<-,StdAssay,character,missing,NULL-method}
-\alias{[<-,StdAssay,character,missing,vector-method}
-\alias{[<-,StdAssay,numeric,missing,ANY-method}
-\alias{[<-,StdAssay,missing,missing,NULL-method}
-\alias{[[<-,StdAssay,ANY,ANY,ANY-method}
-\title{#' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
-#' in feature-level meta data
-#' @rdname sub-sub-.Assay5
-#'
-#' @order 2
-#'
-setMethod(
-  f = '[<-',
-  signature = c(x = 'Assay5'),
-  definition = function(x, i, ..., value) {
-    print(123)
-    return(callNextMethod(x = x, i = i, value = value, ...))
-  }
-)}
+\alias{[[<-,StdAssay,character,ANY,ANY-method}
+\title{Layer Data}
 \usage{
-\method{[[}{StdAssay}(x, i, ..., drop = FALSE)
+\method{[[}{StdAssay}(x, i = rlang::missing_arg(), ...)
 
-\method{head}{StdAssay}(x, n = 10L, ...)
-
-\method{tail}{StdAssay}(x, n = 10L, ...)
-
-\S4method{[}{StdAssay,character,missing,data.frame}(x, i, j, ...) <- value
-
-\S4method{[}{StdAssay,missing,missing,data.frame}(x, i, j, ...) <- value
-
-\S4method{[}{StdAssay,character,missing,factor}(x, i, j, ...) <- value
-
-\S4method{[}{StdAssay,character,missing,`NULL`}(x, i, j, ...) <- value
-
-\S4method{[}{StdAssay,character,missing,vector}(x, i, j, ...) <- value
-
-\S4method{[}{StdAssay,numeric,missing,ANY}(x, i, j, ...) <- value
-
-\S4method{[}{StdAssay,missing,missing,`NULL`}(x, i, j, ...) <- value
-
-\S4method{[[}{StdAssay,ANY,ANY,ANY}(x, i, j, ...) <- value
+\S4method{[[}{StdAssay,character,ANY,ANY}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{An \code{\link{Assay5}} object}
 
-\item{i}{Name of feature-level meta data to fetch or add}
+\item{i}{Name of layer data to get or set}
 
-\item{...}{Ignored}
-
-\item{drop}{See \code{\link{drop}}}
-
-\item{n}{Number of meta data rows to show}
+\item{...}{Arguments passed to \code{\link{LayerData}}}
 
 \item{j}{Ignored}
+
+\item{value}{A matrix-like object to add as a new layer}
 }
 \value{
-\code{[[}: The feature-level meta data for \code{i}
+\code{[[}: The layer data for layer \code{i}
 
-\code{head}: The first \code{n} rows of feature-level meta data
-
-\code{tail}: the last \code{n} rows of feature-level meta data
+\code{[[<-}: \code{x} with layer data \code{value} saved as \code{i}
 }
 \description{
-Get and set feature-level meta data
+Get and set layer data
 }
 \seealso{
 v5 Standard Assay object, validity, and interaction methods
+\code{\link{$.StdAssay}()},
+\code{\link{.DollarNames.StdAssay}()},
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

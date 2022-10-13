@@ -3,7 +3,7 @@
 #' @include layers.R
 #' @include logmap.R
 #' @include keymixin.R
-#' @importFrom methods setAs
+#' @importFrom methods callNextMethod setAs
 #'
 NULL
 
@@ -316,53 +316,6 @@ setClass(
   type <- match.arg(arg = type)
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
 }
-
-
-#' @describeIn Seurat-methods Autocompletion for \code{$} access on a
-#' \code{StdAssay} object
-#'
-#' @inheritParams utils::.DollarNames
-#'
-#' @importFrom utils .DollarNames
-#' @export
-#' @method .DollarNames StdAssay
-#'
-".DollarNames.StdAssay" <- function(x, pattern = '') {
-  layer.name <- as.list(x = Layers(x))
-  names(x = layer.name) <- unlist(x = layer.name)
-  return(.DollarNames(x = layer.name, pattern = pattern))
-}
-
-#' @export
-#' @method $ StdAssay
-#'
-#' @examples
-#' # Get LayerData using `$'
-#' head(pbmc_small$groups)
-#'
-"$.StdAssay" <- function(x, i, ...) {
-  return(LayerData(object = x, layer = i))
-}
-
-#' @describeIn xxxxxx
-#'
-#' @return \code{$<-}: object \code{x} with metadata \code{value} saved as
-#' \code{i}
-#'
-#' @export
-#' @method $<- StdAssay
-#'
-#' @examples
-#' # Add metadata using the `$' operator
-#' set.seed(42)
-#' pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
-#' head(pbmc_small[["value"]])
-#'
-"$<-.StdAssay" <- function(x, i, ..., value) {
-  LayerData(object = x, layer = i) <- value
-  return(x)
-}
-
 
 #' @templateVar fxn AddMetaData
 #' @template method-stdassay
@@ -1295,7 +1248,7 @@ Misc.StdAssay <- .Misc
 #' @method Misc Assay5
 #' @export
 #'
-Misc.Assay5 <- Misc.StdAssay
+Misc.Assay5 <- .Misc
 
 #' @templateVar fxn Misc
 #' @template method-stdassay
@@ -1308,7 +1261,7 @@ Misc.Assay5 <- Misc.StdAssay
 #' @method Misc Assay5
 #' @export
 #'
-"Misc<-Assay5" <- `Misc<-.StdAssay`
+"Misc<-Assay5" <- `.Misc<-`
 
 #' @rdname AssayData-StdAssay
 #' @method SetAssayData StdAssay
@@ -1462,6 +1415,88 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @inherit .DollarNames.Assay5 params return title description details sections
+#'
+#' @importFrom utils .DollarNames
+#'
+#' @keywords internal
+#' @method .DollarNames StdAssay
+#' @export
+#'
+#' @family stdassay
+#'
+.DollarNames.StdAssay <- function(x, pattern = '') {
+  layers <- as.list(x = Layers(object = x))
+  names(x = layers) <- unlist(x = layers)
+  return(.DollarNames(x = layers, pattern = pattern))
+}
+
+#' Dollar-sign Autocompletion
+#'
+#' Autocompletion for \code{$} access on an \code{\link{Assay5}} object
+#'
+#' @inheritParams [.Assay5
+#' @inheritParams utils::.DollarNames
+#'
+#' @return The layer name matches for \code{pattern}
+#'
+#' @importFrom utils .DollarNames
+#'
+#' @keywords internal
+#'
+#' @method .DollarNames Assay5
+#' @export
+#'
+#' @concept assay5
+#'
+#' @seealso \code{\link[utils:.DollarNames]{utils::.DollarNames}}
+#'
+.DollarNames.Assay5 <- .DollarNames.StdAssay
+
+#' @inherit $.Assay5 params return title description details sections
+#'
+#' @keywords internal
+#' @method $ StdAssay
+#' @export
+#'
+#' @family stdassay
+#'
+"$.StdAssay" <- function(x, i) {
+  return(LayerData(object = x, layer = i))
+}
+
+#' Layer Data
+#'
+#' Get and set layer data
+#'
+#' @inheritParams [[.Assay5
+#'
+#' @return {$}: Layer data for layer \code{i}
+#'
+#' @method $ Assay5
+#' @export
+#'
+#' @family assay5
+#'
+"$.Assay5" <- `$.StdAssay`
+
+
+#' @rdname cash-.StdAssay
+#'
+#' @method $<- StdAssay
+#' @export
+#'
+"$<-.StdAssay" <- `$<-.Assay`
+
+#' @return \code{$<-}: \code{x} with layer data \code{value} saved as \code{i}
+#'
+#' @rdname cash-.Assay5
+#'
+#' @method $<- Assay5
+#' @export
+#'
+"$<-.Assay5" <- `$<-.StdAssay`
+
 #' @inherit [.Assay5 params return title description details sections
 #'
 #' @keywords internal
@@ -1486,22 +1521,24 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   return(data.return)
 }
 
-#' Get Layer Data
+#' Feature-Level Meta Data
+#'
+#' Get and set feature-level meta data
 #'
 #' @param x An \code{\link{Assay5}} object
-#' @param i Feature names or indices
-#' @param j Cell names or indices
-#' @param ... Arguments passed to \code{\link{LayerData}}
+#' @param i Name of feature-level meta data to fetch or add
+#' @param j Ignored
+#' @param drop See \code{\link{drop}}
+#' @template param-dots-ignored
 #'
-#' @return The expression matrix for the default layer of \code{x}
-#' for the \code{i} features and \code{j} cells
+#' @return \code{[}: The feature-level meta data for \code{i}
 #'
 #' @method [ Assay5
 #' @export
 #'
 #' @family assay5
 #'
-#' @seealso \code{\link{LayerData}}
+#' @order 1
 #'
 "[.Assay5" <- `[.StdAssay`
 
@@ -1513,30 +1550,24 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #'
 #' @family stdassay
 #'
-"[[.StdAssay" <- function(x, i, ..., drop = FALSE) {
-  if (missing(x = i)) {
-    return(Layers(x))
-  } else if (i %in% Layers(x)) {
-    return(LayerData(object = x, layer = i))
-  }
-}
+"[[.StdAssay" <- `[[.Assay`
 
-#' Feature-Level Meta Data
+#' Layer Data
 #'
-#' Get and set feature-level meta data
+#' Get and set layer data
 #'
 #' @inheritParams [.Assay5
-#' @param i Name of feature-level meta data to fetch or add
-#' @param j Ignored
-#' @param drop See \code{\link{drop}}
-#' @template param-dots-ignored
+#' @param i Name of layer data to get or set
+#' @param ... Arguments passed to \code{\link{LayerData}}
 #'
-#' @return \code{[[}: The feature-level meta data for \code{i}
+#' @return \code{[[}: The layer data for layer \code{i}
 #'
 #' @method [[ Assay5
 #' @export
 #'
 #' @family assay5
+#'
+#' @seealso \code{\link{LayerData}}
 #'
 #' @order 1
 #'
@@ -1639,18 +1670,18 @@ dimnames.Assay5 <- dimnames.StdAssay
 #'
 "dimnames<-.Assay5" <- `dimnames<-.StdAssay`
 
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 #'
 #' @method head StdAssay
 #' @export
 #'
-head.StdAssay <- .head
+head.StdAssay <- head.Assay
 
 #' @param n Number of meta data rows to show
 #'
 #' @return \code{head}: The first \code{n} rows of feature-level meta data
 #'
-#' @rdname sub-sub-.Assay5
+#' @rdname sub-.Assay5
 #'
 #' @method head Assay5
 #' @export
@@ -1889,7 +1920,7 @@ split.StdAssay <- function(
 #' @inheritParams [.Assay5
 #' @inheritParams base::split
 #' @param layers Names of layers to include in the split; pass \code{NA} for
-#' all layers; pass \code{NULL} for the \link[DefaultLayer]{default layer}
+#' all layers; pass \code{NULL} for the \link[=DefaultLayer]{default layer}
 #' @param ret Type of return value; choose from:
 #' \itemize{
 #'  \item \dQuote{\code{assay}}: a single \code{\link{Assay5}} object
@@ -2045,16 +2076,16 @@ subset.StdAssay <- function(
 #'
 subset.Assay5 <- subset.StdAssay
 
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 #'
 #' @method tail StdAssay
 #' @export
 #'
-tail.StdAssay <- .tail
+tail.StdAssay <- tail.Assay
 
 #' @return \code{tail}: the last \code{n} rows of feature-level meta data
 #'
-#' @rdname sub-sub-.Assay5
+#' @rdname sub-.Assay5
 #'
 #' @method tail Assay5
 #' @export
@@ -2062,6 +2093,7 @@ tail.StdAssay <- .tail
 tail.Assay5 <- tail.StdAssay
 
 #' Rename assay5
+#'
 #' @export
 RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   CheckDots(...)
@@ -2225,21 +2257,7 @@ setAs(
   }
 )
 
-#' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
-#' in feature-level meta data
-#' @rdname sub-.Assay5
-#'
-#' @order 2
-#'
-setMethod(
-  f = '[<-',
-  signature = c(x = 'Assay5'),
-  definition = function(x, i, ..., value) {
-    return(callNextMethod(x = x, i = i, value = value, ...))
-  }
-)
-
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 #'
 setMethod(
   f = '[<-',
@@ -2277,7 +2295,7 @@ setMethod(
   }
 )
 
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 setMethod(
   f = '[<-',
   signature = c(
@@ -2304,7 +2322,7 @@ setMethod(
 
 #' @importFrom methods selectMethod
 #'
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 #'
 setMethod(
   f = '[<-',
@@ -2326,7 +2344,7 @@ setMethod(
   }
 )
 
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 #'
 setMethod(
   f = '[<-',
@@ -2339,7 +2357,7 @@ setMethod(
   }
 )
 
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 #'
 setMethod(
   f = '[<-',
@@ -2384,7 +2402,7 @@ setMethod(
   }
 )
 
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 #'
 setMethod(
   f = '[<-',
@@ -2401,8 +2419,7 @@ setMethod(
   }
 )
 
-
-#' @rdname sub-sub-.StdAssay
+#' @rdname sub-.StdAssay
 #'
 setMethod(
   f = '[<-',
@@ -2413,18 +2430,47 @@ setMethod(
   }
 )
 
-
+#' @param value Feature-level meta data to add
+#'
+#' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
+#' in feature-level meta data
+#'
+#' @rdname sub-.Assay5
+#'
+#' @order 2
+#'
+setMethod(
+  f = '[<-',
+  signature = c(x = 'Assay5'),
+  definition = function(x, i, ..., value) {
+    return(callNextMethod(x = x, i = i, ..., value = value))
+  }
+)
 
 #' @rdname sub-sub-.StdAssay
 #'
-setMethod( f = '[[<-',
-           signature = c(x = 'StdAssay'),
-           definition = function(x, i, ..., value) {
-             LayerData(x, layer = i) <- value
-             return(x)
-             }
-           )
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'StdAssay', i = 'character'),
+  definition = function(x, i, ..., value) {
+    LayerData(object = x, layer = i, ...) <- value
+    return(x)
+  }
+)
 
+#' @param value A matrix-like object to add as a new layer
+#'
+#' @return \code{[[<-}: \code{x} with layer data \code{value} saved as \code{i}
+#'
+#' @rdname sub-sub-.Assay5
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Assay5', i = 'character'),
+  definition = function(x, i, ..., value) {
+    return(callNextMethod(x = x, i = i, ..., value = value))
+  }
+)
 
 setMethod(
   f = 'colMeans',

@@ -15,7 +15,7 @@
 
 \item{j}{Ignored}
 
-\item{...}{Ignored}
+\item{...}{Arguments passed to \code{\link{LayerData}}}
 
 \item{value}{NULL}
 }

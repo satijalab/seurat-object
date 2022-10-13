@@ -2,30 +2,50 @@
 % Please edit documentation in R/assay5.R
 \name{[.Assay5}
 \alias{[.Assay5}
-\title{Get Layer Data}
+\alias{[<-,Assay5,ANY,ANY,ANY-method}
+\alias{head.Assay5}
+\alias{tail.Assay5}
+\title{Feature-Level Meta Data}
 \usage{
 \method{[}{Assay5}(x, i, j, ..., drop = FALSE)
+
+\S4method{[}{Assay5,ANY,ANY,ANY}(x, i, j, ...) <- value
+
+\method{head}{Assay5}(x, n = 10L, ...)
+
+\method{tail}{Assay5}(x, n = 10L, ...)
 }
 \arguments{
 \item{x}{An \code{\link{Assay5}} object}
 
-\item{i}{Feature names or indices}
+\item{i}{Name of feature-level meta data to fetch or add}
 
-\item{j}{Cell names or indices}
+\item{j}{Ignored}
 
-\item{...}{Arguments passed to \code{\link{LayerData}}}
+\item{...}{Ignored}
+
+\item{drop}{See \code{\link{drop}}}
+
+\item{value}{Feature-level meta data to add}
+
+\item{n}{Number of meta data rows to show}
 }
 \value{
-The expression matrix for the default layer of \code{x}
-for the \code{i} features and \code{j} cells
+\code{[}: The feature-level meta data for \code{i}
+
+\code{[<-}: \code{x} with \code{value} added as \code{i}
+in feature-level meta data
+
+\code{head}: The first \code{n} rows of feature-level meta data
+
+\code{tail}: the last \code{n} rows of feature-level meta data
 }
 \description{
-Get Layer Data
+Get and set feature-level meta data
 }
 \seealso{
-\code{\link{LayerData}}
-
 v5 Assay object, validity, and interaction methods:
+\code{\link{$.Assay5}()},
 \code{\link{Assay5-class}},
 \code{\link{Assay5-validity}},
 \code{\link{[[.Assay5}()},

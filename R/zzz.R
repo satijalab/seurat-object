@@ -176,6 +176,10 @@ setOldClass(Classes = 'package_version')
   return(all(check))
 }
 
+.IsDataFrame <- function(x) {
+  return(length(x = class(x = x)) == 1L && inherits(x = x, what = 'data.frame'))
+}
+
 #' Test Future Compatibility with \pkg{Seurat}
 #'
 #' Check to see if \pkg{SeuratObject} and/or \pkg{Seurat} are at least a

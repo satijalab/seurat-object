@@ -110,8 +110,8 @@ NULL
 
 #' @export .MARGIN
 #'
-.MARGIN <- function(object, ...) {
-  UseMethod(generic = '.MARGIN', object = object)
+.MARGIN <- function(x, ...) {
+  UseMethod(generic = '.MARGIN', object = x)
 }
 
 #' Add in metadata associated with either cells or features.
@@ -501,11 +501,11 @@ CreateSegmentation <- function(coords) {
 #'
 CreateSeuratObject <- function(
   counts,
-  project = 'CreateSeuratObject',
   assay = 'RNA',
   names.field = 1,
   names.delim = '_',
   meta.data = NULL,
+  project = 'CreateSeuratObject',
   ...
 ) {
   UseMethod(generic = 'CreateSeuratObject', object = counts)

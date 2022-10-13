@@ -30,6 +30,7 @@ Keys that are not empty strings are validated with the regex
 \code{\link[methods]{validObject}}
 
 v5 Assay object, validity, and interaction methods:
+\code{\link{$.Assay5}()},
 \code{\link{Assay5-class}},
 \code{\link{[.Assay5}()},
 \code{\link{[[.Assay5}()},

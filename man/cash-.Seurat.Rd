@@ -3,20 +3,26 @@
 \name{$.Seurat}
 \alias{$.Seurat}
 \alias{$<-.Seurat}
+\alias{[[<-,Seurat,character,missing,data.frame-method}
 \alias{[[<-,Seurat,missing,missing,data.frame-method}
 \alias{[[<-,Seurat,character,missing,factor-method}
 \alias{[[<-,Seurat,missing,missing,list-method}
+\alias{[[<-,Seurat,character,missing,vector-method}
 \title{Cell-Level Meta Data}
 \usage{
-\method{$}{Seurat}(x, i, ...)
+\method{$}{Seurat}(x, i)
 
 \method{$}{Seurat}(x, i, ...) <- value
+
+\S4method{[[}{Seurat,character,missing,data.frame}(x, i, j, ...) <- value
 
 \S4method{[[}{Seurat,missing,missing,data.frame}(x, i, j, ...) <- value
 
 \S4method{[[}{Seurat,character,missing,factor}(x, i, j, ...) <- value
 
 \S4method{[[}{Seurat,missing,missing,list}(x, i, j, ...) <- value
+
+\S4method{[[}{Seurat,character,missing,vector}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{A \code{\link{Seurat}} object}
@@ -26,6 +32,8 @@
 \item{...}{Ignored}
 
 \item{value}{A vector to add as cell-level meta data}
+
+\item{j}{Ignored}
 }
 \value{
 {$}: Metadata column \code{i} for object \code{x};

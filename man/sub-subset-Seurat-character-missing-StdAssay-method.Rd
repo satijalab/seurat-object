@@ -13,7 +13,7 @@
 
 \item{j}{Ignored}
 
-\item{...}{Ignored}
+\item{...}{Arguments passed to \code{\link{LayerData}}}
 
 \item{value}{A valid subobject (eg. a \link[Assay]{v3} or
 \link[Assay5]{v5} assay or a \link[DimReduc]{dimensional reduction})}
@@ -23,64 +23,6 @@
 }
 \description{
 Add Subobjects
-
-#' @rdname cash-.Seurat
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(
-    x = 'Seurat',
-    i = 'character',
-    j = 'missing',
-    value = 'data.frame'
-  ),
-  definition = function(x, i, ..., value) {
-    # Because R is stupid sometimes
-    if (!length(x = i) && !ncol(x = value)) {
-      return(x)
-    }
-    # Check that the `i` we're adding are present in the data frame
-    if (!is.null(x = names(x = value))) {
-      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
-    } else if (length(x = i) != ncol(x = value)) {
-      stop(
-        "Cannot assign ",
-        length(x = i),
-        " names to ",
-        ncol(x = value),
-        " bits of meta data",
-        call. = FALSE
-      )
-    }
-    # Handle meta data for different cells
-    names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
-    if (length(x = names.intersect)) {
-      value <- value[names.intersect, , drop = FALSE]
-      if (!nrow(x = value)) {
-        stop(
-          "None of the cells provided are in this Seurat object",
-          call. = FALSE
-        )
-      }
-    } else if (nrow(x = value) == ncol(x = x)) {
-      # When no cell names are provided in value, assume it's in cell order
-      row.names(x = value) <- colnames(x = x)
-    } else {
-      # Throw an error when no cell names provided and cannot assume cell order
-      stop(
-        "Cannot add more or less meta data without cell names",
-        call. = FALSE
-      )
-    }
-    # Add the cell-level meta data using the `value = vector` method
-    for (n in i) {
-      v <- value[[n]]
-      names(x = v) <- row.names(x = value)
-      x[[n]] <- v
-    }
-    return(x)
-  }
-)
 }
 \seealso{
 See \link[=[[.Seurat]{here} for pulling subobjects using \code{[[},

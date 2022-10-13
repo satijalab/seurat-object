@@ -4,7 +4,7 @@
 \alias{$.SeuratCommand}
 \title{Command Log Parameter Access}
 \usage{
-\method{$}{SeuratCommand}(x, i, ...)
+\method{$}{SeuratCommand}(x, i)
 }
 \arguments{
 \item{x}{A \code{\link{SeuratCommand}} object}

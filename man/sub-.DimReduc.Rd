@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \code{\link{DimReduc}} object}
 
-\item{i}{Feature names or indices}
+\item{i}{Name of feature-level meta data to fetch or add}
 
 \item{j}{Dimension identifiers or indices}
 

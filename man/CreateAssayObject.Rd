@@ -21,12 +21,15 @@ CreateAssayObject(
 
 \item{min.cells}{Include features detected in at least this many cells. Will
 subset the counts matrix as well. To reintroduce excluded features, create a
-new object with a lower cutoff.}
+new object with a lower cutoff}
 
 \item{min.features}{Include cells where at least this many features are
-detected.}
+detected}
 
-\item{check.matrix}{Check counts matrix for NA, NaN, Inf, and non-integer values}
+\item{key}{Optional key to initialize assay with}
+
+\item{check.matrix}{Check counts matrix for NA, NaN, Inf, and
+non-integer values}
 
 \item{...}{Arguments passed to \code{\link{as.sparse}}}
 }
@@ -53,10 +56,12 @@ pbmc_rna
 
 }
 \seealso{
-v3 Assay object, validity, and interaction methods
+v3 Assay object, validity, and interaction methods:
+\code{\link{$.Assay}()},
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{[.Assay}()},
+\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},

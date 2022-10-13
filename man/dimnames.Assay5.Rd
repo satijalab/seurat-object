@@ -29,6 +29,7 @@ Get and set feature and cell names in v5 Assays
 }
 \seealso{
 v5 Assay object, validity, and interaction methods:
+\code{\link{$.Assay5}()},
 \code{\link{Assay5-class}},
 \code{\link{Assay5-validity}},
 \code{\link{[.Assay5}()},

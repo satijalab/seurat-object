@@ -71,10 +71,12 @@ setClass(
 #' @param data Prenormalized data; if provided, do not pass \code{counts}
 #' @param min.cells Include features detected in at least this many cells. Will
 #' subset the counts matrix as well. To reintroduce excluded features, create a
-#' new object with a lower cutoff.
+#' new object with a lower cutoff
 #' @param min.features Include cells where at least this many features are
-#' detected.
-#' @param check.matrix Check counts matrix for NA, NaN, Inf, and non-integer values
+#' detected
+#' @param key Optional key to initialize assay with
+#' @param check.matrix Check counts matrix for NA, NaN, Inf, and
+#' non-integer values
 #' @param ... Arguments passed to \code{\link{as.sparse}}
 #'
 #' @return A \code{\link{Assay}} object
@@ -283,53 +285,6 @@ DefaultAssay.Assay <- function(object, ...) {
 DefaultLayer.Assay <- function(object, ...) {
   return('data')
 }
-
-#' @describeIn Seurat-methods Autocompletion for \code{$} access on a
-#' \code{StdAssay} object
-#'
-#' @inheritParams utils::.DollarNames
-#'
-#' @importFrom utils .DollarNames
-#' @export
-#' @method .DollarNames Assay
-#'
-".DollarNames.Assay" <- function(x, pattern = '') {
- slots.avial <- Layers(x)
- slots.avial <- as.list(slots.avial)
- names(slots.avial) <- unlist(slots.avial)
-  return(.DollarNames(x = slots.avial, pattern = pattern))
-}
-
-#' @export
-#' @method $ Assay
-#'
-#' @examples
-#' # Get LayerData using `$'
-#' head(pbmc_small$groups)
-#'
-"$.Assay" <- function(x, i, ...) {
-  return(LayerData(object = x, layer = i))
-}
-
-#' @describeIn xxxxxx
-#'
-#' @return \code{$<-}: object \code{x} with metadata \code{value} saved as
-#' \code{i}
-#'
-#' @export
-#' @method $<- Assay
-#'
-#' @examples
-#' # Add metadata using the `$' operator
-#' set.seed(42)
-#' pbmc_small$value <- sample(1:3, size = ncol(pbmc_small), replace = TRUE)
-#' head(pbmc_small[["value"]])
-#'
-"$<-.Assay" <- function(x, i, ..., value) {
-  LayerData(object = x, layer = i) <- value
-  return(x)
-}
-
 
 #' @method Features Assay
 #' @export
@@ -1051,38 +1006,69 @@ WhichCells.Assay <- function(
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#' 
-#' #' @inherit [.Assay5 title description details sections
-#' #'
-#' #' @inheritParams [.Assay5
-#' #' @param x An \code{\link{Assay}} object
-#' #' @template param-dots-method
-#' #'
-#' #' @method [ Assay
-#' #' @export
-#' #'
-#' #' @family assay
-#' #'
-#' #' @seealso \code{\link{GetAssayData}}
-#' #'
-#' #' @examples
-#' #' rna <- pbmc_small[["RNA"]]
-#' #' rna[1:10, 1:4]
-#' #'
-#' "[.Assay" <- function(x, i, j, ...) {
-#'   if (missing(x = i)) {
-#'     i <- seq_len(length.out = nrow(x = x))
-#'   }
-#'   if (missing(x = j)) {
-#'     j <- seq_len(length.out = ncol(x = x))
-#'   }
-#'   return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
-#' }
+
+#' @inherit .DollarNames.Assay5 return title details sections seealso
+#'
+#' @description  Autocompletion for \code{$} access on an
+#' \code{\link{Assay}} object
+#'
+#' @inheritParams utils::.DollarNames
+#' @param x An \code{\link{Assay}} object
+#'
+#' @importFrom utils .DollarNames
+#'
+#' @keywords internal
+#'
+#' @method .DollarNames Assay
+#' @export
+#'
+#' @concept assay
+#'
+.DollarNames.Assay <- function(x, pattern = '') {
+  slots.avial <- Layers(x)
+  slots.avial <- as.list(slots.avial)
+  names(slots.avial) <- unlist(slots.avial)
+  return(.DollarNames(x = slots.avial, pattern = pattern))
+}
+
+#' @inherit $.Assay5 return title description details sections params
+#'
+#' @param x An \code{\link{Assay}} object
+#'
+#' @method $ Assay
+#' @export
+#'
+#' @family assay
+#'
+#' @examples
+#' rna <- pbmc_small[["RNA"]]
+#'
+#' # Fetch a layer with `$`
+#' rna$data[1:10, 1:4]
+#'
+"$.Assay" <- function(x, i) {
+  return(LayerData(object = x, layer = i))
+}
+
+#' @rdname cash-.Assay
+#'
+#' @method $<- Assay
+#' @export
+#'
+#' @examples
+#' # Add a layer with `$`
+#' rna$data <- rna$counts
+#' rna$data[1:10, 1:4]
+#'
+"$<-.Assay" <- function(x, i, value) {
+  LayerData(object = x, layer = i) <- value
+  return(x)
+}
 
 #' @inherit [.Assay5 return title description details sections
 #'
-#' @inheritParams [.Assay
 #' @inheritParams [.Assay5
+#' @param x An \code{\link{Assay}} object
 #'
 #' @method [ Assay
 #' @export
@@ -1093,7 +1079,13 @@ WhichCells.Assay <- function(
 #'
 #' @examples
 #' rna <- pbmc_small[["RNA"]]
+#'
+#' # Pull the entire feature-level meta data data frame
 #' head(rna[])
+#'
+#' # Pull a specific column of feature-level meta data
+#' head(rna["vst.mean"])
+#' head(rna["vst.mean", drop = TRUE])
 #'
 "[.Assay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
@@ -1107,6 +1099,37 @@ WhichCells.Assay <- function(
   return(data.return)
 }
 
+#' @inherit [[.Assay5 return title description details sections
+#'
+#' @inheritParams [.Assay
+#' @inheritParams [[.Assay5
+#' @param j Ignored
+#'
+#' @method [[ Assay
+#' @export
+#'
+#' @family assay
+#'
+#' @seealso \code{\link{LayerData}}
+#'
+#' @order 1
+#'
+#' @examples
+#' rna <- pbmc_small[["RNA"]]
+#'
+#' # Get a vector of layer names in this assay
+#' rna[[]]
+#'
+#' # Fetch layer data
+#' rna[["data"]][1:10, 1:4]
+#'
+"[[.Assay" <- function(x, i = rlang::missing_arg(), ...) {
+  # if (missing(x = i)) {
+  if (rlang::is_missing(x = i)) {
+    return(Layers(object = x))
+  }
+  return(LayerData(object = x, layer = i, ...))
+}
 
 #' @inherit dim.Assay5 return title description details sections
 #'
@@ -1196,7 +1219,7 @@ dimnames.Assay <- function(x) {
   return(x)
 }
 
-#' @rdname sub-sub-.Assay
+#' @rdname sub-.Assay
 #'
 #' @method head Assay
 #' @export
@@ -1205,7 +1228,9 @@ dimnames.Assay <- function(x) {
 #' # `head` and `tail` can be used to quickly view feature-level meta data
 #' head(rna)
 #'
-head.Assay <- .head
+head.Assay <- function(x, n = 10L, ...) {
+  return(head(x[], n = 10L, ...))
+}
 
 #' Merge Assays
 #'
@@ -1280,13 +1305,12 @@ merge.Assay <- function(
 #' @inherit split.Assay5 title description details sections
 #'
 #' @inheritParams split.Assay5
-#' @inheritParams [.Assay
+#' @param x An \code{\link{Assay}} object
 #' @param ret Type of return value; choose from:
 #' \itemize{
 #'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay}} objects
 #'  \item \dQuote{\code{layers}}: a list of layer matrices
 #' }
-#' @template param-dots-ignored
 #'
 #' @return Depends on the value of \code{ret}:
 #' \itemize{
@@ -1361,9 +1385,8 @@ split.Assay <- function(
 
 #' @inherit subset.Assay5 title description details sections
 #'
-#' @inheritParams [.Assay
 #' @inheritParams subset.Assay5
-#' @template param-dots-ignored
+#' @param x An \code{\link{Assay}} object
 #'
 #' @return \code{x} with just the cells and features specified by
 #' \code{cells} and \code{features}
@@ -1430,7 +1453,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   return(x)
 }
 
-#' @rdname sub-sub-.Assay
+#' @rdname sub-.Assay
 #'
 #' @method tail Assay
 #' @export
@@ -1438,19 +1461,21 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
 #' @examples
 #' tail(rna)
 #'
-tail.Assay <- .tail
+tail.Assay <- function(x, n = 10L, ...) {
+  return(tail(x[], n = n, ...))
+}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @rdname sub-sub-.Assay
+#' @rdname sub-.Assay
 #'
 #' @order 2
 #'
 setMethod(
   f = '[<-',
-  signature = c('x' = 'Assay'),
+  signature = c(x = 'Assay'),
   definition = function(x, i, ..., value) {
     meta.data <- x[]
     feature.names <- rownames(x = meta.data)
@@ -1494,6 +1519,22 @@ setMethod(
   }
 )
 
+#' @rdname sub-sub-.Assay
+#'
+#' @examples
+#' # Set layer data
+#' rna[["data"]] <- rna[["counts"]]
+#' rna[["data"]][1:10, 1:4]
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Assay', i = 'character'),
+  definition = function(x, i, ..., value) {
+    LayerData(object = x, layer = i, ...) <- value
+    return(x)
+  }
+)
+
 #' Row and Column Sums and Means
 #'
 #' Calculate \code{\link{rowSums}}, \code{\link{colSums}},
@@ -1523,7 +1564,7 @@ setMethod(
 #'
 setMethod(
   f = 'colMeans',
-  signature = c('x' = 'Assay'),
+  signature = c(x = 'Assay'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::colMeans(
       x = GetAssayData(object = x, slot = slot),
@@ -1547,7 +1588,7 @@ setMethod(
 #'
 setMethod(
   f = 'colSums',
-  signature = c('x' = 'Assay'),
+  signature = c(x = 'Assay'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::colSums(
       x = GetAssayData(object = x, slot = slot),
@@ -1571,7 +1612,7 @@ setMethod(
 #'
 setMethod(
   f = 'rowMeans',
-  signature = c('x' = 'Assay'),
+  signature = c(x = 'Assay'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowMeans(
       x = GetAssayData(object = x, slot = slot),
@@ -1595,7 +1636,7 @@ setMethod(
 #'
 setMethod(
   f = 'rowSums',
-  signature = c('x' = 'Assay'),
+  signature = c(x = 'Assay'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowSums(
       x = GetAssayData(object = x, slot = slot),

@@ -8,11 +8,11 @@
 \usage{
 CreateSeuratObject(
   counts,
-  project = "CreateSeuratObject",
   assay = "RNA",
   names.field = 1,
   names.delim = "_",
   meta.data = NULL,
+  project = "CreateSeuratObject",
   ...
 )
 
@@ -43,8 +43,6 @@ CreateSeuratObject(
 unnormalized data with cells as columns and features as rows or an
 \code{\link{Assay}}-derived object}
 
-\item{project}{\link{Project} name for the \code{Seurat} object}
-
 \item{assay}{Name of the initial assay}
 
 \item{names.field}{For the initial identity class for each cell, choose this
@@ -62,14 +60,16 @@ Should be a \code{\link[base]{data.frame}} where the rows are cell names and
 the columns are additional metadata fields. Row names in the metadata need
 to match the column names of the counts matrix.}
 
+\item{project}{\link{Project} name for the \code{Seurat} object}
+
 \item{...}{Arguments passed to other methods}
 
 \item{min.cells}{Include features detected in at least this many cells. Will
 subset the counts matrix as well. To reintroduce excluded features, create a
-new object with a lower cutoff.}
+new object with a lower cutoff}
 
 \item{min.features}{Include cells where at least this many features are
-detected.}
+detected}
 }
 \value{
 A \code{\link{Seurat}} object

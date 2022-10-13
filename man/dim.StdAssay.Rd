@@ -18,6 +18,8 @@ Feature and Cell Numbers
 }
 \seealso{
 v5 Standard Assay object, validity, and interaction methods
+\code{\link{$.StdAssay}()},
+\code{\link{.DollarNames.StdAssay}()},
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

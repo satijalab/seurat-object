@@ -10,7 +10,7 @@
 \method{dimnames}{Assay}(x) <- value
 }
 \arguments{
-\item{x}{An \code{\link{Assay5}} object}
+\item{x}{An \code{\link{Assay}} object}
 
 \item{value}{A two-length list where the first entry is the existing feature
 names for \code{x} and the second entry is the \emph{updated} cell names
@@ -42,11 +42,13 @@ head(colnames(rna))
 
 }
 \seealso{
-v3 Assay object, validity, and interaction methods
+v3 Assay object, validity, and interaction methods:
+\code{\link{$.Assay}()},
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
 \code{\link{[.Assay}()},
+\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{merge.Assay}()},
 \code{\link{split.Assay}()},

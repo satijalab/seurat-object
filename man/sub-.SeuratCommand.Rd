@@ -10,6 +10,8 @@
 \item{x}{A \code{\link{SeuratCommand}} object}
 
 \item{i}{The name of a command log slot}
+
+\item{...}{Ignored}
 }
 \value{
 \code{[}: Slot \code{i} from \code{x}

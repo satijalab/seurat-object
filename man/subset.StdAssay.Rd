@@ -15,7 +15,7 @@
 
 \item{layers}{Layer to keep; defaults to all layers}
 
-\item{...}{Arguments passed to \code{\link{LayerData}}}
+\item{...}{Ignored}
 }
 \value{
 \code{x} with just the cells and features specified by
@@ -26,6 +26,8 @@ Subset an Assay
 }
 \seealso{
 v5 Standard Assay object, validity, and interaction methods
+\code{\link{$.StdAssay}()},
+\code{\link{.DollarNames.StdAssay}()},
 \code{\link{StdAssay-class}},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},

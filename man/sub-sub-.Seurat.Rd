@@ -22,6 +22,8 @@
 \item{drop}{See \code{\link[base]{drop}}}
 
 \item{na.rm}{Remove cells where meta data is all \code{NA}}
+
+\item{n}{Number of meta data rows to show}
 }
 \value{
 Varies based on the value of \code{i}:

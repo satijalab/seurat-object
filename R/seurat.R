@@ -1770,6 +1770,8 @@ Key.Seurat <- function(object, ...) {
 #'
 Keys.Seurat <- Key.Seurat
 
+#' @param assay Name of assay to fetch layer data from or assign layer data to
+#'
 #' @rdname Layers
 #' @method LayerData Seurat
 #' @export
@@ -2427,7 +2429,7 @@ Version.Seurat <- function(object, ...) {
 #'
 #' @concept seurat
 #'
-#' @seealso \code{\link{utils::.DollarNames}}
+#' @inherit .DollarNames.Assay5 seealso
 #'
 ".DollarNames.Seurat" <- function(x, pattern = '') {
   meta.data <- as.list(x = colnames(x = x[[]]))
@@ -2441,6 +2443,7 @@ Version.Seurat <- function(object, ...) {
 #'
 #' @inheritParams .DollarNames.Seurat
 #' @param i Name of cell-level meta data
+#' @param j Ignored
 #' @template param-dots-ignored
 #'
 #' @return {$}: Metadata column \code{i} for object \code{x};
@@ -2456,7 +2459,7 @@ Version.Seurat <- function(object, ...) {
 #' # Get metadata using `$'
 #' head(pbmc_small$groups)
 #'
-"$.Seurat" <- function(x, i, ...) {
+"$.Seurat" <- function(x, i) {
   return(x[[i, drop = TRUE]])
 }
 
@@ -2807,6 +2810,8 @@ droplevels.Seurat <- function(x, ...) {
   return(x)
 }
 
+#' @param n Number of meta data rows to show
+#'
 #' @return \code{head}: The first \code{n} rows of cell-level metadata
 #'
 #' @rdname sub-sub-.Seurat
@@ -4551,7 +4556,8 @@ setValidity(
     valid <- NULL
     # TODO: Check meta data
     md <- slot(object = object, name = 'meta.data')
-    if (length(x = class(x = md)) != 1L || class(x = md) != 'data.frame') {
+    # if (length(x = class(x = md)) != 1L || class(x = md) != 'data.frame') {
+    if (!.IsDataFrame(x = md)) {
       valid <- c(valid, "'meta.data' must be a base-R data.frame")
     }
     if (ncol(x = md)) {

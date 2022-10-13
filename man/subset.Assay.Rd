@@ -7,7 +7,7 @@
 \method{subset}{Assay}(x, cells = NULL, features = NULL, ...)
 }
 \arguments{
-\item{x}{An \code{\link{Assay5}} object}
+\item{x}{An \code{\link{Assay}} object}
 
 \item{cells}{Cell names}
 
@@ -29,11 +29,13 @@ rna2
 
 }
 \seealso{
-v3 Assay object, validity, and interaction methods
+v3 Assay object, validity, and interaction methods:
+\code{\link{$.Assay}()},
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
 \code{\link{[.Assay}()},
+\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},

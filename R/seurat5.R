@@ -433,16 +433,16 @@ VariableFeatures.Seurat5 <- function(
 }
 
 
-LayerIntersectFeatures <- function(
-  object,
-  assay = NULL,
-  layers
-  ) {
-  assay <- assay %||% DefaultAssay(object = object)
-  feature.df <- object[[assay]]@features@.Data[,layers]
-  features.inte <- rownames(feature.df)[rowSums2(feature.df)  == length(layers)]
-  return(features.inte)
-}
+# LayerIntersectFeatures <- function(
+#   object,
+#   assay = NULL,
+#   layers
+#   ) {
+#   assay <- assay %||% DefaultAssay(object = object)
+#   feature.df <- object[[assay]]@features@.Data[,layers]
+#   features.inte <- rownames(feature.df)[rowSums2(feature.df)  == length(layers)]
+#   return(features.inte)
+# }
 
 
 

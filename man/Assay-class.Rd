@@ -37,10 +37,12 @@ be one or more alphanumeric characters followed by an underscore
 }}
 
 \seealso{
-v3 Assay object, validity, and interaction methods
+v3 Assay object, validity, and interaction methods:
+\code{\link{$.Assay}()},
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
 \code{\link{[.Assay}()},
+\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},

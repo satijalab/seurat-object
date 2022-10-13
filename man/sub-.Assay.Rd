@@ -2,84 +2,70 @@
 % Please edit documentation in R/assay.R
 \name{[.Assay}
 \alias{[.Assay}
-\title{#' @inherit [.Assay5 title description details sections
-#'
-#' @inheritParams [.Assay5
-#' @param x An \code{\link{Assay}} object
-#' @template param-dots-method
-#'
-#' @method [ Assay
-#' @export
-#'
-#' @family assay
-#'
-#' @seealso \code{\link{GetAssayData}}
-#'
-#' @examples
-#' rna <- pbmc_small[["RNA"]]
-#' rna[1:10, 1:4]
-#'
-"[.Assay" <- function(x, i, j, ...) {
-  if (missing(x = i)) {
-    i <- seq_len(length.out = nrow(x = x))
-  }
-  if (missing(x = j)) {
-    j <- seq_len(length.out = ncol(x = x))
-  }
-  return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
-}}
+\alias{[<-,Assay,ANY,ANY,ANY-method}
+\alias{head.Assay}
+\alias{tail.Assay}
+\title{Feature-Level Meta Data}
 \usage{
 \method{[}{Assay}(x, i, ..., drop = FALSE)
+
+\S4method{[}{Assay,ANY,ANY,ANY}(x, i, j, ...) <- value
+
+\method{head}{Assay}(x, n = 10L, ...)
+
+\method{tail}{Assay}(x, n = 10L, ...)
 }
 \arguments{
-\item{x}{An \code{\link{Assay5}} object}
+\item{x}{An \code{\link{Assay}} object}
 
-\item{i}{Feature names or indices}
+\item{i}{Name of feature-level meta data to fetch or add}
 
-\item{...}{Arguments passed to \code{\link{LayerData}}}
+\item{...}{Ignored}
+
+\item{drop}{See \code{\link{drop}}}
+
+\item{j}{Ignored}
+
+\item{value}{Feature-level meta data to add}
+
+\item{n}{Number of meta data rows to show}
 }
 \value{
-The expression matrix for the default layer of \code{x}
-for the \code{i} features and \code{j} cells
+\code{[}: The feature-level meta data for \code{i}
+
+\code{[<-}: \code{x} with \code{value} added as \code{i}
+in feature-level meta data
+
+\code{head}: The first \code{n} rows of feature-level meta data
+
+\code{tail}: the last \code{n} rows of feature-level meta data
 }
 \description{
-#' @inherit [.Assay5 title description details sections
-#'
-#' @inheritParams [.Assay5
-#' @param x An \code{\link{Assay}} object
-#' @template param-dots-method
-#'
-#' @method [ Assay
-#' @export
-#'
-#' @family assay
-#'
-#' @seealso \code{\link{GetAssayData}}
-#'
-#' @examples
-#' rna <- pbmc_small[["RNA"]]
-#' rna[1:10, 1:4]
-#'
-"[.Assay" <- function(x, i, j, ...) {
-  if (missing(x = i)) {
-    i <- seq_len(length.out = nrow(x = x))
-  }
-  if (missing(x = j)) {
-    j <- seq_len(length.out = ncol(x = x))
-  }
-  return(GetAssayData(object = x)[i, j, ..., drop = FALSE])
-}
+Get and set feature-level meta data
 }
 \examples{
 rna <- pbmc_small[["RNA"]]
+
+# Pull the entire feature-level meta data data frame
 head(rna[])
+
+# Pull a specific column of feature-level meta data
+head(rna["vst.mean"])
+head(rna["vst.mean", drop = TRUE])
+
+# `head` and `tail` can be used to quickly view feature-level meta data
+head(rna)
+
+tail(rna)
 
 }
 \seealso{
-v3 Assay object, validity, and interaction methods
+v3 Assay object, validity, and interaction methods:
+\code{\link{$.Assay}()},
 \code{\link{Assay-class}},
 \code{\link{Assay-validity}},
 \code{\link{CreateAssayObject}()},
+\code{\link{[[.Assay}()},
 \code{\link{dim.Assay}()},
 \code{\link{dimnames.Assay}()},
 \code{\link{merge.Assay}()},

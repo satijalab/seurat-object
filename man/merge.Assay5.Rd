@@ -34,6 +34,7 @@ Merge one or more v5 assays together
 }
 \seealso{
 v5 Assay object, validity, and interaction methods:
+\code{\link{$.Assay5}()},
 \code{\link{Assay5-class}},
 \code{\link{Assay5-validity}},
 \code{\link{[.Assay5}()},

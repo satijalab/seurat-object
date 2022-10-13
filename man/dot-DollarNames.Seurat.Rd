@@ -20,7 +20,7 @@ The meta data matches for \code{pattern}
 Autocompletion for \code{$} access on a \code{\link{Seurat}} object
 }
 \seealso{
-\code{\link{utils::.DollarNames}}
+\code{\link[utils:.DollarNames]{utils::.DollarNames}}
 }
 \concept{seurat}
 \keyword{internal}

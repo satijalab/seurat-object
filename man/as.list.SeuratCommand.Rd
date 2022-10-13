@@ -11,6 +11,8 @@
 
 \item{complete}{Include slots besides just parameters
 (eg. call string, name, timestamp)}
+
+\item{...}{Ignored}
 }
 \value{
 A list with the parameters and, if \code{complete = TRUE},

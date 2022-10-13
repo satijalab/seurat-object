@@ -51,6 +51,8 @@ be one or more alphanumeric characters followed by an underscore
 \code{\link{Assay5-class}} \code{\link{Assay5T-class}}
 
 v5 Standard Assay object, validity, and interaction methods
+\code{\link{$.StdAssay}()},
+\code{\link{.DollarNames.StdAssay}()},
 \code{\link{StdAssay-validity}},
 \code{\link{[.StdAssay}()},
 \code{\link{[[.StdAssay}()},
