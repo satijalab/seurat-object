@@ -311,7 +311,7 @@ setClass(
 #' @method .MARGIN Assay5T
 #' @export
 #'
-.MARGIN.Assay5T <- function(object, type = c('features', 'cells'), ...) {
+.MARGIN.Assay5T <- function(x, type = c('features', 'cells'), ...) {
   type <- type[1]
   type <- match.arg(arg = type)
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
@@ -983,7 +983,7 @@ LayerData.StdAssay <- function(
   ))
   dnames[[1L]] <- dnames[[1L]][features]
   # Pull the layer data
-  ldat <- if (.MARGIN(object = object) == 1L) {
+  ldat <- if (.MARGIN(x = object) == 1L) {
     slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
   } else {
     slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
@@ -1003,12 +1003,12 @@ LayerData.StdAssay <- function(
     .GetLayerData2(
       x = ldat,
       dnames = dnames,
-      fmargin = .MARGIN(object = object, type = 'features')
+      fmargin = .MARGIN(x = object, type = 'features')
     )
     # .GetLayerData(
     #   x = ldat,
     #   dnames = dnames,
-    #   fmargin = .MARGIN(object = object, type = 'features'),
+    #   fmargin = .MARGIN(x = object, type = 'features'),
     #   ...
     # )
   }
@@ -1081,8 +1081,8 @@ LayerData.Assay5 <- LayerData.StdAssay
     return(object)
   }
   # Add a layer
-  fdim <- .MARGIN(object = object, type = 'features')
-  cdim <- .MARGIN(object = object, type = 'cells')
+  fdim <- .MARGIN(x = object, type = 'features')
+  cdim <- .MARGIN(x = object, type = 'cells')
   # Assume input matrix is features x cells
   dnames <- list(
     features %||% dimnames(x = value)[[1L]],
@@ -2619,8 +2619,8 @@ setValidity(
     valid <- NULL
     # Check layers
     dorder <- c(
-      features = .MARGIN(object = object, type = 'features'),
-      cells = .MARGIN(object = object, type = 'cells')
+      features = .MARGIN(x = object, type = 'features'),
+      cells = .MARGIN(x = object, type = 'cells')
     )
     adims <- dim(x = object) # c(features, cells)
     if (!IsNamedList(x = slot(object = object, name = 'layers'), pass.zero = TRUE)) {
