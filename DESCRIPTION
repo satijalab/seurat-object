@@ -50,8 +50,11 @@ Imports:
     spam,
     lifecycle
 Suggests:
+    DelayedArray,
     fs (>= 1.5.2),
     ggplot2,
+    HDF5Array,
+    pbapply,
     rmarkdown,
     testthat
 Collate:
@@ -80,3 +83,5 @@ Collate:
     'sparse.R'
     'utils.R'
 LinkingTo: Rcpp, RcppEigen
+Enhances: 
+    Seurat
