@@ -1860,6 +1860,7 @@ split.StdAssay <- function(
     abort(message = "Not enough splits for this assay")
   }
   splits <- split(x = cells, f = f, drop = drop)
+  names(x = splits) <- .MakeNames(x = names(x = splits))
   return(switch(
     EXPR = ret,
     assay = {
@@ -1876,8 +1877,8 @@ split.StdAssay <- function(
         }
         suppressWarnings(expr = LayerData(object = x, layer = lyr) <- NULL)
         DefaultLayer(object = x) <- default
-        x
       }
+      x
     },
     multiassays = {
       value <- vector(mode = 'list', length = length(x = splits))
@@ -2586,6 +2587,15 @@ setMethod(
     }
     return(invisible(x = NULL))
   }
+)
+
+
+#' @rdname split.StdAssay
+#'
+setMethod( # Because R is stupid
+  f = 'split',
+  signature = c(x = 'StdAssay'),
+  definition = split.StdAssay
 )
 
 #' V5 Assay Validity

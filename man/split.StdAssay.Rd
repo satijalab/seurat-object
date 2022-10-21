@@ -2,9 +2,19 @@
 % Please edit documentation in R/assay5.R
 \name{split.StdAssay}
 \alias{split.StdAssay}
+\alias{split,StdAssay,ANY-method}
 \title{Split an Assay}
 \usage{
 \method{split}{StdAssay}(
+  x,
+  f,
+  drop = FALSE,
+  layers = NA,
+  ret = c("assay", "multiassays", "layers"),
+  ...
+)
+
+\S4method{split}{StdAssay,ANY}(
   x,
   f,
   drop = FALSE,

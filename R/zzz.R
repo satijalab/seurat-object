@@ -222,6 +222,30 @@ setOldClass(Classes = 'package_version')
   return(vapply(X = x, FUN = is.null, FUN.VALUE = logical(length = 1L)))
 }
 
+.MakeNames <- function(x, strict = FALSE, type = c('layers')) {
+  if (isTRUE(x = strict)) {
+    return(make.names(names = x, unique = TRUE))
+  }
+  type <- type[[1L]]
+  type <- match.arg(arg = type)
+  x <- switch(
+    EXPR = type,
+    layers = {
+      # Remove white spaces
+      x <- gsub(pattern = '[[:space:]]+', replacement = '_', x = x)
+      # Remove illegal characters
+      x <- gsub(
+        pattern = '[\\;\\:\\!\\@\\#\\$\\%\\^\\&\\*\\(\\)\\{\\}\\[]',
+        replacement = '',
+        x = x
+      )
+      x <- gsub(pattern = '\\]', replacement = '', x = x)
+      x
+    }
+  )
+  return(x)
+}
+
 #' Create a List with a Serial Comma
 #'
 #' @param ... A character vector to join
