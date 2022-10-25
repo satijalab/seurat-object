@@ -125,37 +125,37 @@ other packages
 }
 \section{Functions}{
 \itemize{
-\item \code{[.Assay}: Get expression data from an \code{Assay}
+\item \code{[}: Get expression data from an \code{Assay}
 
-\item \code{[[.Assay}: Get feature-level metadata
+\item \code{[[}: Get feature-level metadata
 
-\item \code{dim.Assay}: Number of cells and features for an \code{Assay}
+\item \code{dim(Assay)}: Number of cells and features for an \code{Assay}
 
-\item \code{dimnames.Assay}: Cell- and feature-names for an \code{Assay}
+\item \code{dimnames(Assay)}: Cell- and feature-names for an \code{Assay}
 
-\item \code{head.Assay}: Get the first rows of feature-level metadata
+\item \code{head(Assay)}: Get the first rows of feature-level metadata
 
-\item \code{merge.Assay}: Merge \code{Assay} objects
+\item \code{merge(Assay)}: Merge \code{Assay} objects
 
-\item \code{subset.Assay}: Subset an \code{Assay}
+\item \code{subset(Assay)}: Subset an \code{Assay}
 
-\item \code{tail.Assay}: Get the last rows of feature-level metadata
+\item \code{tail(Assay)}: Get the last rows of feature-level metadata
 
-\item \code{[[<-,Assay,ANY,ANY,ANY-method}: Add feature-level metadata
+\item \code{`[[`(x = Assay, i = ANY, j = ANY) <- value}: Add feature-level metadata
 
-\item \code{colMeans,Assay-method}: Calculate \code{\link[base]{colMeans}} on an
+\item \code{colMeans(Assay)}: Calculate \code{\link[base]{colMeans}} on an
 \code{Assay}
 
-\item \code{colSums,Assay-method}: Calculate \code{\link[base]{colSums}} on an
+\item \code{colSums(Assay)}: Calculate \code{\link[base]{colSums}} on an
 \code{Assay}
 
-\item \code{rowMeans,Assay-method}: Calculate \code{\link[base]{rowMeans}} on an
+\item \code{rowMeans(Assay)}: Calculate \code{\link[base]{rowMeans}} on an
 \code{Assay}
 
-\item \code{rowSums,Assay-method}: Calculate \code{\link[base]{rowSums}} on an
+\item \code{rowSums(Assay)}: Calculate \code{\link[base]{rowSums}} on an
 \code{Assay}
 
-\item \code{show,Assay-method}: Overview of an \code{Assay} object
+\item \code{show(Assay)}: Overview of an \code{Assay} object
+
 }}
-
 \concept{assay}

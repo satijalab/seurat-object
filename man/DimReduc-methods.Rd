@@ -90,33 +90,33 @@ other packages
 }
 \section{Functions}{
 \itemize{
-\item \code{[.DimReduc}: Pull feature loadings
+\item \code{[}: Pull feature loadings
 
-\item \code{[[.DimReduc}: Pull cell embeddings
+\item \code{[[}: Pull cell embeddings
 
-\item \code{dim.DimReduc}: The number of cells and dimensions for a
+\item \code{dim(DimReduc)}: The number of cells and dimensions for a
 \code{DimReduc}
 
-\item \code{dimnames.DimReduc}: The cell and dimension names for a
+\item \code{dimnames(DimReduc)}: The cell and dimension names for a
 \code{DimReduc} object
 
-\item \code{length.DimReduc}: The number of dimensions for a \code{DimReduc}
+\item \code{length(DimReduc)}: The number of dimensions for a \code{DimReduc}
 object
 
-\item \code{merge.DimReduc}: Merge two or more \code{DimReduc} objects
+\item \code{merge(DimReduc)}: Merge two or more \code{DimReduc} objects
 together
 
-\item \code{names.DimReduc}: The dimension names for a \code{DimReduc} object
+\item \code{names(DimReduc)}: The dimension names for a \code{DimReduc} object
 
-\item \code{print.DimReduc}: Prints a set of features that most strongly
+\item \code{print(DimReduc)}: Prints a set of features that most strongly
 define a set of components; \strong{note}: requires feature loadings to be
 present in order to work
 
-\item \code{subset.DimReduc}: Subset a \code{DimReduc} object
+\item \code{subset(DimReduc)}: Subset a \code{DimReduc} object
 
-\item \code{show,DimReduc-method}: Show basic summary of a \code{DimReduc} object
+\item \code{show(DimReduc)}: Show basic summary of a \code{DimReduc} object
+
 }}
-
 \seealso{
 \code{\link[base]{cat}}
 }
