@@ -2,8 +2,9 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom utils head tail
 #' @importFrom progressr progressor
-#' @importFrom rlang abort arg_match arg_match0 check_installed inform
-#' is_bare_character is_bare_integerish is_bare_list is_bare_numeric is_na warn
+#' @importFrom rlang abort arg_match arg_match0 check_installed have_name
+#' inform is_bare_character is_bare_integerish is_bare_list is_bare_numeric
+#' is_na is_named warn
 #' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
 #' deprecate_warn is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod

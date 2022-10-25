@@ -366,6 +366,94 @@ NULL
   return(method)
 }
 
+#' Propagate a List
+#'
+#' @param x A list or character vector
+#' @param names A vector of names to keep from \code{x}
+#' @param default A default value for unassigned values of \code{x}
+#'
+#' @return A named list where the names are present in both \code{x} and
+#' \code{names} and the values are either the values from \code{x} or
+#' \code{default}
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' .PropogateList("counts", c("RNA", "ADT", "SCT"))
+#' .PropogateList(c("counts", "data"), c("RNA", "ADT", "SCT"))
+#' .PropogateList("ADT", c("RNA", "ADT", "SCT"))
+#' .PropogateList(c("RNA", "SCT"), c("RNA", "ADT", "SCT"))
+#' .PropogateList(c("RNA", ADT = "counts"), c("RNA", "ADT", "SCT"))
+#' .PropogateList(list(SCT = c("counts", "data"), ADT = "counts"), c("RNA", "ADT", "SCT"))
+#' .PropogateList(list(SCT = c("counts", "data"), "ADT"), c("RNA", "ADT", "SCT"))
+#'
+.PropagateList <- function(x, names, default = NA) {
+  # `names` must be a character vector
+  if (!is_bare_character(x = names)) {
+    abort(message = "'names' must be a character vector")
+  }
+  # `x` must be a list or character vector
+  if (!(is_bare_list(x = x) || is_bare_character(x = x))) {
+    abort(message = "'x' must be either a list or character vector")
+  }
+  # `x` cannot be empty
+  if (!length(x = x)) {
+    abort(message = "'x' cannot be empty")
+  }
+  # `x` is a character vector
+  if (is_bare_character(x = x)) {
+    if (!all(nzchar(x = x))) {
+      abort(message = "'x' cannot be empty")
+    }
+    # Handle cases where `x` is unnamed
+    if (!any(have_name(x = x))) {
+      # `x` is a vector with values in `names`
+      # Return a list for every value in `x` that's present in `names`
+      # with a value of `default`
+      if (any(x %in% names)) {
+        x <- intersect(x = x, y = names)
+        ret <- vector(mode = 'list', length = length(x = x))
+        names(x = ret) <- x
+        for (i in seq_along(along.with = ret)) {
+          ret[[i]] <- default
+        }
+        return(ret)
+      }
+      # `x` is a vector of default values
+      # Return a list for every value in `names` with a value of `x`
+      ret <- vector(mode = 'list', length = length(x = names))
+      names(x = ret) <- names
+      for (i in seq_along(along.with = ret)) {
+        ret[[i]] <- x
+      }
+      return(ret)
+    }
+    # `x` is named
+    # Turn `x` into a list and continue on
+    x <- as.list(x = x)
+  }
+  # `x` is a list
+  # Find entries of `x` that correspond to a value in `names`
+  # Assign new value of `default`
+  for (i in seq_along(along.with = x)) {
+    if (is_scalar_character(x = x[[i]]) && x[[i]] %in% names) {
+      names(x = x)[i] <- x[[i]]
+      x[[i]] <- default
+    }
+  }
+  # Identify values of `x` in `names`
+  x.use <- intersect(x = names(x = x), y = names)
+  if (!length(x = x.use) && is_named(x = x)) {
+    abort(message = "None of the values of 'x' match with 'names")
+  }
+  #`Return only values of `x` that are in `names``
+  return(x[x.use])
+}
+
 #' Get the Subobject Names
 #'
 #' @inheritParams .Collections
