@@ -1,5 +1,6 @@
 # Unreleased
-## Change
+## Changes
+- Move {rgeos} to Suggests; segmentation simplification now requires {regos} to be installed manually
 
 ## Added
 - Add keys to `Assays` and `DimReducs` in `UpdateSeuratObject` when missing
