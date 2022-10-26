@@ -3147,7 +3147,8 @@ subset.Seurat <- function(
     slot(object = x, name = 'graphs') <- list()
     slot(object = x, name = 'neighbors') <- list()
   }
-  assays <- FilterObjects(object = x, classes.keep = 'Assay')
+  # assays <- FilterObjects(object = x, classes.keep = 'Assay')
+  assays <- Assays(object = x)
   # Filter Assay objects
   for (assay in assays) {
     assay.features <- features %||% rownames(x = x[[assay]])
