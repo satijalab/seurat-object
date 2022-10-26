@@ -3787,7 +3787,7 @@ setMethod(
     )
     # TODO: enable reordering cells in DimReducs
     if (is.unsorted(x = cell.order)) {
-      abort(message = "Cannot add dimensional reductions with unordered cells")
+      slot(object = value, name = "cell.embeddings") <- Embeddings(object = value)[colnames(x = x),]
       validObject(object = value)
     }
     # Check keys
