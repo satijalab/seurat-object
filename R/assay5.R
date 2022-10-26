@@ -2134,7 +2134,7 @@ unsplit.StdAssay <- function(value, f, drop = FALSE, ...) {
   vf.layers <- unique(x = unlist(x = lapply(
     X = strsplit(x = vf.cols, split = '_'),
     FUN = function(x) {
-      return(x[3L:(length(x = x) - 1L)])
+      return(paste(x[3L:(length(x = x) - 1L)], collapse = '_'))
     }
   )))
   if (!isTRUE(x = missing)) {
@@ -2173,7 +2173,7 @@ unsplit.StdAssay <- function(value, f, drop = FALSE, ...) {
   pattern <- switch(
     EXPR = type,
     'hvf' = '^vf_',
-    stop("Unknown type: '", type, "'", call. = FALSE)
+    abort(message = paste("Unknown type:", sQuote(x = type)))
   )
   vf.cols <- grep(
     pattern = paste0(pattern, '[[:alnum:]]+_'),
