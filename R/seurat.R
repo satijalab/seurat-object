@@ -3787,7 +3787,8 @@ setMethod(
     )
     # TODO: enable reordering cells in DimReducs
     if (is.unsorted(x = cell.order)) {
-      slot(object = value, name = "cell.embeddings") <- Embeddings(object = value)[colnames(x = x),]
+      ordered.cells <- intersect(colnames(x = x), Cells(x = value))
+      slot(object = value, name = "cell.embeddings") <- Embeddings(object = value)[ordered.cells,]
       validObject(object = value)
     }
     # Check keys
