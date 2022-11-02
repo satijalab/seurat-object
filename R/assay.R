@@ -679,7 +679,7 @@ Layers.Assay <- function(object, search = NA, ...) {
     return(DefaultLayer(object = object))
   }
   if (!is_na(x = search)) {
-    layers <- match.arg(arg = search, choices = layers)
+    layers <- match.arg(arg = search, choices = layers, several.ok = TRUE)
   }
   return(layers)
 }
@@ -1409,14 +1409,14 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   if (all(is.na(x = cells))) {
     cells <- colnames(x = x)
   } else if (any(is.na(x = cells))) {
-    warning("NAs passed in cells vector, removing NAs")
+    warn(message = "NAs passed in cells vector, removing NAs")
     cells <- na.omit(object = cells)
   }
   features <- features %||% rownames(x = x)
   if (all(is.na(x = features))) {
     features <- rownames(x = x)
   } else if (any(is.na(x = features))) {
-    warning("NAs passed in the features vector, removing NAs")
+    warn(message = "NAs passed in the features vector, removing NAs")
     features <- na.omit(object = features)
   }
   if (all(sapply(X = list(features, cells), FUN = length) == dim(x = x))) {
@@ -1432,7 +1432,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   )
   features <- intersect(x = features, y = rownames(x = x))
   if (length(x = features) == 0) {
-    stop("Cannot find features provided")
+    abort(message = "Cannot find features provided")
   }
   if (ncol(x = GetAssayData(object = x, slot = 'counts')) == ncol(x = x)) {
     slot(object = x, name = "counts") <- GetAssayData(object = x, slot = "counts")[features, cells, drop = FALSE]
@@ -1442,7 +1442,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   cells.scaled <- cells.scaled[cells.scaled %in% cells]
   cells.scaled <- cells.scaled[na.omit(object = match(x = colnames(x = x), table = cells.scaled))]
   features.scaled <- rownames(x = GetAssayData(object = x, slot = 'scale.data'))
-  features.scaled <- features.scaled[features.scaled %in% features]
+  features.scaled <- intersect(x = features, y = features.scaled)
   slot(object = x, name = "scale.data") <- if (length(x = cells.scaled) > 0 && length(x = features.scaled) > 0) {
     GetAssayData(object = x, slot = "scale.data")[features.scaled, cells.scaled, drop = FALSE]
   } else {
@@ -1450,6 +1450,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   }
   VariableFeatures(object = x) <- VariableFeatures(object = x)[VariableFeatures(object = x) %in% features]
   slot(object = x, name = 'meta.features') <- x[][features, , drop = FALSE]
+  validObject(object = x)
   return(x)
 }
 
