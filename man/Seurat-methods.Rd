@@ -186,48 +186,48 @@ packages
 }
 \section{Functions}{
 \itemize{
-\item \code{.DollarNames.Seurat}: Autocompletion for \code{$} access on a
+\item \code{.DollarNames(Seurat)}: Autocompletion for \code{$} access on a
 \code{Seurat} object
 
-\item \code{$.Seurat}: Metadata access for \code{Seurat} objects
+\item \code{$}: Metadata access for \code{Seurat} objects
 
-\item \code{$<-.Seurat}: Metadata setter for \code{Seurat} objects
+\item \code{`$`(Seurat) <- value}: Metadata setter for \code{Seurat} objects
 
-\item \code{[.Seurat}: Simple subsetter for \code{Seurat} objects
+\item \code{[}: Simple subsetter for \code{Seurat} objects
 
-\item \code{[[.Seurat}: Metadata and associated object accessor
+\item \code{[[}: Metadata and associated object accessor
 
-\item \code{dim.Seurat}: Number of cells and features for the active assay
+\item \code{dim(Seurat)}: Number of cells and features for the active assay
 
-\item \code{dimnames.Seurat}: The cell and feature names for the active assay
+\item \code{dimnames(Seurat)}: The cell and feature names for the active assay
 
-\item \code{head.Seurat}: Get the first rows of cell-level metadata
+\item \code{head(Seurat)}: Get the first rows of cell-level metadata
 
-\item \code{merge.Seurat}: Merge two or more \code{Seurat} objects together
+\item \code{merge(Seurat)}: Merge two or more \code{Seurat} objects together
 
-\item \code{names.Seurat}: Common associated objects
+\item \code{names(Seurat)}: Common associated objects
 
-\item \code{subset.Seurat}: Subset a \code{\link{Seurat}} object
+\item \code{subset(Seurat)}: Subset a \code{\link{Seurat}} object
 
-\item \code{tail.Seurat}: Get the last rows of cell-level metadata
+\item \code{tail(Seurat)}: Get the last rows of cell-level metadata
 
-\item \code{[[<-,Seurat,ANY,ANY,ANY-method}: Add cell-level metadata or associated objects
+\item \code{`[[`(x = Seurat, i = ANY, j = ANY) <- value}: Add cell-level metadata or associated objects
 
-\item \code{colMeans,Seurat-method}: Calculate \code{\link[base]{colMeans}} on a
+\item \code{colMeans(Seurat)}: Calculate \code{\link[base]{colMeans}} on a
 \code{Seurat} object
 
-\item \code{colSums,Seurat-method}: Calculate \code{\link[base]{colSums}} on a
+\item \code{colSums(Seurat)}: Calculate \code{\link[base]{colSums}} on a
 \code{Seurat} object
 
-\item \code{rowMeans,Seurat-method}: Calculate \code{\link[base]{rowMeans}} on a
+\item \code{rowMeans(Seurat)}: Calculate \code{\link[base]{rowMeans}} on a
 \code{rowMeans} object
 
-\item \code{rowSums,Seurat-method}: Calculate \code{\link[base]{rowSums}} on a
+\item \code{rowSums(Seurat)}: Calculate \code{\link[base]{rowSums}} on a
 \code{Seurat} object
 
-\item \code{show,Seurat-method}: Overview of a \code{Seurat} object
-}}
+\item \code{show(Seurat)}: Overview of a \code{Seurat} object
 
+}}
 \section{Merge Details}{
 
 When merging Seurat objects, the merge procedure will merge the Assay level
