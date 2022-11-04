@@ -598,6 +598,12 @@ as.sparse.Matrix <- function(x, ...) {
 #' @method as.sparse matrix
 #'
 as.sparse.matrix <- function(x, ...) {
+  if (is.character(x = x)) {
+    dnames <- dimnames(x = x)
+    nc <- ncol(x = x)
+    x <- matrix(data = as.numeric(x = x), ncol = nc)
+    dimnames(x = x) <- dnames
+  }
   x <- as(object = x, Class = "Matrix")
   return(as.sparse.Matrix(x, ...))
 }
