@@ -460,11 +460,6 @@ NameIndex <- function(x, names, MARGIN) {
 # Hooks
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-.onAttach <- function(libname, pkgname) {
-  AttachDeps(deps = 'sp')
-  return(invisible(x = NULL))
-}
-
 .onLoad <- function(libname, pkgname) {
   toset <- setdiff(x = names(x = Seurat.options), y = names(x = options()))
   if (length(x = toset)) {
