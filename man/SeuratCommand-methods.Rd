@@ -51,18 +51,18 @@ other packages
 }
 \section{Functions}{
 \itemize{
-\item \code{.DollarNames.SeuratCommand}: Autocompletion for \code{$} access on a
+\item \code{.DollarNames(SeuratCommand)}: Autocompletion for \code{$} access on a
 \code{SeuratCommand} object
 
-\item \code{$.SeuratCommand}: Access a parameter from a
+\item \code{$}: Access a parameter from a
 \code{SeuratCommand} object
 
-\item \code{[.SeuratCommand}: Access data from a \code{SeuratCommand}
+\item \code{[}: Access data from a \code{SeuratCommand}
 object
 
-\item \code{as.list.SeuratCommand}: Coerce a \code{SeuratCommand} to a list
+\item \code{as.list(SeuratCommand)}: Coerce a \code{SeuratCommand} to a list
 
-\item \code{show,SeuratCommand-method}: Overview of a \code{SeuratCommand} object
+\item \code{show(SeuratCommand)}: Overview of a \code{SeuratCommand} object
+
 }}
-
 \concept{command}

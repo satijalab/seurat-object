@@ -211,7 +211,7 @@ RenameCells.Centroids <- function(object, new.names = NULL, ...) {
   }
   new.names <- make.unique(names = new.names)
   if (length(x = new.names) != length(x = Cells(x = object))) {
-    stop("Cannot partially rename cells", call. = FALSE)
+    stop("Cannot partially rename centroid cells", call. = FALSE)
   }
   slot(object = object, name = 'cells') <- new.names
   return(object)
@@ -373,6 +373,10 @@ setMethod(
   definition = function(x, y, invert = FALSE, ...) {
     idx <- over(x = x, y = y)
     idx <- idx[!is.na(x = idx)]
+    if (!length(idx)) {
+      warning("The selected region does not contain any cell centroids")
+      return(NULL)
+    }
     idx <- sort(x = as.integer(x = names(x = idx)))
     if (isTRUE(x = invert)) {
       idx <- -idx

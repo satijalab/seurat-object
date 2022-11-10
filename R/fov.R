@@ -862,7 +862,7 @@ setMethod(
     if (inherits(x = x[[i]], what = 'Molecules')) {
       slot(object = x, name = 'molecules')[[i]] <- NULL
     } else if (i == DefaultBoundary(object = x)) {
-      stop("Cannot remove default segmentation", call. = FALSE)
+      stop("Cannot remove default boundary", call. = FALSE)
     } else {
       slot(object = x, name = 'boundaries')[[i]] <- NULL
     }
@@ -1016,21 +1016,30 @@ setValidity(
           )
           break
         } else {
-          matched.cells <- MatchCells(
-            new = all.cells,
-            orig = Cells(x = object[[s]]),
-            ordered = TRUE
-          )
-          if (length(x = matched.cells) != length(x = Cells(x = object[[s]]))) {
-            valid <- c(
-              valid,
-              "All segmentation boundaries must have cells"
+          cells <- Cells(x = object[[s]])
+          if (!is.null(cells)) {
+            matched.cells <- MatchCells(
+              new = all.cells,
+              orig = cells,
+              ordered = TRUE
             )
-            break
-          } else if (is.unsorted(x = matched.cells)) {
+            if (length(x = matched.cells) != length(x = Cells(x = object[[s]]))) {
+              valid <- c(
+                valid,
+                "All segmentation boundaries must have cells"
+              )
+              break
+            } else if (is.unsorted(x = matched.cells)) {
+              valid <- c(
+                valid,
+                "All segmentation boundaries must be ordered"
+              )
+              break
+            }
+          } else {
             valid <- c(
               valid,
-              "All segmentation boundaries must be ordered"
+              paste(s, "contains 0 cells")
             )
             break
           }

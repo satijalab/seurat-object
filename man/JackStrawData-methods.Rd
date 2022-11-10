@@ -42,16 +42,16 @@ other packages
 }
 \section{Functions}{
 \itemize{
-\item \code{.DollarNames.JackStrawData}: Autocompletion for \code{$} access on a
+\item \code{.DollarNames(JackStrawData)}: Autocompletion for \code{$} access on a
 \code{JackStrawData} object
 
-\item \code{$.JackStrawData}: Access data from a \code{JackStrawData}
+\item \code{$}: Access data from a \code{JackStrawData}
 object
 
-\item \code{as.logical.JackStrawData}: Have empirical p-values for a
+\item \code{as.logical(JackStrawData)}: Have empirical p-values for a
 \code{JackStrawData} object been calculated
 
-\item \code{show,JackStrawData-method}: Overview of a \code{JackStrawData} object
-}}
+\item \code{show(JackStrawData)}: Overview of a \code{JackStrawData} object
 
+}}
 \concept{jackstraw}
