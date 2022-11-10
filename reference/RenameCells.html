@@ -18,7 +18,7 @@ before combining multiple objects."><!-- mathjax --><script src="https://cdnjs.c
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -55,46 +55,59 @@ before combining multiple objects.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">RenameCells</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">RenameCells</span><span class="op">(</span><span class="va">object</span>, new.names <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for DimReduc</span>
-<span class="fu">RenameCells</span><span class="op">(</span><span class="va">object</span>, new.names <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Neighbor</span>
-<span class="fu">RenameCells</span><span class="op">(</span><span class="va">object</span>, old.names <span class="op">=</span> <span class="cn">NULL</span>, new.names <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">RenameCells</span><span class="op">(</span>
-  <span class="va">object</span>,
-  add.cell.id <span class="op">=</span> <span class="cn">NULL</span>,
-  new.names <span class="op">=</span> <span class="cn">NULL</span>,
-  for.merge <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">RenameCells</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">RenameCells</span><span class="op">(</span><span class="va">object</span>, new.names <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for DimReduc</span></span>
+<span><span class="fu">RenameCells</span><span class="op">(</span><span class="va">object</span>, new.names <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Neighbor</span></span>
+<span><span class="fu">RenameCells</span><span class="op">(</span><span class="va">object</span>, old.names <span class="op">=</span> <span class="cn">NULL</span>, new.names <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">RenameCells</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  add.cell.id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  new.names <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  for.merge <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>An object</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
+
 <dt>new.names</dt>
 <dd><p>vector of new cell names</p></dd>
+
+
 <dt>old.names</dt>
 <dd><p>vector of old cell names</p></dd>
+
+
 <dt>add.cell.id</dt>
 <dd><p>prefix to add cell names</p></dd>
+
+
 <dt>for.merge</dt>
 <dd><p>Only rename slots needed for merging Seurat objects.
 Currently only renames the raw.data and meta.data slots.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An object with new cell names</p>
+    
+
+<p>An object with new cell names</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -104,39 +117,39 @@ Currently only renames the raw.data and meta.data slots.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Rename cells in an Assay</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Rename cells in an Assay</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ATGCCAGAACGACT" "CATGGCCTGTGCAT" "GAACCTGATGAACC" "TGACTGGATTCTCA"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "AGTCAGACTGCACA" "TCTGATACACGTGT"</span>
-<span class="r-in"><span class="va">renamed.assay</span> <span class="op">&lt;-</span> <span class="fu">RenameCells</span><span class="op">(</span></span>
-<span class="r-in">    <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>,</span>
-<span class="r-in">    new.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">renamed.assay</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="va">renamed.assay</span> <span class="op">&lt;-</span> <span class="fu">RenameCells</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    new.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">renamed.assay</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A_ATGCCAGAACGACT" "A_CATGGCCTGTGCAT" "A_GAACCTGATGAACC" "A_TGACTGGATTCTCA"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "A_AGTCAGACTGCACA" "A_TCTGATACACGTGT"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Rename cells in a DimReduc</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="Cells.html">Cells</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Rename cells in a DimReduc</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="Cells.html">Cells</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ATGCCAGAACGACT" "CATGGCCTGTGCAT" "GAACCTGATGAACC" "TGACTGGATTCTCA"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "AGTCAGACTGCACA" "TCTGATACACGTGT"</span>
-<span class="r-in"><span class="va">renamed.dimreduc</span> <span class="op">&lt;-</span> <span class="fu">RenameCells</span><span class="op">(</span></span>
-<span class="r-in">    object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span>,</span>
-<span class="r-in">    new.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A_"</span>, <span class="fu"><a href="Cells.html">Cells</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="Cells.html">Cells</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">renamed.dimreduc</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="va">renamed.dimreduc</span> <span class="op">&lt;-</span> <span class="fu">RenameCells</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    new.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A_"</span>, <span class="fu"><a href="Cells.html">Cells</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="Cells.html">Cells</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">renamed.dimreduc</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A_ATGCCAGAACGACT" "A_CATGGCCTGTGCAT" "A_GAACCTGATGAACC" "A_TGACTGGATTCTCA"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "A_AGTCAGACTGCACA" "A_TCTGATACACGTGT"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Rename cells in a Seurat object</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Rename cells in a Seurat object</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ATGCCAGAACGACT" "CATGGCCTGTGCAT" "GAACCTGATGAACC" "TGACTGGATTCTCA"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "AGTCAGACTGCACA" "TCTGATACACGTGT"</span>
-<span class="r-in"><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">RenameCells</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, add.cell.id <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">RenameCells</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, add.cell.id <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A_ATGCCAGAACGACT" "A_CATGGCCTGTGCAT" "A_GAACCTGATGAACC" "A_TGACTGGATTCTCA"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "A_AGTCAGACTGCACA" "A_TCTGATACACGTGT"</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -151,7 +164,7 @@ Currently only renames the raw.data and meta.data slots.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

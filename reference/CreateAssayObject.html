@@ -18,7 +18,7 @@ expected format of the input matrix is features x cells."><!-- mathjax --><scrip
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -55,37 +55,50 @@ expected format of the input matrix is features x cells.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">CreateAssayObject</span><span class="op">(</span>
-  <span class="va">counts</span>,
-  <span class="va">data</span>,
-  min.cells <span class="op">=</span> <span class="fl">0</span>,
-  min.features <span class="op">=</span> <span class="fl">0</span>,
-  check.matrix <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">CreateAssayObject</span><span class="op">(</span></span>
+<span>  <span class="va">counts</span>,</span>
+<span>  <span class="va">data</span>,</span>
+<span>  min.cells <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  min.features <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  check.matrix <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>counts</dt>
 <dd><p>Unnormalized data such as raw counts or TPMs</p></dd>
+
+
 <dt>data</dt>
 <dd><p>Prenormalized data; if provided, do not pass <code>counts</code></p></dd>
+
+
 <dt>min.cells</dt>
 <dd><p>Include features detected in at least this many cells. Will
 subset the counts matrix as well. To reintroduce excluded features, create a
 new object with a lower cutoff.</p></dd>
+
+
 <dt>min.features</dt>
 <dd><p>Include cells where at least this many features are
 detected.</p></dd>
+
+
 <dt>check.matrix</dt>
 <dd><p>Check counts matrix for NA, NaN, Inf, and non-integer values</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to <code><a href="as.sparse.html">as.sparse</a></code></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code><a href="Assay-class.html">Assay</a></code> object</p>
+    
+
+<p>A <code><a href="Assay-class.html">Assay</a></code> object</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -95,15 +108,15 @@ calling this function.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">pbmc_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span></span>
-<span class="r-in">  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'pbmc_raw.txt'</span>, package <span class="op">=</span> <span class="st">'Seurat'</span><span class="op">)</span>,</span>
-<span class="r-in">  as.is <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">pbmc_rna</span> <span class="op">&lt;-</span> <span class="fu">CreateAssayObject</span><span class="op">(</span>counts <span class="op">=</span> <span class="va">pbmc_raw</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pbmc_rna</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">pbmc_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'pbmc_raw.txt'</span>, package <span class="op">=</span> <span class="st">'Seurat'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  as.is <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pbmc_rna</span> <span class="op">&lt;-</span> <span class="fu">CreateAssayObject</span><span class="op">(</span>counts <span class="op">=</span> <span class="va">pbmc_raw</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pbmc_rna</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -118,7 +131,7 @@ calling this function.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

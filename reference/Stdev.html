@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -53,43 +53,50 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">Stdev</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for DimReduc</span>
-<span class="fu">Stdev</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">Stdev</span><span class="op">(</span><span class="va">object</span>, reduction <span class="op">=</span> <span class="st">"pca"</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Stdev</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for DimReduc</span></span>
+<span><span class="fu">Stdev</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">Stdev</span><span class="op">(</span><span class="va">object</span>, reduction <span class="op">=</span> <span class="st">"pca"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>An object</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
+
 <dt>reduction</dt>
 <dd><p>Name of reduction to use</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The standard deviations</p>
+    
+
+<p>The standard deviations</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Get the standard deviations for each PC from the DimReduc object</span></span>
-<span class="r-in"><span class="fu">Stdev</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Get the standard deviations for each PC from the DimReduc object</span></span></span>
+<span class="r-in"><span><span class="fu">Stdev</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2.7868782 1.6145733 1.3162945 1.1241143 1.0347596 0.9876531 0.8501773</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.8225654 0.7607182 0.7387425 0.6680697 0.6216919 0.5463279 0.4933780</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [15] 0.4639999 0.4404766 0.3246018 0.2762482 0.1704923</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get the standard deviations for each PC from the Seurat object</span></span>
-<span class="r-in"><span class="fu">Stdev</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, reduction <span class="op">=</span> <span class="st">"pca"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get the standard deviations for each PC from the Seurat object</span></span></span>
+<span class="r-in"><span><span class="fu">Stdev</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, reduction <span class="op">=</span> <span class="st">"pca"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2.7868782 1.6145733 1.3162945 1.1241143 1.0347596 0.9876531 0.8501773</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.8225654 0.7607182 0.7387425 0.6680697 0.6216919 0.5463279 0.4933780</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [15] 0.4639999 0.4404766 0.3246018 0.2762482 0.1704923</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -104,7 +111,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

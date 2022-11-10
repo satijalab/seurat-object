@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -53,61 +53,80 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">CreateDimReducObject</span><span class="op">(</span>
-  embeddings <span class="op">=</span> <span class="fu">new</span><span class="op">(</span>Class <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span>,
-  loadings <span class="op">=</span> <span class="fu">new</span><span class="op">(</span>Class <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span>,
-  projected <span class="op">=</span> <span class="fu">new</span><span class="op">(</span>Class <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span>,
-  assay <span class="op">=</span> <span class="cn">NULL</span>,
-  stdev <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="op">)</span>,
-  key <span class="op">=</span> <span class="cn">NULL</span>,
-  global <span class="op">=</span> <span class="cn">FALSE</span>,
-  jackstraw <span class="op">=</span> <span class="cn">NULL</span>,
-  misc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">CreateDimReducObject</span><span class="op">(</span></span>
+<span>  embeddings <span class="op">=</span> <span class="fu">new</span><span class="op">(</span>Class <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span>,</span>
+<span>  loadings <span class="op">=</span> <span class="fu">new</span><span class="op">(</span>Class <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span>,</span>
+<span>  projected <span class="op">=</span> <span class="fu">new</span><span class="op">(</span>Class <span class="op">=</span> <span class="st">"matrix"</span><span class="op">)</span>,</span>
+<span>  assay <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  stdev <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  key <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  global <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  jackstraw <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  misc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>embeddings</dt>
 <dd><p>A matrix with the cell embeddings</p></dd>
+
+
 <dt>loadings</dt>
 <dd><p>A matrix with the feature loadings</p></dd>
+
+
 <dt>projected</dt>
 <dd><p>A matrix with the projected feature loadings</p></dd>
+
+
 <dt>assay</dt>
 <dd><p>Assay used to calculate this dimensional reduction</p></dd>
+
+
 <dt>stdev</dt>
 <dd><p>Standard deviation (if applicable) for the dimensional reduction</p></dd>
+
+
 <dt>key</dt>
 <dd><p>A character string to facilitate looking up features from a
 specific DimReduc</p></dd>
+
+
 <dt>global</dt>
 <dd><p>Specify this as a global reduction (useful for visualizations)</p></dd>
+
+
 <dt>jackstraw</dt>
 <dd><p>Results from the JackStraw function</p></dd>
+
+
 <dt>misc</dt>
 <dd><p>list for the user to store any additional information associated
 with the dimensional reduction</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code><a href="DimReduc-class.html">DimReduc</a></code> object</p>
+    
+
+<p>A <code><a href="DimReduc-class.html">DimReduc</a></code> object</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="AssayData.html">GetAssayData</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"scale.data"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pca.dr</span> <span class="op">&lt;-</span> <span class="fu">CreateDimReducObject</span><span class="op">(</span></span>
-<span class="r-in">  embeddings <span class="op">=</span> <span class="va">pcs</span><span class="op">$</span><span class="va">rotation</span>,</span>
-<span class="r-in">  loadings <span class="op">=</span> <span class="va">pcs</span><span class="op">$</span><span class="va">x</span>,</span>
-<span class="r-in">  stdev <span class="op">=</span> <span class="va">pcs</span><span class="op">$</span><span class="va">sdev</span>,</span>
-<span class="r-in">  key <span class="op">=</span> <span class="st">"PC"</span>,</span>
-<span class="r-in">  assay <span class="op">=</span> <span class="st">"RNA"</span></span>
-<span class="r-in"><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="AssayData.html">GetAssayData</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"scale.data"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pca.dr</span> <span class="op">&lt;-</span> <span class="fu">CreateDimReducObject</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  embeddings <span class="op">=</span> <span class="va">pcs</span><span class="op">$</span><span class="va">rotation</span>,</span></span>
+<span class="r-in"><span>  loadings <span class="op">=</span> <span class="va">pcs</span><span class="op">$</span><span class="va">x</span>,</span></span>
+<span class="r-in"><span>  stdev <span class="op">=</span> <span class="va">pcs</span><span class="op">$</span><span class="va">sdev</span>,</span></span>
+<span class="r-in"><span>  key <span class="op">=</span> <span class="st">"PC"</span>,</span></span>
+<span class="r-in"><span>  assay <span class="op">=</span> <span class="st">"RNA"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from PC to PC_</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>All keys should be one or more alphanumeric characters followed by an underscore '_', setting key to PC_</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -122,7 +141,7 @@ with the dimensional reduction</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

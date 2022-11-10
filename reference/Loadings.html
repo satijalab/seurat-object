@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -53,63 +53,78 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="co"># S3 method for DimReduc</span>
-<span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, projected <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for DimReduc</span>
-<span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, projected <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, reduction <span class="op">=</span> <span class="st">"pca"</span>, projected <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="co"># S3 method for DimReduc</span></span>
+<span><span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, projected <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for DimReduc</span></span>
+<span><span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, projected <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">Loadings</span><span class="op">(</span><span class="va">object</span>, reduction <span class="op">=</span> <span class="st">"pca"</span>, projected <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>An object</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
+
 <dt>value</dt>
 <dd><p>Feature loadings to add</p></dd>
+
+
 <dt>projected</dt>
 <dd><p>Pull the projected feature loadings?</p></dd>
+
+
 <dt>reduction</dt>
 <dd><p>Name of reduction to pull feature loadings for</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>Loadings</code>: the feature loadings for <code>object</code><code>Loadings&lt;-</code>: <code>object</code> with the updated loadings</p>
+    
+
+<p><code>Loadings</code>: the feature loadings for <code>object</code></p>
+
+
+
+<p><code>Loadings&lt;-</code>: <code>object</code> with the updated loadings</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Get the feature loadings for a given DimReduc</span></span>
-<span class="r-in"><span class="fu">Loadings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Get the feature loadings for a given DimReduc</span></span></span>
+<span class="r-in"><span><span class="fu">Loadings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               PC_1        PC_2        PC_3        PC_4        PC_5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> PPBP    0.33832535  0.04095778  0.02926261  0.03111034 -0.09042074</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> IGLL5  -0.03504289  0.05815335 -0.29906272  0.54744454  0.21460343</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> VDAC3   0.11990482 -0.10994433 -0.02386025  0.06015126 -0.80920759</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD1C   -0.04690284  0.19835522 -0.35090617 -0.51112169 -0.13030628</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AKR1C3 -0.03894635 -0.42880452  0.08845847 -0.27274386  0.08779165</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Set the feature loadings for a given DimReduc</span></span>
-<span class="r-in"><span class="va">new.loadings</span> <span class="op">&lt;-</span> <span class="fu">Loadings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">new.loadings</span> <span class="op">&lt;-</span> <span class="va">new.loadings</span> <span class="op">+</span> <span class="fl">0.01</span></span>
-<span class="r-in"><span class="fu">Loadings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">new.loadings</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get the feature loadings for a specified DimReduc in a Seurat object</span></span>
-<span class="r-in"><span class="fu">Loadings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, reduction <span class="op">=</span> <span class="st">"pca"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set the feature loadings for a given DimReduc</span></span></span>
+<span class="r-in"><span><span class="va">new.loadings</span> <span class="op">&lt;-</span> <span class="fu">Loadings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">new.loadings</span> <span class="op">&lt;-</span> <span class="va">new.loadings</span> <span class="op">+</span> <span class="fl">0.01</span></span></span>
+<span class="r-in"><span><span class="fu">Loadings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">new.loadings</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get the feature loadings for a specified DimReduc in a Seurat object</span></span></span>
+<span class="r-in"><span><span class="fu">Loadings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, reduction <span class="op">=</span> <span class="st">"pca"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               PC_1        PC_2        PC_3        PC_4        PC_5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> PPBP    0.33832535  0.04095778  0.02926261  0.03111034 -0.09042074</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> IGLL5  -0.03504289  0.05815335 -0.29906272  0.54744454  0.21460343</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> VDAC3   0.11990482 -0.10994433 -0.02386025  0.06015126 -0.80920759</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD1C   -0.04690284  0.19835522 -0.35090617 -0.51112169 -0.13030628</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AKR1C3 -0.03894635 -0.42880452  0.08845847 -0.27274386  0.08779165</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -124,7 +139,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

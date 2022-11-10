@@ -21,7 +21,7 @@ for a non-default assay)"><!-- mathjax --><script src="https://cdnjs.cloudflare.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -61,26 +61,31 @@ for a non-default assay)</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">DefaultDimReduc</span><span class="op">(</span><span class="va">object</span>, assay <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">DefaultDimReduc</span><span class="op">(</span><span class="va">object</span>, assay <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>A <code><a href="Seurat-class.html">Seurat</a></code> object</p></dd>
+
+
 <dt>assay</dt>
 <dd><p>Name of assay to use; defaults to the default assay of the object</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The default <code><a href="DimReduc-class.html">DimReduc</a></code>, if possible</p>
+    
+
+<p>The default <code><a href="DimReduc-class.html">DimReduc</a></code>, if possible</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">DefaultDimReduc</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">DefaultDimReduc</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "tsne"</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -95,7 +100,7 @@ for a non-default assay)</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

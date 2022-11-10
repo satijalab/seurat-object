@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Default Assay</h1>
-    <small class="dont-index">Source: <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/generics.R" class="external-link"><code>R/generics.R</code></a>, <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/assay.R" class="external-link"><code>R/assay.R</code></a>, <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/command.R" class="external-link"><code>R/command.R</code></a>, and 3 more</small>
+    <small class="dont-index">Source: <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/generics.R" class="external-link"><code>R/generics.R</code></a>, <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/graph.R" class="external-link"><code>R/graph.R</code></a>, <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/assay.R" class="external-link"><code>R/assay.R</code></a>, and 3 more</small>
     <div class="hidden name"><code>DefaultAssay.Rd</code></div>
     </div>
 
@@ -53,68 +53,77 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="co"># S3 method for SeuratCommand</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for DimReduc</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for DimReduc</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="co"># S3 method for Graph</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Graph</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="co"># S3 method for Graph</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Graph</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="co"># S3 method for SeuratCommand</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for DimReduc</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for DimReduc</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">DefaultAssay</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>An object</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
+
 <dt>value</dt>
 <dd><p>Name of assay to set as default</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>DefaultAssay</code>: The name of the default assay
-<code>DefaultAssay&lt;-</code>: An object with the default assay updated</p>
+    
+
+<p><code>DefaultAssay</code>: The name of the default assay</p>
+
+
+<p><code>DefaultAssay&lt;-</code>: An object with the default assay updated</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Get current default assay</span></span>
-<span class="r-in"><span class="fu">DefaultAssay</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Get current default assay</span></span></span>
+<span class="r-in"><span><span class="fu">DefaultAssay</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "RNA"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Create dummy new assay to demo switching default assays</span></span>
-<span class="r-in"><span class="va">new.assay</span> <span class="op">&lt;-</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span></span>
-<span class="r-in"><span class="fu"><a href="Key.html">Key</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">new.assay</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"RNA2_"</span></span>
-<span class="r-in"><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA2"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">new.assay</span></span>
-<span class="r-in"><span class="co"># switch default assay to RNA2</span></span>
-<span class="r-in"><span class="fu">DefaultAssay</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"RNA2"</span></span>
-<span class="r-in"><span class="fu">DefaultAssay</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create dummy new assay to demo switching default assays</span></span></span>
+<span class="r-in"><span><span class="va">new.assay</span> <span class="op">&lt;-</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="Key.html">Key</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">new.assay</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"RNA2_"</span></span></span>
+<span class="r-in"><span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA2"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">new.assay</span></span></span>
+<span class="r-in"><span><span class="co"># switch default assay to RNA2</span></span></span>
+<span class="r-in"><span><span class="fu">DefaultAssay</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"RNA2"</span></span></span>
+<span class="r-in"><span><span class="fu">DefaultAssay</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "RNA2"</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -129,7 +138,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -21,7 +21,7 @@ expression matrices"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/a
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -61,47 +61,60 @@ expression matrices</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">GetAssayData</span><span class="op">(</span><span class="va">object</span>, <span class="va">slot</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">SetAssayData</span><span class="op">(</span><span class="va">object</span>, <span class="va">slot</span>, <span class="va">new.data</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">GetAssayData</span><span class="op">(</span><span class="va">object</span>, slot <span class="op">=</span> <span class="st">"data"</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">SetAssayData</span><span class="op">(</span><span class="va">object</span>, slot <span class="op">=</span> <span class="st">"data"</span>, <span class="va">new.data</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">GetAssayData</span><span class="op">(</span><span class="va">object</span>, slot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"scale.data"</span>, <span class="st">"counts"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">SetAssayData</span><span class="op">(</span><span class="va">object</span>, slot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"scale.data"</span>, <span class="st">"counts"</span><span class="op">)</span>, <span class="va">new.data</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">GetAssayData</span><span class="op">(</span><span class="va">object</span>, <span class="va">slot</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">SetAssayData</span><span class="op">(</span><span class="va">object</span>, <span class="va">slot</span>, <span class="va">new.data</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">GetAssayData</span><span class="op">(</span><span class="va">object</span>, slot <span class="op">=</span> <span class="st">"data"</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">SetAssayData</span><span class="op">(</span><span class="va">object</span>, slot <span class="op">=</span> <span class="st">"data"</span>, <span class="va">new.data</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">GetAssayData</span><span class="op">(</span><span class="va">object</span>, slot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"scale.data"</span>, <span class="st">"counts"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">SetAssayData</span><span class="op">(</span><span class="va">object</span>, slot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"scale.data"</span>, <span class="st">"counts"</span><span class="op">)</span>, <span class="va">new.data</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>An object</p></dd>
+
+
 <dt>slot</dt>
 <dd><p>Specific assay data to get or set</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
+
 <dt>new.data</dt>
 <dd><p>New assay data to add</p></dd>
+
+
 <dt>assay</dt>
 <dd><p>Specific assay to get data from or set data for; defaults to
 the <a href="DefaultAssay.html">default assay</a></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>GetAssayData</code>: returns the specified assay data
-<code>SetAssayData</code>: <code>object</code> with the assay data set</p>
+    
+
+<p><code>GetAssayData</code>: returns the specified assay data</p>
+
+
+<p><code>SetAssayData</code>: <code>object</code> with the assay data set</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Get assay data from the default assay in a Seurat object</span></span>
-<span class="r-in"><span class="fu">GetAssayData</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, slot <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Get assay data from the default assay in a Seurat object</span></span></span>
+<span class="r-in"><span><span class="fu">GetAssayData</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, slot <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 x 5 sparse Matrix of class "dgCMatrix"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MS4A1         .              .                     .              .</span>
@@ -115,19 +128,19 @@ the <a href="DefaultAssay.html">default assay</a></p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD79A         .       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> HLA-DRA       4.074201</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TCL1A         .       </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Set an Assay slot through the Seurat object</span></span>
-<span class="r-in"><span class="va">count.data</span> <span class="op">&lt;-</span> <span class="fu">GetAssayData</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">count.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">count.data</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">new.seurat.object</span> <span class="op">&lt;-</span> <span class="fu">SetAssayData</span><span class="op">(</span></span>
-<span class="r-in">    object <span class="op">=</span> <span class="va">pbmc_small</span>,</span>
-<span class="r-in">    slot <span class="op">=</span> <span class="st">"counts"</span>,</span>
-<span class="r-in">    new.data <span class="op">=</span> <span class="va">count.data</span>,</span>
-<span class="r-in">    assay <span class="op">=</span> <span class="st">"RNA"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get the data directly from an Assay object</span></span>
-<span class="r-in"><span class="fu">GetAssayData</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set an Assay slot through the Seurat object</span></span></span>
+<span class="r-in"><span><span class="va">count.data</span> <span class="op">&lt;-</span> <span class="fu">GetAssayData</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">count.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">count.data</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">new.seurat.object</span> <span class="op">&lt;-</span> <span class="fu">SetAssayData</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    object <span class="op">=</span> <span class="va">pbmc_small</span>,</span></span>
+<span class="r-in"><span>    slot <span class="op">=</span> <span class="st">"counts"</span>,</span></span>
+<span class="r-in"><span>    new.data <span class="op">=</span> <span class="va">count.data</span>,</span></span>
+<span class="r-in"><span>    assay <span class="op">=</span> <span class="st">"RNA"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get the data directly from an Assay object</span></span></span>
+<span class="r-in"><span><span class="fu">GetAssayData</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 x 5 sparse Matrix of class "dgCMatrix"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MS4A1         .              .                     .              .</span>
@@ -141,12 +154,12 @@ the <a href="DefaultAssay.html">default assay</a></p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD79A         .       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> HLA-DRA       4.074201</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TCL1A         .       </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Set an Assay slot directly</span></span>
-<span class="r-in"><span class="va">count.data</span> <span class="op">&lt;-</span> <span class="fu">GetAssayData</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">count.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">count.data</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">new.assay</span> <span class="op">&lt;-</span> <span class="fu">SetAssayData</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"counts"</span>, new.data <span class="op">=</span> <span class="va">count.data</span><span class="op">)</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set an Assay slot directly</span></span></span>
+<span class="r-in"><span><span class="va">count.data</span> <span class="op">&lt;-</span> <span class="fu">GetAssayData</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">count.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">count.data</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">new.assay</span> <span class="op">&lt;-</span> <span class="fu">SetAssayData</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"counts"</span>, new.data <span class="op">=</span> <span class="va">count.data</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -161,7 +174,7 @@ the <a href="DefaultAssay.html">default assay</a></p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

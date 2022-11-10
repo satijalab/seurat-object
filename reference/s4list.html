@@ -21,7 +21,7 @@ lists/S4 objects contained as sub-lists/sub-objects."><!-- mathjax --><script sr
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -48,7 +48,7 @@ lists/S4 objects contained as sub-lists/sub-objects."><!-- mathjax --><script sr
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>S4/List Conversion</h1>
-    <small class="dont-index">Source: <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/generics.R" class="external-link"><code>R/generics.R</code></a>, <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
     <div class="hidden name"><code>s4list.Rd</code></div>
     </div>
 
@@ -61,32 +61,41 @@ lists/S4 objects contained as sub-lists/sub-objects.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">S4ToList</span><span class="op">(</span><span class="va">object</span><span class="op">)</span>
-
-<span class="fu">IsS4List</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
-
-<span class="fu">ListToS4</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
-
-<span class="co"># S3 method for default</span>
-<span class="fu">S4ToList</span><span class="op">(</span><span class="va">object</span><span class="op">)</span>
-
-<span class="co"># S3 method for list</span>
-<span class="fu">S4ToList</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">S4ToList</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">IsS4List</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ListToS4</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for default</span></span>
+<span><span class="fu">S4ToList</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for list</span></span>
+<span><span class="fu">S4ToList</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>An S4 object</p></dd>
+
+
 <dt>x</dt>
 <dd><p>A list with an S4 class definition attribute</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>S4ToList</code>: A list with an S4 class definition attribute
-<code>IsS4List</code>: <code>TRUE</code> if <code>x</code> is a list with an S4 class
-definition attribute
-<code>ListToS4</code>: An S4 object as defined by the S4 class definition
+    
+
+<p><code>S4ToList</code>: A list with an S4 class definition attribute</p>
+
+
+<p><code>IsS4List</code>: <code>TRUE</code> if <code>x</code> is a list with an S4 class
+definition attribute</p>
+
+
+<p><code>ListToS4</code>: An S4 object as defined by the S4 class definition
 attribute</p>
     </div>
     <div id="s-class-definition-attributes">
@@ -112,7 +121,7 @@ class name and package of origin. This attribute is stored as
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -18,7 +18,7 @@ other packages"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/l
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -79,7 +79,7 @@ subset(x, cells = NULL, features = NULL, ...)
 # S3 method for Assay
 tail(x, n = 10L, ...)
 
-# S4 method for Assay
+# S4 method for Assay,ANY,ANY,ANY
 [[(x, i, j, ...) &lt;- value
 
 # S4 method for Assay
@@ -102,15 +102,25 @@ show(object)</code></pre></div>
     <h2>Arguments</h2>
     <dl><dt>x, object</dt>
 <dd><p>An <code><a href="Assay-class.html">Assay</a></code> object</p></dd>
+
+
 <dt>i, features</dt>
 <dd><p>For <code>[[</code>: metadata names; for all other methods,
 feature names or indices</p></dd>
+
+
 <dt>j, cells</dt>
 <dd><p>Cell names or indices</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
+
 <dt>drop</dt>
 <dd><p>See <code><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></code></p></dd>
+
+
 <dt>n</dt>
 <dd><p>an integer vector of length up to <code>dim(x)</code> (or 1,
     for non-dimensioned objects). Values specify the indices to be
@@ -121,59 +131,120 @@ feature names or indices</p></dd>
     indices. <code>NA</code> or non-specified values (when <code>length(n) &lt;
       length(dim(x))</code>) select all indices in that dimension. Must
     contain at least one non-missing value.</p></dd>
+
+
 <dt>y</dt>
 <dd><p>A vector or list of one or more objects to merge</p></dd>
+
+
 <dt>add.cell.ids</dt>
 <dd><p>A character vector of <code>length(x = c(x, y))</code>;
 appends the corresponding values to the start of each objects' cell names</p></dd>
+
+
 <dt>merge.data</dt>
 <dd><p>Merge the data slots instead of just merging the counts
 (which requires renormalization); this is recommended if the same
 normalization approach was applied to all objects</p></dd>
+
+
 <dt>value</dt>
 <dd><p>Additional metadata to add</p></dd>
+
+
 <dt>na.rm</dt>
 <dd><p>logical.  Should missing values (including <code>NaN</code>)
     be omitted from the calculations?</p></dd>
+
+
 <dt>dims</dt>
 <dd><p>completely ignored by the <code>Matrix</code> methods.</p></dd>
+
+
 <dt>slot</dt>
 <dd><p>Name of assay expression matrix to calculate column/row
 means/sums on</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>[</code>: The <code>data</code> slot for features <code>i</code> and cells
-<code>j</code><code>[[</code>: The feature-level metadata for <code>i</code><code>dim</code>: The number of features (<code>nrow</code>) and cells
-(<code>ncol</code>)
-<code>dimnames</code>: Feature (row) and cell (column) names
-<code>head</code>: The first <code>n</code> rows of feature-level metadata
-<code>merge</code>: Merged object
-<code>subset</code>: A subsetted <code>Assay</code><code>tail</code>: The last <code>n</code> rows of feature-level metadata
-<code>[[&lt;-</code>: <code>x</code> with metadata <code>value</code> added as <code>i</code><code>colMeans</code>: The column (cell-wise) means of <code>slot</code><code>colSums</code>: The column (cell-wise) sums of <code>slot</code><code>rowMeans</code>: The row (feature-wise) means of <code>slot</code><code>rowSums</code>: The row (feature-wise) sums of <code>slot</code><code>show</code>: Prints summary to <code><a href="https://rdrr.io/r/base/showConnections.html" class="external-link">stdout</a></code> and
+    
+
+<p><code>[</code>: The <code>data</code> slot for features <code>i</code> and cells
+<code>j</code></p>
+
+
+
+<p><code>[[</code>: The feature-level metadata for <code>i</code></p>
+
+
+
+<p><code>dim</code>: The number of features (<code>nrow</code>) and cells
+(<code>ncol</code>)</p>
+
+
+<p><code>dimnames</code>: Feature (row) and cell (column) names</p>
+
+
+<p><code>head</code>: The first <code>n</code> rows of feature-level metadata</p>
+
+
+<p><code>merge</code>: Merged object</p>
+
+
+<p><code>subset</code>: A subsetted <code>Assay</code></p>
+
+
+
+<p><code>tail</code>: The last <code>n</code> rows of feature-level metadata</p>
+
+
+<p><code>[[&lt;-</code>: <code>x</code> with metadata <code>value</code> added as <code>i</code></p>
+
+
+
+<p><code>colMeans</code>: The column (cell-wise) means of <code>slot</code></p>
+
+
+
+<p><code>colSums</code>: The column (cell-wise) sums of <code>slot</code></p>
+
+
+
+<p><code>rowMeans</code>: The row (feature-wise) means of <code>slot</code></p>
+
+
+
+<p><code>rowSums</code>: The row (feature-wise) sums of <code>slot</code></p>
+
+
+
+<p><code>show</code>: Prints summary to <code><a href="https://rdrr.io/r/base/showConnections.html" class="external-link">stdout</a></code> and
 invisibly returns <code>NULL</code></p>
+
+
     </div>
     <div id="functions">
     <h2>Functions</h2>
     
-<ul><li><p><code>[.Assay</code>: Get expression data from an <code>Assay</code></p></li>
-<li><p><code>[[.Assay</code>: Get feature-level metadata</p></li>
-<li><p><code>dim.Assay</code>: Number of cells and features for an <code>Assay</code></p></li>
-<li><p><code>dimnames.Assay</code>: Cell- and feature-names for an <code>Assay</code></p></li>
-<li><p><code>head.Assay</code>: Get the first rows of feature-level metadata</p></li>
-<li><p><code>merge.Assay</code>: Merge <code>Assay</code> objects</p></li>
-<li><p><code>subset.Assay</code>: Subset an <code>Assay</code></p></li>
-<li><p><code>tail.Assay</code>: Get the last rows of feature-level metadata</p></li>
-<li><p><code>[[&lt;-,Assay-method</code>: Add feature-level metadata</p></li>
-<li><p><code>colMeans,Assay-method</code>: Calculate <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></code> on an
+<ul><li><p><code>[</code>: Get expression data from an <code>Assay</code></p></li>
+<li><p><code>[[</code>: Get feature-level metadata</p></li>
+<li><p><code>dim(Assay)</code>: Number of cells and features for an <code>Assay</code></p></li>
+<li><p><code>dimnames(Assay)</code>: Cell- and feature-names for an <code>Assay</code></p></li>
+<li><p><code>head(Assay)</code>: Get the first rows of feature-level metadata</p></li>
+<li><p><code>merge(Assay)</code>: Merge <code>Assay</code> objects</p></li>
+<li><p><code>subset(Assay)</code>: Subset an <code>Assay</code></p></li>
+<li><p><code>tail(Assay)</code>: Get the last rows of feature-level metadata</p></li>
+<li><p><code>`[[`(x = Assay, i = ANY, j = ANY) &lt;- value</code>: Add feature-level metadata</p></li>
+<li><p><code>colMeans(Assay)</code>: Calculate <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></code> on an
 <code>Assay</code></p></li>
-<li><p><code>colSums,Assay-method</code>: Calculate <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></code> on an
+<li><p><code>colSums(Assay)</code>: Calculate <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></code> on an
 <code>Assay</code></p></li>
-<li><p><code>rowMeans,Assay-method</code>: Calculate <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></code> on an
+<li><p><code>rowMeans(Assay)</code>: Calculate <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></code> on an
 <code>Assay</code></p></li>
-<li><p><code>rowSums,Assay-method</code>: Calculate <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></code> on an
+<li><p><code>rowSums(Assay)</code>: Calculate <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></code> on an
 <code>Assay</code></p></li>
-<li><p><code>show,Assay-method</code>: Overview of an <code>Assay</code> object</p></li>
+<li><p><code>show(Assay)</code>: Overview of an <code>Assay</code> object</p></li>
 </ul></div>
 
   </div>
@@ -188,7 +259,7 @@ invisibly returns <code>NULL</code></p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

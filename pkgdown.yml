@@ -1,8 +1,8 @@
-pandoc: 2.7.3
-pkgdown: 2.0.1
+pandoc: 2.19.2
+pkgdown: 2.0.6
 pkgdown_sha: ~
 articles: {}
-last_built: 2021-12-03T19:38Z
+last_built: 2022-11-10T20:40Z
 urls:
   reference: https://mojaveazure.github.io/seurat-object/reference
   article: https://mojaveazure.github.io/seurat-object/articles

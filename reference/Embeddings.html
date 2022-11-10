@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -53,49 +53,56 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">Embeddings</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for DimReduc</span>
-<span class="fu">Embeddings</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">Embeddings</span><span class="op">(</span><span class="va">object</span>, reduction <span class="op">=</span> <span class="st">"pca"</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Embeddings</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for DimReduc</span></span>
+<span><span class="fu">Embeddings</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">Embeddings</span><span class="op">(</span><span class="va">object</span>, reduction <span class="op">=</span> <span class="st">"pca"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>An object</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
+
 <dt>reduction</dt>
 <dd><p>Name of reduction to pull cell embeddings for</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The embeddings matrix</p>
+    
+
+<p>The embeddings matrix</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Get the embeddings directly from a DimReduc object</span></span>
-<span class="r-in"><span class="fu">Embeddings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Get the embeddings directly from a DimReduc object</span></span></span>
+<span class="r-in"><span><span class="fu">Embeddings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"pca"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       PC_1       PC_2       PC_3      PC_4       PC_5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ATGCCAGAACGACT -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CATGGCCTGTGCAT -0.02602702 -0.3466795  0.6651668 0.4182900  0.5853204</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GAACCTGATGAACC -0.45650250  0.1795811  1.3175907 2.0137210 -0.4818851</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TGACTGGATTCTCA -0.81163243 -1.3795340 -1.0019320 0.1390503 -1.5982232</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGTCAGACTGCACA -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get the embeddings from a specific DimReduc in a Seurat object</span></span>
-<span class="r-in"><span class="fu">Embeddings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, reduction <span class="op">=</span> <span class="st">"pca"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get the embeddings from a specific DimReduc in a Seurat object</span></span></span>
+<span class="r-in"><span><span class="fu">Embeddings</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, reduction <span class="op">=</span> <span class="st">"pca"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       PC_1       PC_2       PC_3      PC_4       PC_5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ATGCCAGAACGACT -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CATGGCCTGTGCAT -0.02602702 -0.3466795  0.6651668 0.4182900  0.5853204</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GAACCTGATGAACC -0.45650250  0.1795811  1.3175907 2.0137210 -0.4818851</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TGACTGGATTCTCA -0.81163243 -1.3795340 -1.0019320 0.1390503 -1.5982232</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGTCAGACTGCACA -0.77403708 -0.8996461 -0.2493078 0.5585948  0.4650838</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -110,7 +117,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

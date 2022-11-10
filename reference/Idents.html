@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -53,51 +53,51 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">Idents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">Idents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="fu">RenameIdents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">ReorderIdent</span><span class="op">(</span><span class="va">object</span>, <span class="va">var</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">SetIdent</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">StashIdent</span><span class="op">(</span><span class="va">object</span>, <span class="va">save.name</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">Idents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">Idents</span><span class="op">(</span><span class="va">object</span>, cells <span class="op">=</span> <span class="cn">NULL</span>, drop <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">ReorderIdent</span><span class="op">(</span>
-  <span class="va">object</span>,
-  <span class="va">var</span>,
-  reverse <span class="op">=</span> <span class="cn">FALSE</span>,
-  afxn <span class="op">=</span> <span class="va">mean</span>,
-  reorder.numeric <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">RenameIdents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">SetIdent</span><span class="op">(</span><span class="va">object</span>, cells <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">value</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">StashIdent</span><span class="op">(</span><span class="va">object</span>, save.name <span class="op">=</span> <span class="st">"orig.ident"</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu"><a href="https://rdrr.io/r/base/droplevels.html" class="external-link">droplevels</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Idents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">Idents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="fu">RenameIdents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ReorderIdent</span><span class="op">(</span><span class="va">object</span>, <span class="va">var</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">SetIdent</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">StashIdent</span><span class="op">(</span><span class="va">object</span>, <span class="va">save.name</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">Idents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">Idents</span><span class="op">(</span><span class="va">object</span>, cells <span class="op">=</span> <span class="cn">NULL</span>, drop <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">ReorderIdent</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">var</span>,</span>
+<span>  reverse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  afxn <span class="op">=</span> <span class="va">mean</span>,</span>
+<span>  reorder.numeric <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">RenameIdents</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">SetIdent</span><span class="op">(</span><span class="va">object</span>, cells <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">value</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">StashIdent</span><span class="op">(</span><span class="va">object</span>, save.name <span class="op">=</span> <span class="st">"orig.ident"</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/droplevels.html" class="external-link">droplevels</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -106,42 +106,73 @@
 <dd><p>Arguments passed to other methods; for <code>RenameIdents</code>: named
 arguments as <code>old.ident = new.ident</code>; for <code>ReorderIdent</code>: arguments
 passed on to <code><a href="FetchData.html">FetchData</a></code></p></dd>
+
+
 <dt>value</dt>
 <dd><p>The name of the identities to pull from object metadata or the
 identities themselves</p></dd>
+
+
 <dt>var</dt>
 <dd><p>Feature or variable to order on</p></dd>
+
+
 <dt>save.name</dt>
 <dd><p>Store current identity information under this name</p></dd>
+
+
 <dt>cells</dt>
 <dd><p>Set cell identities for specific cells</p></dd>
+
+
 <dt>drop</dt>
 <dd><p>Drop unused levels</p></dd>
+
+
 <dt>reverse</dt>
 <dd><p>Reverse ordering</p></dd>
+
+
 <dt>afxn</dt>
 <dd><p>Function to evaluate each identity class based on; default is
 <code><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></code></p></dd>
+
+
 <dt>reorder.numeric</dt>
 <dd><p>Rename all identity classes to be increasing numbers
 starting from 1 (default is FALSE)</p></dd>
+
+
 <dt>x, object</dt>
 <dd><p>An object</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>Idents</code>: The cell identities
-<code>Idents&lt;-</code>: <code>object</code> with the cell identities changed
-<code>RenameIdents</code>: An object with selected identity classes renamed
-<code>ReorderIdent</code>: An object with
-<code>SetIdent</code>: An object with new identity classes set
-<code>StashIdent</code>: An object with the identities stashed</p>
+    
+
+<p><code>Idents</code>: The cell identities</p>
+
+
+<p><code>Idents&lt;-</code>: <code>object</code> with the cell identities changed</p>
+
+
+<p><code>RenameIdents</code>: An object with selected identity classes renamed</p>
+
+
+<p><code>ReorderIdent</code>: An object with</p>
+
+
+<p><code>SetIdent</code>: An object with new identity classes set</p>
+
+
+<p><code>StashIdent</code>: An object with the identities stashed</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Get cell identity classes</span></span>
-<span class="r-in"><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Get cell identity classes</span></span></span>
+<span class="r-in"><span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              0              0              0              0              0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TCTGATACACGTGT TGGTATCTAAACAG GCAGCTCTGTTTCT GATATAACACGCAT AATGTTGACAGTCA </span>
@@ -175,44 +206,44 @@ starting from 1 (default is FALSE)</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GAGTTGTGGTAGCT GACGCTCTCTCTCG AGTCTTACTTCGGA GGAACACTTCAGAC CTTGATTGATCTTC </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              0              0              0              0              1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: 0 1 2</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Set cell identity classes</span></span>
-<span class="r-in"><span class="co"># Can be used to set identities for specific cells to a new level</span></span>
-<span class="r-in"><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span>, cells <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">'a'</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set cell identity classes</span></span></span>
+<span class="r-in"><span><span class="co"># Can be used to set identities for specific cells to a new level</span></span></span>
+<span class="r-in"><span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span>, cells <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">'a'</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA AGTCAGACTGCACA </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              a              a              a              a              0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TCTGATACACGTGT </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: a 0 1 2</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Can also set idents from a value in object metadata</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Can also set idents from a value in object metadata</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "orig.ident"      "nCount_RNA"      "nFeature_RNA"    "RNA_snn_res.0.8"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "letter.idents"   "groups"          "RNA_snn_res.1"  </span>
-<span class="r-in"><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">'RNA_snn_res.1'</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">'RNA_snn_res.1'</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0" "1" "2"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Rename cell identity classes</span></span>
-<span class="r-in"><span class="co"># Can provide an arbitrary amount of idents to rename</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Rename cell identity classes</span></span></span>
+<span class="r-in"><span><span class="co"># Can provide an arbitrary amount of idents to rename</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0" "1" "2"</span>
-<span class="r-in"><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">RenameIdents</span><span class="op">(</span><span class="va">pbmc_small</span>, <span class="st">'0'</span> <span class="op">=</span> <span class="st">'A'</span>, <span class="st">'2'</span> <span class="op">=</span> <span class="st">'C'</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">RenameIdents</span><span class="op">(</span><span class="va">pbmc_small</span>, <span class="st">'0'</span> <span class="op">=</span> <span class="st">'A'</span>, <span class="st">'2'</span> <span class="op">=</span> <span class="st">'C'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A" "C" "1"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">ReorderIdent</span><span class="op">(</span><span class="va">pbmc_small</span>, var <span class="op">=</span> <span class="st">'PC_1'</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Set cell identity classes using SetIdent</span></span>
-<span class="r-in"><span class="va">cells.use</span> <span class="op">&lt;-</span> <span class="fu"><a href="WhichCells.html">WhichCells</a></span><span class="op">(</span><span class="va">pbmc_small</span>, idents <span class="op">=</span> <span class="st">'1'</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">SetIdent</span><span class="op">(</span><span class="va">pbmc_small</span>, cells <span class="op">=</span> <span class="va">cells.use</span>, value <span class="op">=</span> <span class="st">'B'</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">ReorderIdent</span><span class="op">(</span><span class="va">pbmc_small</span>, var <span class="op">=</span> <span class="st">'PC_1'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">Idents</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set cell identity classes using SetIdent</span></span></span>
+<span class="r-in"><span><span class="va">cells.use</span> <span class="op">&lt;-</span> <span class="fu"><a href="WhichCells.html">WhichCells</a></span><span class="op">(</span><span class="va">pbmc_small</span>, idents <span class="op">=</span> <span class="st">'1'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">SetIdent</span><span class="op">(</span><span class="va">pbmc_small</span>, cells <span class="op">=</span> <span class="va">cells.use</span>, value <span class="op">=</span> <span class="st">'B'</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   orig.ident nCount_RNA nFeature_RNA RNA_snn_res.0.8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ATGCCAGAACGACT SeuratProject         70           47               0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CATGGCCTGTGCAT SeuratProject         85           52               0</span>
@@ -227,10 +258,10 @@ starting from 1 (default is FALSE)</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TGACTGGATTCTCA             A     g2             0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGTCAGACTGCACA             A     g2             0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TCTGATACACGTGT             A     g1             0</span>
-<span class="r-in"><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">StashIdent</span><span class="op">(</span><span class="va">pbmc_small</span>, save.name <span class="op">=</span> <span class="st">'idents'</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="va">pbmc_small</span> <span class="op">&lt;-</span> <span class="fu">StashIdent</span><span class="op">(</span><span class="va">pbmc_small</span>, save.name <span class="op">=</span> <span class="st">'idents'</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> With Seurat 3.X, stashing identity classes can be accomplished with the following:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> pbmc_small[["idents"]] &lt;- Idents(object = pbmc_small)</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   orig.ident nCount_RNA nFeature_RNA RNA_snn_res.0.8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ATGCCAGAACGACT SeuratProject         70           47               0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CATGGCCTGTGCAT SeuratProject         85           52               0</span>
@@ -245,18 +276,18 @@ starting from 1 (default is FALSE)</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TGACTGGATTCTCA             A     g2             0      A</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGTCAGACTGCACA             A     g2             0      A</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TCTGATACACGTGT             A     g1             0      A</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get the levels of identity classes of a Seurat object</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get the levels of identity classes of a Seurat object</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "B" "A" "C"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Reorder identity classes</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Reorder identity classes</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "B" "A" "C"</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'C'</span>, <span class="st">'A'</span>, <span class="st">'B'</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'C'</span>, <span class="st">'A'</span>, <span class="st">'B'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pbmc_small</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "C" "A" "B"</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -271,7 +302,7 @@ starting from 1 (default is FALSE)</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

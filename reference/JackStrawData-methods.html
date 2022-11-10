@@ -18,7 +18,7 @@ other packages"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/l
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -72,30 +72,49 @@ show(object)</code></pre></div>
     <h2>Arguments</h2>
     <dl><dt>x, object</dt>
 <dd><p>A <code><a href="JackStrawData-class.html">JackStrawData</a></code> object</p></dd>
+
+
 <dt>pattern</dt>
 <dd><p>A regular expression.  Only matching names are
     returned.</p></dd>
+
+
 <dt>i</dt>
 <dd><p>A <code>JackStrawData</code> slot name</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Ignored</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>$</code>: Slot <code>i</code> from <code>x</code><code>as.logical</code>: <code>TRUE</code> if empirical p-values have been
-calculated otherwise <code>FALSE</code><code>show</code>: Prints summary to <code><a href="https://rdrr.io/r/base/showConnections.html" class="external-link">stdout</a></code> and
+    
+
+<p><code>$</code>: Slot <code>i</code> from <code>x</code></p>
+
+
+
+<p><code>as.logical</code>: <code>TRUE</code> if empirical p-values have been
+calculated otherwise <code>FALSE</code></p>
+
+
+
+<p><code>show</code>: Prints summary to <code><a href="https://rdrr.io/r/base/showConnections.html" class="external-link">stdout</a></code> and
 invisibly returns <code>NULL</code></p>
+
+
     </div>
     <div id="functions">
     <h2>Functions</h2>
     
-<ul><li><p><code>.DollarNames.JackStrawData</code>: Autocompletion for <code>$</code> access on a
+<ul><li><p><code>.DollarNames(JackStrawData)</code>: Autocompletion for <code>$</code> access on a
 <code>JackStrawData</code> object</p></li>
-<li><p><code>$.JackStrawData</code>: Access data from a <code>JackStrawData</code>
+<li><p><code>$</code>: Access data from a <code>JackStrawData</code>
 object</p></li>
-<li><p><code>as.logical.JackStrawData</code>: Have empirical p-values for a
+<li><p><code>as.logical(JackStrawData)</code>: Have empirical p-values for a
 <code>JackStrawData</code> object been calculated</p></li>
-<li><p><code>show,JackStrawData-method</code>: Overview of a <code>JackStrawData</code> object</p></li>
+<li><p><code>show(JackStrawData)</code>: Overview of a <code>JackStrawData</code> object</p></li>
 </ul></div>
 
   </div>
@@ -110,7 +129,7 @@ object</p></li>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

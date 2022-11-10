@@ -20,7 +20,7 @@ restricted to spatially variable features"><!-- mathjax --><script src="https://
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -59,73 +59,75 @@ restricted to spatially variable features</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">HVFInfo</span><span class="op">(</span><span class="va">object</span>, <span class="va">selection.method</span>, status <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, selection.method <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="fu">SVFInfo</span><span class="op">(</span><span class="va">object</span>, <span class="va">selection.method</span>, <span class="va">status</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">SpatiallyVariableFeatures</span><span class="op">(</span><span class="va">object</span>, <span class="va">selection.method</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">HVFInfo</span><span class="op">(</span><span class="va">object</span>, selection.method <span class="op">=</span> <span class="cn">NULL</span>, status <span class="op">=</span> <span class="cn">FALSE</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, selection.method <span class="op">=</span> <span class="cn">NULL</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">SVFInfo</span><span class="op">(</span>
-  <span class="va">object</span>,
-  selection.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"markvariogram"</span>, <span class="st">"moransi"</span><span class="op">)</span>,
-  status <span class="op">=</span> <span class="cn">FALSE</span>,
-  assay <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for Seurat</span>
-<span class="fu">SpatiallyVariableFeatures</span><span class="op">(</span>
-  <span class="va">object</span>,
-  selection.method <span class="op">=</span> <span class="st">"markvariogram"</span>,
-  assay <span class="op">=</span> <span class="cn">NULL</span>,
-  decreasing <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">HVFInfo</span><span class="op">(</span><span class="va">object</span>, <span class="va">selection.method</span>, status <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">SpatiallyVariableFeatures</span><span class="op">(</span>
-  <span class="va">object</span>,
-  selection.method <span class="op">=</span> <span class="st">"markvariogram"</span>,
-  decreasing <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">SVFInfo</span><span class="op">(</span>
-  <span class="va">object</span>,
-  selection.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"markvariogram"</span>, <span class="st">"moransi"</span><span class="op">)</span>,
-  status <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, selection.method <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for Assay</span>
-<span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">HVFInfo</span><span class="op">(</span><span class="va">object</span>, <span class="va">selection.method</span>, status <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, selection.method <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="fu">SVFInfo</span><span class="op">(</span><span class="va">object</span>, <span class="va">selection.method</span>, <span class="va">status</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">SpatiallyVariableFeatures</span><span class="op">(</span><span class="va">object</span>, <span class="va">selection.method</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">HVFInfo</span><span class="op">(</span><span class="va">object</span>, selection.method <span class="op">=</span> <span class="cn">NULL</span>, status <span class="op">=</span> <span class="cn">FALSE</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, selection.method <span class="op">=</span> <span class="cn">NULL</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, assay <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">SVFInfo</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  selection.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"markvariogram"</span>, <span class="st">"moransi"</span><span class="op">)</span>,</span>
+<span>  status <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  assay <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">SpatiallyVariableFeatures</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  selection.method <span class="op">=</span> <span class="st">"markvariogram"</span>,</span>
+<span>  assay <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  decreasing <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">HVFInfo</span><span class="op">(</span><span class="va">object</span>, <span class="va">selection.method</span>, status <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">SpatiallyVariableFeatures</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  selection.method <span class="op">=</span> <span class="st">"markvariogram"</span>,</span>
+<span>  decreasing <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">SVFInfo</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  selection.method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"markvariogram"</span>, <span class="st">"moransi"</span><span class="op">)</span>,</span>
+<span>  status <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, selection.method <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">VariableFeatures</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>An object</p></dd>
+
+
 <dt>selection.method</dt>
 <dd><p>Which method to pull. For <code>HVFInfo</code> and
 <code>VariableFeatures</code>, choose one from one of the
@@ -136,48 +138,67 @@ following:</p><ul><li><p>“vst”</p></li>
 </ul><p>For <code>SVFInfo</code> and <code>SpatiallyVariableFeatures</code>, choose from:</p><ul><li><p>“markvariogram”</p></li>
 <li><p>“moransi”</p></li>
 </ul></dd>
+
+
 <dt>status</dt>
 <dd><p>Add variable status to the resulting data frame</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
+
 <dt>value</dt>
 <dd><p>A character vector of variable features</p></dd>
+
+
 <dt>assay</dt>
 <dd><p>Name of assay to pull highly variable feature information for</p></dd>
+
+
 <dt>decreasing</dt>
 <dd><p>Return features in decreasing order (most spatially
 variable first).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>HVFInfo</code>: A data frame with feature means, dispersion, and
-scaled dispersion
-<code>VariableFeatures</code>: a vector of the variable features
-<code>SVFInfo</code>: a data frame with the spatially variable features
-<code>SpatiallyVariableFeatures</code>: a character vector of the spatially
+    
+
+<p><code>HVFInfo</code>: A data frame with feature means, dispersion, and
+scaled dispersion</p>
+
+
+<p><code>VariableFeatures</code>: a vector of the variable features</p>
+
+
+<p><code>SVFInfo</code>: a data frame with the spatially variable features</p>
+
+
+<p><code>SpatiallyVariableFeatures</code>: a character vector of the spatially
 variable features</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Get the HVF info from a specific Assay in a Seurat object</span></span>
-<span class="r-in"><span class="fu">HVFInfo</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, assay <span class="op">=</span> <span class="st">"RNA"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Get the HVF info from a specific Assay in a Seurat object</span></span></span>
+<span class="r-in"><span><span class="fu">HVFInfo</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, assay <span class="op">=</span> <span class="st">"RNA"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            mean    variance variance.standardized</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MS4A1    0.3875   1.0251582             0.8983463</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD79B    0.6000   1.2810127             0.4731134</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD79A    0.7000   4.3645570             1.0862810</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> HLA-DRA 13.4250 725.4626582             0.9730883</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TCL1A    0.3000   0.8708861             1.3558627</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Get the HVF info directly from an Assay object</span></span>
-<span class="r-in"><span class="fu">HVFInfo</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, selection.method <span class="op">=</span> <span class="st">'vst'</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get the HVF info directly from an Assay object</span></span></span>
+<span class="r-in"><span><span class="fu">HVFInfo</span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, selection.method <span class="op">=</span> <span class="st">'vst'</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            mean    variance variance.standardized</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MS4A1    0.3875   1.0251582             0.8983463</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD79B    0.6000   1.2810127             0.4731134</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CD79A    0.7000   4.3645570             1.0862810</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> HLA-DRA 13.4250 725.4626582             0.9730883</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> TCL1A    0.3000   0.8708861             1.3558627</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -192,7 +213,7 @@ variable features</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

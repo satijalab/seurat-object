@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.1.3</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Check Matrix Validity</h1>
-    <small class="dont-index">Source: <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/generics.R" class="external-link"><code>R/generics.R</code></a>, <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
     <div class="hidden name"><code>CheckMatrix.Rd</code></div>
     </div>
 
@@ -53,22 +53,24 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">CheckMatrix</span><span class="op">(</span><span class="va">object</span>, <span class="va">checks</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for default</span>
-<span class="fu">CheckMatrix</span><span class="op">(</span><span class="va">object</span>, <span class="va">checks</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for dMatrix</span>
-<span class="fu">CheckMatrix</span><span class="op">(</span><span class="va">object</span>, checks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"infinite"</span>, <span class="st">"logical"</span>, <span class="st">"integer"</span>, <span class="st">"na"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for lMatrix</span>
-<span class="fu">CheckMatrix</span><span class="op">(</span><span class="va">object</span>, checks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"infinite"</span>, <span class="st">"logical"</span>, <span class="st">"integer"</span>, <span class="st">"na"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">CheckMatrix</span><span class="op">(</span><span class="va">object</span>, <span class="va">checks</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for default</span></span>
+<span><span class="fu">CheckMatrix</span><span class="op">(</span><span class="va">object</span>, <span class="va">checks</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for dMatrix</span></span>
+<span><span class="fu">CheckMatrix</span><span class="op">(</span><span class="va">object</span>, checks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"infinite"</span>, <span class="st">"logical"</span>, <span class="st">"integer"</span>, <span class="st">"na"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for lMatrix</span></span>
+<span><span class="fu">CheckMatrix</span><span class="op">(</span><span class="va">object</span>, checks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"infinite"</span>, <span class="st">"logical"</span>, <span class="st">"integer"</span>, <span class="st">"na"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>A matrix</p></dd>
+
+
 <dt>checks</dt>
 <dd><p>Type of checks to perform, choose one or more from:</p><ul><li><p>“<code>infinite</code>”: Emit a warning if any value is infinite</p></li>
 <li><p>“<code>logical</code>”: Emit a warning if any value is a logical</p></li>
@@ -77,12 +79,19 @@
 <li><p>“<code>na</code>”: Emit a warning if any value is an <code>NA</code>
   or <code>NaN</code></p></li>
 </ul></dd>
+
+
 <dt>...</dt>
 <dd><p>Arguments passed to other methods</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Emits warnings for each test and invisibly returns <code>NULL</code></p>
+    
+
+<p>Emits warnings for each test and invisibly returns <code>NULL</code></p>
+
+
     </div>
 
   </div>
@@ -97,7 +106,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
