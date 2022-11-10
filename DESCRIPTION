@@ -23,7 +23,7 @@ Description: Defines S4 classes for single-cell genomic data and associated
   and Stuart T, Butler A, et al (2019) <doi:10.1016/j.cell.2019.05.031> for
   more details.
 URL: https://mojaveazure.github.io/seurat-object/,
-      https://github.com/mojaveazure/seurat-object
+    https://github.com/mojaveazure/seurat-object
 BugReports:
       https://github.com/mojaveazure/seurat-object/issues
 License: MIT + file LICENSE
@@ -72,3 +72,5 @@ Collate:
     'seurat.R'
     'utils.R'
 LinkingTo: Rcpp, RcppEigen
+Config/Needs/website:
+    pkgdown

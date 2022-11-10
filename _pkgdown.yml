@@ -1,57 +1,54 @@
 url: https://mojaveazure.github.io/seurat-object/
 destination: docs
-
 template:
   params:
     bootswatch: united
-
 development:
   mode: auto
-
 reference:
-  - title: The Seurat Class and Interaction Methods
-    contents:
-      - Seurat-class
-      - Seurat-methods
-      - has_concept("seurat")
-  - title: The Assay Class and Interaction Methods
-    contents:
-      - Assay-class
-      - Assay-methods
-      - has_concept("assay")
-  - title: The DimReduc and JackStrawData Classes and Interaction Methods
-    contents:
-      - DimReduc-class
-      - DimReduc-methods
-      - has_concept("dimreduc")
-      - JackStrawData-class
-      - JackStrawData-methods
-      - has_concept("jackstraw")
-  - title: The SeuratCommand Class and Interaction Methods
-    contents:
-      - SeuratCommand-class
-      - SeuratCommand-methods
-      - has_concept("command")
-  - title: The SpatialImage Class and Interaction Methods
-    contents:
-      - SpatialImage-class
-      - SpatialImage-methods
-      - has_concept("spatialimage")
-  - title: The Graph and Neighbor Classes and Interaction Methods
-    contents:
-      - Graph-class
-      - has_concept("graph")
-      - Neighbor-class
-      - has_concept("neighbor")
-  - title: Accessing and Setting Object Data
-    contents:
-      - has_concept("data-access")
-  - title: Utility Functions
-    contents:
-      - set-if-null
-      - has_concept("utils")
-  - title: Package Information
-    contents:
-      - SeuratObject-package
-      - pbmc_small
-      - reexports
+- title: The Seurat Class and Interaction Methods
+  contents:
+  - Seurat-class
+  - Seurat-methods
+  - has_concept("seurat")
+- title: The Assay Class and Interaction Methods
+  contents:
+  - Assay-class
+  - Assay-methods
+  - has_concept("assay")
+- title: The DimReduc and JackStrawData Classes and Interaction Methods
+  contents:
+  - DimReduc-class
+  - DimReduc-methods
+  - has_concept("dimreduc")
+  - JackStrawData-class
+  - JackStrawData-methods
+  - has_concept("jackstraw")
+- title: The SeuratCommand Class and Interaction Methods
+  contents:
+  - SeuratCommand-class
+  - SeuratCommand-methods
+  - has_concept("command")
+- title: The SpatialImage Class and Interaction Methods
+  contents:
+  - SpatialImage-class
+  - SpatialImage-methods
+  - has_concept("spatialimage")
+- title: The Graph and Neighbor Classes and Interaction Methods
+  contents:
+  - Graph-class
+  - has_concept("graph")
+  - Neighbor-class
+  - has_concept("neighbor")
+- title: Accessing and Setting Object Data
+  contents: has_concept("data-access")
+- title: Utility Functions
+  contents:
+  - set-if-null
+  - has_concept("utils")
+- title: Package Information
+  contents:
+  - SeuratObject-package
+  - pbmc_small
+  - reexports
+
