@@ -51,4 +51,29 @@ reference:
   - SeuratObject-package
   - pbmc_small
   - reexports
+- title: internal
+  contents:
+    - aggregate
+    - as.Centroids
+    - Boundaries
+    - Centroids-class
+    - Centroids-methods
+    - CreateCentroids
+    - CreateFOV
+    - CreateMolecules
+    - CreateSegmentation
+    - Crop
+    - DefaultFOV
+    - FOV-class
+    - FOV-methods
+    - IsNamedList
+    - LogMap-class
+    - MatchCells
+    - Molecules-class
+    - Molecules-methods
+    - Overlay
+    - Segmentation-class
+    - Segmentation-methods
+    - Simplify
+    - Theta
 

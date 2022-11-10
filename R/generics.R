@@ -669,7 +669,7 @@ Idents <- function(object, ... ) {
 #'
 #' @return Returns the value in the alg.idx slot of the Neighbor object
 #'
-#' @rdname Index
+#' @rdname NNIndex
 #' @export Index
 #'
 #' @concept data-access
@@ -682,7 +682,7 @@ Index <- function(object, ...) {
 #'
 #' @return \code{Idents<-}: A Neighbor object with the index stored
 #'
-#' @rdname Index
+#' @rdname NNIndex
 #' @export Index<-
 #'
 "Index<-" <- function(object, ..., value) {
