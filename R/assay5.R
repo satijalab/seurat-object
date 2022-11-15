@@ -837,6 +837,7 @@ FetchData.Assay5 <- FetchData.StdAssay
 #' @template method-stdassay
 #'
 #' @method GetAssayData StdAssay
+#' @export
 #'
 GetAssayData.StdAssay <- function(
   object,
