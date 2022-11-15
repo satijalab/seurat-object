@@ -308,7 +308,7 @@ FilterObjects <- function(
 #' Graphs(pbmc_small)
 #'
 Graphs <- function(object, slot = NULL) {
-  graphs <- FilterObjects(object = object, classes.keep = "Graph")
+  graphs <- .FilterObjects(object = object, classes.keep = "Graph")
   if (is.null(x = slot)) {
     return(graphs)
   }
@@ -345,7 +345,6 @@ Graphs <- function(object, slot = NULL) {
 #' }
 #'
 Images <- function(object, assay = NULL) {
-  object <- UpdateSlots(object = object)
   images <- names(x = slot(object = object, name = 'images'))
   if (!is.null(x = assay)) {
     assays <- c(assay, DefaultAssay(object = object[[assay]]))
@@ -363,7 +362,7 @@ Images <- function(object, assay = NULL) {
 #' @export
 #'
 Neighbors <- function(object, slot = NULL) {
-  neighbors <- FilterObjects(object = object, classes.keep = "Neighbor")
+  neighbors <- .FilterObjects(object = object, classes.keep = "Neighbor")
   if (is.null(x = slot)) {
     return(neighbors)
   }
@@ -386,18 +385,19 @@ Neighbors <- function(object, slot = NULL) {
 #' Reductions(object = pbmc_small)
 #'
 Reductions <- function(object, slot = NULL) {
-  reductions <- FilterObjects(object = object, classes.keep = 'DimReduc')
+  # reductions <- FilterObjects(object = object, classes.keep = 'DimReduc')
+  reductions <- .FilterObjects(object = object, classes.keep = 'DimReduc')
   if (is.null(x = slot)) {
     return(reductions)
   }
   if (!slot %in% reductions) {
-    warning(
-      "Cannot find a DimReduc of name ",
-      slot,
-      " in this Seurat object",
-      call. = FALSE,
-      immediate. = TRUE
+    warn(
+      message = paste(
+        'Cannot find a DimReduc of name',
+        slot,
+        'in this Seurat object')
     )
+    return(NULL)
   }
   return(slot(object = object, name = 'reductions')[[slot]])
 }
@@ -1137,8 +1137,11 @@ CreateSeuratObject.StdAssay <- CreateSeuratObject.Assay
 #'
 DefaultAssay.Seurat <- function(object, ...) {
   CheckDots(...)
-  object <- UpdateSlots(object = object)
-  return(slot(object = object, name = 'active.assay'))
+  default <- slot(object = object, name = 'active.assay')
+  if (!length(x = default)) {
+    default <- NULL
+  }
+  return(default)
 }
 
 #' @rdname DefaultAssay
@@ -1156,7 +1159,6 @@ DefaultAssay.Seurat <- function(object, ...) {
 #'
 "DefaultAssay<-.Seurat" <- function(object, ..., value) {
   CheckDots(...)
-  object <- UpdateSlots(object = object)
   value <- value[1L]
   value <- match.arg(arg = value, choices = Assays(object = object))
   slot(object = object, name = 'active.assay') <- value
@@ -1251,7 +1253,6 @@ DefaultFOV.Seurat <- function(object, assay = NULL, ...) {
 #' Embeddings(object = pbmc_small, reduction = "pca")[1:5, 1:5]
 #'
 Embeddings.Seurat <- function(object, reduction = 'pca', ...) {
-  object <- UpdateSlots(object = object)
   return(Embeddings(object = object[[reduction]], ...))
 }
 
@@ -2571,14 +2572,16 @@ Version.Seurat <- function(object, ...) {
 #' pbmc_small[["pca"]]
 #'
 "[[.Seurat" <- function(x, i, ..., drop = FALSE, na.rm = FALSE) {
-  # x <- UpdateSlots(object = x)
+  md <- slot(object = x, name = 'meta.data')
   if (missing(x = i)) {
-    return(slot(object = x, name = 'meta.data'))
+    return(md)
+  } else if (is.null(x = i)) {
+    return(NULL)
   } else if (!length(x = i)) {
-    return(data.frame(row.names = colnames(x = x)))
+    return(data.frame(row.names = row.names(x = md)))
   }
   # Correct invalid `i`
-  meta.cols <- names(x = slot(object = x, name = 'meta.data'))
+  meta.cols <- names(x = md)
   if (is.numeric(x = i)) {
     stopifnot(any(i <= length(x = meta.cols)))
     i <- i[i <= length(x = meta.cols)]
@@ -2597,7 +2600,7 @@ Version.Seurat <- function(object, ...) {
     # Identify the cell-level meta data to use
     i <- match.arg(arg = i, choices = meta.cols, several.ok = TRUE)
     # Pull the cell-level meta data
-    data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
+    data.return <- md[, i, drop = FALSE, ...]
     # If requested, remove NAs
     if (isTRUE(x = na.rm)) {
       idx.na <- apply(X = is.na(x = data.return), MARGIN = 1L, FUN = all)
@@ -2636,9 +2639,10 @@ Version.Seurat <- function(object, ...) {
 #' ncol(pbmc_small)
 #'
 dim.Seurat <- function(x) {
-  # x <- UpdateSlots(object = x)
-  # return(dim(x = x[[DefaultAssay(object = x)]]))
-  return(c(nrow(x = x[[DefaultAssay(object = x)]]), length(x = colnames(x = x))))
+  return(c(
+    nrow(x = x[[DefaultAssay(object = x)]]) %||% 0L,
+    length(x = colnames(x = x)) %||% 0L
+  ))
 }
 
 #' Feature and Cell Names
@@ -3138,23 +3142,33 @@ subset.Seurat <- function(
     if (isTRUE(x = return.null)) {
       return(NULL)
     }
-    stop("No cells found", call. = FALSE)
+    abort(message = "No cells found")
   }
   if (all(cells %in% Cells(x = x)) && length(x = cells) == length(x = Cells(x = x)) && is.null(x = features)) {
     return(x)
   }
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
+  # Remove metadata for cells not present
+  slot(object = x, name = 'meta.data') <- x[[]][cells, , drop = FALSE]
   if (!all(colnames(x = x) %in% cells)) {
     slot(object = x, name = 'graphs') <- list()
     slot(object = x, name = 'neighbors') <- list()
   }
-  # assays <- FilterObjects(object = x, classes.keep = 'Assay')
-  assays <- Assays(object = x)
+  Idents(object = x, drop = TRUE) <- Idents(object = x)[cells]
   # Filter Assay objects
-  for (assay in assays) {
+  for (assay in Assays(object = x)) {
     assay.features <- features %||% rownames(x = x[[assay]])
     slot(object = x, name = 'assays')[[assay]] <- tryCatch(
       # because subset is also an argument, we need to explictly use the base::subset function
-      expr = base::subset(x = x[[assay]], cells = cells, features = assay.features),
+      expr = suppressWarnings(
+        expr = base::subset(
+          x = x[[assay]],
+          cells = cells,
+          features = assay.features
+        ),
+        classes = 'validationWarning'
+      ),
       error = function(e) {
         if (e$message == "Cannot find features provided") {
           return(NULL)
@@ -3169,31 +3183,33 @@ subset.Seurat <- function(
     x = slot(object = x, name = 'assays')
   )
   if (length(x = FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
-    stop("Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay.", call. = FALSE)
+    abort(message = "Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay")
   }
   # Filter DimReduc objects
   for (dimreduc in FilterObjects(object = x, classes.keep = 'DimReduc')) {
-    x[[dimreduc]] <- tryCatch(
-      expr = subset.DimReduc(x = x[[dimreduc]], cells = cells, features = features),
-      error = function(e) {
-        if (e$message %in% c("Cannot find cell provided", "Cannot find features provided")) {
-          return(NULL)
-        } else {
-          stop(e)
+    suppressWarnings(
+      x[[dimreduc]] <- tryCatch(
+        expr = subset.DimReduc(x = x[[dimreduc]], cells = cells, features = features),
+        error = function(e) {
+          if (e$message %in% c("Cannot find cell provided", "Cannot find features provided")) {
+            return(NULL)
+          } else {
+            stop(e)
+          }
         }
-      }
+      ),
+      classes = 'validationWarning'
     )
   }
-  # Remove metadata for cells not present
-  slot(object = x, name = 'meta.data') <- slot(object = x, name = 'meta.data')[cells, , drop = FALSE]
-  Idents(object = x, drop = TRUE) <- Idents(object = x)[cells]
-
   # Recalculate nCount and nFeature
   for (assay in FilterObjects(object = x, classes.keep = 'Assay')) {
     n.calc <- CalcN(object = x[[assay]])
     if (!is.null(x = n.calc)) {
       names(x = n.calc) <- paste(names(x = n.calc), assay, sep = '_')
-      x[[names(x = n.calc)]] <- n.calc
+      suppressWarnings(
+        expr = x[[names(x = n.calc)]] <- n.calc,
+        classes = 'validationWarning'
+      )
     }
   }
   # subset images
@@ -3652,24 +3668,20 @@ setMethod(
     if (!is.null(x = names(x = value))) {
       i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
     } else if (length(x = i) != ncol(x = value)) {
-      stop(
-        "Cannot assign ",
+      abort(message = paste(
+        "Cannot assign",
         length(x = i),
-        " names to ",
+        "names to",
         ncol(x = value),
-        " bits of meta data",
-        call. = FALSE
-      )
+        "bits of meta data"
+      ))
     }
     # Handle meta data for different cells
     names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
     if (length(x = names.intersect)) {
       value <- value[names.intersect, , drop = FALSE]
       if (!nrow(x = value)) {
-        stop(
-          "None of the cells provided are in this Seurat object",
-          call. = FALSE
-        )
+        abort(message = "None of the cells provided are in this Seurat object")
       }
     } else if (nrow(x = value) == ncol(x = x)) {
       # When no cell names are provided in value, assume it's in cell order
@@ -3935,6 +3947,38 @@ setMethod(
     )
     # Validate and return
     validObject(object = x)
+    return(x)
+  }
+)
+
+#' @rdname cash-.Seurat
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(x = 'Seurat', i = 'character', j = 'missing', value = 'list'),
+  definition = function(x, i, ..., value) {
+    # Because R is stupid sometimes
+    if (!length(x = i) && !length(x = value)) {
+      return(x)
+    }
+    # Check that the `i` we're adding are present in the list
+    if (!is.null(x = names(x = value))) {
+      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
+    } else if (length(x = i) != length(x = value)) {
+      abort(message = paste(
+        "Cannot assing",
+        length(x = i),
+        "names to",
+        length(x = value),
+        "bits of meta data"
+      ))
+    } else {
+      names(x = value) <- i
+    }
+    # Add the meta data
+    for (n in i) {
+      x[[n]] <- value[[n]]
+    }
     return(x)
   }
 )
@@ -4285,9 +4329,9 @@ setMethod(
     row.names(x = df) <- colnames(x = x)
     df[[i]] <- if (i %in% names(x = x[[]])) {
       if (is.character(x = value)) {
-        as.character(x = x[[i]])
+        as.character(x = x[[i, drop = TRUE]])
       } else {
-        as.vector(x = x[[i]])
+        as.vector(x = x[[i, drop = TRUE]])
       }
     } else {
       NA
@@ -4359,6 +4403,63 @@ setMethod(
       dims = dims,
       ...
     ))
+  }
+)
+
+#' @importFrom methods initialize
+#'
+setMethod(
+  f = 'initialize',
+  signature = 'Seurat',
+  definition = function(
+    .Object,
+    assays = list(),
+    meta.data = NULL,
+    active.assay = character(length = 0L),
+    active.ident = NULL,
+    graphs = list(),
+    neighbors = list(),
+    reductions = list(),
+    images = list(),
+    project.name = getOption(
+      x = 'Seurat.object.project',
+      default = Seurat.options$Seurat.object.project
+    ),
+    misc = list(),
+    version = packageVersion(pkg = 'SeuratObject'),
+    commands = list(),
+    tools = list(),
+    ...
+  ) {
+    # Initialize the object
+    .Object <- callNextMethod(.Object, ...)
+    # Set defaults for meta data and idents
+    cells <- Reduce(f = union, x = lapply(X = assays, FUN = Cells))
+    if (is.null(x = meta.data)) {
+      meta.data <- EmptyDF(n = length(x = cells))
+      row.names(x = meta.data) <- cells
+    }
+    if (is.null(x = active.ident)) {
+      active.ident <- factor(x = cells)
+    }
+    # Add slots
+    slot(object = .Object, name = 'assays') <- assays
+    slot(object = .Object, name = 'meta.data') <- meta.data
+    slot(object = .Object, name = 'active.assay') <- active.assay
+    slot(object = .Object, name = 'active.ident') <- active.ident
+    slot(object = .Object, name = 'graphs') <- graphs
+    slot(object = .Object, name = 'neighbors') <- neighbors
+    slot(object = .Object, name = 'reductions') <- reductions
+    slot(object = .Object, name = 'images') <- images
+    slot(object = .Object, name = 'project.name') <- project.name
+    slot(object = .Object, name = 'misc') <- misc
+    slot(object = .Object, name = 'version') <- version
+    slot(object = .Object, name = 'commands') <- commands
+    slot(object = .Object, name = 'tools') <- tools
+    # Validate the object
+    validObject(object = .Object)
+    # Return
+    return(.Object)
   }
 )
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/assay5.R
 \name{split.StdAssay}
 \alias{split.StdAssay}
-\alias{split,StdAssay,ANY-method}
+\alias{split,StdAssay-method}
 \title{Split an Assay}
 \usage{
 \method{split}{StdAssay}(
@@ -14,7 +14,7 @@
   ...
 )
 
-\S4method{split}{StdAssay,ANY}(
+\S4method{split}{StdAssay}(
   x,
   f,
   drop = FALSE,

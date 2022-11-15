@@ -6,6 +6,7 @@
 \alias{[[<-,Seurat,character,missing,data.frame-method}
 \alias{[[<-,Seurat,missing,missing,data.frame-method}
 \alias{[[<-,Seurat,character,missing,factor-method}
+\alias{[[<-,Seurat,character,missing,list-method}
 \alias{[[<-,Seurat,missing,missing,list-method}
 \alias{[[<-,Seurat,character,missing,vector-method}
 \title{Cell-Level Meta Data}
@@ -19,6 +20,8 @@
 \S4method{[[}{Seurat,missing,missing,data.frame}(x, i, j, ...) <- value
 
 \S4method{[[}{Seurat,character,missing,factor}(x, i, j, ...) <- value
+
+\S4method{[[}{Seurat,character,missing,list}(x, i, j, ...) <- value
 
 \S4method{[[}{Seurat,missing,missing,list}(x, i, j, ...) <- value
 

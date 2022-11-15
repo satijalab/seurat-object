@@ -45,6 +45,7 @@ Seurat.options <- list(
   Seurat.input.sparse_ratio = 0.4,
   Seurat.coords.short_range = 'max',
   Seurat.object.assay.v3.missing_layer = 'matrix',
+  Seurat.object.project = 'SeuratProject',
   progressr.clear = FALSE
 )
 

@@ -428,7 +428,7 @@ NULL
       ret <- vector(mode = 'list', length = length(x = names))
       names(x = ret) <- names
       for (i in seq_along(along.with = ret)) {
-        ret[[i]] <- x
+        ret[[i]] <- unique(x = x)
       }
       return(ret)
     }
