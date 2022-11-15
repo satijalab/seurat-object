@@ -737,11 +737,14 @@ LoadSeuratRds <- function(file, ...) {
 #' }
 #'
 UpdateSeuratObject <- function(object) {
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
   if (.hasSlot(object, "version")) {
     if (slot(object = object, name = 'version') >= package_version(x = "2.0.0") && slot(object = object, name = 'version') < package_version(x = '3.0.0')) {
       # Run update
       message("Updating from v2.X to v3.X")
-      seurat.version <- packageVersion(pkg = "Seurat")
+      # seurat.version <- packageVersion(pkg = "SeuratObject")
+      seurat.version <- package_version(x = '3.0.0')
       new.assay <- UpdateAssay(old.assay = object, assay = "RNA")
       assay.list <- list(new.assay)
       names(x = assay.list) <- "RNA"
@@ -787,7 +790,10 @@ UpdateSeuratObject <- function(object) {
       names(x = assays) <- Assays(object = object)
       object <- do.call(what = RenameAssays, args = c('object' = object, assays))
       for (obj in FilterObjects(object = object, classes.keep = c('Assay', 'DimReduc', 'Graph'))) {
-        suppressWarnings(expr = object[[obj]] <- UpdateSlots(object = object[[obj]]))
+        suppressWarnings(
+          expr = object[[obj]] <- UpdateSlots(object = object[[obj]]),
+          classes = 'validationWarning'
+        )
       }
       for (cmd in Command(object = object)) {
         slot(object = object, name = 'commands')[[cmd]] <- UpdateSlots(
@@ -797,7 +803,10 @@ UpdateSeuratObject <- function(object) {
       # Validate object keys
       message("Ensuring keys are in the proper strucutre")
       for (ko in FilterObjects(object = object)) {
-        Key(object = object[[ko]]) <- UpdateKey(key = Key(object = object[[ko]]))
+        suppressWarnings(
+          expr = Key(object = object[[ko]]) <- UpdateKey(key = Key(object = object[[ko]])),
+          classes = 'validationWarning'
+        )
       }
       # Check feature names
       message("Ensuring feature names don't have underscores or pipes")
@@ -840,7 +849,10 @@ UpdateSeuratObject <- function(object) {
           x = rownames(x = assay[]),
           fixed = TRUE
         )
-        object[[assay.name]] <- assay
+        suppressWarnings(
+          expr = object[[assay.name]] <- assay,
+          classes = 'validationWarning'
+        )
       }
       for (reduc.name in FilterObjects(object = object, classes.keep = 'DimReduc')) {
         reduc <- object[[reduc.name]]
@@ -859,15 +871,19 @@ UpdateSeuratObject <- function(object) {
             )
           }
         }
-        object[[reduc.name]] <- reduc
+        suppressWarnings(
+          expr = object[[reduc.name]] <- reduc,
+          classes = 'validationWarning'
+        )
       }
-    }
-    if (package_version(x = slot(object = object, name = 'version')) <= package_version(x = '3.1.1')) {
       # Update Assays, DimReducs, and Graphs
       for (x in names(x = object)) {
         message("Updating slots in ", x)
         xobj <- object[[x]]
-        xobj <- UpdateSlots(object = xobj)
+        xobj <- suppressWarnings(
+          expr = UpdateSlots(object = xobj),
+          classes = 'validationWarning'
+        )
         if (inherits(x = xobj, what = 'DimReduc')) {
           if (any(sapply(X = c('tsne', 'umap'), FUN = grepl, x = tolower(x = x)))) {
             message("Setting ", x, " DimReduc to global")
@@ -877,10 +893,29 @@ UpdateSeuratObject <- function(object) {
           graph.assay <- unlist(x = strsplit(x = x, split = '_'))[1]
           if (graph.assay %in% Assays(object = object)) {
             message("Setting default assay of ", x, " to ", graph.assay)
-            DefaultAssay(object = xobj) <- graph.assay
+            suppressWarnings(
+              expr = DefaultAssay(object = xobj) <- graph.assay,
+              classes = 'validationWarning'
+            )
+          } else {
+            message(
+              "Cannot find ",
+              graph.assay,
+              " in the object, setting default assay of ",
+              x,
+              " to ",
+              DefaultAssay(object = object)
+            )
+            suppressWarnings(
+              expr = DefaultAssay(object = xobj) <- DefaultAssay(object = object),
+              classes = 'validationWarning'
+            )
           }
         }
-        object[[x]] <- xobj
+        suppressWarnings(
+          expr = object[[x]] <- xobj,
+          classes = 'validationWarning'
+        )
       }
       # Update SeuratCommands
       for (cmd in Command(object = object)) {
@@ -901,23 +936,38 @@ UpdateSeuratObject <- function(object) {
           message("Setting assay used for ", cmd, " to ", cmd.assay)
         }
         slot(object = cobj, name = 'assay.used') <- cmd.assay
-        object[[cmd]] <- cobj
+        suppressWarnings(
+          expr = object[[cmd]] <- cobj,
+          classes = 'validationWarning'
+        )
       }
       # Update object version
       slot(object = object, name = 'version') <- packageVersion(pkg = 'Seurat')
     }
-    object <- UpdateSlots(object = object)
+    object <- suppressWarnings(
+      expr = UpdateSlots(object = object),
+      classes = 'validationWarning'
+    )
     if (package_version(x = slot(object = object, name = 'version')) <= package_version(x = '4.0.0')) {
       # Transfer the object to the SeuratObject namespace
-      object <- UpdateClassPkg(
-        object = object,
-        from = 'Seurat',
-        to = 'SeuratObject'
+      object <- suppressWarnings(
+        expr = UpdateClassPkg(
+          object = object,
+          from = 'Seurat',
+          to = 'SeuratObject'
+        ),
+        classes = 'validationWarning'
       )
-      slot(object = object, name = 'version') <- max(
-        package_version(x = '4.0.0'),
-        packageVersion(pkg = 'SeuratObject')
+    }
+    slot(object = object, name = 'version') <- packageVersion(pkg = 'SeuratObject')
+    options(op)
+    validObject(object = object, complete = TRUE)
+    for (i in names(x = object)) {
+      message(
+        "Validating object structure for ",
+        paste(class(x = object[[i]])[1L], sQuote(x = i))
       )
+      validObject(object = object[[i]])
     }
     message("Object representation is consistent with the most current Seurat version")
     return(object)
@@ -928,6 +978,7 @@ UpdateSeuratObject <- function(object) {
     call. = FALSE
   )
 }
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
