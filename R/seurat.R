@@ -2756,9 +2756,9 @@ dimnames.Seurat <- function(x) {
   # Check the provided dimnames
   msg <- "Invalid 'dimnames' given for a Seurat object"
   if (!is_bare_list(x = value, n = 2L)) {
-    stop(msg, call. = FALSE)
+    abort(message = msg)
   } else if (!all(sapply(X = value, FUN = length) == dim(x = x))) {
-    stop(msg, call. = FALSE)
+    abort(message = msg)
   }
   value <- lapply(X = value, FUN = as.character)
   onames <- dimnames(x = x)
@@ -2852,7 +2852,7 @@ dimnames.Seurat <- function(x) {
       # TODO: replace with `x[[nn]] <-`
       expr = slot(object = x, name = 'neighbors')[[nn]] <- RenameCells(
         object = x[[nn]],
-        orig.names = nnames,
+        old.names = nnames,
         new.names = value[[2L]][ncells]
       )
     )
