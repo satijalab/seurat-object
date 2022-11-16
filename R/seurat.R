@@ -3203,7 +3203,7 @@ subset.Seurat <- function(
     }
     abort(message = "No cells found")
   }
-  if (all(cells %in% Cells(x = x)) && length(x = cells) == length(x = Cells(x = x)) && is.null(x = features)) {
+  if (all(cells %in% Cells(x = x)) && length(x = cells) == length(x = colnames(x = x)) && is.null(x = features)) {
     return(x)
   }
   op <- options(Seurat.object.validate = FALSE)
