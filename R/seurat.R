@@ -3091,6 +3091,10 @@ merge.Seurat <- function(
   }
   # Merge dimensional reductions
   reducs.combined <- list()
+  if (is.character(x = merge.dr)) {
+    warn(message = "'merge.Seurat' no longer supports filtering dimensional reductions; merging all dimensional reductions")
+    merge.dr <- TRUE
+  }
   if (isTRUE(x = merge.dr)) {
     for (i in seq_along(along.with = objects)) {
       for (reduc in Reductions(object = objects[[i]])) {

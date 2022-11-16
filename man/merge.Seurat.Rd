@@ -13,8 +13,8 @@
   add.cell.ids = NULL,
   collapse = FALSE,
   merge.data = TRUE,
-  merge.dr = NULL,
-  project = "SeuratProject",
+  merge.dr = FALSE,
+  project = getOption(x = "Seurat.object.project", default = "SeuratProject"),
   ...
 )
 }
@@ -28,9 +28,14 @@ appends the corresponding values to the start of each objects' cell names}
 (which requires renormalization); this is recommended if the same
 normalization approach was applied to all objects}
 
-\item{merge.dr}{Merge specified DimReducs that are present in all objects;
-will only merge the embeddings slots for the first \code{N} dimensions that
-are shared across all objects.}
+\item{merge.dr}{Choose how to handle merging dimensional reductions:
+\itemize{
+ \item \dQuote{\code{TRUE}}: merge dimensional reductions with the same name
+  across objects; dimensional reductions with different names are added as-is
+ \item \dQuote{\code{NA}}: keep dimensional reductions from separate objects
+  separate; will append the project name for duplicate reduction names
+ \item \dQuote{\code{FALSE}}: do not add dimensional reductions
+}}
 
 \item{project}{\link{Project} name for the \code{Seurat} object}
 
