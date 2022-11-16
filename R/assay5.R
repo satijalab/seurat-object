@@ -1401,7 +1401,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
   for (lyr in layer) {
     names(x = df) <- paste('vf', method, lyr, c('variable', 'rank'), sep = '_')
-    object[[]] <- df
+    object[] <- df
   }
   return(object)
 }
