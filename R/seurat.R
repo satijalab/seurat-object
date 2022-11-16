@@ -1972,9 +1972,8 @@ ReorderIdent.Seurat <- function(
   return(object)
 }
 
-#' @param for.merge Only rename slots needed for merging Seurat objects.
-#' Currently only renames the raw.data and meta.data slots.
 #' @param add.cell.id prefix to add cell names
+#' @param for.merge Deprecated
 #'
 #' @details
 #' If \code{add.cell.id} is set a prefix is added to existing cell names. If
@@ -1992,18 +1991,21 @@ ReorderIdent.Seurat <- function(
 #'
 RenameCells.Seurat <- function(
   object,
-  add.cell.id = NULL,
-  new.names = NULL,
-  for.merge = FALSE,
+  add.cell.id = missing_arg(),
+  new.names = missing_arg(),
+  for.merge = deprecated(),
   ...
 ) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
-  if (missing(x = add.cell.id) && missing(x = new.names)) {
-    stop("One of 'add.cell.id' and 'new.names' must be set")
+  if (is_present(arg = for.merge)) {
+    deprecate_soft(when = '5.0.0', what = 'RenameCells(for.merge = )')
   }
-  if (!missing(x = add.cell.id) && !missing(x = new.names)) {
-    stop("Only one of 'add.cell.id' and 'new.names' may be set")
+  if (is_missing(x = add.cell.id) && is_missing(x = new.names)) {
+    abort(message = "One of 'add.cell.id' and 'new.names' must be set")
+  }
+  if (!is_missing(x = add.cell.id) && !is_missing(x = new.names)) {
+    abort(message = "Only one of 'add.cell.id' and 'new.names' may be set")
   }
   if (!missing(x = add.cell.id)) {
     new.cell.names <- paste(add.cell.id, colnames(x = object), sep = "_")
@@ -2011,32 +2013,31 @@ RenameCells.Seurat <- function(
     if (length(x = new.names) == ncol(x = object)) {
       new.cell.names <- new.names
     } else {
-      stop(
+      abort(message = paste0(
         "the length of 'new.names' (",
         length(x = new.names),
         ") must be the same as the number of cells (",
         ncol(x = object),
         ")"
-      )
+      ))
     }
   }
   old.names <- colnames(x = object)
   # rename the cell-level metadata first to rename colname()
   old.meta.data <- object[[]]
-  rownames(x = old.meta.data) <- new.cell.names
+  row.names(x = old.meta.data) <- new.cell.names
   slot(object = object, name = "meta.data") <- old.meta.data
   # rename the active.idents
   old.ids <- Idents(object = object)
   names(x = old.ids) <- new.cell.names
   Idents(object = object) <- old.ids
   names(x = new.cell.names) <- old.names
-
   # rename in the assay objects
   assays <- FilterObjects(object = object, classes.keep = 'Assay')
   for (i in assays) {
     slot(object = object, name = "assays")[[i]] <- RenameCells(
       object = object[[i]],
-      new.names = new.cell.names
+      new.names = new.cell.names[colnames(x = object[[i]])]
     )
   }
   # rename in the assay5 objects
@@ -2044,7 +2045,7 @@ RenameCells.Seurat <- function(
   for (i in assays5) {
     slot(object = object, name = "assays")[[i]] <- RenameCells(
       object = object[[i]],
-      new.names = new.cell.names
+      new.names = new.cell.names[colnames(x = object[[i]])]
     )
   }
   # rename in the DimReduc objects
@@ -2052,18 +2053,17 @@ RenameCells.Seurat <- function(
   for (i in dimreducs) {
     slot(object = object, name = "reductions")[[i]] <- RenameCells(
       object = object[[i]],
-      new.names = new.cell.names
+      new.names = new.cell.names[Cells(x = object[[i]])]
     )
   }
   # rename the graphs
   graphs <- FilterObjects(object = object, classes.keep = "Graph")
   for (g in graphs) {
     graph.g <- object[[g]]
-    rownames(graph.g) <- colnames(graph.g) <- new.cell.names
+    rownames(graph.g) <- colnames(graph.g) <- new.cell.names[colnames(x = graph.g)]
     slot(object = object, name = "graphs")[[g]] <- graph.g
-    }
+  }
   # Rename the images
-
   for (i in Images(object = object)) {
     slot(object = object, name = "images")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2075,7 +2075,7 @@ RenameCells.Seurat <- function(
     slot(object = object, name = "neighbors")[[i]] <- RenameCells(
       object = object[[i]],
       old.names = old.names,
-      new.names = new.cell.names
+      new.names = new.cell.names[Cells(x = object[[i]])]
     )
   }
   validObject(object)

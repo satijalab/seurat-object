@@ -4,7 +4,7 @@
 #' @importFrom utils head tail upgrade
 #' @importFrom rlang abort arg_match arg_match0 check_installed have_name
 #' inform is_bare_character is_bare_integerish is_bare_list is_bare_numeric
-#' is_na is_named warn
+#' is_missing is_na is_named missing_arg warn
 #' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
 #' deprecate_warn is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod

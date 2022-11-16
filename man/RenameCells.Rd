@@ -19,9 +19,9 @@ RenameCells(object, ...)
 
 \method{RenameCells}{Seurat}(
   object,
-  add.cell.id = NULL,
-  new.names = NULL,
-  for.merge = FALSE,
+  add.cell.id = missing_arg(),
+  new.names = missing_arg(),
+  for.merge = deprecated(),
   ...
 )
 }
@@ -36,8 +36,7 @@ RenameCells(object, ...)
 
 \item{add.cell.id}{prefix to add cell names}
 
-\item{for.merge}{Only rename slots needed for merging Seurat objects.
-Currently only renames the raw.data and meta.data slots.}
+\item{for.merge}{Deprecated}
 }
 \value{
 An object with new cell names
