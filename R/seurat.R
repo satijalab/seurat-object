@@ -1064,14 +1064,16 @@ CreateSeuratObject.default <- function(
   project = 'SeuratProject',
   ...
 ) {
-  if (inherits(x = counts, what = 'Matrix') || inherits(x = counts, what = 'matrix'))
-  assay.data <- CreateAssayObject(
-    counts = counts,
-    min.cells = min.cells,
-    min.features = min.features,
-    ...
-  ) else {
-    assay.data <- CreateAssay5Object(
+  assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
+  assay.data <- if (tolower(x = assay.version) == 'v3') {
+    assay.data <- CreateAssayObject(
+      counts = counts,
+      min.cells = min.cells,
+      min.features = min.features,
+      ...
+    )
+  } else {
+    CreateAssay5Object(
       counts = counts,
       min.cells = min.cells,
       min.features = min.features,
@@ -1177,6 +1179,12 @@ CreateSeuratObject.Assay <- function(
 #' @export
 #'
 CreateSeuratObject.StdAssay <- CreateSeuratObject.Assay
+
+#' @rdname CreateSeuratObject
+#' @method CreateSeuratObject Assay5
+#' @export
+#'
+CreateSeuratObject.Assay5 <- CreateSeuratObject.StdAssay
 
 #' @rdname DefaultAssay
 #' @export
@@ -3282,6 +3290,46 @@ subset.Seurat <- function(
 #' tail(pbmc_small)
 #'
 tail.Seurat <- .tail
+
+#' @method upgrade seurat
+#' @export
+#'
+upgrade.seurat <- function(object, ...) {
+  # Run update
+  message("Updating from v2.X to v3.X")
+  seurat.version <- packageVersion(pkg = "SeuratObject")
+  new.assay <- UpdateAssay(old.assay = object, assay = "RNA")
+  assay.list <- list(RNA = new.assay)
+  for (i in names(x = object@assay)) {
+    assay.list[[i]] <- UpdateAssay(old.assay = object@assay[[i]], assay = i)
+  }
+  new.dr <- UpdateDimReduction(old.dr = object@dr, assay = "RNA")
+  object <- new(
+    Class = "Seurat",
+    version = seurat.version,
+    assays = assay.list,
+    active.assay = "RNA",
+    project.name = object@project.name,
+    misc = object@misc %||% list(),
+    active.ident = object@ident,
+    reductions = new.dr,
+    meta.data = object@meta.data,
+    tools = list()
+  )
+  # Run CalcN
+  for (assay in Assays(object = object)) {
+    n.calc <- CalcN(object = object[[assay]])
+    if (!is.null(x = n.calc)) {
+      names(x = n.calc) <- paste(names(x = n.calc), assay, sep = '_')
+      object[[names(x = n.calc)]] <- n.calc
+    }
+    for (i in c('nGene', 'nUMI')) {
+      if (i %in% colnames(x = object[[]])) {
+        object[[i]] <- NULL
+      }
+    }
+  }
+}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods

@@ -4,6 +4,7 @@
 \alias{CreateSeuratObject}
 \alias{CreateSeuratObject.default}
 \alias{CreateSeuratObject.Assay}
+\alias{CreateSeuratObject.Assay5}
 \title{Create a \code{Seurat} object}
 \usage{
 CreateSeuratObject(
@@ -29,6 +30,16 @@ CreateSeuratObject(
 )
 
 \method{CreateSeuratObject}{Assay}(
+  counts,
+  assay = "RNA",
+  names.field = 1L,
+  names.delim = "_",
+  meta.data = NULL,
+  project = "SeuratProject",
+  ...
+)
+
+\method{CreateSeuratObject}{Assay5}(
   counts,
   assay = "RNA",
   names.field = 1L,

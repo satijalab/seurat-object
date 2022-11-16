@@ -1,7 +1,7 @@
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
-#' @importFrom utils head tail
 #' @importFrom progressr progressor
+#' @importFrom utils head tail upgrade
 #' @importFrom rlang abort arg_match arg_match0 check_installed have_name
 #' inform is_bare_character is_bare_integerish is_bare_list is_bare_numeric
 #' is_na is_named warn
@@ -30,20 +30,46 @@ default.options <- list()
 # Options
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# \pkg{Seurat} Options
-#
-# @section Package Options:
-# \subsection{Seurat.input.sparse.ratio}{blah}
-#
-# @name SeuratObject-options
-#
-# @keywords internal
-#
+#' \pkg{Seurat} Options
+#'
+#' Various options used in \pkg{Seurat}
+#'
+#' @section Package Options:
+#' \subsection{Seurat.input.sparse_ratio}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.input.sparse_ratio}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.input.sparse_ratio")}}}
+#' \subsection{Seurat.coords.short_range}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.coords.short_range}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.coords.short_range")}}}
+#' \subsection{Seurat.object.assay.version}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.assay.version}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.object.assay.version")}}
+#' }
+#' \subsection{Seurat.object.assay.v3.missing_layer}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.assay.v3.missing_layer}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.object.assay.v3.missing_layer")}}
+#' }
+#' \subsection{Seurat.object.project}{
+#' Default project for new \code{\link{Seurat}} objects\cr
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.project}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.object.project")}}
+#' }
+#'
+#' @name SeuratObject-options
+#'
+#' @keywords internal
+#'
 NULL
 
 Seurat.options <- list(
   Seurat.input.sparse_ratio = 0.4,
   Seurat.coords.short_range = 'max',
+  Seurat.object.assay.version = 'v5',
   Seurat.object.assay.v3.missing_layer = 'matrix',
   Seurat.object.project = 'SeuratProject',
   progressr.clear = FALSE
