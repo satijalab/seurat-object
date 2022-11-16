@@ -2931,9 +2931,14 @@ levels.Seurat <- function(x) {
 #' @param merge.data Merge the data slots instead of just merging the counts
 #' (which requires renormalization); this is recommended if the same
 #' normalization approach was applied to all objects
-#' @param merge.dr Merge specified DimReducs that are present in all objects;
-#' will only merge the embeddings slots for the first \code{N} dimensions that
-#' are shared across all objects.
+#' @param merge.dr Choose how to handle merging dimensional reductions:
+#' \itemize{
+#'  \item \dQuote{\code{TRUE}}: merge dimensional reductions with the same name
+#'   across objects; dimensional reductions with different names are added as-is
+#'  \item \dQuote{\code{NA}}: keep dimensional reductions from separate objects
+#'   separate; will append the project name for duplicate reduction names
+#'  \item \dQuote{\code{FALSE}}: do not add dimensional reductions
+#' }
 #'
 #' @return \code{merge}: Merged object
 #'
@@ -2972,8 +2977,8 @@ merge.Seurat <- function(
   add.cell.ids = NULL,
   collapse = FALSE,
   merge.data = TRUE,
-  merge.dr = NULL,
-  project = "SeuratProject",
+  merge.dr = FALSE,
+  project = getOption(x = 'Seurat.object.project', default = 'SeuratProject'),
   ...
 ) {
   CheckDots(...)
@@ -2994,9 +2999,8 @@ merge.Seurat <- function(
   }
   if (!is.null(x = add.cell.ids)) {
     if (length(x = add.cell.ids) != length(x = objects)) {
-      stop(
-        "Please provide a cell identifier for each object provided to merge",
-        call. = FALSE
+      abort(
+        message = "Please provide a cell identifier for each object provided to merge"
       )
     }
     for (i in seq_along(along.with = add.cell.ids)) {
@@ -3071,8 +3075,7 @@ merge.Seurat <- function(
     meta.data = md.all,
     active.assay = DefaultAssay(object = x),
     active.ident = idents.all,
-    project.name = project,
-    version = packageVersion(pkg = 'SeuratObject')
+    project.name = project
   )
   # Merge cell-level  meta data, images
   for (i in seq_along(along.with = objects)) {
@@ -3086,7 +3089,52 @@ merge.Seurat <- function(
       obj.combined[[dest]] <- objects[[i]][[img]]
     }
   }
-  # TODO: Merge dimensional reductions
+  # Merge dimensional reductions
+  reducs.combined <- list()
+  if (isTRUE(x = merge.dr)) {
+    for (i in seq_along(along.with = objects)) {
+      for (reduc in Reductions(object = objects[[i]])) {
+        reducs.combined[[reduc]] <- if (reduc %in% names(x = reducs.combined)) {
+          inform(message = paste("Merging reduction", sQuote(x = reduc)))
+          merge(x = reducs.combined[[reduc]], y = objects[[i]][[reduc]])
+        } else {
+          objects[[i]][[reduc]]
+        }
+      }
+    }
+  } else if (is_na(x = merge.dr)) {
+    reducs.all <- unlist(
+      x = lapply(X = objects, FUN = Reductions),
+      use.names = FALSE
+    )
+    reducs.dup <- unique(x = reducs.all[duplicated(x = reducs.all)])
+    for (i in seq_along(along.with = objects)) {
+      for (reduc in Reductions(object = objects[[i]])) {
+        rname <- ifelse(
+          test = reduc %in% reducs.dup,
+          yes = paste(reduc, projects[i], sep = '.'),
+          no = reduc
+        )
+        reducs.combined[[rname]] <- objects[[i]][[reduc]]
+        if (rname != reduc) {
+          inform(message = paste(
+            "Changing",
+            reduc,
+            "in object",
+            projects[i],
+            "to",
+            rname
+          ))
+          new.key <- Key(object = rname, quiet = TRUE)
+          inform(message = paste("Updating key to", new.key))
+          Key(object = reducs.combined[[rname]]) <- new.key
+        }
+      }
+    }
+  }
+  for (reduc in names(x = reducs.combined)) {
+    obj.combined[[reduc]] <- reducs.combined[[reduc]]
+  }
   # Validate and return
   validObject(object = obj.combined)
   return(obj.combined)
