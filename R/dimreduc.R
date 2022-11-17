@@ -1046,24 +1046,25 @@ setValidity(
     if (!is.numeric(x = emb)) {
       valid <- c(valid, "'cell.embeddings' must be a numeric matrix")
     }
-    col.check <- paste0(Key(object = object), seq_len(length.out = ncol(x = emb)))
+#    col.check <- paste0(Key(object = object), seq_len(length.out = ncol(x = emb)))
     if (is.null(x = rownames(x = emb)) || !all(nzchar(x = rownames(x = emb)))) {
       valid <- c(valid, "rownames must be present in 'cell.embeddings'")
     }
     if (is.null(x = colnames(x = emb))) {
       valid <- c(valid, "colnames must be present in 'cell.embeddings'")
-    } else if (!all(colnames(x = emb) == col.check)) {
-      valid <- c(
-        valid,
-        paste0(
-          "'cell.embeddings' colnames must be '",
-          Key(object = object),
-          "1:",
-          ncol(x = object),
-          "'"
-        )
-      )
-    }
+    } 
+    # else if (!all(colnames(x = emb) == col.check)) {
+    #   valid <- c(
+    #     valid,
+    #     paste0(
+    #       "'cell.embeddings' colnames must be '",
+    #       Key(object = object),
+    #       "1:",
+    #       ncol(x = object),
+    #       "'"
+    #     )
+    #   )
+    # }
     # TODO: Validate feature loadings
     lds <- Loadings(object = object, projected = FALSE)
     # TODO: Validate projected loadings
