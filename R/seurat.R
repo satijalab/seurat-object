@@ -3267,8 +3267,9 @@ subset.Seurat <- function(
   op <- options(Seurat.object.validate = FALSE)
   on.exit(expr = options(op), add = TRUE)
   # Remove metadata for cells not present
+  orig.cells <- colnames(x = x)
   slot(object = x, name = 'meta.data') <- x[[]][cells, , drop = FALSE]
-  if (!all(colnames(x = x) %in% cells)) {
+  if (!all(orig.cells %in% cells)) {
     slot(object = x, name = 'graphs') <- list()
     slot(object = x, name = 'neighbors') <- list()
   }
