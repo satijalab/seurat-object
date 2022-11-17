@@ -1041,42 +1041,110 @@ setValidity(
       return(TRUE)
     }
     valid <- NULL
+    ValidColnames <- function(
+      mat,
+      ref = NULL,
+      type = c('embeddings', 'loadings', 'projected')
+    ) {
+      ret <- NULL
+      if (IsMatrixEmpty(x = mat)) {
+        return(ret)
+      }
+      type <- match.arg(arg = type)
+      type <- switch(
+        EXPR = type,
+        embeddings = 'cell.embeddings',
+        loadings = 'feature.loadings',
+        projected = 'feature.loadings.projected'
+      )
+      mat.names <- colnames(x = mat)
+      key <- paste0('^', Key(object = object))
+      if (is.null(x = mat.names)) {
+        ret <- c(ret, paste("colnames must be present in", sQuote(x = type)))
+      } else if (!all(grepl(pattern = key, x = mat.names))) {
+        ret <- c(
+          ret,
+          paste(
+            "colnames for",
+            sQuote(x = type),
+            "must start with reduction key",
+            paste0("(", Key(object = object), ")")
+          )
+        )
+      } else {
+        dims <- as.numeric(x = gsub(pattern = key, replacement = '', x = mat.names))
+        if (!is_bare_integerish(x = dims, n = ncol(x = mat), finite = TRUE) || any(dims < 1L)) {
+          ret <- c(
+            ret,
+            paste(
+              "dimension names for",
+              sQuote(x = type),
+              "must be positive integers"
+            )
+          )
+        } else if (is.unsorted(x = dims)) {
+          ret <- c(
+            ret,
+            paste("dimensions for", sQuote(x = type), "must be in order")
+          )
+        }
+      }
+      if (!is.null(x = ref)) {
+        if (length(x = mat.names) != length(x = ref)) {
+          ret <- c(
+            ret,
+            paste(sQuote(x = type), "must have", length(x = ref), "dimensions")
+          )
+        } else if (!all(mat.names == ref)) {
+          ret <- c(
+            ret,
+            paste(
+              "dimensions in",
+              sQuote(x = type),
+              "do not match dimensions in reduction"
+            )
+          )
+        }
+      }
+      return(ret)
+    }
     # Validate cell embeddings
     emb <- Embeddings(object = object)
     if (!is.numeric(x = emb)) {
       valid <- c(valid, "'cell.embeddings' must be a numeric matrix")
     }
-#    col.check <- paste0(Key(object = object), seq_len(length.out = ncol(x = emb)))
     if (is.null(x = rownames(x = emb)) || !all(nzchar(x = rownames(x = emb)))) {
       valid <- c(valid, "rownames must be present in 'cell.embeddings'")
     }
-    if (is.null(x = colnames(x = emb))) {
-      valid <- c(valid, "colnames must be present in 'cell.embeddings'")
-    } 
-    # else if (!all(colnames(x = emb) == col.check)) {
-    #   valid <- c(
-    #     valid,
-    #     paste0(
-    #       "'cell.embeddings' colnames must be '",
-    #       Key(object = object),
-    #       "1:",
-    #       ncol(x = object),
-    #       "'"
+    valid <- c(valid, ValidColnames(mat = emb, type = 'embeddings'))
+    if (!is.null(x = valid)) {
+      return(valid)
+    }
+    dims <- colnames(x = emb)
+    # if (is.null(x = colnames(x = emb))) {
+    #   valid <- c(valid, "colnames must be present in 'cell.embeddings'")
+    # } else {
+    #   emb.names <- colnames(x = emb)
+    #   if (!all(grepl(pattern = paste0('^', Key(object = object)), x = emb.names))) {
+    #     valid <- c(
+    #       valid,
+    #       paste0(
+    #         "colnames for 'cell.embeddings' must start with reduction key (",
+    #         Key(object = object),
+    #         ")"
+    #       )
     #     )
-    #   )
+    #   }
+    # }
+    # if (!is.null(x = valid)) {
+    #   return(valid)
     # }
     # TODO: Validate feature loadings
     lds <- Loadings(object = object, projected = FALSE)
+    valid <- c(valid, ValidColnames(mat = lds, ref = dims, type = 'loadings'))
     # TODO: Validate projected loadings
     prj <- Loadings(object = object, projected = TRUE)
-    # if (!IsMatrixEmpty(x = prj) && IsMatrixEmpty(x = lds)) {
-    #   valid <- c(
-    #     valid,
-    #     "projected loadings may not be present while unprojected loadings are missing"
-    #   )
-    # } else {
-    #   ''
-    # }
+    valid <- c(valid, ValidColnames(mat = prj, ref = dims, type = 'projected'))
     # TODO: Validate assay used
     if (!rlang::is_scalar_character(x = DefaultAssay(object = object))) {
       valid <- c(valid, "'assay.orig' must be a 1-length character")
