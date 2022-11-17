@@ -4163,7 +4163,7 @@ setMethod(
     i <- make.names(names = i)
     # Checks for if the Neighbor or name already exists
     if (i %in% .Subobjects(object = x)) {
-      if (!inherits(x = x[[i]], what = 'Graph')) {
+      if (!inherits(x = x[[i]], what = 'Neighbor')) {
         .DuplicateError(name = i, cls = class(x = x[[i]]))
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
