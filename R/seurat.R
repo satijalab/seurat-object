@@ -1997,7 +1997,10 @@ RenameCells.Seurat <- function(
   ...
 ) {
   CheckDots(...)
+ 
   object <- UpdateSlots(object = object)
+  assay <- DefaultAssay(object = object)
+  
   if (is_present(arg = for.merge)) {
     deprecate_soft(when = '5.0.0', what = 'RenameCells(for.merge = )')
   }
@@ -2008,21 +2011,24 @@ RenameCells.Seurat <- function(
     abort(message = "Only one of 'add.cell.id' and 'new.names' may be set")
   }
   if (!missing(x = add.cell.id)) {
-    new.cell.names <- paste(add.cell.id, colnames(x = object), sep = "_")
+    new.cell.names <- paste(add.cell.id, colnames(x = object[[assay]]), sep = "_")
   } else {
-    if (length(x = new.names) == ncol(x = object)) {
+    if (length(x = new.names) == ncol(x = object[[assay]])) {
       new.cell.names <- new.names
     } else {
       abort(message = paste0(
         "the length of 'new.names' (",
         length(x = new.names),
         ") must be the same as the number of cells (",
-        ncol(x = object),
+        ncol(x = object[[assay]]),
         ")"
       ))
     }
   }
   old.names <- colnames(x = object)
+  new.cell.names.global <- old.names
+  new.cell.names.global[match(x = Cells(x = object), table = old.names)] <- new.cell.names
+  new.cell.names <- new.cell.names.global
   # rename the cell-level metadata first to rename colname()
   old.meta.data <- object[[]]
   row.names(x = old.meta.data) <- new.cell.names
