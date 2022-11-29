@@ -2056,9 +2056,9 @@ UpdateClassPkg <- function(object, from = NULL, to = NULL) {
 #'
 #' @importFrom methods slotNames slot
 #'
-#' @keywords internal
+#' @concept utils
 #'
-#' @noRd
+#' @export
 #'
 UpdateSlots <- function(object) {
   if (!isS4(object)) {
