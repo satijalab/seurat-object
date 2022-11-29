@@ -1412,6 +1412,59 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #'
 "VariableFeatures<-.Assay5" <- `VariableFeatures<-.StdAssay`
 
+#' @method WhichCells StdAssay
+#' @export
+#'
+WhichCells.StdAssay <- WhichCells.Assay
+# WhichCells.StdAssay <- function(
+#   object,
+#   cells = NULL,
+#   expression = missing_arg(),
+#   invert = FALSE,
+#   ...
+# ) {
+#   cells <- cells %||% colnames(x = object)
+#   if (!is_missing(x = expression) && !is.null(x = substitute(expr = expression))) {
+#     key.pattern <- paste0('^', Key(object = object))
+#     expr <- if (tryCatch(expr = is_quosure(x = expression), error = \(...) FALSE)) {
+#       expression
+#     } else if (is.call(x = enquo(arg = expression))) {
+#       enquo(arg = expression)
+#     } else {
+#       parse(text = expression)
+#     }
+#     expr.char <- suppressWarnings(expr = as.character(x = expr))
+#     expr.char <- unlist(x = lapply(X = expr.char, FUN = strsplit, split = ' '))
+#     expr.char <- gsub(
+#       pattern = key.pattern,
+#       replacement = '',
+#       x = expr.char,
+#       perl = TRUE
+#     )
+#     expr.char <- gsub(
+#       pattern = '(',
+#       replacement = '',
+#       x = expr.char,
+#       fixed = TRUE
+#     )
+#     expr.char <- gsub(
+#       pattern = '`',
+#       replacement = '',
+#       x = expr.char
+#     )
+#   }
+#   if (isTRUE(x = invert)) {
+#     cells <- setdiff(x = colnames(x = object), y = cells)
+#   }
+#   cells <- ''
+#   return(as.character(x = cells))
+# }
+
+#' @method WhichCells Assay5
+#' @export
+#'
+WhichCells.Assay5 <- WhichCells.StdAssay
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

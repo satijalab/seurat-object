@@ -947,7 +947,6 @@ VariableFeatures.Assay <- function(object, selection.method = NULL, ...) {
 #' @param invert Invert the selection of cells
 #'
 #' @importFrom stats na.omit
-#' @importFrom rlang is_quosure enquo eval_tidy
 #'
 #' @rdname WhichCells
 #' @export
@@ -992,8 +991,7 @@ WhichCells.Assay <- function(
     )
     vars.use <- which(x = expr.char %in% rownames(x = object))
     expr.char <- expr.char[vars.use]
-    data.subset <- as.data.frame(x = t(x = as.matrix(x = object[expr.char, ])))
-    colnames(x = data.subset) <- expr.char
+    data.subset <- FetchData(object = object, vars = expr.char)
     cells <- rownames(x = data.subset)[eval_tidy(expr = expr, data = data.subset)]
   }
   if (invert) {
