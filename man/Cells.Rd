@@ -17,9 +17,9 @@ Features(x, ...)
 
 \method{Cells}{default}(x, ...)
 
-\method{Cells}{Assay5}(x, layer = NULL, ...)
+\method{Cells}{Assay5}(x, layer = NULL, simplify = TRUE, ...)
 
-\method{Features}{Assay5}(x, layer = NULL, ...)
+\method{Features}{Assay5}(x, layer = NULL, simplify = TRUE, ...)
 
 \method{Cells}{DimReduc}(x, ...)
 
@@ -32,6 +32,9 @@ Features(x, ...)
 
 \item{layer}{Layer to pull cells/features for; defaults to default layer;
 if \code{NA}, returns all cells for the assay}
+
+\item{simplify}{Simplify the cell/feature names into a single vector; if
+\code{FALSE}, separates each cell/feature names by layer}
 }
 \value{
 \code{Cell}: A vector of cell names

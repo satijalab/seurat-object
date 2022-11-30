@@ -6,15 +6,18 @@
 \alias{Features.StdAssay}
 \title{Cell and Feature Names}
 \usage{
-\method{Cells}{StdAssay}(x, layer = NULL, ...)
+\method{Cells}{StdAssay}(x, layer = NULL, simplify = TRUE, ...)
 
-\method{Features}{StdAssay}(x, layer = NULL, ...)
+\method{Features}{StdAssay}(x, layer = NULL, simplify = TRUE, ...)
 }
 \arguments{
 \item{x}{An object}
 
 \item{layer}{Layer to pull cells/features for; defaults to default layer;
 if \code{NA}, returns all cells for the assay}
+
+\item{simplify}{Simplify the cell/feature names into a single vector; if
+\code{FALSE}, separates each cell/feature names by layer}
 
 \item{...}{Arguments passed to other methods}
 }
