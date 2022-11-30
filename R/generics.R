@@ -16,6 +16,25 @@ NULL
   UseMethod(generic = '.AssayClass', object = object)
 }
 
+#' Calculate nCount and nFeature
+#'
+#' @template param-dots-method
+#' @param object An assay-like object
+#'
+#' @return A named list with ...
+#'
+#' @keywords internal
+#'
+#' @export .CalcN
+#'
+#' @examples
+#' calcn <- .CalcN(pbmc_small[["RNA"]])
+#' head(as.data.frame(calcn))
+#'
+.CalcN <- function(object, ...) {
+  UseMethod(generic = '.CalcN', object = object)
+}
+
 #' Get the Package that Defines a Class
 #'
 #' @param object An object

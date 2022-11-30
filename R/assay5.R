@@ -99,6 +99,53 @@ setClass(
   return('Transposed Assay (v5)')
 }
 
+#' @method .CalcN StdAssay
+#' @export
+#'
+.CalcN.StdAssay <- function(object, layer = 'counts', simplify = TRUE, ...) {
+  layer <- tryCatch(
+    expr = Layers(object = object, search = layer),
+    error = \(...) NULL
+  ) %||% DefaultLayer(object = object)
+  calcn <- vector(mode = 'list', length = length(x = layer))
+  names(x = calcn) <- layer
+  for (lyr in layer) {
+    ldat <- LayerData(object = object, layer = lyr)
+    if (IsMatrixEmpty(x = ldat)) {
+      next
+    }
+    f <- .GetMethod(fxn = 'colSums', cls = class(x = ldat))
+    calcn[[lyr]] <- list(
+      nCount = f(x = ldat),
+      nFeature = f(x = ldat > 0)
+    )
+  }
+  calcn <- Filter(f = length, x = calcn)
+  # If every layer is empty, return `NULL`
+  if (!length(x = calcn)) {
+    return(NULL)
+  } else if (isFALSE(x = simplify)) {
+    # If we're not simplifying, return the list as-is
+    return(calcn)
+  } else if (length(x = calcn) == 1L) {
+    # If we're only calculating N for one layer, return those results
+    return(calcn[[1L]])
+  }
+  # Simplify the calcn list for all cells
+  ncells <- length(x = Cells(x = object, layer = layer, simplify = TRUE))
+  ncalc <- list(
+    nCount = vector(mode = 'numeric', length = ncells),
+    nFeature = vector(mode = 'numeric', length = ncells)
+  )
+  # For every layer, add the nCount and nFeature counts to existing cells
+  for (i in seq_along(along.with = calcn)) {
+    lcells <- names(x = calcn[[i]][['nCount']])
+    ncalc[['nCount']][lcells] <- calcn[[i]][['nCount']] + ncalc[['nCount']][lcells]
+    ncalc[['nFeature']][lcells] <- calcn[[i]][['nFeature']] + ncalc[['nFeature']][lcells]
+  }
+  return(ncalc)
+}
+
 #' @param layer Name of layer to store \code{counts} as
 #'
 #' @rdname dot-CreateStdAssay
@@ -410,23 +457,30 @@ CastAssay.Assay5 <- CastAssay.StdAssay
 #'
 #' @method Cells StdAssay
 #'
-Cells.StdAssay <- function(x, layer = NULL, ...) {
+Cells.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
   layer <- layer %||% DefaultLayer(object = x)
   if (is_na(x = layer)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
   layer <- Layers(object = x, search = layer)
-  cells <- lapply(
+  cells <- sapply(
     X = layer,
     FUN = function(lyr) {
       return(slot(object = x, name = 'cells')[[lyr]])
-    }
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
   )
+  if (isFALSE(x = simplify)) {
+    return(cells)
+  }
   return(Reduce(f = union, x = cells))
 }
 
 #' @param layer Layer to pull cells/features for; defaults to default layer;
 #' if \code{NA}, returns all cells for the assay
+#' @param simplify Simplify the cell/feature names into a single vector; if
+#' \code{FALSE}, separates each cell/feature names by layer
 #'
 #' @rdname Cells
 #' @method Cells Assay5
@@ -656,13 +710,24 @@ DefaultLayer.Assay5 <- DefaultLayer.StdAssay
 #' @method Features StdAssay
 #' @export
 #'
-Features.StdAssay <- function(x, layer = NULL, ...) {
-  layer <- layer[1L] %||% DefaultLayer(object = x)[1L]
+Features.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
+  layer <- layer %||% DefaultLayer(object = x)
   if (is_na(x = layer)) {
     return(rownames(x = slot(object = x, name = 'features')))
   }
-  layer <- match.arg(arg = layer, choices = Layers(object = x))
-  return(slot(object = x, name = 'features')[[layer]])
+  layer <- Layers(object = x, search = layer)
+  features <- sapply(
+    X = layer,
+    FUN = function(lyr) {
+      return(slot(object = x, name = 'features')[[lyr]])
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  if (isFALSE(x = simplify)) {
+    return(features)
+  }
+  return(Reduce(f = union, x = features))
 }
 
 #' @rdname Cells

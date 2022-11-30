@@ -248,6 +248,23 @@ CreateAssayObject <- function(
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @importFrom Matrix colSums
+#'
+#' @method .CalcN Assay
+#' @export
+#'
+.CalcN.Assay <- function(object, layer = 'counts', ...) {
+  layer <- Layers(object = object, search = layer)
+  ldat <- LayerData(object = object, layer = layer)
+  if (IsMatrixEmpty(x = ldat)) {
+    return(NULL)
+  }
+  return(list(
+    nCount = Matrix::colSums(x = ldat),
+    nFeature = Matrix::colSums(x = ldat > 0)
+  ))
+}
+
 #' @rdname AddMetaData
 #'
 # @templateVar fname AddMetaData
@@ -1814,8 +1831,6 @@ setValidity(
 #'
 #' @return A named list with nCount and nFeature
 #'
-#' @importFrom Matrix colSums
-#'
 #' @keywords internal
 #'
 #' @noRd
@@ -1826,15 +1841,7 @@ setValidity(
 #' head(as.data.frame(calcn))
 #' }
 #'
-CalcN <- function(object) {
-  if (IsMatrixEmpty(x = GetAssayData(object = object, slot = "counts"))) {
-    return(NULL)
-  }
-  return(list(
-    nCount = Matrix::colSums(x = object, slot = 'counts'),
-    nFeature = Matrix::colSums(x = GetAssayData(object = object, slot = 'counts') > 0)
-  ))
-}
+CalcN <- .CalcN.Assay
 
 #' Subset cells in vst data
 #'
