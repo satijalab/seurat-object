@@ -849,6 +849,15 @@ UpdateSeuratObject <- function(object) {
           x = rownames(x = assay[]),
           fixed = TRUE
         )
+        # reorder features in scale.data and meta.features to match counts
+        sd.features <- rownames(x = slot(object = assay, name = "scale.data"))
+        data.features <- rownames(x = slot(object = assay, name = "data"))
+        md.features <- rownames(x = slot(object = assay, name = "meta.features"))
+        if (!all.equal(target = md.features, current = data.features)) {
+          slot(object = assay, name = "meta.features") <- slot(object = assay, name = "meta.features")[data.features, ]
+        }
+        sd.order <- sd.features[order(match(x = sd.features, table = data.features))]
+        slot(object = assay, name = "scale.data") <- slot(object = assay, name = "scale.data")[sd.order, ]
         suppressWarnings(
           expr = object[[assay.name]] <- assay,
           classes = 'validationWarning'
@@ -1164,8 +1173,7 @@ CreateSeuratObject.Assay <- function(
     )
   }
   # Calculate nCount and nFeature
-  #ncalc <- CalcN(object = counts)
-  ncalc <- NULL
+  ncalc <- CalcN(object = counts)
   if (!is.null(x = ncalc)) {
     names(x = ncalc) <- paste(names(x = ncalc), assay, sep = '_')
     object[[]] <- ncalc
@@ -3009,16 +3017,16 @@ merge.Seurat <- function(
         message = "Please provide a cell identifier for each object provided to merge"
       )
     }
-    for (i in seq_along(along.with = add.cell.ids)) {
-      colnames(x = objects[[i]]) <- paste(
-        colnames(x = objects[[i]]),
-        add.cell.ids[[i]],
-        sep = '_'
-      )
-    }
-    # for (i in 1:length(x = objects)) {
-    #   objects[[i]] <- RenameCells(object = objects[[i]], add.cell.id = add.cell.ids[i])
+    # for (i in seq_along(along.with = add.cell.ids)) {
+    #   colnames(x = objects[[i]]) <- paste(
+    #     colnames(x = objects[[i]]),
+    #     add.cell.ids[[i]],
+    #     sep = '_'
+    #   )
     # }
+    for (i in 1:length(x = objects)) {
+      objects[[i]] <- RenameCells(object = objects[[i]], add.cell.id = add.cell.ids[i])
+    }
   }
   objects <- CheckDuplicateCellNames(object.list = objects)
   # Merge assays
@@ -3779,7 +3787,12 @@ setMethod(
       existing = Key(object = x),
       name = i
     )
-    # TODO: Run CalcN
+    # Run CalcN
+    n.calc <- CalcN(object = value)
+    if (!is.null(x = n.calc)) {
+      names(x = n.calc) <- paste(names(x = n.calc), i, sep = '_')
+      x[[names(x = n.calc)]] <- n.calc
+    }
     # Add the assay
     slot(object = x, name = 'assays')[[i]] <- value
     slot(object = x, name = 'assays') <- Filter(
@@ -4876,12 +4889,12 @@ setValidity(
     } else {
       for (graph in Graphs(object = object)) {
         gnames <- Cells(x = object[[graph]], margin = NA_integer_)
-        if (!DefaultAssay(object = object[[graph]]) %in% Assays(object = object)) {
-          valid <- c(
-            valid,
-            "the default assay for graphs must be present in the Seurat object"
-          )
-        }
+        # if (!DefaultAssay(object = object[[graph]]) %in% Assays(object = object)) {
+        #   valid <- c(
+        #     valid,
+        #     "the default assay for graphs must be present in the Seurat object"
+        #   )
+        # }
         if (!all(gnames %in% colnames(x = object))) {
           valid <- c(valid, "all cells in graphs must be present in the Seurat object")
         } else if (is.unsorted(x = MatchCells(new = gnames, orig = ocells, ordered = TRUE))) {
