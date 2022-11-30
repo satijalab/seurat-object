@@ -133,6 +133,21 @@ NULL
   UseMethod(generic = '.MARGIN', object = x)
 }
 
+#' Combine and Select Features
+#'
+#' @template param-dots-method
+#' @param object An object
+#'
+#' @return A vector of features selected
+#'
+#' @keywords internal
+#'
+#' @export .SelectFeatures
+#'
+.SelectFeatures <- function(object, ...) {
+  UseMethod(generic = '.SelectFeatures', object = object)
+}
+
 #' Add in metadata associated with either cells or features.
 #'
 #' Adds additional data to the object. Can be any piece of information
@@ -1005,6 +1020,20 @@ IsMatrixEmpty <- function(x) {
   UseMethod(generic = 'IsMatrixEmpty', object = x)
 }
 
+#' Split and Join Layers Together
+#'
+#' @param object An object
+#' @template param-dots-method
+#'
+#' @return ...
+#'
+#' @rdname SplitLayers
+#' @export JoinLayers
+#'
+JoinLayers <- function(object, ...) {
+  UseMethod(generic = 'JoinLayers', object = object)
+}
+
 #' Get and set JackStraw information
 #'
 #' @template param-dots-method
@@ -1047,6 +1076,15 @@ JS <- function(object, ...) {
 #'
 Key <- function(object, ...) {
   UseMethod(generic = 'Key', object = object)
+}
+
+#' @return \code{Keys}: a named vector of keys of sub-objects
+#'
+#' @rdname Key
+#' @export
+#'
+Keys <- function(object, ...) {
+  UseMethod(generic = 'Keys', object = object)
 }
 
 #' @param value Key value
@@ -1098,15 +1136,6 @@ LayerData <- function(object, layer, ...) {
 #'
 Layers <- function(object, ...) {
   UseMethod(generic = 'Layers', object = object)
-}
-
-#' @return \code{Keys}: a named vector of keys of sub-objects
-#'
-#' @rdname Key
-#' @export
-#'
-Keys <- function(object, ...) {
-  UseMethod(generic = 'Keys', object = object)
 }
 
 #' Get and set feature loadings
