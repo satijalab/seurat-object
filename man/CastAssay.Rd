@@ -7,7 +7,7 @@
 \usage{
 CastAssay(object, to, ...)
 
-\method{CastAssay}{Assay5}(object, to, layers = NULL, verbose = TRUE, ...)
+\method{CastAssay}{Assay5}(object, to, layers = NA, verbose = TRUE, ...)
 }
 \arguments{
 \item{object}{An object}

@@ -364,6 +364,13 @@ setClass(
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
 }
 
+#' @method .SelectFeatures StdAssay
+#' @export
+#'
+.SelectFeatures.StdAssay <- function(object, ...) {
+  .NotYetImplemented()
+}
+
 #' @templateVar fxn AddMetaData
 #' @template method-stdassay
 #'
@@ -384,7 +391,7 @@ AddMetaData.Assay5 <- AddMetaData.StdAssay
 #'
 #' @method CastAssay StdAssay
 #'
-CastAssay.StdAssay <- function(object, to, layers = NULL, verbose = TRUE, ...) {
+CastAssay.StdAssay <- function(object, to, layers = NA, verbose = TRUE, ...) {
   layers <- Layers(object = object, search = layers)
   stopifnot(is.character(x = to) || is.function(x = to))
   for (lyr in layers) {
@@ -995,6 +1002,38 @@ HVFInfo.StdAssay <- function(
 #'
 HVFInfo.Assay5 <- HVFInfo.StdAssay
 
+#' @method JoinLayers StdAssay
+#' @export
+#'
+JoinLayers.StdAssay <- function(
+  object,
+  layers = NULL,
+  new = NULL,
+  default = TRUE,
+  ...
+) {
+  layers <- Layers(object = object, search = layers)
+  new <- new %||% 'newlayer'
+  if (length(x = layers) < 2L) {
+    abort('blah')
+  }
+  ldat <- StitchMatrix(
+    x = LayerData(object = object, layer = layers[1L]),
+    y = lapply(X = layers[2:length(x = layers)], FUN = LayerData, object = object),
+    rowmap = slot(object = object, name = 'features')[, layers],
+    colmap = slot(object = object, name = 'cells')[, layers]
+  )
+  LayerData(object = object, layer = new) <- ldat
+  # TODO: handle variable features
+  if (isTRUE(x = default)) {
+    DefaultLayer(object = object) <- new
+  }
+  for (lyr in layers) {
+    object[[lyr]] <- NULL
+  }
+  return(object)
+}
+
 #' @rdname Key
 #' @method Key Assay5
 #' @export
@@ -1022,7 +1061,8 @@ LayerData.StdAssay <- function(
 ) {
   # Figure out the layer we're pulling
   layer <- layer[1L] %||% DefaultLayer(object = object)[1L]
-  layer <- match.arg(arg = layer, choices = Layers(object = object))
+  layer <- Layers(object = object, search = layer)[1L]
+  # layer <- match.arg(arg = layer, choices = Layers(object = object))
   # Allow cell/feature subsets
   dnames <- list(
     Features(x = object, layer = layer),

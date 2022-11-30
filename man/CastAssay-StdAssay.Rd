@@ -5,7 +5,7 @@
 \alias{CastAssay.StdAssay}
 \title{Cast Assay Layers}
 \usage{
-\method{CastAssay}{StdAssay}(object, to, layers = NULL, verbose = TRUE, ...)
+\method{CastAssay}{StdAssay}(object, to, layers = NA, verbose = TRUE, ...)
 }
 \arguments{
 \item{object}{An object}
