@@ -254,7 +254,13 @@ CreateAssayObject <- function(
 #' @export
 #'
 .CalcN.Assay <- function(object, layer = 'counts', ...) {
-  layer <- Layers(object = object, search = layer)
+  layer <- tryCatch(
+    expr = Layers(object = object, search = layer),
+    error = \(...) NULL
+  )
+  if (is.null(x = layer)) {
+    return(NULL)
+  }
   ldat <- LayerData(object = object, layer = layer)
   if (IsMatrixEmpty(x = ldat)) {
     return(NULL)
@@ -1841,7 +1847,7 @@ setValidity(
 #' head(as.data.frame(calcn))
 #' }
 #'
-CalcN <- .CalcN.Assay
+CalcN <- .CalcN
 
 #' Subset cells in vst data
 #'
