@@ -3,8 +3,8 @@
 %   R/dimreduc.R, R/seurat.R
 \name{Key}
 \alias{Key}
-\alias{Key<-}
 \alias{Keys}
+\alias{Key<-}
 \alias{Key.Assay}
 \alias{Key<-.Assay}
 \alias{Key.Assay5}
@@ -17,9 +17,9 @@
 \usage{
 Key(object, ...)
 
-Key(object, ...) <- value
-
 Keys(object, ...)
+
+Key(object, ...) <- value
 
 \method{Key}{Assay}(object, ...)
 
@@ -47,9 +47,9 @@ Keys(object, ...)
 \value{
 \code{Key}: the object key
 
-\code{Key<-}: \code{object} with an updated key
-
 \code{Keys}: a named vector of keys of sub-objects
+
+\code{Key<-}: \code{object} with an updated key
 }
 \description{
 Get and set object keys
