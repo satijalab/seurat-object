@@ -10,7 +10,15 @@ FetchData(object, ...)
 
 \method{FetchData}{DimReduc}(object, vars, cells = NULL, ...)
 
-\method{FetchData}{Seurat}(object, vars, cells = NULL, layer = NULL, slot = deprecated(), ...)
+\method{FetchData}{Seurat}(
+  object,
+  vars,
+  cells = NULL,
+  layer = NULL,
+  clean = TRUE,
+  slot = deprecated(),
+  ...
+)
 }
 \arguments{
 \item{object}{An object}

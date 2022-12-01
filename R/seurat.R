@@ -1381,13 +1381,14 @@ FetchData.Seurat <- function(
   vars,
   cells = NULL,
   layer = NULL,
+  clean = TRUE,
   # slot = 'data',
   slot = deprecated(),
   ...
 ) {
   if (is_present(arg = slot)) {
     deprecate_soft(
-      when = '4.9.0',
+      when = '5.0.0',
       what = 'FetchData(slot = )',
       with = 'FetchData(layer = )'
     )
@@ -1402,13 +1403,13 @@ FetchData.Seurat <- function(
   if (is.null(x = vars)) {
     return(data.frame(row.names = cells))
   }
-  # Get a list of all objects to search through and their keys
-  object.keys <- Keys(object = object)
+  data.fetched <- EmptyDF(n = length(x = cells))
+  row.names(x = data.fetched) <- cells
   # Find all vars that are keyed
   keyed.vars <- sapply(
-    X = object.keys,
+    X = Keys(object = object),
     FUN = function(key) {
-      if (length(x = key) == 0 || !nzchar(x = key)) {
+      if (!length(x = key) || !nzchar(x = key)) {
         return(character(length = 0L))
       }
       return(grep(pattern = paste0('^', key), x = vars, value = TRUE))
@@ -1426,16 +1427,11 @@ FetchData.Seurat <- function(
     FUN.VALUE = logical(length = 1L),
     USE.NAMES = FALSE
   )
-  if (any(ret.spatial2) && !all(ret.spatial2)) {
-    warning(
-      "Data returned from spatial coordinates are incompatible with other data, returning only spatial coordinates",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    keyed.vars <- keyed.vars[ret.spatial2]
+  if (any(ret.spatial2)) {
+    abort(message = "Spatial coordinates are no longer fetchable with FetchData")
   }
   # Find all keyed.vars
-  data.fetched <- lapply(
+  data.keyed <- lapply(
     X = names(x = keyed.vars),
     FUN = function(x) {
       data.return <- switch(
@@ -1451,48 +1447,47 @@ FetchData.Seurat <- function(
           vars = keyed.vars[[x]],
           cells = cells,
           layer = layer,
-          # slot = layer,
           ...
         )
       )
-      return(as.list(x = data.return))
+      return(data.return)
     }
   )
-  data.fetched <- unlist(x = data.fetched, recursive = FALSE)
-  if (any(ret.spatial2)) {
-    return(as.data.frame(x = data.fetched))
+  for (i in seq_along(along.with = data.keyed)) {
+    df <- data.keyed[[i]]
+    data.fetched[row.names(x = df), names(x = df)] <- df
   }
   # Pull vars from object metadata
   meta.vars <- intersect(x = vars, y = names(x = object[[]]))
   meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
   meta.default <- intersect(x = meta.vars, y = rownames(x = object))
   if (length(x = meta.default)) {
-    warning(
-      "The following variables were found in both object metadata and the default assay: ",
+    warn(message = paste0(
+      "The following variables were found in both object meta data and the default assay: ",
       paste0(meta.default, collapse = ', '),
-      "\nReturning metadata; if you want the feature, please use the assay's key (eg. ",
+      "\nReturning meta data; if you want the feature, please use the assay's key (eg. ",
       paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
-      ")",
-      call. = FALSE,
-      immediate. = TRUE
-    )
+      ")"
+    ))
   }
-  data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
+  # data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
+  data.fetched[cells, meta.vars] <- object[[meta.vars]][cells, , drop = FALSE]
   # Pull vars from the default assay
   default.vars <- intersect(x = vars, y = rownames(x = object))
   default.vars <- setdiff(x = default.vars, y = names(x = data.fetched))
   if (length(x = default.vars)) {
-    data.fetched[default.vars] <- as.list(x = FetchData(
+    df <- FetchData(
       object = object[[DefaultAssay(object = object)]],
       vars = default.vars,
       cells = cells,
       layer = layer,
       ...
-    ))
+    )
+    data.fetched[row.names(x = df), names(x = df)] <- df
   }
   # Pull identities
   if ('ident' %in% vars && !'ident' %in% names(x = object[[]])) {
-    data.fetched[['ident']] <- Idents(object = object)[cells]
+    data.fetched[cells, 'ident'] <- Idents(object = object)[cells]
   }
   # Try to find ambiguous vars
   vars.missing <- setdiff(x = vars, y = names(x = data.fetched))
@@ -1523,12 +1518,11 @@ FetchData.Seurat <- function(
       x = vars.alt
     ))
     if (length(x = vars.many)) {
-      warning(
-        "Found the following features in more than one assay, excluding the default. We will not include these in the final data frame: ",
-        paste(vars.many, collapse = ', '),
-        call. = FALSE,
-        immediate. = TRUE
-      )
+      warn(message = paste(
+        "Found the following features in more than one assay, excluding the default.",
+        "We will not include these in the final data frame:",
+        paste(vars.many, collapse = ', ')
+      ))
     }
     # Missing vars are either ambiguous or not found in exactly one assay
     vars.missing <- names(x = Filter(
@@ -1547,59 +1541,64 @@ FetchData.Seurat <- function(
     )
     for (var in names(x = vars.alt)) {
       assay <- vars.alt[[var]]
-      warning(
-        'Could not find ',
+      warn(message = paste(
+        'Could not find',
         var,
-        ' in the default search locations, found in ',
-        assay,
-        ' assay instead',
-        immediate. = TRUE,
-        call. = FALSE
-      )
+        'in the default search locations, found in',
+        sQuote(x = assay),
+        'assay instead'
+      ))
       keyed.var <- paste0(Key(object = object[[assay]]), var)
-      data.fetched[[keyed.var]] <- as.list(x = FetchData(
+      df <- FetchData(
         object = object[[assay]],
-        vars = var,
+        vars = keyed.var,
         cells = cells,
         layer = layer
-      ))
-      # Update our initial vars list with the keyed version
-      vars <- sub(
-        pattern = paste0('^', var, '$'),
-        replacement = keyed.var,
-        x = vars
       )
+      data.fetched[row.names(x = df), names(x = df)] <- df
     }
-    # fetched <- names(x = data.fetched)
   }
   # Name the vars not found in a warning (or error if no vars found)
   # `m2` is an additional message if we're missing more than 10 vars
   m2 <- if (length(x = vars.missing) > 10) {
-    paste0(' (10 out of ', length(x = vars.missing), ' shown)')
+    paste(' (10 out of', length(x = vars.missing), 'shown)')
   } else {
     ''
   }
   if (length(x = vars.missing) == length(x = vars)) {
-    stop(
+    abort(message = paste0(
       "None of the requested variables were found",
       m2,
       ': ',
       paste(head(x = vars.missing, n = 10L), collapse = ', ')
-    )
-  } else if (length(x = vars.missing) > 0) {
-    warning(
+    ))
+  } else if (length(x = vars.missing)) {
+    warn(message = paste0(
       "The following requested variables were not found",
       m2,
       ': ',
       paste(head(x = vars.missing, n = 10L), collapse = ', ')
-    )
+    ))
   }
-  # Assembled fetched vars in a data frame
-  data.fetched <- as.data.frame(
-    x = data.fetched,
-    row.names = cells,
-    stringsAsFactors = FALSE
-  )
+  if (isTRUE(x = clean)) {
+    cols.clean <- names(x = data.fetched)
+    if (ncol(x = data.fetched) >= 2L && !'ident' %in% names(x = object[[]])) {
+      cols.clean <- setdiff(x = cols.clean, y = 'ident')
+    }
+    no.data <- which(x = apply(
+      X = data.fetched[, cols.clean, drop = FALSE],
+      MARGIN = 1L,
+      FUN = \(x) all(is.na(x = x))
+    ))
+    if (length(x = no.data)) {
+      warn(message = paste(
+        "Removing",
+        length(x = no.data),
+        "cells missing data for features requested"
+      ))
+      data.fetched <- data.fetched[-no.data, , drop = FALSE]
+    }
+  }
   # data.order <- na.omit(object = pmatch(
   #   x = vars,
   #   table = fetched
