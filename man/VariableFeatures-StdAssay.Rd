@@ -9,7 +9,14 @@
 \usage{
 \method{HVFInfo}{StdAssay}(object, method = NULL, status = FALSE, layer = NULL, strip = TRUE, ...)
 
-\method{VariableFeatures}{StdAssay}(object, method = NULL, layer = NULL, collapse = TRUE, ...)
+\method{VariableFeatures}{StdAssay}(
+  object,
+  method = NULL,
+  layer = NULL,
+  simplify = TRUE,
+  nfeatures = Inf,
+  ...
+)
 
 \method{VariableFeatures}{StdAssay}(object, method = "custom", layer = NULL, ...) <- value
 }

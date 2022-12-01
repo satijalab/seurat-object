@@ -82,7 +82,14 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{HVFInfo}{Assay5}(object, method = NULL, status = FALSE, layer = NULL, strip = TRUE, ...)
 
-\method{VariableFeatures}{Assay5}(object, method = NULL, layer = NULL, collapse = TRUE, ...)
+\method{VariableFeatures}{Assay5}(
+  object,
+  method = NULL,
+  layer = NULL,
+  simplify = TRUE,
+  nfeatures = Inf,
+  ...
+)
 
 \method{VariableFeatures}{Assay5}(object, method = "custom", layer = NULL, ...) <- value
 }

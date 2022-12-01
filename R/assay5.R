@@ -1407,7 +1407,8 @@ VariableFeatures.StdAssay <- function(
   object,
   method = NULL,
   layer = NULL,
-  collapse = TRUE,
+  simplify = TRUE,
+  nfeatures = Inf,
   ...
 ) {
   msg <- 'No variable features found'
@@ -1432,26 +1433,33 @@ VariableFeatures.StdAssay <- function(
       if ('rank' %in% names(x = hvf.info)) {
         vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
       } else {
-        warning(
+        warn(message = paste0(
           "No variable feature rank found for ",
-          lyr,
-          ", returning features in assay order",
-          call. = FALSE,
-          immediate. = TRUE
-        )
+          sQuote(x = lyr),
+          ", returning features in assay order"
+        ))
       }
     },
     simplify = FALSE,
     USE.NAMES = TRUE
   )
   if (is.null(x = unlist(x = vf))) {
-    warning(msg, call. = FALSE, immediate. = TRUE)
+    warn(message = msg)
     return(NULL)
   } else if (all(is.na(x = unlist(x = vf)))) {
-    stop(msg, call. = FALSE)
+    abort(message = msg)
   }
-  if (length(x = vf) == 1L && isTRUE(x = collapse)) {
+  if (length(x = vf) == 1L && isTRUE(x = simplify)) {
     vf <- vf[[1L]]
+  }
+  if (isTRUE(x = simplify)) {
+    vf <- .SelectFeatures(
+      object = vf,
+      all.features = intersect(
+        x = slot(object = object, name = 'features')[, layer]
+      ),
+      nfeatures = nfeatures
+    )
   }
   return(vf)
   # hvf.info <- HVFInfo(
