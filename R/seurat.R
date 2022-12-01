@@ -1013,6 +1013,23 @@ Assays.Seurat <- function(object, slot = deprecated(), ...) {
   return(names(x = methods::slot(object = object, name = 'assays')))
 }
 
+#' @method CastAssay Seurat
+#' @export
+#'
+CastAssay.Seurat <- function(object, to, assay = NULL, layers = NA, ...) {
+  assay <- assay[1L] %||% DefaultAssay(object = object)
+  assay <- arg_match0(arg = assay, values = Assays(object = object))
+  to <- enquo(arg = to)
+  object[[assay]] <- CastAssay(
+    object = object[[assay]],
+    to = to,
+    layers = layers,
+    ...
+  )
+  validObject(object = object)
+  return(object)
+}
+
 #' @method Cells Seurat
 #' @export
 #'
@@ -2005,10 +2022,10 @@ RenameCells.Seurat <- function(
   ...
 ) {
   CheckDots(...)
- 
+
   object <- UpdateSlots(object = object)
   working.cells <- Cells(x = object)
-  
+
   if (is_present(arg = for.merge)) {
     deprecate_soft(when = '5.0.0', what = 'RenameCells(for.merge = )')
   }

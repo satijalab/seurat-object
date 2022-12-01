@@ -388,11 +388,18 @@ AddMetaData.Assay5 <- AddMetaData.StdAssay
 #' @template method-stdassay
 #'
 #' @importFrom methods as
+#' @importFrom rlang quo_get_env quo_get_expr
 #'
 #' @method CastAssay StdAssay
 #'
 CastAssay.StdAssay <- function(object, to, layers = NA, verbose = TRUE, ...) {
   layers <- Layers(object = object, search = layers)
+  if (is_quosure(x = to)) {
+    to <- eval(
+      expr = quo_get_expr(quo = to),
+      envir = quo_get_env(quo = to)
+    )
+  }
   stopifnot(is.character(x = to) || is.function(x = to))
   for (lyr in layers) {
     if (isTRUE(x = verbose)) {
@@ -405,14 +412,12 @@ CastAssay.StdAssay <- function(object, to, layers = NA, verbose = TRUE, ...) {
     clyr <- Cells(x = object, layer = lyr)
     flyr <- Features(x = object, layer = lyr)
     w <- function(e) {
-      warning(
+      warn(message = paste0(
         "Unable to cast layer ",
-        lyr,
+        sQuote(x = lyr),
         ": ",
-        e$message,
-        call. = FALSE,
-        immediate. = TRUE
-      )
+        e$message
+      ))
       return(invisible(x = NULL))
     }
     if (is.function(x = to)) {
@@ -1448,9 +1453,6 @@ VariableFeatures.StdAssay <- function(
     return(NULL)
   } else if (all(is.na(x = unlist(x = vf)))) {
     abort(message = msg)
-  }
-  if (length(x = vf) == 1L && isTRUE(x = simplify)) {
-    vf <- vf[[1L]]
   }
   if (isTRUE(x = simplify)) {
     vf <- .SelectFeatures(
