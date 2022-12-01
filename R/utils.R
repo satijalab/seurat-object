@@ -1351,6 +1351,9 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   nfeatures = Inf,
   ...
 ) {
+  if (length(x = object) == 1L) {
+    return(head(x = object[[1L]], n = nfeatures))
+  }
   features <- unlist(x = object, use.names = FALSE)
   features <- sort(x = table(features), decreasing = TRUE)
   # Select only features present in all entries
