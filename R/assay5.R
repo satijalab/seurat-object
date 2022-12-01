@@ -769,6 +769,10 @@ FetchData.StdAssay <- function(
   if (is.numeric(x = cells)) {
     cells <- colnames(x = object)[cells]
   }
+  cells <- intersect(x = cells, y = colnames(x = object))
+  if (!length(x = cells)) {
+    abort(message = "None of the cells requested found in this assay")
+  }
   # Check vars
   orig <- vars
   vars <- gsub(
@@ -814,13 +818,11 @@ FetchData.StdAssay <- function(
       }
     ))
     if (length(x = no.data)) {
-      warning(
-        "Removing ",
+      warn(message = paste(
+        "Removing",
         length(x = no.data),
-        " cells missing data for features requested",
-        call. = FALSE,
-        immediate. = TRUE
-      )
+        "cells missing data for features requested"
+      ))
       data.fetched <- data.fetched[-no.data, , drop = FALSE]
     }
   }
@@ -834,14 +836,12 @@ FetchData.StdAssay <- function(
   fetched <- setdiff(x = unlist(x = dimnames(x = data.fetched)), y = cells)
   missing <- setdiff(x = orig, y = fetched)
   if (length(x = missing) == length(x = orig)) {
-    stop("None of the requested variables found", call. = FALSE)
+    abort(message = "None of the requested variables found")
   } else if (length(x = missing)) {
-    warning(
-      "The following variables could not be found: ",
-      paste(missing, collapse = ', '),
-      call. = FALSE,
-      immediate. = TRUE
-    )
+    warn(message = paste(
+      "The following variables could not be found:",
+      paste(missing, collapse = ', ')
+    ))
   }
   return(data.fetched)
   # # Pull feature-level metadata
@@ -1015,13 +1015,15 @@ JoinLayers.StdAssay <- function(
   layers = NULL,
   new = NULL,
   default = TRUE,
+  nfeatures = Inf,
   ...
 ) {
   layers <- Layers(object = object, search = layers)
   new <- new %||% 'newlayer'
   if (length(x = layers) < 2L) {
-    abort('blah')
+    abort(message = "Fewer than two layers ")
   }
+  # Stitch the layers together
   ldat <- StitchMatrix(
     x = LayerData(object = object, layer = layers[1L]),
     y = lapply(X = layers[2:length(x = layers)], FUN = LayerData, object = object),
@@ -1029,10 +1031,27 @@ JoinLayers.StdAssay <- function(
     colmap = slot(object = object, name = 'cells')[, layers]
   )
   LayerData(object = object, layer = new) <- ldat
-  # TODO: handle variable features
+  # Combine variable features
+  vf.layers <- tryCatch(
+    expr = .VFLayers(object = object, type = 'hvf', layers = layers),
+    error = \(...) NULL
+  )
+  if (length(x = vf.layers)) {
+    for (method in .VFMethods(object = object, type = 'hvf', layers = vf.layers)) {
+      vf <- VariableFeatures(
+        object = object,
+        method = method,
+        layer = vf.layers,
+        nfeatures = nfeatures
+      )
+      VariableFeatures(object = object, method = method, layer = new) <- vf
+    }
+  }
+  # Set the new layer as default
   if (isTRUE(x = default)) {
     DefaultLayer(object = object) <- new
   }
+  # Remove the old layers
   for (lyr in layers) {
     object[[lyr]] <- NULL
   }
