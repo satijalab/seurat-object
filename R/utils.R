@@ -1341,6 +1341,41 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   return(path)
 }
 
+#' @rdname dot-SelectFeatures
+#' @method .SelectFeatures list
+#' @export
+#'
+.SelectFeatures.list <- function(
+  object,
+  all.features = NULL,
+  nfeatures = Inf,
+  ...
+) {
+  features <- unlist(x = object, use.names = FALSE)
+  features <- sort(x = table(features), decreasing = TRUE)
+  # Select only features present in all entries
+  if (!is.null(x = all.features)) {
+    present <- intersect(x = names(x = features), y = all.features)
+    if (!length(x = present)) {
+      abort(
+        message = "None of the features provided are present in the feature set"
+      )
+    }
+    features <- features[present]
+  }
+  tie.val <- features[min(nfeatures, length(x = features))]
+  # Select features
+  selected <- names(x = features[which(x = features > tie.val)])
+  if (length(x = features)) {
+    selected <- .FeatureRank(features = selected, flist = object)
+  }
+  tied <- .FeatureRank(
+    features = names(x = features[which(x = features == tie.val)]),
+    flist = object
+  )
+  return(head(x = c(selected, tied), n = nfeatures))
+}
+
 #' @rdname as.Centroids
 #' @method as.Centroids Segmentation
 #' @export
@@ -1663,6 +1698,29 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
     names(x = x)[idx] <- n2
   }
   return(x)
+}
+
+.FeatureRank <- function(features, flist, ranks = FALSE) {
+  franks <- vapply(
+    X = features,
+    FUN = function(x) {
+      return(median(x = unlist(x = lapply(
+        X = flist,
+        FUN = function(fl) {
+          if (x %in% fl) {
+            return(which(x = x == fl))
+          }
+          return(NULL)
+        }
+      ))))
+    },
+    FUN.VALUE = numeric(length = 1L)
+  )
+  franks <- sort(x = franks)
+  if (!isTRUE(x = ranks)) {
+    franks <- names(x = franks)
+  }
+  return(franks)
 }
 
 #' Get An Option
