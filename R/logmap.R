@@ -29,7 +29,7 @@ setClass(
 
 #' @rdname LogMap-class
 #'
-#' @param y A character vector
+#' @param y A character vector; for \code{intersect}, ignored
 #'
 #' @return \code{LogMap}: A new \code{LogMap} object with zero columns and
 #' \code{length(x = x)} rows; rownames are set to \code{x}
@@ -63,6 +63,9 @@ setClass(
 #' # Find observations for a set of values
 #' map[['entry']] <- c(2, 7, 10)
 #' labels(map, c('a', 'b', 'g'))
+#'
+#' # Identify values that are present in every observation
+#' intersect(map)
 #'
 #' # Remove unused values
 #' map <- droplevels(map)
@@ -126,6 +129,22 @@ droplevels.LogMap <- function(x, ...) {
   }
   validObject(object = x)
   return(x)
+}
+
+#' @rdname LogMap-class
+#'
+#' @return \code{intersect}: The values of \code{x} that are present in
+#' \strong{every} observation
+#'
+#' @method intersect LogMap
+#' @export
+#'
+intersect.LogMap <- function(x, y = missing_arg()) {
+  if (!is_missing(x = y)) {
+    abort(message = "'y' must not be provided")
+  }
+  idx <- which(x = apply(X = x, MARGIN = 1L, FUN = all))
+  return(rownames(x = x)[idx])
 }
 
 #' @rdname LogMap-class

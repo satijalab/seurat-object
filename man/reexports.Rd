@@ -4,6 +4,7 @@
 \name{reexports}
 \alias{reexports}
 \alias{plan}
+\alias{intersect}
 \alias{handlers}
 \alias{with_progress}
 \title{Objects exported from other packages}
@@ -14,6 +15,8 @@ below to see their documentation.
 
 \describe{
   \item{future}{\code{\link[future]{plan}}}
+
+  \item{generics}{\code{\link[generics:setops]{intersect}}}
 
   \item{progressr}{\code{\link[progressr]{handlers}}, \code{\link[progressr]{with_progress}}}
 }}

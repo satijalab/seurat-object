@@ -84,6 +84,11 @@ Seurat.options <- list(
 #'
 future::plan
 
+#' @importFrom generics intersect
+#' @export
+#'
+generics::intersect
+
 # #' @importFrom Matrix colMeans
 # #' @export
 # #'

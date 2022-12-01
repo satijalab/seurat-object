@@ -12,6 +12,7 @@
 \alias{[[<-,LogMap,character,missing,numeric-method}
 \alias{LogMap-class}
 \alias{droplevels.LogMap}
+\alias{intersect.LogMap}
 \alias{labels.LogMap}
 \title{A Logical Map}
 \usage{
@@ -33,6 +34,8 @@ LogMap(y)
 
 \method{droplevels}{LogMap}(x, ...)
 
+\method{intersect}{LogMap}(x, y = missing_arg())
+
 \method{labels}{LogMap}(
   object,
   values,
@@ -42,7 +45,7 @@ LogMap(y)
 )
 }
 \arguments{
-\item{y}{A character vector}
+\item{y}{A character vector; for \code{intersect}, ignored}
 
 \item{x, object}{A \code{LogMap} object}
 
@@ -82,6 +85,9 @@ the observations for \code{i}; otherwise, \code{x} with a new column for
 
 \code{droplevels}: \code{x} with values not present in any
 observation removed
+
+\code{intersect}: The values of \code{x} that are present in
+\strong{every} observation
 
 \code{labels}: A list, or vector if \code{simplify} is \code{TRUE},
 of all values and the observations they're found in, according
@@ -125,6 +131,9 @@ map[[]]
 # Find observations for a set of values
 map[['entry']] <- c(2, 7, 10)
 labels(map, c('a', 'b', 'g'))
+
+# Identify values that are present in every observation
+intersect(map)
 
 # Remove unused values
 map <- droplevels(map)
