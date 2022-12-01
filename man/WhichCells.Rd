@@ -18,7 +18,6 @@ WhichCells(object, ...)
   slot = "data",
   invert = FALSE,
   downsample = Inf,
-  assay = NULL,
   seed = 1,
   ...
 )
