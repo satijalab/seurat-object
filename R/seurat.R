@@ -2392,6 +2392,7 @@ WhichCells.Seurat <- function(
   slot = 'data',
   invert = FALSE,
   downsample = Inf,
+  assay = NULL,
   seed = 1,
   ...
 ) {
@@ -2400,9 +2401,12 @@ WhichCells.Seurat <- function(
     set.seed(seed = seed)
   }
   object <- UpdateSlots(object = object)
-  cells <- cells %||% colnames(x = object)
+  assay <- assay %||% DefaultAssay(object = object)
+  assay <- arg_match0(arg = assay, values = Assays(object = object))
+  assay.cells <- Cells(x = object, assay = assay)
+  cells <- cells %||% assay.cells
   if (is.numeric(x = cells)) {
-    cells <- colnames(x = object)[cells]
+    cells <- assay.cells[cells]
   }
   cell.order <- cells
   if (!is.null(x = idents)) {
@@ -2459,7 +2463,7 @@ WhichCells.Seurat <- function(
     )
     vars.use <- which(
       x = expr.char %in% rownames(x = object) |
-        expr.char %in% colnames(x = object[[]]) |
+        expr.char %in% names(x = object[[]]) |
         grepl(pattern = key.pattern, x = expr.char, perl = TRUE)
     )
     data.subset <- FetchData(
@@ -2471,8 +2475,8 @@ WhichCells.Seurat <- function(
     cells <- rownames(x = data.subset)[eval_tidy(expr = expr, data = data.subset)]
   }
   if (isTRUE(x = invert)) {
-    cell.order <- colnames(x = object)
-    cells <- colnames(x = object)[!colnames(x = object) %in% cells]
+    cell.order <- assay.cells
+    cells <- assay.cells[!assay.cells %in% cells]
   }
   cells <- CellsByIdentities(object = object, cells = cells, ...)
   cells <- lapply(
