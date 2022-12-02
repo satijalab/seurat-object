@@ -3,17 +3,23 @@
 \name{.DiskLoad}
 \alias{.DiskLoad}
 \alias{.DiskLoad.default}
+\alias{.DiskLoad.DelayedMatrix}
 \alias{.DiskLoad.H5ADMatrix}
 \alias{.DiskLoad.HDF5Matrix}
+\alias{.DiskLoad.TileDBMatrix}
 \title{Disk Loading Function}
 \usage{
 .DiskLoad(x)
 
 \method{.DiskLoad}{default}(x)
 
+\method{.DiskLoad}{DelayedMatrix}(x)
+
 \method{.DiskLoad}{H5ADMatrix}(x)
 
 \method{.DiskLoad}{HDF5Matrix}(x)
+
+\method{.DiskLoad}{TileDBMatrix}(x)
 }
 \arguments{
 \item{x}{A file-backed object}

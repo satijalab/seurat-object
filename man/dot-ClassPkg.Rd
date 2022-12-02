@@ -3,6 +3,7 @@
 \name{.ClassPkg}
 \alias{.ClassPkg}
 \alias{.ClassPkg.default}
+\alias{.ClassPkg.DelayedArray}
 \alias{.ClassPkg.R6}
 \alias{.ClassPkg.R6ClassGenerator}
 \title{Get the Package that Defines a Class}
@@ -10,6 +11,8 @@
 .ClassPkg(object)
 
 \method{.ClassPkg}{default}(object)
+
+\method{.ClassPkg}{DelayedArray}(object)
 
 \method{.ClassPkg}{R6}(object)
 

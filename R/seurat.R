@@ -358,6 +358,85 @@ Images <- function(object, assay = NULL) {
   return(images)
 }
 
+#' @export
+#'
+LoadSeuratRds <- function(file, ...) {
+  object <- readRDS(file = file, ...)
+  cache <- Tool(object = object, slot = 'SaveSeuratRds')
+  reqd.cols <- c('layer', 'path', 'class', 'pkg', 'fxn', 'assay')
+  strict <- isTRUE(x = getOption(x = 'Seurat.io.rds.strict', default = FALSE))
+  emit <- ifelse(test = strict, yes = abort, no = warn)
+  if (!is.null(x = cache)) {
+    if (interactive()) {
+      check_installed(pkg = 'fs', reason = 'for finding file paths')
+    } else if (!requireNamespace('fs', quietly = TRUE)) {
+      abort(message = "Loading layers from disk requires `fs`")
+    }
+    # Check the format of the cache
+    if (!is.data.frame(x = cache)) {
+      emit(message = "Malformed layer cache: not a data frame")
+      return(object)
+    }
+    if (!all(reqd.cols %in% names(x = cache))) {
+      emit(message = "Malformed layer cache: missing required columns")
+      return(object)
+    }
+    # Check the assays specified
+    assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
+    cache <- cache[cache$assay %in% assays, , drop = FALSE]
+    if (!nrow(x = cache)) {
+      emit(message = "Incorrect layer cache: none of the assays listed present")
+      return(object)
+    }
+    # Check the files
+    exists <- fs::is_file(path = cache$path)
+    exists[is.na(exists)] <- FALSE
+    cache <- cache[exists, , drop = FALSE]
+    if (!nrow(x = cache)) {
+      emit(message = "Cannot find any of the layer files specified")
+      return(object)
+    }
+    # Check the packages
+    missing.pkgs <- pkgs <- unique(x = cache$pkg)
+    for (pkg in pkgs) {
+      if (interactive()) {
+        check_installed(pkg = pkg)
+      }
+      if (requireNamespace(pkg, quietly = TRUE)) {
+        missing.pkgs <- setdiff(x = missing.pkgs, y = pkg)
+      } else {
+        emit(message = paste("Cannot find required package:", sQuote(x = pkg)))
+      }
+    }
+    pkgs <- setdiff(x = pkgs, y = missing.pkgs)
+    if (!length(x = pkgs)) {
+      emit(message = "None of the required layer packages found")
+      return(object)
+    }
+    p <- progressor(steps = nrow(x = cache))
+    # Load the layers
+    for (i in seq_len(length.out = nrow(x = cache))) {
+      lyr <- cache$layer[i]
+      pth <- cache$path[i]
+      fxn <- eval(expr = str2lang(s = cache$fxn[i]))
+      assay <- cache$assay[i]
+      p(
+        message = paste(
+          "Adding layer",
+          sQuote(x = lyr),
+          "to assay",
+          sQuote(x = assay)
+        ),
+        class = 'sticky',
+        amount = 0
+      )
+      LayerData(object = object, assay = assay, layer = lyr) <- fxn(pth)
+      p()
+    }
+  }
+  return(object)
+}
+
 #' @rdname ObjectAccess
 #' @export
 #'
@@ -555,7 +634,7 @@ SaveSeuratRds <- function(
           path = path,
           class = paste(class(x = ldat), collapse = ','),
           pkg = .ClassPkg(object = ldat),
-          fxn = .DiskLoad(x = ldat)
+          fxn = .DiskLoad(x = ldat) %||% identity
         ))
       }
     )
@@ -633,85 +712,6 @@ SaveSeuratRds <- function(
   }
   saveRDS(object = object, file = file, ...)
   return(invisible(x = file))
-}
-
-#' @export
-#'
-LoadSeuratRds <- function(file, ...) {
-  object <- readRDS(file = file, ...)
-  cache <- Tool(object = object, slot = 'SaveSeuratRds')
-  reqd.cols <- c('layer', 'path', 'class', 'pkg', 'fxn', 'assay')
-  strict <- isTRUE(x = getOption(x = 'Seurat.io.rds.strict', default = FALSE))
-  emit <- ifelse(test = strict, yes = abort, no = warn)
-  if (!is.null(x = cache)) {
-    if (interactive()) {
-      check_installed(pkg = 'fs', reason = 'for finding file paths')
-    } else if (!requireNamespace('fs', quietly = TRUE)) {
-      abort(message = "Loading layers from disk requires `fs`")
-    }
-    # Check the format of the cache
-    if (!is.data.frame(x = cache)) {
-      emit(message = "Malformed layer cache: not a data frame")
-      return(object)
-    }
-    if (!all(reqd.cols %in% names(x = cache))) {
-      emit(message = "Malformed layer cache: missing required columns")
-      return(object)
-    }
-    # Check the assays specified
-    assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
-    cache <- cache[cache$assay %in% assays, , drop = FALSE]
-    if (!nrow(x = cache)) {
-      emit(message = "Incorrect layer cache: none of the assays listed present")
-      return(object)
-    }
-    # Check the files
-    exists <- fs::is_file(path = cache$path)
-    exists[is.na(exists)] <- FALSE
-    cache <- cache[exists, , drop = FALSE]
-    if (!nrow(x = cache)) {
-      emit(message = "Cannot find any of the layer files specified")
-      return(object)
-    }
-    # Check the packages
-    missing.pkgs <- pkgs <- unique(x = cache$pkg)
-    for (pkg in pkgs) {
-      if (interactive()) {
-        check_installed(pkg = pkg)
-      }
-      if (requireNamespace(pkg, quietly = TRUE)) {
-        missing.pkgs <- setdiff(x = missing.pkgs, y = pkg)
-      } else {
-        emit(message = paste("Cannot find required package:", sQuote(x = pkg)))
-      }
-    }
-    pkgs <- setdiff(x = pkgs, y = missing.pkgs)
-    if (!length(x = pkgs)) {
-      emit(message = "None of the required layer packages found")
-      return(object)
-    }
-    p <- progressor(steps = nrow(x = cache))
-    # Load the layers
-    for (i in seq_len(length.out = nrow(x = cache))) {
-      lyr <- cache$layer[i]
-      pth <- cache$path[i]
-      fxn <- eval(expr = str2lang(s = cache$fxn[i]))
-      assay <- cache$assay[i]
-      p(
-        message = paste(
-          "Adding layer",
-          sQuote(x = lyr),
-          "to assay",
-          sQuote(x = assay)
-        ),
-        class = 'sticky',
-        amount = 0
-      )
-      LayerData(object = object, assay = assay, layer = lyr) <- fxn(pth)
-      p()
-    }
-  }
-  return(object)
 }
 
 #' Update old Seurat object to accommodate new features

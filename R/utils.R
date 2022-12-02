@@ -1224,6 +1224,18 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 }
 
 #' @rdname dot-ClassPkg
+#' @method .ClassPkg DelayedArray
+#' @export
+#'
+.ClassPkg.DelayedArray <- function(object) {
+  check_installed(
+    pkg = 'DelayedArray',
+    reason = 'for working with delayed arrays'
+  )
+  return(.ClassPkg(object = DelayedArray::seed(x = object)))
+}
+
+#' @rdname dot-ClassPkg
 #' @method .ClassPkg R6
 #' @export
 #'
@@ -1252,6 +1264,19 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 #'
 .DiskLoad.default <- function(x) {
   return(NULL)
+}
+
+#' @rdname dot-DiskLoad
+#' @method .DiskLoad DelayedMatrix
+#' @export
+#'
+.DiskLoad.DelayedMatrix <- function(x) {
+  check_installed(
+    pkg = 'DelayedArray',
+    reason = 'for working with delayed matrices'
+  )
+  seed <- DelayedArray::seed(x = x)
+  return(.DiskLoad(x = DelayedArray::DelayedArray(seed = seed)))
 }
 
 #' @rdname dot-DiskLoad
@@ -1295,11 +1320,6 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
     reason = 'for working with HDF5 matrices'
   )
   sparse <- DelayedArray::is_sparse(x = x)
-  # name <- if (isTRUE(x = sparse)) {
-  #   slot(object = DelayedArray::seed(x = x), name = 'group')
-  # } else {
-  #   slot(object = DelayedArray::seed(x = x), name = 'group')
-  # }
   name <- slot(object = DelayedArray::seed(x = x), name = 'name')
   f <- paste(
     "function(x)",
@@ -1308,6 +1328,25 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
     ", as.sparse =",
     sparse,
     ")"
+  )
+  return(f)
+}
+
+#' @rdname dot-DiskLoad
+#' @method .DiskLoad TileDBMatrix
+#' @export
+#'
+.DiskLoad.TileDBMatrix <- function(x) {
+  check_installed(
+    pkg = 'TileDBArray',
+    reason = 'for working with TileDB matrices'
+  )
+  tdb.attr <- slot(object = DelayedArray::seed(x = x), name = 'attr')
+  f <- paste(
+    'function(x)',
+    'TileDBArray::TileDBArray(x = x, attr =',
+    sQuote(x = tdb.attr, q = FALSE),
+    ')'
   )
   return(f)
 }
@@ -1331,9 +1370,7 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   )
   path <- tryCatch(
     expr = normalizePath(path = DelayedArray::path(object = x)),
-    error = function(...) {
-      return(NULL)
-    }
+    error = \(...) NULL
   )
   if (is.null(x = path)) {
     warn(message = "The matrix provided does not exist on-disk")
