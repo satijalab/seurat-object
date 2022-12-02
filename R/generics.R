@@ -1493,8 +1493,11 @@ Stdev <- function(object, ...) {
 #' @concept utils
 #'
 StitchMatrix <- function(x, y, rowmap, colmap, ...) {
-  stopifnot(inherits(x = rowmap, what = 'LogMap'))
-  stopifnot(inherits(x = colmap, what = 'LogMap'))
+  if (!inherits(x = rowmap, what = 'LogMap')) {
+    abort(message = "'rowmap' must be a 'LogMap'")
+  } else if (!inherits(x = colmap, what = 'LogMap')) {
+    abort(message = "'colmap' must be a 'LogMap'")
+  }
   UseMethod(generic = 'StitchMatrix', object = x)
 }
 

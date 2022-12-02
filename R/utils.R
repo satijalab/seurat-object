@@ -1663,6 +1663,17 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
   return(coords)
 }
 
+#' @method StitchMatrix default
+#' @export
+#'
+StitchMatrix.default <- function(x, y, rowmap, colmap, ...) {
+  abort(message = paste(
+    "Stitching matrices of class",
+    dQuote(x = class(x = x)[1L]),
+    "is not yet supported"
+  ))
+}
+
 #' @method StitchMatrix dgCMatrix
 #' @export
 #'
