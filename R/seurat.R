@@ -1719,7 +1719,7 @@ HVFInfo.Seurat <- function(
     cmds <- apply(
       X = expand.grid(
         c('FindVariableFeatures', 'SCTransform'),
-        FilterObjects(object = object, classes.keep = 'Assay')
+        FilterObjects(object = object, classes.keep = c('Assay', 'Assay5'))
       ),
       MARGIN = 1,
       FUN = paste,
