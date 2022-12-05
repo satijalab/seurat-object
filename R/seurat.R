@@ -1382,7 +1382,6 @@ FetchData.Seurat <- function(
   cells = NULL,
   layer = NULL,
   clean = TRUE,
-  # slot = 'data',
   slot = deprecated(),
   ...
 ) {
@@ -1395,6 +1394,12 @@ FetchData.Seurat <- function(
     layer <- layer %||% slot
   }
   object <- UpdateSlots(object = object)
+  if (isTRUE(x = clean)) {
+    clean <- 'ident'
+  } else if (isFALSE(x = clean)) {
+    clean <- 'none'
+  }
+  clean <- arg_match0(arg = clean, values = c('all', 'ident', 'none', 'project'))
   # Find cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
@@ -1580,25 +1585,75 @@ FetchData.Seurat <- function(
       paste(head(x = vars.missing, n = 10L), collapse = ', ')
     ))
   }
-  if (isTRUE(x = clean)) {
-    cols.clean <- names(x = data.fetched)
-    if (ncol(x = data.fetched) >= 2L && !'ident' %in% names(x = object[[]])) {
-      cols.clean <- setdiff(x = cols.clean, y = 'ident')
-    }
-    no.data <- which(x = apply(
-      X = data.fetched[, cols.clean, drop = FALSE],
-      MARGIN = 1L,
-      FUN = \(x) all(is.na(x = x))
-    ))
-    if (length(x = no.data)) {
-      warn(message = paste(
-        "Removing",
-        length(x = no.data),
-        "cells missing data for features requested"
-      ))
-      data.fetched <- data.fetched[-no.data, , drop = FALSE]
-    }
+  .FilterData <- function(df) {
+    return(which(x = apply(X = df, MARGIN = 1L, FUN = \(x) all(is.na(x = x)))))
   }
+  # Clean the fetched data
+  data.fetched <- switch(
+    EXPR = clean,
+    all = {
+      # Clean all vars
+      no.data <- .FilterData(df = data.fetched)
+      if (length(x = no.data)) {
+        warn(message = paste(
+          "Removing",
+          length(x = no.data),
+          "cells missing data for vars requested"
+        ))
+        data.fetched[-no.data, , drop = FALSE]
+      } else {
+        data.fetched
+      }
+    },
+    ident = {
+      # Clean all vars except ident
+      cols.clean <- names(x = data.fetched)
+      if (ncol(x = data.fetched) > 2L && !'ident' %in% names(x = object[[]])) {
+        cols.clean <- setdiff(x = cols.clean, y = 'ident')
+      }
+      no.data <- .FilterData(df = data.fetched[, cols.clean, drop = FALSE])
+      if (length(x = no.data)) {
+        warn(message = paste(
+          "Removing",
+          length(x = no.data),
+          "cells missing data for vars requested"
+        ))
+        data.fetched[-no.data, , drop = FALSE]
+      } else {
+        data.fetched
+      }
+    },
+    project = {
+      # Clean all vars except ident
+      cols.clean <- names(x = data.fetched)
+      if (ncol(x = data.fetched) > 2L && !'ident' %in% names(x = object[[]])) {
+        cols.clean <- setdiff(x = cols.clean, y = 'ident')
+      }
+      no.data <- .FilterData(df = data.fetched[, cols.clean, drop = FALSE])
+      if (length(x = no.data)) {
+        warn(message = paste(
+          "Removing",
+          length(x = no.data),
+          "cells missing data for vars requested"
+        ))
+        data.fetched <- data.fetched[-no.data, , drop = FALSE]
+      }
+      # When all idents are `NA`, set to Project(object)
+      if ('ident' %in% names(x = data.fetched) && !'ident' %in% names(x = object[[]])) {
+        if (all(is.na(x = data.fetched$ident))) {
+          warn(message = paste(
+            "None of the cells requested have an identity class, returning",
+            sQuote(x = Project(object = object)),
+            "instead"
+          ))
+          data.fetched$ident <- Project(object = object)
+        }
+      }
+      data.fetched
+    },
+    # Don't clean vars
+    data.fetched
+  )
   # data.order <- na.omit(object = pmatch(
   #   x = vars,
   #   table = fetched

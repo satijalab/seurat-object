@@ -283,11 +283,14 @@ FetchData.DimReduc <- function(
   ...
 ) {
   layer <- 'embeddings'
-  layer <- layer[1L]
-  layer <- match.arg(arg = layer, choices = 'embeddings')
+  layer <- arg_match0(arg = layer, values = 'embeddings')
   cells <- cells %||% Cells(x = object)
   if (is.numeric(x = cells)) {
     cells <- Cells(x = object)[cells]
+  }
+  cells <- intersect(x = cells, y = Cells(x = object))
+  if (!length(x = cells)) {
+    abort(message = "None of the cells requested found in this dimensional reduction")
   }
   key <- Key(object = object)
   ovars <- vars
@@ -297,17 +300,12 @@ FetchData.DimReduc <- function(
     value = TRUE
   )
   if (!length(x = vars)) {
-    stop(
-      "None of the vars provided are valid for reduced dimensions",
-      call. = FALSE
-    )
+    abort(message = "None of the vars provided are valid for reduced dimensions")
   } else if (length(x = vars) != length(x = ovars)) {
-    warning(
-      "The following requested vars are not valid: ",
+    warn(message = paste(
+      "The following requested vars are not valid:",
       paste(setdiff(x = ovars, y = vars), collapse = ', '),
-      call. = FALSE,
-      immediate. = TRUE
-    )
+    ))
   }
   vars <- paste0(
     key,
@@ -320,13 +318,12 @@ FetchData.DimReduc <- function(
   )
   missing <- setdiff(x = vars, y = colnames(x = data))
   if (length(x = missing) == length(x = vars)) {
-    stop("Cannot find any of the requested dimensions", call. = FALSE)
+    abort(message = "Cannot find any of the requested dimensions")
   } else if (length(x = missing)) {
-    warning(
-      "Cannot find the following dimensions: ", paste0(missing, collapse = ', '),
-      call. = FALSE,
-      immediate. = TRUE
-    )
+    warn(message = paste(
+      "Cannot find the following dimensions:",
+      paste0(missing, collapse = ', ')
+    ))
     vars <- setdiff(x = vars, y = missing)
   }
   return(as.data.frame(x = data)[cells, vars, drop = FALSE])
