@@ -11,11 +11,19 @@ Various options used in \pkg{Seurat}
 \subsection{Seurat.input.sparse_ratio}{
 Defaults to
 \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.input.sparse_ratio}}\cr
-Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.input.sparse_ratio")}}}
+Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.input.sparse_ratio")}}
+}
 \subsection{Seurat.coords.short_range}{
 Defaults to
 \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.coords.short_range}}\cr
-Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.coords.short_range")}}}
+Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.coords.short_range")}}
+}
+\subsection{Seurat.object.assay.calcn}{
+Run \code{CalcN} when adding assay data to a \code{Seurat} object\cr
+Defaults to
+\dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.assay.calcn}}\cr
+Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.object.assay.calcn")}}
+}
 \subsection{Seurat.object.assay.version}{
 Defaults to
 \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.assay.version}}\cr
