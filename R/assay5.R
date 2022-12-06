@@ -106,7 +106,14 @@ setClass(
   layer <- tryCatch(
     expr = Layers(object = object, search = layer),
     error = \(...) NULL
-  ) %||% DefaultLayer(object = object)
+  ) # %||% DefaultLayer(object = object)
+  if (is.null(x = layer)) {
+    warn(
+      message = "Cannot find the layer(s) specified",
+      class = 'missingLayerWarning'
+    )
+    return(NULL)
+  }
   calcn <- vector(mode = 'list', length = length(x = layer))
   names(x = calcn) <- layer
   for (lyr in layer) {
@@ -132,11 +139,13 @@ setClass(
     return(calcn[[1L]])
   }
   # Simplify the calcn list for all cells
-  ncells <- length(x = Cells(x = object, layer = layer, simplify = TRUE))
+  all.cells <- Cells(x = object, layer = layer, simplify = TRUE)
+  ncells <- length(x = all.cells)
   ncalc <- list(
     nCount = vector(mode = 'numeric', length = ncells),
     nFeature = vector(mode = 'numeric', length = ncells)
   )
+  names(x = ncalc$nCount) <- names(x = ncalc$nFeature) <- all.cells
   # For every layer, add the nCount and nFeature counts to existing cells
   for (i in seq_along(along.with = calcn)) {
     lcells <- names(x = calcn[[i]][['nCount']])
