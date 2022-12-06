@@ -369,6 +369,15 @@ FetchData.Assay <- function(
   if (is.numeric(x = cells)) {
     cells <- colnames(x = object)[cells]
   }
+  cells.orig <- cells
+  cells <- intersect(x = cells, y = colnames(x = object))
+  if (length(x = cells) != length(x = cells.orig)) {
+    warn(message = paste(
+      "Removing",
+      length(x = cells.orig) - length(x = cells),
+      "cells not present in the assay"
+    ))
+  }
   # Check vars
   orig <- vars
   vars <- gsub(
@@ -379,11 +388,12 @@ FetchData.Assay <- function(
   # Pull expression information
   mat <- GetAssayData(object = object, slot = layer)
   if (IsMatrixEmpty(x = mat)) {
-    stop("Slot ", layer, " is empty in this assay", call. = FALSE)
+    abort(message = paste("Layer", sQuote(x = layer), "is empty in this assay"))
   }
   vars <- intersect(x = vars, y = rownames(x = mat))
+  tf <- .GetMethod(fxn = 't', cls = class(x = mat))
   data.fetched <- as.data.frame(x = as.matrix(
-    x = Matrix::t(x = mat[vars, cells, drop = FALSE])
+    x = tf(x = mat[vars, cells, drop = FALSE])
   ))
   # Add keys to keyed vars
   keyed.features <- paste0(Key(object = object), names(x = data.fetched))
@@ -394,14 +404,12 @@ FetchData.Assay <- function(
   # Check the final list of features
   missing <- setdiff(x = orig, y = names(x = data.fetched))
   if (length(x = missing) == length(x = orig)) {
-    stop("None of the requested features found", call. = FALSE)
+    abort(message = "None of the requested features found")
   } else if (length(x = missing)) {
-    warning(
-      "The following features could not be found ",
-      paste(missing, collapse = ', '),
-      call. = FALSE,
-      immediate. = TRUE
-    )
+    warn(message = paste(
+      "The following features could not be found",
+      paste(missing, collapse = ', ')
+    ))
   }
   return(data.fetched)
 }
@@ -1323,7 +1331,7 @@ merge.Assay <- function(
   return(combined.assay)
 }
 
-#' @inherit split.Assay5 title description details sections
+#' @inherit split.Assay5 title description details
 #'
 #' @inheritParams split.Assay5
 #' @param x An \code{\link{Assay}} object
