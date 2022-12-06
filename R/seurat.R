@@ -1475,7 +1475,6 @@ FetchData.Seurat <- function(
       ")"
     ))
   }
-  # data.fetched <- c(data.fetched, object[[meta.vars]][cells, , drop = FALSE])
   data.fetched[cells, meta.vars] <- object[[meta.vars]][cells, , drop = FALSE]
   # Pull vars from the default assay
   default.vars <- intersect(x = vars, y = rownames(x = object))
@@ -1554,6 +1553,7 @@ FetchData.Seurat <- function(
         'assay instead'
       ))
       keyed.var <- paste0(Key(object = object[[assay]]), var)
+      vars[vars == var] <- keyed.var
       df <- FetchData(
         object = object[[assay]],
         vars = keyed.var,
@@ -1654,9 +1654,11 @@ FetchData.Seurat <- function(
     # Don't clean vars
     data.fetched
   )
+  vars.return <- intersect(x = vars, y = names(x = data.fetched))
+  data.fetched <- data.fetched[, vars.return, drop = FALSE]
   # data.order <- na.omit(object = pmatch(
   #   x = vars,
-  #   table = fetched
+  #   table = names(x = data.fetched)
   # ))
   # if (length(x = data.order) > 1) {
   #   data.fetched <- data.fetched[, data.order]
@@ -3838,7 +3840,7 @@ setMethod(
     }
     # Check for cells
     if (!all(colnames(x = value) %in% colnames(x = x))) {
-      stop("Cannot add new cells with [[<-", call. = FALSE)
+      abort(message = "Cannot add new cells with [[<-")
     }
     cell.order <- MatchCells(
       new = colnames(x = value),
@@ -3854,7 +3856,7 @@ setMethod(
           }
         }
       } else {
-        stop("Cannot add assays with unordered cells", call. = FALSE)
+        abort(message = "Cannot add assays with unordered cells")
       }
       validObject(object = value)
     }
@@ -3865,10 +3867,19 @@ setMethod(
       name = i
     )
     # Run CalcN
-    n.calc <- CalcN(object = value)
-    if (!is.null(x = n.calc)) {
-      names(x = n.calc) <- paste(names(x = n.calc), i, sep = '_')
-      x[[names(x = n.calc)]] <- n.calc
+    do.calcn <- getOption(
+      x = 'Seurat.object.assay.calcn',
+      default = Seurat.options$Seurat.object.assay.calcn
+    )
+    if (isTRUE(x = do.calcn)) {
+      n.calc <- suppressWarnings(
+        expr = .CalcN(object = value, layer = 'counts', simplify = TRUE),
+        classes = 'missingLayerWarning'
+      )
+      if (!is.null(x = n.calc)) {
+        names(x = n.calc) <- paste(names(x = n.calc), i, sep = '_')
+        x[[]] <- n.calc
+      }
     }
     # Add the assay
     slot(object = x, name = 'assays')[[i]] <- value
@@ -3912,7 +3923,6 @@ setMethod(
     if (!length(x = i) && !ncol(x = value)) {
       return(x)
     }
-    # browser()
     # Check the names provided
     if (length(x = i) == ncol(x = value)) {
       # Add the names to the meta data
@@ -3927,8 +3937,8 @@ setMethod(
           "None of the column names are found in meta data names;",
           "replacing to provided meta data names"
         ))
-        names(x = value) <- i
-      } else if (any(is.na(x = idx))) {
+      }
+      if (any(is.na(x = idx))) {
         meta.missing <- setdiff(
           x = seq_len(length.out = ncol(x = value)),
           y = idx[!is.na(x = idx)]
@@ -3973,7 +3983,6 @@ setMethod(
           "The following bits of meta data in the data frame will not be added:",
           paste(sQuote(x = i.missing), collapse = ', ')
         ))
-        value <- value[, i, drop = FALSE]
       }
     }
     # Handle meta data for different cells
@@ -4179,7 +4188,7 @@ setMethod(
     df <- EmptyDF(n = ncol(x = x))
     row.names(x = df) <- colnames(x = x)
     df[[i]] <- if (i %in% names(x = x[[]])) {
-      x[[i]]
+      x[[i, na.rm = FALSE]]
     } else {
       factor(x = NA, levels = levels(x = value))
     }
@@ -4628,9 +4637,9 @@ setMethod(
     row.names(x = df) <- colnames(x = x)
     df[[i]] <- if (i %in% names(x = x[[]])) {
       if (is.character(x = value)) {
-        as.character(x = x[[i, drop = TRUE]])
+        as.character(x = x[[i, drop = TRUE, na.rm = FALSE]])
       } else {
-        as.vector(x = x[[i, drop = TRUE]])
+        as.vector(x = x[[i, drop = TRUE, na.rm = FALSE]])
       }
     } else {
       NA
