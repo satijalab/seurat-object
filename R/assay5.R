@@ -2323,13 +2323,6 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   return(object)
 }
 
-#' @method unsplit StdAssay
-#' @export
-#'
-unsplit.StdAssay <- function(value, f, drop = FALSE, ...) {
-  .NotYetImplemented()
-}
-
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
