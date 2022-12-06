@@ -2715,9 +2715,9 @@ Version.Seurat <- function(object, ...) {
 #' pbmc_small[["RNA"]]
 #' pbmc_small[["pca"]]
 #'
-"[[.Seurat" <- function(x, i, ..., drop = FALSE, na.rm = FALSE) {
+"[[.Seurat" <- function(x, i = missing_arg(), ..., drop = FALSE, na.rm = TRUE) {
   md <- slot(object = x, name = 'meta.data')
-  if (missing(x = i)) {
+  if (is_missing(x = i)) {
     return(md)
   } else if (is.null(x = i)) {
     return(NULL)
@@ -2726,12 +2726,18 @@ Version.Seurat <- function(object, ...) {
   }
   # Correct invalid `i`
   meta.cols <- names(x = md)
-  if (is.numeric(x = i)) {
-    stopifnot(any(i <= length(x = meta.cols)))
-    i <- i[i <= length(x = meta.cols)]
-    i <- meta.cols[as.integer(x = i)]
+  if (is_bare_integerish(x = i)) {
+    if (all(i > length(x = meta.cols))) {
+      abort(message = paste(
+        "Invalid integer indexing:",
+        "all integers greater than the number of meta columns"
+      ))
+    }
+    i <- meta.cols[as.integer(x = i[i <= length(x = meta.cols)])]
   }
-  stopifnot(is.character(x = i))
+  if (!is.character(x = i)) {
+    abort(message = "'i' must be a character vector")
+  }
   # Determine if we're pulling cell-level meta data
   # or a sub-object
   slot.use <- if (length(x = i) == 1L) {
@@ -2742,7 +2748,7 @@ Version.Seurat <- function(object, ...) {
   # Pull cell-level meta data
   if (is.null(x = slot.use)) {
     # Identify the cell-level meta data to use
-    i <- match.arg(arg = i, choices = meta.cols, several.ok = TRUE)
+    i <- arg_match(arg = i, values = meta.cols, multiple = TRUE)
     # Pull the cell-level meta data
     data.return <- md[, i, drop = FALSE, ...]
     # If requested, remove NAs
