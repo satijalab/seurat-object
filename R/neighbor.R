@@ -78,7 +78,7 @@ Distances.Neighbor <- function(object, ...) {
   return(distances)
 }
 
-#' @rdname Index
+#' @rdname NNIndex
 #' @export
 #' @method Index Neighbor
 #'
@@ -93,7 +93,7 @@ Index.Neighbor <- function(object, ...) {
   return(index)
 }
 
-#' @rdname Index
+#' @rdname NNIndex
 #' @export
 #' @method Index<- Neighbor
 #'

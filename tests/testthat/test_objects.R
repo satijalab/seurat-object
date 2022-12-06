@@ -342,3 +342,18 @@ test_that("Top works", {
   expect_equal(length(tpc1.sub[[1]]), 40)
   expect_equal(length(tpc1.sub[[2]]), 39)
 })
+
+# Tests for UpdateSeuratObject
+# ----------------------------------------------------------------------------
+context("UpdateSeuratObject")
+pbmc_small_no_key <- pbmc_small
+slot(slot(pbmc_small_no_key, "assays")$RNA, "key") <- character(0)
+slot(slot(pbmc_small_no_key, "assays")$RNA2, "key") <- character(0)
+slot(slot(pbmc_small_no_key, "reductions")$pca, "key") <- character(0)
+test_that("Update keys works", {
+  pbmc_small_no_key <- UpdateSeuratObject(pbmc_small_no_key)
+  expect_equal(Key(pbmc_small_no_key[["RNA"]]), "RNA_")
+  expect_equal(Key(pbmc_small_no_key[["RNA2"]]), "RNA2_")
+  expect_equal(Key(pbmc_small_no_key[["pca"]]), "pca_")
+  expect_equal(Key(pbmc_small_no_key[["tsne"]]), "tSNE_")
+})

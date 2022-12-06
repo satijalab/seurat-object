@@ -1516,6 +1516,12 @@ as.sparse.Matrix <- function(x, ...) {
 #' @method as.sparse matrix
 #'
 as.sparse.matrix <- function(x, ...) {
+  if (is.character(x = x)) {
+    dnames <- dimnames(x = x)
+    nc <- ncol(x = x)
+    x <- matrix(data = as.numeric(x = x), ncol = nc)
+    dimnames(x = x) <- dnames
+  }
   x <- as(object = x, Class = "Matrix")
   return(as.sparse.Matrix(x, ...))
 }
@@ -1633,13 +1639,14 @@ S4ToList.list <- function(object) {
   return(object)
 }
 
-#' @importFrom rgeos gSimplify
-#'
 #' @rdname Simplify
 #' @method Simplify Spatial
 #' @export
 #'
 Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
+  if (!PackageCheck('rgeos', error = FALSE)) {
+    stop("'Simplify' requires rgeos to be installed", call. = FALSE)
+  }
   class.orig <- class(x = coords)
   dest <- ifelse(
     test = grepl(pattern = '^Spatial', x = class.orig),
@@ -1650,7 +1657,7 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
       value = TRUE
     )[1L]
   )
-  coords <- gSimplify(
+  coords <- rgeos::gSimplify(
     spgeom = as(object = coords, Class = dest),
     tol = as.numeric(x = tol),
     topologyPreserve = isTRUE(x = topologyPreserve)

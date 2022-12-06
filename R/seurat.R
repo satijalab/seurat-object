@@ -785,6 +785,18 @@ UpdateSeuratObject <- function(object) {
       # Update object slots
       message("Updating object slots")
       object <- UpdateSlots(object = object)
+      # Validate object keys
+      message("Ensuring keys are in the proper structure")
+      for (ko in FilterObjects(object = object)) {
+        key <- Key(object = object[[ko]])
+        if (!length(x = key) || !nzchar(x = key)) {
+          key <- Key(object = ko, quiet = TRUE)
+        }
+        slot(
+          object = slot(object = object, name = FindObject(object, ko))[[ko]],
+          name = 'key'
+        ) <- UpdateKey(key)
+      }
       # Rename assays
       assays <- make.names(names = Assays(object = object))
       names(x = assays) <- Assays(object = object)
@@ -2154,7 +2166,9 @@ RenameCells.Seurat <- function(
   for (i in Images(object = object)) {
     slot(object = object, name = "images")[[i]] <- RenameCells(
       object = object[[i]],
-      new.names = unname(obj = new.cell.names[Cells(x = object[[i]])])
+      new.names = unname(
+        obj = new.cell.names[Cells(x = object[[i]], boundary = NA)]
+      )
     )
   }
   # Rename the Neighbor

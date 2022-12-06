@@ -1,3 +1,11 @@
+# SeuratObject 4.1.3
+## Changes
+- Move {rgeos} to Suggests; segmentation simplification now requires {regos} to be installed manually
+- Move {sp} to Depends
+
+## Added
+- Add keys to `Assays` and `DimReducs` in `UpdateSeuratObject` when missing
+
 # SeuratObject 4.1.2
 ## Changed
 - Bump required Matrix version to >= 1.5.0
