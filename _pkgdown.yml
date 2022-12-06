@@ -72,6 +72,7 @@ reference:
       - FOV-class
       - FOV-methods
       - FOV-validity
+      - JoinLayers
       - LogMap
       - Molecules-methods
       - Overlay
