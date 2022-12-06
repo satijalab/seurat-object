@@ -9,51 +9,75 @@ development:
 reference:
   - title: The Seurat Class and Interaction Methods
     contents:
-      - Seurat-class
-      - Seurat-validity
+      - "Seurat-class"
+      - "Seurat-validity"
       - has_concept("seurat")
   - title: The v5 Assay Class and Interaction Methods
     contents:
       - has_concept("assay5")
   - title: The v3 Assay Class and Interaction Methods
     contents:
-      - Assay-class
+      - "Assay-class"
       - has_concept("assay")
   - title: The DimReduc and JackStrawData Classes and Interaction Methods
     contents:
-      - DimReduc-class
-      - DimReduc-validity
+      - "DimReduc-class"
+      - "DimReduc-validity"
       - has_concept("dimreduc")
-      - JackStrawData-class
-      - JackStrawData-methods
+      - "JackStrawData-class"
+      - "JackStrawData-methods"
       - has_concept("jackstraw")
   - title: segmentations
   - contents:
       - has_concept("segmentation")
   - title: The SeuratCommand Class and Interaction Methods
     contents:
-      - SeuratCommand-class
-      - SeuratCommand-methods
+      - "SeuratCommand-class"
+      # - "SeuratCommand-methods"
       - has_concept("command")
   - title: The SpatialImage Class and Interaction Methods
     contents:
-      - SpatialImage-class
-      - SpatialImage-methods
+      - "SpatialImage-class"
+      - "SpatialImage-methods"
       - has_concept("spatialimage")
   - title: The Graph and Neighbor Classes and Interaction Methods
     contents:
-      - Graph-class
+      - "Graph-class"
       - has_concept("graph")
-      - Neighbor-class
+      - "Neighbor-class"
       - has_concept("neighbor")
   - title: Accessing and Setting Object Data
     contents:
       - has_concept("data-access")
   - title: Utility Functions
     contents:
-      - set-if-null
+      - "set-if-null"
       - has_concept("utils")
   - title: Package Information
     contents:
-      - SeuratObject-package
+      - "SeuratObject-package"
       - pbmc_small
+  - title: internal
+    contents:
+      - Boundaries
+      - CastAssay
+      - "Centroids-methods"
+      - CreateCentroids
+      - CreateFOV
+      - CreateMolecules
+      - CreateSegmentation
+      - Crop
+      - DefaultFOV
+      - DefaultLayer
+      - FOV-class
+      - FOV-methods
+      - FOV-validity
+      - LogMap
+      - Molecules-methods
+      - Overlay
+      - RenameCells.StdAssay
+      - SaveSeuratRds
+      - Segmentation-methods
+      - Simplify
+      - Theta
+      - as.Centroids
