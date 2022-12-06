@@ -2053,8 +2053,28 @@ split.StdAssay <- function(
     EXPR = ret,
     assay = {
       for (lyr in layers) {
+        p <- progressor(steps = length(x = splits))
+        p(
+          message = paste(
+            'Splitting layer',
+            sQuote(x = lyr),
+            'into',
+            length(x = splits),
+            'splits'
+          ),
+          class = 'sticky',
+          amount = 0
+        )
         lcells <- Cells(x = x, layer = lyr)
         for (i in seq_along(along.with = splits)) {
+          p(
+            message = paste(
+              'Creating split for',
+              sQuote(x = names(x = splits)[i])
+            ),
+            class = 'sticky',
+            amount = 0
+          )
           group <- paste(lyr, names(x = splits)[i], sep = '.')
           xcells <- intersect(x = splits[[i]], y = lcells)
           LayerData(object = x, layer = group, cells = xcells) <- LayerData(
@@ -2062,7 +2082,9 @@ split.StdAssay <- function(
             layer = lyr,
             cells = xcells
           )
+          p()
         }
+        p(type = 'finish')
         suppressWarnings(expr = LayerData(object = x, layer = lyr) <- NULL)
         DefaultLayer(object = x) <- default
       }
@@ -2134,6 +2156,8 @@ split.StdAssay <- function(
 #' @export
 #'
 #' @family assay5
+#'
+#' @template section-progressr
 #'
 split.Assay5 <- split.StdAssay
 

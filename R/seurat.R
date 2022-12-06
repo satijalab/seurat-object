@@ -1382,7 +1382,6 @@ FetchData.Seurat <- function(
   cells = NULL,
   layer = NULL,
   clean = TRUE,
-  # slot = 'data',
   slot = deprecated(),
   ...
 ) {
@@ -1395,6 +1394,12 @@ FetchData.Seurat <- function(
     layer <- layer %||% slot
   }
   object <- UpdateSlots(object = object)
+  if (isTRUE(x = clean)) {
+    clean <- 'ident'
+  } else if (isFALSE(x = clean)) {
+    clean <- 'none'
+  }
+  clean <- arg_match0(arg = clean, values = c('all', 'ident', 'none', 'project'))
   # Find cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
@@ -1580,25 +1585,75 @@ FetchData.Seurat <- function(
       paste(head(x = vars.missing, n = 10L), collapse = ', ')
     ))
   }
-  if (isTRUE(x = clean)) {
-    cols.clean <- names(x = data.fetched)
-    if (ncol(x = data.fetched) >= 2L && !'ident' %in% names(x = object[[]])) {
-      cols.clean <- setdiff(x = cols.clean, y = 'ident')
-    }
-    no.data <- which(x = apply(
-      X = data.fetched[, cols.clean, drop = FALSE],
-      MARGIN = 1L,
-      FUN = \(x) all(is.na(x = x))
-    ))
-    if (length(x = no.data)) {
-      warn(message = paste(
-        "Removing",
-        length(x = no.data),
-        "cells missing data for features requested"
-      ))
-      data.fetched <- data.fetched[-no.data, , drop = FALSE]
-    }
+  .FilterData <- function(df) {
+    return(which(x = apply(X = df, MARGIN = 1L, FUN = \(x) all(is.na(x = x)))))
   }
+  # Clean the fetched data
+  data.fetched <- switch(
+    EXPR = clean,
+    all = {
+      # Clean all vars
+      no.data <- .FilterData(df = data.fetched)
+      if (length(x = no.data)) {
+        warn(message = paste(
+          "Removing",
+          length(x = no.data),
+          "cells missing data for vars requested"
+        ))
+        data.fetched[-no.data, , drop = FALSE]
+      } else {
+        data.fetched
+      }
+    },
+    ident = {
+      # Clean all vars except ident
+      cols.clean <- names(x = data.fetched)
+      if (ncol(x = data.fetched) > 2L && !'ident' %in% names(x = object[[]])) {
+        cols.clean <- setdiff(x = cols.clean, y = 'ident')
+      }
+      no.data <- .FilterData(df = data.fetched[, cols.clean, drop = FALSE])
+      if (length(x = no.data)) {
+        warn(message = paste(
+          "Removing",
+          length(x = no.data),
+          "cells missing data for vars requested"
+        ))
+        data.fetched[-no.data, , drop = FALSE]
+      } else {
+        data.fetched
+      }
+    },
+    project = {
+      # Clean all vars except ident
+      cols.clean <- names(x = data.fetched)
+      if (ncol(x = data.fetched) > 2L && !'ident' %in% names(x = object[[]])) {
+        cols.clean <- setdiff(x = cols.clean, y = 'ident')
+      }
+      no.data <- .FilterData(df = data.fetched[, cols.clean, drop = FALSE])
+      if (length(x = no.data)) {
+        warn(message = paste(
+          "Removing",
+          length(x = no.data),
+          "cells missing data for vars requested"
+        ))
+        data.fetched <- data.fetched[-no.data, , drop = FALSE]
+      }
+      # When all idents are `NA`, set to Project(object)
+      if ('ident' %in% names(x = data.fetched) && !'ident' %in% names(x = object[[]])) {
+        if (all(is.na(x = data.fetched$ident))) {
+          warn(message = paste(
+            "None of the cells requested have an identity class, returning",
+            sQuote(x = Project(object = object)),
+            "instead"
+          ))
+          data.fetched$ident <- Project(object = object)
+        }
+      }
+      data.fetched
+    },
+    # Don't clean vars
+    data.fetched
+  )
   # data.order <- na.omit(object = pmatch(
   #   x = vars,
   #   table = fetched
@@ -2660,9 +2715,9 @@ Version.Seurat <- function(object, ...) {
 #' pbmc_small[["RNA"]]
 #' pbmc_small[["pca"]]
 #'
-"[[.Seurat" <- function(x, i, ..., drop = FALSE, na.rm = FALSE) {
+"[[.Seurat" <- function(x, i = missing_arg(), ..., drop = FALSE, na.rm = TRUE) {
   md <- slot(object = x, name = 'meta.data')
-  if (missing(x = i)) {
+  if (is_missing(x = i)) {
     return(md)
   } else if (is.null(x = i)) {
     return(NULL)
@@ -2671,12 +2726,18 @@ Version.Seurat <- function(object, ...) {
   }
   # Correct invalid `i`
   meta.cols <- names(x = md)
-  if (is.numeric(x = i)) {
-    stopifnot(any(i <= length(x = meta.cols)))
-    i <- i[i <= length(x = meta.cols)]
-    i <- meta.cols[as.integer(x = i)]
+  if (is_bare_integerish(x = i)) {
+    if (all(i > length(x = meta.cols))) {
+      abort(message = paste(
+        "Invalid integer indexing:",
+        "all integers greater than the number of meta columns"
+      ))
+    }
+    i <- meta.cols[as.integer(x = i[i <= length(x = meta.cols)])]
   }
-  stopifnot(is.character(x = i))
+  if (!is.character(x = i)) {
+    abort(message = "'i' must be a character vector")
+  }
   # Determine if we're pulling cell-level meta data
   # or a sub-object
   slot.use <- if (length(x = i) == 1L) {
@@ -2687,7 +2748,7 @@ Version.Seurat <- function(object, ...) {
   # Pull cell-level meta data
   if (is.null(x = slot.use)) {
     # Identify the cell-level meta data to use
-    i <- match.arg(arg = i, choices = meta.cols, several.ok = TRUE)
+    i <- arg_match(arg = i, values = meta.cols, multiple = TRUE)
     # Pull the cell-level meta data
     data.return <- md[, i, drop = FALSE, ...]
     # If requested, remove NAs
@@ -3851,17 +3912,69 @@ setMethod(
     if (!length(x = i) && !ncol(x = value)) {
       return(x)
     }
-    # Check that the `i` we're adding are present in the data frame
-    if (!is.null(x = names(x = value))) {
-      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
-    } else if (length(x = i) != ncol(x = value)) {
+    # browser()
+    # Check the names provided
+    if (length(x = i) == ncol(x = value)) {
+      # Add the names to the meta data
+      if (is.null(x = names(x = value))) {
+        names(x = value) <- i
+      }
+      idx <- match(x = i, table = names(x = value))
+      # If there are any mismatches in `i` and `names(value)`
+      # rename `value` to match `i`
+      if (all(is.na(x = idx))) {
+        warn(message = paste(
+          "None of the column names are found in meta data names;",
+          "replacing to provided meta data names"
+        ))
+        names(x = value) <- i
+      } else if (any(is.na(x = idx))) {
+        meta.missing <- setdiff(
+          x = seq_len(length.out = ncol(x = value)),
+          y = idx[!is.na(x = idx)]
+        )
+        names(x = meta.missing) <- i[is.na(x = idx)]
+        for (j in seq_along(along.with = meta.missing)) {
+          warn(message = paste(
+            "Column",
+            sQuote(x = names(x = value)[meta.missing[j]]),
+            "not found in meta data names, changing to",
+            sQuote(x = names(x = meta.missing)[j])
+          ))
+        }
+        names(x = value)[meta.missing] <- names(x = meta.missing)
+      }
+    } else if (is.null(x = names(x = value))) {
+      # Cannot add meta data without names
       abort(message = paste(
         "Cannot assign",
         length(x = i),
-        "names to",
+        ifelse(test = length(x = i) == 1L, yes = 'name', no = 'names'),
+        "to",
         ncol(x = value),
-        "bits of meta data"
+        ifelse(test = ncol(x = value) == 1L, yes = 'bit', no = 'bits'),
+        "of meta data"
       ))
+    } else {
+      # Find matching `i` in `names(value)`
+      # Cannot rename as `length(i) != ncol(value)`
+      i.orig <- i
+      i <- intersect(x = i, y = names(x = value))
+      # If no matching, abort
+      if (!length(x = i)) {
+        abort(
+          message = "None of the meta data requested was found in the data frame"
+        )
+      }
+      # Alert user to `i` not found in `names(value)`
+      i.missing <- setdiff(x = i.orig, y = i)
+      if (length(x = i.missing)) {
+        warn(message = paste(
+          "The following bits of meta data in the data frame will not be added:",
+          paste(sQuote(x = i.missing), collapse = ', ')
+        ))
+        value <- value[, i, drop = FALSE]
+      }
     }
     # Handle meta data for different cells
     names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
@@ -3875,9 +3988,8 @@ setMethod(
       row.names(x = value) <- colnames(x = x)
     } else {
       # Throw an error when no cell names provided and cannot assume cell order
-      stop(
-        "Cannot add more or less meta data without cell names",
-        call. = FALSE
+      abort(
+        message = "Cannot add more or less meta data without cell names"
       )
     }
     # Add the cell-level meta data using the `value = vector` method
@@ -4150,7 +4262,7 @@ setMethod(
     }
     # Check that the `i` we're adding are present in the list
     if (!is.null(x = names(x = value))) {
-      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
+      i <- arg_match(arg = i, values = names(x = value), multiple = TRUE)
     } else if (length(x = i) != length(x = value)) {
       abort(message = paste(
         "Cannot assing",
