@@ -9,10 +9,11 @@
 \arguments{
 \item{fxn}{Name of a function as a character}
 
-\item{cls}{...}
+\item{cls}{The class to find a method of \code{fxn} for}
 }
 \value{
-...
+The method of \code{fxn} for class \code{cls}; if no method found,
+returns the default method. If no default method found; returns \code{NULL}
 }
 \description{
 Get a Method

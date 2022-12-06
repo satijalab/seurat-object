@@ -314,9 +314,10 @@ NULL
 #' Get a Method
 #'
 #' @param fxn Name of a function as a character
-#' @param cls ...
+#' @param cls The class to find a method of \code{fxn} for
 #'
-#' @return ...
+#' @return The method of \code{fxn} for class \code{cls}; if no method found,
+#' returns the default method. If no default method found; returns \code{NULL}
 #'
 #' @importFrom utils getS3method isS3stdGeneric
 #' @importFrom methods isClass isGeneric selectMethod
