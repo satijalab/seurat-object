@@ -10,13 +10,17 @@ NULL
 #'
 #' A simple container for storing mappings of values using logical matrices.
 #' Keeps track of which values (rows) are present in which observations
-#' (columns). \code{LogMap} objects can be created with \code{LogMap()}; queries
-#' can be performed with \code{[[} and observations can be added or removed
-#' with \code{[[<-}
+#' (columns). \code{LogMap} objects can be created with \code{LogMap()};
+#' queries can be performed with \code{[[} and observations can be added
+#' or removed with \code{[[<-}
 #'
 #' @slot .Data A logical matrix with at least one row
 #'
 #' @exportClass LogMap
+#'
+#' @keywords internal
+#'
+#' @family logmap
 #'
 setClass(
   Class = 'LogMap',
@@ -29,7 +33,7 @@ setClass(
 
 #' @rdname LogMap-class
 #'
-#' @param y A character vector; for \code{intersect}, ignored
+#' @param y A character vector
 #'
 #' @return \code{LogMap}: A new \code{LogMap} object with zero columns and
 #' \code{length(x = x)} rows; rownames are set to \code{x}
@@ -49,6 +53,7 @@ setClass(
 #'
 #' # Add an observation to the LogMap
 #' map[['obs']] <- c(1, 3, 7)
+#' map[['entry']] <- c(2, 7, 10)
 #' map
 #'
 #' # Get the names of observations in the LogMap
@@ -58,18 +63,6 @@ setClass(
 #' map[['obs']]
 #'
 #' # Get the full logical matrix
-#' map[[]]
-#'
-#' # Find observations for a set of values
-#' map[['entry']] <- c(2, 7, 10)
-#' labels(map, c('a', 'b', 'g'))
-#'
-#' # Identify values that are present in every observation
-#' intersect(map)
-#'
-#' # Remove unused values
-#' map <- droplevels(map)
-#' map
 #' map[[]]
 #'
 #' # Remove an observation from the LogMap
@@ -95,22 +88,60 @@ LogMap <- function(y) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Coerce Logical Maps to Matrices
+#'
+#' Coerce a logical map to a matrix; this removes all
+#' \link[LogMap]{logical map} class capabilities from
+#' the object and returns a base-R matrix object
+#'
+#' @param x A \code{\link{LogMap}} object
+#'
+#' @return A base-R matrix created from \code{x}
+#'
+#' @keywords internal
+#'
 #' @method as.matrix LogMap
 #' @export
+#'
+#' @family logmap
+#'
+#' @examples
+#' map <- LogMap(letters[1:10])
+#' map[['obs']] <- c(1, 3, 7)
+#' mat <- as.matrix(map)
+#' mat
+#' class(mat)
 #'
 as.matrix.LogMap <- function(x, ...) {
   return(as(object = x, Class = 'matrix'))
 }
 
-#' @rdname LogMap-class
+#' Drop Unused Logical Map Values
 #'
-#' @param x,object A \code{LogMap} object
+#' Remove any unused values from a \link[LogMap]{logical map}
 #'
-#' @return \code{droplevels}: \code{x} with values not present in any
+#' @template param-dots-ignored
+#' @param x A \code{LogMap} object
+#'
+#' @return \code{x} with values not present in any
 #' observation removed
+#'
+#' @keywords internal
 #'
 #' @method droplevels LogMap
 #' @export
+#'
+#' @family logmap
+#'
+#' @examples
+#' map <- LogMap(letters[1:10])
+#' map[['obs']] <- c(1, 3, 7)
+#' map[['entry']] <- c(2, 7, 10)
+#'
+#' # Remove unused values
+#' map <- droplevels(map)
+#' map
+#' map[[]]
 #'
 droplevels.LogMap <- function(x, ...) {
   fidx <- which(x = apply(
@@ -131,15 +162,32 @@ droplevels.LogMap <- function(x, ...) {
   return(x)
 }
 
-#' @rdname LogMap-class
+#' Find Common Logical Map Values
 #'
-#' @return \code{intersect}: The values of \code{x} that are present in
-#' \strong{every} observation
+#' Identify values in a \link[LogMap]{logical map} that are common to
+#' every observation
+#'
+#' @inheritParams droplevels.LogMap
+#' @param y Ignored
+#'
+#' @return The values of \code{x} that are present in \strong{every} observation
+#'
+#' @keywords internal
 #'
 #' @method intersect LogMap
 #' @export
 #'
-intersect.LogMap <- function(x, y = missing_arg()) {
+#' @family logmap
+#'
+#' @examples
+#' map <- LogMap(letters[1:10])
+#' map[['obs']] <- c(1, 3, 7)
+#' map[['entry']] <- c(2, 7, 10)
+#'
+#' # Identify values that are present in every observation
+#' intersect(map)
+#'
+intersect.LogMap <- function(x, y = missing_arg(), ...) {
   if (!is_missing(x = y)) {
     abort(message = "'y' must not be provided")
   }
@@ -147,8 +195,13 @@ intersect.LogMap <- function(x, y = missing_arg()) {
   return(rownames(x = x)[idx])
 }
 
-#' @rdname LogMap-class
+#' Find Observations by Value
 #'
+#' Identify the observations that contain a specific value in a
+#' \link[LogMap]{logical map}
+#'
+#' @template param-dots-ignored
+#' @param object A \code{\link{LogMap}} object
 #' @param values A vector of values to find observations for
 #' @param select Observation selection method; choose from:
 #' \itemize{
@@ -165,8 +218,20 @@ intersect.LogMap <- function(x, y = missing_arg()) {
 #' of all values and the observations they're found in, according
 #' to the value of \code{select}
 #'
+#' @keywords internal
+#'
 #' @method labels LogMap
 #' @export
+#'
+#' @family logmap
+#'
+#' @examples
+#' map <- LogMap(letters[1:10])
+#' map[['obs']] <- c(1, 3, 7)
+#' map[['entry']] <- c(2, 7, 10)
+#'
+#' # Find observations for a set of values
+#' labels(map, c('a', 'b', 'g'))
 #'
 labels.LogMap <- function(
   object,
@@ -178,10 +243,13 @@ labels.LogMap <- function(
   select <- select[1L]
   select <- match.arg(arg = select)
   values <- intersect(x = values, y = rownames(x = object))
-  obs <- pbapply::pbsapply(
+  p <- progressor(along = values)
+  obs <- sapply(
     X = values,
     FUN = function(x) {
-      return(colnames(x = object)[which(x = object[x, , drop = TRUE])])
+      vals <- colnames(x = object)[which(x = object[x, , drop = TRUE])]
+      p()
+      return(vals)
     },
     simplify = FALSE,
     USE.NAMES = TRUE
@@ -305,7 +373,7 @@ setMethod(
 
 #' @rdname LogMap-class
 #'
-#' @param x,object A \code{LogMap} object
+#' @param x A \code{LogMap} object
 #' @param i A character vector of length 1, or \code{NULL}
 #' @param j Not used
 #' @param ... Ignored
@@ -491,6 +559,33 @@ setMethod(
   }
 )
 
+#' Logical Map Validity
+#'
+#' @templateVar cls LogMap
+#' @template desc-validity
+#'
+#' @section Data Validation:
+#' Logical maps must be a logical matrix containing only TRUE or FALSE values
+#'
+#' @section Value Validation:
+#' All values must be named within the rownames of the object. Duplicate or
+#' empty (\code{""}) values are not allowed
+#'
+#' @section Observation Validation:
+#' All observations must be named within the column names of the object.
+#' Duplicate or empty (\code{""}) observations are not allowed
+#'
+#' @name LogMap-validity
+#'
+#' @family logmap
+#' @seealso \code{\link[methods]{validObject}}
+#'
+#' @examples
+#' map <- LogMap(letters[1:10])
+#' map[['obs']] <- c(1, 3, 7)
+#' map[['entry']] <- c(2, 7, 10)
+#' validObject(map)
+#'
 setValidity(
   Class = 'LogMap',
   method = function(object) {
@@ -506,9 +601,15 @@ setValidity(
     if (!is.logical(x = object)) {
       valid <- c(valid, "The map must be a logical matrix")
     }
+    if (any(is.na(x = object))) {
+      valid <- c(valid, "The may may not contain NAs")
+    }
     # Check rownames
     if (is.null(x = rownames(x = object))) {
       valid <- c(valid, "Rownames must be supplied")
+    }
+    if (any(!nzchar(x = rownames(x = object)))) {
+      valid <- c(valid, "Rownames cannot be empty strings")
     }
     if (anyDuplicated(x = rownames(x = object))) {
       valid <- c(valid, "Duplicate rownames not allowed")

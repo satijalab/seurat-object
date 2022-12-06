@@ -8,6 +8,7 @@ list(
     dimreduc = "Dimensional reduction object, validity, and interaction methods",
     fov = "",
     key = "",
+    logmap = "Logical map objects, validity, and interaction methods:",
     s4list = "",
     segmentation = "Segmentation layer classes:",
     seurat = "Seurat object, validity, and interaction methods",

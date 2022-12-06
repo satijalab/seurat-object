@@ -11,9 +11,6 @@
 \alias{[[<-,LogMap,character,missing,NULL-method}
 \alias{[[<-,LogMap,character,missing,numeric-method}
 \alias{LogMap-class}
-\alias{droplevels.LogMap}
-\alias{intersect.LogMap}
-\alias{labels.LogMap}
 \title{A Logical Map}
 \usage{
 LogMap(y)
@@ -31,23 +28,11 @@ LogMap(y)
 \S4method{[[}{LogMap,character,missing,`NULL`}(x, i, j, ...) <- value
 
 \S4method{[[}{LogMap,character,missing,numeric}(x, i, j, ...) <- value
-
-\method{droplevels}{LogMap}(x, ...)
-
-\method{intersect}{LogMap}(x, y = missing_arg())
-
-\method{labels}{LogMap}(
-  object,
-  values,
-  select = c("first", "last", "common", "all"),
-  simplify = TRUE,
-  ...
-)
 }
 \arguments{
-\item{y}{A character vector; for \code{intersect}, ignored}
+\item{y}{A character vector}
 
-\item{x, object}{A \code{LogMap} object}
+\item{x}{A \code{LogMap} object}
 
 \item{i}{A character vector of length 1, or \code{NULL}}
 
@@ -57,20 +42,6 @@ LogMap(y)
 
 \item{value}{A character or integer vector of values to record in the map
 for \code{i}, or \code{NULL} to remove the record for \code{i}}
-
-\item{values}{A vector of values to find observations for}
-
-\item{select}{Observation selection method; choose from:
-\itemize{
- \item \dQuote{\code{first}}: the first observation the value is found in
- \item \dQuote{\code{last}}: the last observation the value is found in
- \item \dQuote{\code{common}}: the first most-common observation the value
- is found in; most-common is determined by the observation that contains
- the most of the values requested
- \item \dQuote{\code{all}}: all observations the value is found in
-}}
-
-\item{simplify}{Simplify the resulting list to a vector}
 }
 \value{
 \code{LogMap}: A new \code{LogMap} object with zero columns and
@@ -82,23 +53,13 @@ mapped to \code{i}; otherwise the rownames of \code{x}
 \code{[[<-}: If \code{value} is \code{NULL}, then \code{x} without
 the observations for \code{i}; otherwise, \code{x} with a new column for
 \code{i} recording a \code{TRUE} for all values present in \code{value}
-
-\code{droplevels}: \code{x} with values not present in any
-observation removed
-
-\code{intersect}: The values of \code{x} that are present in
-\strong{every} observation
-
-\code{labels}: A list, or vector if \code{simplify} is \code{TRUE},
-of all values and the observations they're found in, according
-to the value of \code{select}
 }
 \description{
 A simple container for storing mappings of values using logical matrices.
 Keeps track of which values (rows) are present in which observations
-(columns). \code{LogMap} objects can be created with \code{LogMap()}; queries
-can be performed with \code{[[} and observations can be added or removed
-with \code{[[<-}
+(columns). \code{LogMap} objects can be created with \code{LogMap()};
+queries can be performed with \code{[[} and observations can be added
+or removed with \code{[[<-}
 }
 \section{Slots}{
 
@@ -117,6 +78,7 @@ rownames(map)
 
 # Add an observation to the LogMap
 map[['obs']] <- c(1, 3, 7)
+map[['entry']] <- c(2, 7, 10)
 map
 
 # Get the names of observations in the LogMap
@@ -128,21 +90,19 @@ map[['obs']]
 # Get the full logical matrix
 map[[]]
 
-# Find observations for a set of values
-map[['entry']] <- c(2, 7, 10)
-labels(map, c('a', 'b', 'g'))
-
-# Identify values that are present in every observation
-intersect(map)
-
-# Remove unused values
-map <- droplevels(map)
-map
-map[[]]
-
 # Remove an observation from the LogMap
 map[['obs']] <- NULL
 map[['entry']] <- NULL
 map
 
 }
+\seealso{
+Logical map objects, validity, and interaction methods:
+\code{\link{LogMap-validity}},
+\code{\link{as.matrix.LogMap}()},
+\code{\link{droplevels.LogMap}()},
+\code{\link{intersect.LogMap}()},
+\code{\link{labels.LogMap}()}
+}
+\concept{logmap}
+\keyword{internal}

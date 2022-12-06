@@ -54,7 +54,6 @@ Suggests:
     fs (>= 1.5.2),
     ggplot2,
     HDF5Array,
-    pbapply,
     rmarkdown,
     rgeos,
     testthat
