@@ -3912,17 +3912,69 @@ setMethod(
     if (!length(x = i) && !ncol(x = value)) {
       return(x)
     }
-    # Check that the `i` we're adding are present in the data frame
-    if (!is.null(x = names(x = value))) {
-      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
-    } else if (length(x = i) != ncol(x = value)) {
+    # browser()
+    # Check the names provided
+    if (length(x = i) == ncol(x = value)) {
+      # Add the names to the meta data
+      if (is.null(x = names(x = value))) {
+        names(x = value) <- i
+      }
+      idx <- match(x = i, table = names(x = value))
+      # If there are any mismatches in `i` and `names(value)`
+      # rename `value` to match `i`
+      if (all(is.na(x = idx))) {
+        warn(message = paste(
+          "None of the column names are found in meta data names;",
+          "replacing to provided meta data names"
+        ))
+        names(x = value) <- i
+      } else if (any(is.na(x = idx))) {
+        meta.missing <- setdiff(
+          x = seq_len(length.out = ncol(x = value)),
+          y = idx[!is.na(x = idx)]
+        )
+        names(x = meta.missing) <- i[is.na(x = idx)]
+        for (j in seq_along(along.with = meta.missing)) {
+          warn(message = paste(
+            "Column",
+            sQuote(x = names(x = value)[meta.missing[j]]),
+            "not found in meta data names, changing to",
+            sQuote(x = names(x = meta.missing)[j])
+          ))
+        }
+        names(x = value)[meta.missing] <- names(x = meta.missing)
+      }
+    } else if (is.null(x = names(x = value))) {
+      # Cannot add meta data without names
       abort(message = paste(
         "Cannot assign",
         length(x = i),
-        "names to",
+        ifelse(test = length(x = i) == 1L, yes = 'name', no = 'names'),
+        "to",
         ncol(x = value),
-        "bits of meta data"
+        ifelse(test = ncol(x = value) == 1L, yes = 'bit', no = 'bits'),
+        "of meta data"
       ))
+    } else {
+      # Find matching `i` in `names(value)`
+      # Cannot rename as `length(i) != ncol(value)`
+      i.orig <- i
+      i <- intersect(x = i, y = names(x = value))
+      # If no matching, abort
+      if (!length(x = i)) {
+        abort(
+          message = "None of the meta data requested was found in the data frame"
+        )
+      }
+      # Alert user to `i` not found in `names(value)`
+      i.missing <- setdiff(x = i.orig, y = i)
+      if (length(x = i.missing)) {
+        warn(message = paste(
+          "The following bits of meta data in the data frame will not be added:",
+          paste(sQuote(x = i.missing), collapse = ', ')
+        ))
+        value <- value[, i, drop = FALSE]
+      }
     }
     # Handle meta data for different cells
     names.intersect <- intersect(x = row.names(x = value), y = colnames(x = x))
@@ -3936,9 +3988,8 @@ setMethod(
       row.names(x = value) <- colnames(x = x)
     } else {
       # Throw an error when no cell names provided and cannot assume cell order
-      stop(
-        "Cannot add more or less meta data without cell names",
-        call. = FALSE
+      abort(
+        message = "Cannot add more or less meta data without cell names"
       )
     }
     # Add the cell-level meta data using the `value = vector` method
@@ -4211,7 +4262,7 @@ setMethod(
     }
     # Check that the `i` we're adding are present in the list
     if (!is.null(x = names(x = value))) {
-      i <- match.arg(arg = i, choices = names(x = value), several.ok = TRUE)
+      i <- arg_match(arg = i, values = names(x = value), multiple = TRUE)
     } else if (length(x = i) != length(x = value)) {
       abort(message = paste(
         "Cannot assing",
