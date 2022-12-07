@@ -1210,6 +1210,14 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @rdname dot-AssayClass
+#' @method .AssayClass default
+#' @export
+#'
+.AssayClass.default <- function(object) {
+  return(class(x = object)[1L])
+}
+
 #' @importFrom methods getClass
 #'
 #' @rdname dot-ClassPkg
