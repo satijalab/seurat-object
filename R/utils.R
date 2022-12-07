@@ -1790,6 +1790,56 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   return(franks)
 }
 
+#' Move Files and Directories
+#'
+#' Move files and directories with \pkg{fs}; includes a handler for when
+#' \code{path} is a directory on a different filesystem than \code{new_path}
+#' by explicitly copying and deleting \code{path}
+#'
+#' @inherit fs::file_move params return
+#' @inheritParams rlang::caller_env
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @templateVar pkg fs
+#' @template note-reqdpkg
+#'
+#' @seealso \code{\link[fs:file_move]{fs::file_move}()}
+#'
+.FileMove <- function(path, new_path, n = 1L) {
+  check_installed(
+    pkg = 'fs',
+    reason = 'for moving on-disk files'
+  )
+  stopifnot(is_scalar_character(x = path))
+  stopifnot(is_scalar_character(x = new_path))
+  stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0)
+  hndlr <- if (fs::is_dir(path = path)) {
+    function(...) {
+      path <- fs::path_expand(path = path)
+      new_path <- fs::path_expand(path = new_path)
+      dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
+      fs::dir_copy(path = path, new_path = dest, overwrite = TRUE)
+      fs::dir_delete(path = path)
+      return(dest)
+    }
+  } else {
+    function(err) {
+      abort(
+        message = err$message,
+        class = class(x = err),
+        call = caller_env(n = 4L + n)
+      )
+    }
+  }
+  return(invisible(x = tryCatch(
+    expr = fs::file_move(path = path, new_path = new_path),
+    EISDIR = hndlr
+  )))
+}
+
 #' Get An Option
 #'
 #' @inheritParams base::getOption

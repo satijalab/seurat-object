@@ -573,6 +573,9 @@ RenameAssays <- function(object, ...) {
 #'
 #' @template section-progressr
 #'
+#' @templateVar pkg fs
+#' @template note-reqdpkg
+#'
 #' @examples
 #' if (requireNamespace("HDF5Array") && requireNamespace("fs")) {
 #'   out <- tempfile(fileext = ".Rds")
@@ -614,7 +617,7 @@ SaveSeuratRds <- function(
   if (!is_na(x = destdir) || isTRUE(x = relative)) {
     check_installed(
       pkg = 'fs',
-      reason = 'for moving on-disk matrices out of temp'
+      reason = 'for moving on-disk matrices'
     )
   }
   for (assay in assays) {
@@ -648,18 +651,24 @@ SaveSeuratRds <- function(
     if (!is_na(x = destdir)) {
       for (i in seq_len(length.out = nrow(x = df))) {
         pth <- df$path[i]
-        if (substr(x = pth, start = 1L, stop = nchar(x = tdir)) == tdir) {
+        mv <- substr(x = pth, start = 1L, stop = nchar(x = tdir)) == tdir ||
+          isTRUE(x = relative)
+        if (isTRUE(x = mv)) {
           p(
             message = paste(
               "Moving layer",
-              sQuote(x = df$layer[i], q = FALSE),
-              "out of temporary storage to",
-              sQuote(x = destdir, q = FALSE)
+              sQuote(x = df$layer[i]),
+              "to",
+              sQuote(x = destdir)
             ),
             class = 'sticky',
             amount = 0
           )
-          df[i, 'path'] <- as.character(x = fs::file_move(
+          # df[i, 'path'] <- as.character(x = fs::file_move(
+          #   path = pth,
+          #   new_path = destdir
+          # ))
+          df[i, 'path'] <- as.character(x = .FileMove(
             path = pth,
             new_path = destdir
           ))

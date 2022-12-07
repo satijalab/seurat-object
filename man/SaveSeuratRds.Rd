@@ -39,6 +39,11 @@ Invisibly returns \code{file}
 \description{
 Save Seurat Objects to RDS files
 }
+\note{
+This function requires the
+\href{https://cran.r-project.org/package=fs}{\pkg{fs}} package
+to be installed
+}
 \section{Progress Updates with \pkg{progressr}}{
 
 This function uses
