@@ -2757,11 +2757,11 @@ setMethod(
       'data with',
       nrow(x = object),
       'features for',
-      ncol(x = object), 'cells\n'
+      ncol(x = object),
+      'cells\n'
     )
     # Feature information
-    # if (length(x = VariableFeatures(object = object)) > 0) {
-    if (FALSE) {
+    if (length(x = VariableFeatures(object = object))) {
       top.ten <- head(x = VariableFeatures(object = object), n = 10L)
       top <- 'Top'
       variable <- 'variable'
@@ -2770,13 +2770,12 @@ setMethod(
       top <- 'First'
       variable <- ''
     }
-    features <- paste0(
+    features <- paste(
       variable,
-      ' feature',
-      if (length(x = top.ten) != 1) {
-        's'
-      },
-      ":\n"
+      paste0(
+        ifelse(test = length(x = top.ten) == 1L, yes = 'feature', no = 'features'),
+        ":\n"
+      )
     )
     features <- gsub(pattern = '^\\s+', replacement = '', x = features)
     cat(
