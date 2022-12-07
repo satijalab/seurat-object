@@ -571,6 +571,8 @@ RenameAssays <- function(object, ...) {
 #'
 #' @export
 #'
+#' @template section-progressr
+#'
 #' @examples
 #' if (requireNamespace("HDF5Array") && requireNamespace("fs")) {
 #'   out <- tempfile(fileext = ".Rds")
@@ -4880,6 +4882,17 @@ setMethod(
         length(x = suppressWarnings(expr = VariableFeatures(object = object))),
         ' variable features)'
       )
+    )
+    cat(
+      '\n',
+      length(x = Layers(object = object)),
+      ifelse(
+        test = length(x = Layers(object = object)) == 1L,
+        yes = 'layer',
+        no = 'layers'
+      ),
+      'present:',
+      strwrap(x = paste(Layers(object = object), collapse = ', '))
     )
     other.assays <- assays[assays != DefaultAssay(object = object)]
     if (length(x = other.assays) > 0) {
