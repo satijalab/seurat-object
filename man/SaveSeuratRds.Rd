@@ -2,9 +2,12 @@
 % Please edit documentation in R/seurat.R
 \name{SaveSeuratRds}
 \alias{SaveSeuratRds}
-\title{Save Seurat Objects to RDS files}
+\alias{LoadSeuratRds}
+\title{Save and Load \code{Seurat} Objects from Rds files}
 \usage{
 SaveSeuratRds(object, file = NULL, destdir = NULL, relative = FALSE, ...)
+
+LoadSeuratRds(file, ...)
 }
 \arguments{
 \item{object}{A \code{\link{Seurat}} object}
@@ -18,7 +21,7 @@ SaveSeuratRds(object, file = NULL, destdir = NULL, relative = FALSE, ...)
 \item{relative}{Save relative paths instead of absolute ones}
 
 \item{...}{
-  Arguments passed on to \code{\link[base:readRDS]{base::saveRDS}}
+  Arguments passed on to \code{\link[base:readRDS]{base::saveRDS}}, \code{\link[base:readRDS]{base::readRDS}}
   \describe{
     \item{\code{ascii}}{a logical.  If \code{TRUE} or \code{NA}, an ASCII
     representation is written; otherwise (default), a binary one is used.
@@ -37,7 +40,7 @@ SaveSeuratRds(object, file = NULL, destdir = NULL, relative = FALSE, ...)
 Invisibly returns \code{file}
 }
 \description{
-Save Seurat Objects to RDS files
+Save and Load \code{Seurat} Objects from Rds files
 }
 \note{
 This function requires the
@@ -57,14 +60,26 @@ this function. For more details about \pkg{progressr}, please read
 
 \examples{
 if (requireNamespace("HDF5Array") && requireNamespace("fs")) {
-  out <- tempfile(fileext = ".Rds")
   pbmc_small[["disk"]] <- CreateAssay5Object(list(
     mem = LayerData(pbmc_small, "counts"),
     disk = as(LayerData(pbmc_small, "counts"), "HDF5Array")
   ))
+
+  # Save `pbmc_small` to an Rds file
+  out <- tempfile(fileext = ".Rds")
   SaveSeuratRds(pbmc_small, file = out)
+
+  # Object cache
   obj <- readRDS(out)
   Tool(obj, "SaveSeuratRds")
+
+  # Load the saved object with on-disk layers back into memory
+  pbmc2 <- LoadSeuratRds(out)
+  pbmc2
+  pbmc2[["disk"]]
 }
 
+}
+\seealso{
+\code{\link{saveRDS}()} \code{\link{readRDS}()}
 }

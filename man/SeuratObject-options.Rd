@@ -8,15 +8,20 @@ Various options used in \pkg{Seurat}
 }
 \section{Package Options}{
 
+\subsection{Seurat.coords.short_range}{
+Defaults to
+\dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.coords.short_range}}\cr
+Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.coords.short_range")}}
+}
 \subsection{Seurat.input.sparse_ratio}{
 Defaults to
 \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.input.sparse_ratio}}\cr
 Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.input.sparse_ratio")}}
 }
-\subsection{Seurat.coords.short_range}{
+\subsection{Seurat.io.rds.strict}{
 Defaults to
-\dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.coords.short_range}}\cr
-Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.coords.short_range")}}
+\dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.option$Seurat.io.rds.strict}}\cr
+Currently set to \dQuote{\Sexpr[stage=render](getOption("Seurat.io.rds.strict"))}
 }
 \subsection{Seurat.object.assay.calcn}{
 Run \code{CalcN} when adding assay data to a \code{Seurat} object\cr

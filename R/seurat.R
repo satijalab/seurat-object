@@ -358,6 +358,9 @@ Images <- function(object, assay = NULL) {
   return(images)
 }
 
+#' @inheritDotParams base::readRDS
+#'
+#' @rdname SaveSeuratRds
 #' @export
 #'
 LoadSeuratRds <- function(file, ...) {
@@ -557,7 +560,7 @@ RenameAssays <- function(object, ...) {
   return(object)
 }
 
-#' Save Seurat Objects to RDS files
+#' Save and Load \code{Seurat} Objects from Rds files
 #'
 #' @param object A \code{\link{Seurat}} object
 #' @param file Path to save \code{object} to; defaults to
@@ -576,16 +579,29 @@ RenameAssays <- function(object, ...) {
 #' @templateVar pkg fs
 #' @template note-reqdpkg
 #'
+#' @seealso \code{\link{saveRDS}()} \code{\link{readRDS}()}
+#'
+#' @order 1
+#'
 #' @examples
 #' if (requireNamespace("HDF5Array") && requireNamespace("fs")) {
-#'   out <- tempfile(fileext = ".Rds")
 #'   pbmc_small[["disk"]] <- CreateAssay5Object(list(
 #'     mem = LayerData(pbmc_small, "counts"),
 #'     disk = as(LayerData(pbmc_small, "counts"), "HDF5Array")
 #'   ))
+#'
+#'   # Save `pbmc_small` to an Rds file
+#'   out <- tempfile(fileext = ".Rds")
 #'   SaveSeuratRds(pbmc_small, file = out)
+#'
+#'   # Object cache
 #'   obj <- readRDS(out)
 #'   Tool(obj, "SaveSeuratRds")
+#'
+#'   # Load the saved object with on-disk layers back into memory
+#'   pbmc2 <- LoadSeuratRds(out)
+#'   pbmc2
+#'   pbmc2[["disk"]]
 #' }
 #'
 SaveSeuratRds <- function(
