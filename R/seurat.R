@@ -1229,10 +1229,16 @@ CreateSeuratObject.Assay <- function(
     )
   }
   # Calculate nCount and nFeature
-  ncalc <- CalcN(object = counts)
-  if (!is.null(x = ncalc)) {
-    names(x = ncalc) <- paste(names(x = ncalc), assay, sep = '_')
-    object[[]] <- ncalc
+  calcn <- getOption(
+    x = 'Seurat.object.assay.calcn',
+    default = Seurat.options$Seurat.object.assay.calcn
+  )
+  if (isTRUE(x = calcn)) {
+    ncalc <- CalcN(object = counts)
+    if (!is.null(x = ncalc)) {
+      names(x = ncalc) <- paste(names(x = ncalc), assay, sep = '_')
+      object[[]] <- ncalc
+    }
   }
   # Validate and return
   validObject(object = object)
