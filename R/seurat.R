@@ -2826,6 +2826,7 @@ Version.Seurat <- function(object, ...) {
   }
   # Pull cell-level meta data
   if (is.null(x = slot.use)) {
+    md <- md[Cells(x = x), , drop = FALSE]
     # Identify the cell-level meta data to use
     i <- arg_match(arg = i, values = meta.cols, multiple = TRUE)
     # Pull the cell-level meta data
