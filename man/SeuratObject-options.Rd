@@ -21,7 +21,7 @@ Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.input.sparse_rat
 \subsection{Seurat.io.rds.strict}{
 Defaults to
 \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.io.rds.strict}}\cr
-Currently set to \dQuote{\Sexpr[stage=render](getOption("Seurat.io.rds.strict"))}
+Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.io.rds.strict")}}
 }
 \subsection{Seurat.object.assay.calcn}{
 Run \code{CalcN} when adding assay data to a \code{Seurat} object\cr

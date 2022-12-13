@@ -33,7 +33,7 @@ StashIdent(object, save.name, ...)
 
 \method{Idents}{Seurat}(object, ...)
 
-\method{Idents}{Seurat}(object, cells = NULL, drop = FALSE, ...) <- value
+\method{Idents}{Seurat}(object, cells = NULL, drop = FALSE, replace = FALSE, ...) <- value
 
 \method{ReorderIdent}{Seurat}(
   object,
