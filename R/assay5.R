@@ -810,12 +810,12 @@ FetchData.StdAssay <- function(
     if (!length(x = lcells) || !length(x = lvars)) {
       next
     }
-    data.fetched[lcells, lvars] <- as.matrix(t(x = LayerData(
+    data.fetched[lcells, lvars] <- t(x = LayerData(
       object = object,
       layer = lyr,
       cells = lcells,
       features = lvars
-    )))[,lvars]
+    ))[, lvars]
   }
   # Clean out missing cells from the expression matrix
   if (isTRUE(x = clean)) {
@@ -844,27 +844,12 @@ FetchData.StdAssay <- function(
   # Check final list of features
   fetched <- setdiff(x = unlist(x = dimnames(x = data.fetched)), y = cells)
   missing <- setdiff(x = orig, y = fetched)
-  m2 <- if (length(x = missing) > 10) {
-    paste(' (10 out of', length(x = missing), 'shown)')
-  } else {
-    ''
-  }
   if (length(x = missing) == length(x = orig)) {
-    abort(
-      message = paste0(
-        "None of the requested variables found",
-        m2,
-        ':',
-        paste(head(x = missing, n = 10L), collapse = ', ')
-      ),
-      class = 'varsNotFoundError'
-    )
+    abort(message = "None of the requested variables found")
   } else if (length(x = missing)) {
-    warn(message = paste0(
-      "The following variables could not be found",
-      m2,
-      ':',
-      paste(head(x = missing, n = 10L), collapse = ', ')
+    warn(message = paste(
+      "The following variables could not be found:",
+      paste(missing, collapse = ', ')
     ))
   }
   return(data.fetched)
@@ -1081,6 +1066,18 @@ JoinLayers.StdAssay <- function(
   }
   return(object)
 }
+
+#' @param layers ...
+#' @param new ...
+#' @param default ...
+#' @param nfeatures ...
+#'
+#' @rdname SplitLayers
+#'
+#' @method JoinLayers Assay5
+#' @export
+#'
+JoinLayers.Assay5 <- JoinLayers.StdAssay
 
 #' @rdname Key
 #' @method Key Assay5

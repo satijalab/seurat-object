@@ -1445,6 +1445,15 @@ SpatiallyVariableFeatures <- function(object, selection.method, ...) {
   UseMethod(generic = 'SpatiallyVariableFeatures', object = object)
 }
 
+#' @rdname SplitLayers
+#' @export SplitLayers
+#'
+#' @order 1
+#'
+SplitLayers <- function(object, ...) {
+  UseMethod(generic = 'SplitLayers', object = object)
+}
+
 #' @return \code{StashIdent}: An object with the identities stashed
 #'
 #' @rdname Idents
