@@ -2826,7 +2826,6 @@ Version.Seurat <- function(object, ...) {
   }
   # Pull cell-level meta data
   if (is.null(x = slot.use)) {
-    md <- md[Cells(x = x), , drop = FALSE]
     # Identify the cell-level meta data to use
     i <- arg_match(arg = i, values = meta.cols, multiple = TRUE)
     # Pull the cell-level meta data
@@ -3859,11 +3858,16 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 
 #' Add Subobjects
 #'
+#' Add subobjects containing expression, dimensional reduction, or other
+#' containerized data to a \code{\link{Seurat}} object. Subobjects can be
+#' accessed with \code{\link[=[[.Seurat]{[[}} and manipulated directly within
+#' the \code{Seurat} object or used independently
+#'
 #' @inheritParams .DollarNames.Seurat
 #' @inheritParams [[.Assay5
 #' @param i Name to add subobject as
 #' @param value A valid subobject (eg. a \link[Assay]{v3} or
-#' \link[Assay5]{v5} assay or a \link[DimReduc]{dimensional reduction})
+#' \link[Assay5]{v5} assay, or a \link[DimReduc]{dimensional reduction})
 #'
 #' @return \code{x} with \code{value} added as \code{i}
 #'
