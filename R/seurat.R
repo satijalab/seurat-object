@@ -1492,12 +1492,24 @@ FetchData.Seurat <- function(
           names(x = df) <- paste0('md_', names(x = df))
           df
         },
-        FetchData(
-          object = object[[x]],
-          vars = keyed.vars[[x]],
-          cells = cells,
-          layer = layer,
-          ...
+        tryCatch(
+          expr = FetchData(
+            object = object[[x]],
+            vars = keyed.vars[[x]],
+            cells = cells,
+            layer = layer,
+            ...
+          ),
+          varsNotFoundError = function(...) {
+            warn(message = paste0(
+              'The following keyed vars could not be found in object ',
+              sQuote(x = x),
+              ':',
+              paste(keyed.vars[[x]], collapse = ', '),
+              '\nAttempting to pull from other locations'
+            ))
+            return(NULL)
+          }
         )
       )
       return(data.return)
@@ -1616,12 +1628,15 @@ FetchData.Seurat <- function(
     ''
   }
   if (length(x = vars.missing) == length(x = vars)) {
-    abort(message = paste0(
-      "None of the requested variables were found",
-      m2,
-      ': ',
-      paste(head(x = vars.missing, n = 10L), collapse = ', ')
-    ))
+    abort(
+      message = paste0(
+        "None of the requested variables were found",
+        m2,
+        ': ',
+        paste(head(x = vars.missing, n = 10L), collapse = ', ')
+      ),
+      class = 'varsNotFoundError'
+    )
   } else if (length(x = vars.missing)) {
     warn(message = paste0(
       "The following requested variables were not found",
@@ -1876,21 +1891,32 @@ Idents.Seurat <- function(object, ...) {
 #' @export
 #' @method Idents<- Seurat
 #'
-"Idents<-.Seurat" <- function(object, cells = NULL, drop = FALSE, ..., value) {
+"Idents<-.Seurat" <- function(
+  object,
+  cells = NULL,
+  drop = FALSE,
+  replace = FALSE,
+  ...,
+  value
+) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
-  cells <- cells %||% colnames(x = object)
+  if (!is.factor(x = value) || !is.atomic(x = value)) {
+    abort(message = "'value' must be a factor or vector")
+  }
+  cells <- cells %||% names(x = value) %||% colnames(x = object)
   if (is.numeric(x = cells)) {
     cells <- colnames(x = object)[cells]
   }
   cells <- intersect(x = cells, y = colnames(x = object))
-  cells <- match(x = cells, table = colnames(x = object))
-  if (length(x = cells) == 0) {
-    warning("Cannot find cells provided")
+  # cells <- match(x = cells, table = colnames(x = object))
+  if (!length(x = cells)) {
+    warn(message = 'Cannot find cells provided')
     return(object)
   }
-  idents.new <- if (length(x = value) == 1 && value %in% colnames(x = object[[]])) {
-    unlist(x = object[[value]], use.names = FALSE)[cells]
+  idents.new <- if (length(x = value) == 1 && value %in% names(x = object[[]])) {
+    # unlist(x = object[[value]], use.names = FALSE)[cells]
+    object[[value, drop = TRUE]][cells]
   } else {
     if (is.list(x = value)) {
       value <- unlist(x = value, use.names = FALSE)
@@ -1902,10 +1928,14 @@ Idents.Seurat <- function(object, ...) {
   } else {
     unique(x = idents.new)
   }
-  old.levels <- levels(x = object)
-  levels <- c(new.levels, old.levels)
+  levels <- union(x = new.levels, y = levels(x = object))
   idents.new <- as.vector(x = idents.new)
-  idents <- as.vector(x = Idents(object = object))
+  idents <- if (isTRUE(x = replace)) {
+    rep_len(x = NA_character_, length.out = ncol(x = object))
+  } else {
+    as.vector(x = Idents(object = object))
+  }
+  names(x = idents) <- colnames(x = object)
   idents[cells] <- idents.new
   idents[is.na(x = idents)] <- 'NA'
   levels <- intersect(x = levels, y = unique(x = idents))
@@ -1916,7 +1946,7 @@ Idents.Seurat <- function(object, ...) {
   }
   idents <- factor(x = idents, levels = levels)
   slot(object = object, name = 'active.ident') <- idents
-  if (drop) {
+  if (isTRUE(x = drop)) {
     object <- droplevels(x = object)
   }
   return(object)
