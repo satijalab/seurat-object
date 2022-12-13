@@ -810,12 +810,12 @@ FetchData.StdAssay <- function(
     if (!length(x = lcells) || !length(x = lvars)) {
       next
     }
-    data.fetched[lcells, lvars] <- t(x = LayerData(
+    data.fetched[lcells, lvars] <- as.matrix(t(x = LayerData(
       object = object,
       layer = lyr,
       cells = lcells,
       features = lvars
-    ))[, lvars]
+    )))[,lvars]
   }
   # Clean out missing cells from the expression matrix
   if (isTRUE(x = clean)) {
