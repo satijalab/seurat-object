@@ -1901,7 +1901,7 @@ Idents.Seurat <- function(object, ...) {
 ) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
-  if (!is.factor(x = value) || !is.atomic(x = value)) {
+  if (!(is.factor(x = value) || is.atomic(x = value))) {
     abort(message = "'value' must be a factor or vector")
   }
   cells <- cells %||% names(x = value) %||% colnames(x = object)
