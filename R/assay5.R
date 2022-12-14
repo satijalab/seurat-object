@@ -845,7 +845,7 @@ FetchData.StdAssay <- function(
   fetched <- setdiff(x = unlist(x = dimnames(x = data.fetched)), y = cells)
   missing <- setdiff(x = orig, y = fetched)
   if (length(x = missing) == length(x = orig)) {
-    abort(message = "None of the requested variables found")
+    abort(message = "None of the requested variables found", class = 'varsNotFoundError')
   } else if (length(x = missing)) {
     warn(message = paste(
       "The following variables could not be found:",
