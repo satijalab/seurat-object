@@ -1183,7 +1183,7 @@ CreateSeuratObject.Assay <- function(
     delim = names.delim
   )))
   if (any(is.na(x = idents))) {
-    warning(
+    warn(
       "Input parameters result in NA values for initial cell identities. Setting all initial idents to the project name",
       call. = FALSE,
       immediate. = TRUE
@@ -1522,17 +1522,23 @@ FetchData.Seurat <- function(
   # Pull vars from object metadata
   meta.vars <- intersect(x = vars, y = names(x = object[[]]))
   meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
-  meta.default <- intersect(x = meta.vars, y = rownames(x = object))
-  if (length(x = meta.default)) {
-    warn(message = paste0(
-      "The following variables were found in both object meta data and the default assay: ",
-      paste0(meta.default, collapse = ', '),
-      "\nReturning meta data; if you want the feature, please use the assay's key (eg. ",
-      paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
-      ")"
-    ))
+  if (length(x = meta.vars)) {
+    meta.default <- intersect(x = meta.vars, y = rownames(x = object))
+    if (length(x = meta.default)) {
+      warn(message = paste0(
+        "The following variables were found in both object meta data and the default assay: ",
+        paste0(meta.default, collapse = ', '),
+        "\nReturning meta data; if you want the feature, please use the assay's key (eg. ",
+        paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
+        ")"
+      ))
+    }
+    meta.pull <- object[[meta.vars]]
+    cells.meta <- row.names(x = meta.pull)
+    cells.order <- MatchCells(new = cells.meta, orig = cells, ordered = TRUE)
+    cells.meta <- cells.meta[cells.order]
+    data.fetched[cells.meta, meta.vars] <- meta.pull[cells.meta, , drop = FALSE]
   }
-  data.fetched[cells, meta.vars] <- object[[meta.vars]][cells, , drop = FALSE]
   # Pull vars from the default assay
   default.vars <- intersect(x = vars, y = rownames(x = object))
   default.vars <- setdiff(x = default.vars, y = names(x = data.fetched))
