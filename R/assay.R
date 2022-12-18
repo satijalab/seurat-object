@@ -265,10 +265,8 @@ CreateAssayObject <- function(
   if (IsMatrixEmpty(x = ldat)) {
     return(NULL)
   }
-  return(list(
-    nCount = Matrix::colSums(x = ldat),
-    nFeature = Matrix::colSums(x = ldat > 0)
-  ))
+  cells_stat <- .CalcN.default(x = ldat)
+  return(cells_stat)
 }
 
 #' @rdname AddMetaData

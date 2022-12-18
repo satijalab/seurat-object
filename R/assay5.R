@@ -121,11 +121,7 @@ setClass(
     if (IsMatrixEmpty(x = ldat)) {
       next
     }
-    f <- .GetMethod(fxn = 'colSums', cls = class(x = ldat))
-    calcn[[lyr]] <- list(
-      nCount = f(x = ldat),
-      nFeature = f(x = ldat > 0)
-    )
+    calcn[[lyr]] <- .CalcN(object = ldat)
   }
   calcn <- Filter(f = length, x = calcn)
   # If every layer is empty, return `NULL`
@@ -153,6 +149,27 @@ setClass(
     ncalc[['nFeature']][lcells] <- calcn[[i]][['nFeature']] + ncalc[['nFeature']][lcells]
   }
   return(ncalc)
+}
+
+#' @method .CalcN default
+#' @export
+#'
+.CalcN.default <- function(object) {
+  return(list(
+    nCount = Matrix::colSums(x = object),
+    nFeature = Matrix::colSums(x = object > 0))
+    )
+}
+
+#' @method .CalcN IterableMatrix
+#' @export
+#'
+.CalcN.IterableMatrix <- function(object) {
+  col_stat <- BPCells::matrix_stats(matrix = object, col_stats = 'mean')$col_stats
+  return(list(
+    nCount = round(col_stat['mean',] *nrow(object)),
+    nFeature = col_stat['nonzero',]
+  ))
 }
 
 #' @param layer Name of layer to store \code{counts} as
