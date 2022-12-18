@@ -265,7 +265,7 @@ CreateAssayObject <- function(
   if (IsMatrixEmpty(x = ldat)) {
     return(NULL)
   }
-  cells_stat <- .CalcN.default(x = ldat)
+  cells_stat <- .CalcN.default(object = ldat)
   return(cells_stat)
 }
 
