@@ -161,17 +161,6 @@ setClass(
     )
 }
 
-#' @method .CalcN IterableMatrix
-#' @export
-#'
-.CalcN.IterableMatrix <- function(object) {
-  col_stat <- BPCells::matrix_stats(matrix = object, col_stats = 'mean')$col_stats
-  return(list(
-    nCount = round(col_stat['mean',] *nrow(object)),
-    nFeature = col_stat['nonzero',]
-  ))
-}
-
 #' @param layer Name of layer to store \code{counts} as
 #'
 #' @rdname dot-CreateStdAssay
