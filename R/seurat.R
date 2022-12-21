@@ -4924,8 +4924,8 @@ setMethod(
   f = "show",
   signature = "Seurat",
   definition = function(object) {
-    object <- UpdateSlots(object = object)
-    assays <- FilterObjects(object = object, classes.keep = c('Assay', 'StdAssay'))
+    #object <- UpdateSlots(object = object)
+    assays <- .FilterObjects(object = object, classes.keep = c('Assay', 'StdAssay'))
     nfeatures <- sum(vapply(
       X = assays,
       FUN = function(x) {
@@ -4951,7 +4951,7 @@ setMethod(
         '(',
         nrow(x = object),
         ' features, ',
-        length(x = suppressWarnings(expr = VariableFeatures(object = object))),
+        #length(x = suppressWarnings(expr = VariableFeatures(object = object))),
         ' variable features)'
       )
     )
@@ -4977,7 +4977,7 @@ setMethod(
         strwrap(x = paste(other.assays, collapse = ', '))
       )
     }
-    reductions <- FilterObjects(object = object, classes.keep = 'DimReduc')
+    reductions <- .FilterObjects(object = object, classes.keep = 'DimReduc')
     if (length(x = reductions) > 0) {
       cat(
         '\n',
@@ -4988,7 +4988,7 @@ setMethod(
         strwrap(x = paste(reductions, collapse = ', '))
       )
     }
-    fovs <- FilterObjects(object = object, classes.keep = 'FOV')
+    fovs <- .FilterObjects(object = object, classes.keep = 'FOV')
     if (length(x = fovs)) {
       cat(
         '\n',
@@ -4999,7 +4999,7 @@ setMethod(
         strwrap(x = paste(fovs, sep = ', '))
       )
     }
-    images <- FilterObjects(object = object, classes.keep = 'SpatialImage')
+    images <- .FilterObjects(object = object, classes.keep = 'SpatialImage')
     images <- setdiff(x = images, y = fovs)
     if (length(x = images)) {
       cat(
