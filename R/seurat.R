@@ -4196,8 +4196,7 @@ setMethod(
     # TODO: enable reordering cells in DimReducs
     if (is.unsorted(x = cell.order)) {
       ordered.cells <- intersect(colnames(x = x), Cells(x = value))
-      slot(object = value, name = "cell.embeddings") <- Embeddings(object = value)[ordered.cells,]
-      validObject(object = value)
+      slot(object = value, name = 'cell.embeddings') <- Embeddings(object = value)[ordered.cells,]
     }
     # Check keys
     Key(object = value) <- .CheckKey(
@@ -4205,11 +4204,47 @@ setMethod(
       existing = Key(object = x),
       name = i
     )
+    # Check loadings and embeddings column name
+    emb.names <- paste0(sapply(
+      X = strsplit(
+        x = colnames(Embeddings(object = value)),
+        split = '_'),
+      FUN = '[',
+      1)[1],
+      '_')
+   if (emb.names != Key(object = value)){
+ colnames(
+   slot(object = value, name = 'cell.embeddings')
+   ) <- gsub(pattern = emb.names,
+             replacement = Key(object = value),
+             colnames(Embeddings(object = value))
+             )
+   }
+    if (!is.null(colnames(Loadings(object = value)))) {
+      loadings.names <- paste0(sapply(
+        X = strsplit(
+          x = colnames(Loadings(object = value)),
+          split = '_'),
+        FUN = '[',
+        1)[1],
+        '_')
+      if (loadings.names != Key(object = value)) {
+        colnames(
+          slot(object = value, name = 'feature.loadings')
+        ) <- gsub(pattern = loadings.names,
+                  replacement = Key(object = value),
+                  colnames(Loadings(object = value))
+        )
+      }
+    }
+
     slot(object = x, name = 'reductions')[[i]] <- value
     slot(object = x, name = 'reductions') <- Filter(
       f = Negate(f = is.null),
       x = slot(object = x, name = 'reductions')
     )
+    # check column names
+
     # Validate and return
     validObject(object = x)
     return(x)

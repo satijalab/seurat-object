@@ -262,7 +262,7 @@ CreateAssayObject <- function(
     return(NULL)
   }
   ldat <- LayerData(object = object, layer = layer)
-  if (IsMatrixEmpty(x = ldat)) {
+  if (IsMatrixEmpty(x = ldat) || !inherits(x = ldat, what = 'Matrix')) {
     return(NULL)
   }
   cells_stat <- .CalcN.default(object = ldat)
