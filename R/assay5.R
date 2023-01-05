@@ -821,7 +821,7 @@ FetchData.StdAssay <- function(
       layer = lyr,
       cells = lcells,
       features = lvars
-    )))[, lvars]
+    )))[lcells, lvars]
   }
   # Clean out missing cells from the expression matrix
   if (isTRUE(x = clean)) {
