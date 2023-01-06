@@ -1547,6 +1547,31 @@ setMethod(
   }
 )
 
+#' @rdname sub-.Assay
+setMethod(
+  f = '[<-',
+  signature = c(
+    x = 'Assay',
+    i = 'missing',
+    j = 'missing',
+    value = 'data.frame'
+  ),
+  definition = function(x, ..., value) {
+    # Allow removing all meta data
+    if (IsMatrixEmpty(x = value)) {
+      x[names(x = x[])] <- NULL
+      return(x)
+    }
+    if (is.null(names(x = value))) {
+      warning('colnames of input cannot be NULL')
+    } else {
+      # If no `i` provided, use the column names from value
+      x[names(x = value)] <- value
+    }
+    return(x)
+  }
+)
+
 #' @rdname sub-sub-.Assay
 #'
 #' @examples
