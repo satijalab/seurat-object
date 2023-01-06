@@ -2625,11 +2625,11 @@ setMethod(
         value <- value[names.intersect]
       df <- EmptyDF(n = nrow(x = x))
       rownames(x = df) <- Features(x = x, layer = NA)
-      df[[i]] <- if (i %in% names(x = x[])) {
-        x[i]
-      } else {
-        NA
-      }
+      # df[[i]] <- if (i %in% names(x = x[])) {
+      #   x[i]
+      # } else {
+      #   NA
+      # }
       df[names(x = value), i] <- value
       slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     }
