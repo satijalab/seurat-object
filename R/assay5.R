@@ -2605,9 +2605,13 @@ setMethod(
     } else {
       # Add a single column of metadata
       if (is.null(x = names(x = value))) {
-        value <- rep_len(x = value, length.out = nrow(x = x))
-        names(x = value) <- Features(x = x, layer = NA)
-      } else {
+        if (length(x = unique(x = value)) == 1) {
+          value <- rep_len(x = value, length.out = nrow(x = x))
+          names(x = value) <- Features(x = x, layer = NA)
+        } else {
+          names(x = value) <- value
+        }
+      } 
         names.intersect <- intersect(
           x = names(x = value),
           y = Features(x = x, layer = NA)
@@ -2619,7 +2623,6 @@ setMethod(
           )
         }
         value <- value[names.intersect]
-      }
       df <- EmptyDF(n = nrow(x = x))
       rownames(x = df) <- Features(x = x, layer = NA)
       df[[i]] <- if (i %in% names(x = x[])) {
