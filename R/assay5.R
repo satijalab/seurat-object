@@ -1462,53 +1462,62 @@ VariableFeatures.StdAssay <- function(
   nfeatures = Inf,
   ...
 ) {
-  msg <- 'No variable features found'
-  layer.orig <- layer
-  layer <- Layers(object = object, search = layer)
-  vf <- sapply(
-    X = layer,
-    FUN = function(lyr) {
-      hvf.info <- HVFInfo(
-        object = object,
-        method = method,
-        layer = lyr,
-        status = TRUE,
-        strip = TRUE
+  if ('active.var' %in% colnames(object[])) {
+    active.var <- as.vector(object['active.var', drop = TRUE])
+    active.var <- active.var[!is.na(active.var)]
+    if (isTRUE(x = simplify) &
+        (is.infinite(nfeatures) || length(active.var) == nfeatures)
+        ) {
+          return(active.var)
+        }
+  } 
+      msg <- 'No variable features found'
+      layer.orig <- layer
+      layer <- Layers(object = object, search = layer)
+      vf <- sapply(
+        X = layer,
+        FUN = function(lyr) {
+          hvf.info <- HVFInfo(
+            object = object,
+            method = method,
+            layer = lyr,
+            status = TRUE,
+            strip = TRUE
+          )
+          if (is.null(x = hvf.info)) {
+            return(NULL)
+          } else if (!'variable' %in% names(x = hvf.info)) {
+            return(NA)
+          }
+          vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
+          if ('rank' %in% names(x = hvf.info)) {
+            vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
+          } else {
+            warn(message = paste0(
+              "No variable feature rank found for ",
+              sQuote(x = lyr),
+              ", returning features in assay order"
+            ))
+          }
+        },
+        simplify = FALSE,
+        USE.NAMES = TRUE
       )
-      if (is.null(x = hvf.info)) {
+      if (is.null(x = unlist(x = vf))) {
+        warn(message = msg)
         return(NULL)
-      } else if (!'variable' %in% names(x = hvf.info)) {
-        return(NA)
+      } else if (all(is.na(x = unlist(x = vf)))) {
+        abort(message = msg)
       }
-      vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
-      if ('rank' %in% names(x = hvf.info)) {
-        vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-      } else {
-        warn(message = paste0(
-          "No variable feature rank found for ",
-          sQuote(x = lyr),
-          ", returning features in assay order"
-        ))
+      if (isTRUE(x = simplify)) {
+        vf <- .SelectFeatures(
+          object = vf,
+          all.features = intersect(
+            x = slot(object = object, name = 'features')[, layer]
+          ),
+          nfeatures = nfeatures
+        )
       }
-    },
-    simplify = FALSE,
-    USE.NAMES = TRUE
-  )
-  if (is.null(x = unlist(x = vf))) {
-    warn(message = msg)
-    return(NULL)
-  } else if (all(is.na(x = unlist(x = vf)))) {
-    abort(message = msg)
-  }
-  if (isTRUE(x = simplify)) {
-    vf <- .SelectFeatures(
-      object = vf,
-      all.features = intersect(
-        x = slot(object = object, name = 'features')[, layer]
-      ),
-      nfeatures = nfeatures
-    )
-  }
   return(vf)
   # hvf.info <- HVFInfo(
   #   object = object,
@@ -1558,12 +1567,13 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   if (!length(x = value)) {
     stop("None of the features specified are present in this assay", call. = FALSE)
   }
-  layer <- Layers(object = object, search = layer)
-  df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
-  for (lyr in layer) {
-    names(x = df) <- paste('vf', method, lyr, c('variable', 'rank'), sep = '_')
-    object[] <- df
-  }
+  object['active.var'] <- value
+  # layer <- Layers(object = object, search = layer)
+  # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
+  # for (lyr in layer) {
+  #   names(x = df) <- paste('vf', method, lyr, c('variable', 'rank'), sep = '_')
+  #   object[] <- df
+  # }
   return(object)
 }
 

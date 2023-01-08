@@ -2489,7 +2489,6 @@ VariableFeatures.Seurat <- function(
   ...
 ) {
   CheckDots(...)
-  object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
   return(VariableFeatures(object = object[[assay]], selection.method = selection.method, ...))
 }
@@ -4986,7 +4985,7 @@ setMethod(
         '(',
         nrow(x = object),
         ' features, ',
-        #length(x = suppressWarnings(expr = VariableFeatures(object = object))),
+        length(x = suppressWarnings(expr = VariableFeatures(object = object))),
         ' variable features)'
       )
     )
