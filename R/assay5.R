@@ -1467,7 +1467,7 @@ VariableFeatures.StdAssay <- function(
     active.var <- active.var[!is.na(active.var)]
     if (isTRUE(x = simplify) & 
         is.null(x = layer) &
-        (is.infinite(x = nfeatures) || length(x = active.var) == nfeatures)
+        (is.infinite(x = nfeatures) || is.null(x = nfeatures)|| length(x = active.var) == nfeatures)
         ) {
           return(active.var)
         }

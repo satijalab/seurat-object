@@ -2486,11 +2486,20 @@ VariableFeatures.Seurat <- function(
   object,
   selection.method = NULL,
   assay = NULL,
+  nfeatures = NULL,
+  layers = NULL,
+  simplify = TRUE,
   ...
 ) {
   CheckDots(...)
   assay <- assay %||% DefaultAssay(object = object)
-  return(VariableFeatures(object = object[[assay]], selection.method = selection.method, ...))
+  return(VariableFeatures(
+    object = object[[assay]],
+    selection.method = selection.method,
+    nfeatures = nfeatures,
+    layers = layers,
+    simplify = simplify,
+    ...))
 }
 
 #' @rdname VariableFeatures
