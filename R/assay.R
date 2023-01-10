@@ -1287,6 +1287,12 @@ merge.Assay <- function(
 ) {
   CheckDots(...)
   assays <- c(x, y)
+  if (any(sapply(
+    X = assays,
+    FUN = function(assay.i) inherits(x = assay.i, what = "Assay5")
+  ))) {
+    return(merge(x = as(x, "Assay5"), y, ...))
+  }
   if (!is.null(x = add.cell.ids)) {
     for (i in seq_along(along.with = assays)) {
       assays[[i]] <- RenameCells(
