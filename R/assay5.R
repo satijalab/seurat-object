@@ -1462,14 +1462,14 @@ VariableFeatures.StdAssay <- function(
   nfeatures = Inf,
   ...
 ) {
-  if ('active.var' %in% colnames(object[])) {
-    active.var <- as.vector(object['active.var', drop = TRUE])
-    active.var <- active.var[!is.na(active.var)]
+  if ('var.features' %in% colnames(object[])) {
+    var.features <- as.vector(object['var.features', drop = TRUE])
+    var.features <- var.features[!is.na(var.features)]
     if (isTRUE(x = simplify) & 
         is.null(x = layer) &
-        (is.infinite(x = nfeatures) || is.null(x = nfeatures)|| length(x = active.var) == nfeatures)
+        (is.infinite(x = nfeatures) || is.null(x = nfeatures)|| length(x = var.features) == nfeatures)
         ) {
-          return(active.var)
+          return(var.features)
         }
   } 
       msg <- 'No variable features found'
@@ -1568,7 +1568,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   if (!length(x = value)) {
     stop("None of the features specified are present in this assay", call. = FALSE)
   }
-  object['active.var'] <- value
+  object['var.features'] <- value
   # layer <- Layers(object = object, search = layer)
   # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
   # for (lyr in layer) {
