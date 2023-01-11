@@ -2808,7 +2808,7 @@ Version.Seurat <- function(object, ...) {
 #' pbmc_small[["RNA"]]
 #' pbmc_small[["pca"]]
 #'
-"[[.Seurat" <- function(x, i = missing_arg(), ..., drop = FALSE, na.rm = TRUE) {
+"[[.Seurat" <- function(x, i = missing_arg(), ..., drop = FALSE, na.rm = FALSE) {
   md <- slot(object = x, name = 'meta.data')
   if (is_missing(x = i)) {
     return(md)
