@@ -317,6 +317,8 @@ FetchData.FOV <- function(
   vars.orig <- vars
   if (is.numeric(x = cells)) {
     cells <- Cells(x = object)[cells]
+  } else if (is.null(cells)) {
+    cells <- Cells(x = object)
   }
   # Find keyed molecules
   object.keys <- Keys(object = object)
@@ -1050,12 +1052,6 @@ setValidity(
               valid <- c(
                 valid,
                 "All segmentation boundaries must have cells"
-              )
-              break
-            } else if (is.unsorted(x = matched.cells)) {
-              valid <- c(
-                valid,
-                "All segmentation boundaries must be ordered"
               )
               break
             }
