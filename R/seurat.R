@@ -4318,11 +4318,12 @@ setMethod(
     }
     df <- EmptyDF(n = ncol(x = x))
     row.names(x = df) <- colnames(x = x)
-    df[[i]] <- if (i %in% names(x = x[[]])) {
-      x[[i, na.rm = FALSE]]
-    } else {
-      factor(x = NA, levels = levels(x = value))
-    }
+    df[[i]] <- factor(x = NA, levels = levels(x = value))
+    # df[[i]] <- if (i %in% names(x = x[[]])) {
+    #   x[[i, na.rm = FALSE]]
+    # } else {
+    #   factor(x = NA, levels = levels(x = value))
+    # }
     df[names(x = value), i] <- value
     slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     validObject(object = x)
