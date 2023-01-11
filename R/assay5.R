@@ -1462,16 +1462,17 @@ VariableFeatures.StdAssay <- function(
   nfeatures = Inf,
   ...
 ) {
+  nfeatures <- nfeatures %||% Inf
   if ('var.features' %in% colnames(object[])) {
     var.features <- as.vector(object['var.features', drop = TRUE])
     var.features <- var.features[!is.na(var.features)]
-    if (isTRUE(x = simplify) & 
+    if (isTRUE(x = simplify) &
         is.null(x = layer) &
-        (is.infinite(x = nfeatures) || is.null(x = nfeatures)|| length(x = var.features) == nfeatures)
+        (is.infinite(x = nfeatures) || length(x = var.features) == nfeatures)
         ) {
           return(var.features)
         }
-  } 
+  }
       msg <- 'No variable features found'
       layer.orig <- layer
       layer <- Layers(object = object, search = layer)
@@ -2622,7 +2623,7 @@ setMethod(
         } else {
           names(x = value) <- value
         }
-      } 
+      }
         names.intersect <- intersect(
           x = names(x = value),
           y = Features(x = x, layer = NA)
