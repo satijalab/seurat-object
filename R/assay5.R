@@ -1111,9 +1111,32 @@ LayerData.StdAssay <- function(
   ...
 ) {
   # Figure out the layer we're pulling
-  layer <- layer[1L] %||% DefaultLayer(object = object)[1L]
+  layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   layer <- Layers(object = object, search = layer)[1L]
   # layer <- match.arg(arg = layer, choices = Layers(object = object))
+  if (is.na(layer)) {
+    msg <- paste("Layer", sQuote(x = layer_name), "is empty")
+    opt <- getOption(x = "Seurat.object.assay.v3.missing_layer",
+                     default = Seurat.options$Seurat.object.assay.v3.missing_layer)
+    opt <- tryCatch(expr = arg_match0(
+      arg = opt,
+      values = c("matrix","null", "error")),
+      error = function(...) {
+        return(Seurat.options$Seurat.object.assay.v3.missing_layer)
+        }
+      )
+    if (opt == "error") {
+      abort(message = msg)
+    }
+    warn(message = msg)
+    return(switch(
+      EXPR = opt,
+      matrix = switch(
+        EXPR = layer_name,
+        scale.data = new(Class = "matrix"), new(Class = "dgCMatrix")
+        ),
+      NULL))
+  }
   # Allow cell/feature subsets
   dnames <- list(
     Features(x = object, layer = layer),
@@ -1375,7 +1398,9 @@ Layers.StdAssay <- function(object, search = NA, ...) {
       }
     )))
     if (!length(x = layers)) {
-      abort(message = "No layers found matching search pattern provided")
+      warning(message = "No layers found matching search pattern provided",
+              call. = FALSE,
+              immediate. = TRUE)
     }
   }
   return(layers)
