@@ -2486,12 +2486,20 @@ VariableFeatures.Seurat <- function(
   object,
   selection.method = NULL,
   assay = NULL,
+  nfeatures = NULL,
+  layers = NULL,
+  simplify = TRUE,
   ...
 ) {
   CheckDots(...)
-  object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
-  return(VariableFeatures(object = object[[assay]], selection.method = selection.method, ...))
+  return(VariableFeatures(
+    object = object[[assay]],
+    selection.method = selection.method,
+    nfeatures = nfeatures,
+    layers = layers,
+    simplify = simplify,
+    ...))
 }
 
 #' @rdname VariableFeatures
@@ -2800,7 +2808,7 @@ Version.Seurat <- function(object, ...) {
 #' pbmc_small[["RNA"]]
 #' pbmc_small[["pca"]]
 #'
-"[[.Seurat" <- function(x, i = missing_arg(), ..., drop = FALSE, na.rm = TRUE) {
+"[[.Seurat" <- function(x, i = missing_arg(), ..., drop = FALSE, na.rm = FALSE) {
   md <- slot(object = x, name = 'meta.data')
   if (is_missing(x = i)) {
     return(md)
@@ -4310,11 +4318,12 @@ setMethod(
     }
     df <- EmptyDF(n = ncol(x = x))
     row.names(x = df) <- colnames(x = x)
-    df[[i]] <- if (i %in% names(x = x[[]])) {
-      x[[i, na.rm = FALSE]]
-    } else {
-      factor(x = NA, levels = levels(x = value))
-    }
+    df[[i]] <- factor(x = NA, levels = levels(x = value))
+    # df[[i]] <- if (i %in% names(x = x[[]])) {
+    #   x[[i, na.rm = FALSE]]
+    # } else {
+    #   factor(x = NA, levels = levels(x = value))
+    # }
     df[names(x = value), i] <- value
     slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     validObject(object = x)
@@ -4986,7 +4995,7 @@ setMethod(
         '(',
         nrow(x = object),
         ' features, ',
-        #length(x = suppressWarnings(expr = VariableFeatures(object = object))),
+        length(x = suppressWarnings(expr = VariableFeatures(object = object))),
         ' variable features)'
       )
     )

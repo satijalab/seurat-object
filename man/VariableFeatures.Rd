@@ -40,7 +40,15 @@ SpatiallyVariableFeatures(object, selection.method, ...)
   ...
 )
 
-\method{VariableFeatures}{Seurat}(object, selection.method = NULL, assay = NULL, ...)
+\method{VariableFeatures}{Seurat}(
+  object,
+  selection.method = NULL,
+  assay = NULL,
+  nfeatures = NULL,
+  layers = NULL,
+  simplify = TRUE,
+  ...
+)
 
 \method{VariableFeatures}{Seurat}(object, assay = NULL, ...) <- value
 

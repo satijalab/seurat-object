@@ -5,6 +5,7 @@
 \alias{[<-,Assay,ANY,ANY,ANY-method}
 \alias{head.Assay}
 \alias{tail.Assay}
+\alias{[<-,Assay,missing,missing,data.frame-method}
 \title{Feature-Level Meta Data}
 \usage{
 \method{[}{Assay}(x, i, ..., drop = FALSE)
@@ -14,6 +15,8 @@
 \method{head}{Assay}(x, n = 10L, ...)
 
 \method{tail}{Assay}(x, n = 10L, ...)
+
+\S4method{[}{Assay,missing,missing,data.frame}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{An \code{\link{Assay}} object}
