@@ -1111,9 +1111,32 @@ LayerData.StdAssay <- function(
   ...
 ) {
   # Figure out the layer we're pulling
-  layer <- layer[1L] %||% DefaultLayer(object = object)[1L]
+  layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   layer <- Layers(object = object, search = layer)[1L]
   # layer <- match.arg(arg = layer, choices = Layers(object = object))
+  if (is.na(layer)) {
+    msg <- paste("Layer", sQuote(x = layer_name), "is empty")
+    opt <- getOption(x = "Seurat.object.assay.v3.missing_layer",
+                     default = Seurat.options$Seurat.object.assay.v3.missing_layer)
+    opt <- tryCatch(expr = arg_match0(
+      arg = opt,
+      values = c("matrix","null", "error")),
+      error = function(...) {
+        return(Seurat.options$Seurat.object.assay.v3.missing_layer)
+        }
+      )
+    if (opt == "error") {
+      abort(message = msg)
+    }
+    warn(message = msg)
+    return(switch(
+      EXPR = opt,
+      matrix = switch(
+        EXPR = layer_name,
+        scale.data = new(Class = "matrix"), new(Class = "dgCMatrix")
+        ),
+      NULL))
+  }
   # Allow cell/feature subsets
   dnames <- list(
     Features(x = object, layer = layer),
@@ -1375,7 +1398,9 @@ Layers.StdAssay <- function(object, search = NA, ...) {
       }
     )))
     if (!length(x = layers)) {
-      abort(message = "No layers found matching search pattern provided")
+      warning(message = "No layers found matching search pattern provided",
+              call. = FALSE,
+              immediate. = TRUE)
     }
   }
   return(layers)
@@ -1462,53 +1487,64 @@ VariableFeatures.StdAssay <- function(
   nfeatures = Inf,
   ...
 ) {
-  msg <- 'No variable features found'
-  layer.orig <- layer
-  layer <- Layers(object = object, search = layer)
-  vf <- sapply(
-    X = layer,
-    FUN = function(lyr) {
-      hvf.info <- HVFInfo(
-        object = object,
-        method = method,
-        layer = lyr,
-        status = TRUE,
-        strip = TRUE
+  nfeatures <- nfeatures %||% Inf
+  if ('var.features' %in% colnames(object[])) {
+    var.features <- as.vector(object['var.features', drop = TRUE])
+    var.features <- var.features[!is.na(var.features)]
+    if (isTRUE(x = simplify) &
+        is.null(x = layer) &
+        (is.infinite(x = nfeatures) || length(x = var.features) == nfeatures)
+        ) {
+          return(var.features)
+        }
+  }
+      msg <- 'No variable features found'
+      layer.orig <- layer
+      layer <- Layers(object = object, search = layer)
+      vf <- sapply(
+        X = layer,
+        FUN = function(lyr) {
+          hvf.info <- HVFInfo(
+            object = object,
+            method = method,
+            layer = lyr,
+            status = TRUE,
+            strip = TRUE
+          )
+          if (is.null(x = hvf.info)) {
+            return(NULL)
+          } else if (!'variable' %in% names(x = hvf.info)) {
+            return(NA)
+          }
+          vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
+          if ('rank' %in% names(x = hvf.info)) {
+            vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
+          } else {
+            warn(message = paste0(
+              "No variable feature rank found for ",
+              sQuote(x = lyr),
+              ", returning features in assay order"
+            ))
+          }
+        },
+        simplify = FALSE,
+        USE.NAMES = TRUE
       )
-      if (is.null(x = hvf.info)) {
+      if (is.null(x = unlist(x = vf))) {
+        warn(message = msg)
         return(NULL)
-      } else if (!'variable' %in% names(x = hvf.info)) {
-        return(NA)
+      } else if (all(is.na(x = unlist(x = vf)))) {
+        abort(message = msg)
       }
-      vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
-      if ('rank' %in% names(x = hvf.info)) {
-        vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-      } else {
-        warn(message = paste0(
-          "No variable feature rank found for ",
-          sQuote(x = lyr),
-          ", returning features in assay order"
-        ))
+      if (isTRUE(x = simplify)) {
+        vf <- .SelectFeatures(
+          object = vf,
+          all.features = intersect(
+            x = slot(object = object, name = 'features')[, layer]
+          ),
+          nfeatures = nfeatures
+        )
       }
-    },
-    simplify = FALSE,
-    USE.NAMES = TRUE
-  )
-  if (is.null(x = unlist(x = vf))) {
-    warn(message = msg)
-    return(NULL)
-  } else if (all(is.na(x = unlist(x = vf)))) {
-    abort(message = msg)
-  }
-  if (isTRUE(x = simplify)) {
-    vf <- .SelectFeatures(
-      object = vf,
-      all.features = intersect(
-        x = slot(object = object, name = 'features')[, layer]
-      ),
-      nfeatures = nfeatures
-    )
-  }
   return(vf)
   # hvf.info <- HVFInfo(
   #   object = object,
@@ -1558,12 +1594,13 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   if (!length(x = value)) {
     stop("None of the features specified are present in this assay", call. = FALSE)
   }
-  layer <- Layers(object = object, search = layer)
-  df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
-  for (lyr in layer) {
-    names(x = df) <- paste('vf', method, lyr, c('variable', 'rank'), sep = '_')
-    object[] <- df
-  }
+  object['var.features'] <- value
+  # layer <- Layers(object = object, search = layer)
+  # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
+  # for (lyr in layer) {
+  #   names(x = df) <- paste('vf', method, lyr, c('variable', 'rank'), sep = '_')
+  #   object[] <- df
+  # }
   return(object)
 }
 
@@ -2605,9 +2642,13 @@ setMethod(
     } else {
       # Add a single column of metadata
       if (is.null(x = names(x = value))) {
-        value <- rep_len(x = value, length.out = nrow(x = x))
-        names(x = value) <- Features(x = x, layer = NA)
-      } else {
+        if (length(x = unique(x = value)) == 1) {
+          value <- rep_len(x = value, length.out = nrow(x = x))
+          names(x = value) <- Features(x = x, layer = NA)
+        } else {
+          names(x = value) <- value
+        }
+      }
         names.intersect <- intersect(
           x = names(x = value),
           y = Features(x = x, layer = NA)
@@ -2619,14 +2660,13 @@ setMethod(
           )
         }
         value <- value[names.intersect]
-      }
       df <- EmptyDF(n = nrow(x = x))
       rownames(x = df) <- Features(x = x, layer = NA)
-      df[[i]] <- if (i %in% names(x = x[])) {
-        x[i]
-      } else {
-        NA
-      }
+      # df[[i]] <- if (i %in% names(x = x[])) {
+      #   x[i]
+      # } else {
+      #   NA
+      # }
       df[names(x = value), i] <- value
       slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     }
