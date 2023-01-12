@@ -4651,8 +4651,7 @@ setMethod(
       ordered = TRUE
     )
     if (is.unsorted(x = cell.order)) {
-      abort(message = "Cannot add images with unordered cells")
-      validObject(object = value)
+      warn(message = "Adding image with unordered cells")
     }
     # Check assay
     if (!DefaultAssay(object = value) %in% Assays(object = x)) {
@@ -5210,9 +5209,10 @@ setValidity(
         icells <- Cells(x = object[[img]])
         if (!all(icells %in% ocells)) {
           valid <- c(valid, "All cells in images must be present in the Seurat object")
-        } else if (is.unsorted(x = MatchCells(new = icells, orig = ocells, ordered = TRUE))) {
-          valid <- c(valid, "All cells in images must be in the same order as the Seurat object")
         }
+        # else if (is.unsorted(x = MatchCells(new = icells, orig = ocells, ordered = TRUE))) {
+        #   valid <- c(valid, "All cells in images must be in the same order as the Seurat object")
+        # }
       }
     }
     # TODO: Check project
