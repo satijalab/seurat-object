@@ -1030,6 +1030,7 @@ JoinLayers.StdAssay <- function(
   layers = NULL,
   new = NULL,
   default = TRUE,
+  remove = TRUE,
   nfeatures = Inf,
   ...
 ) {
@@ -1067,8 +1068,10 @@ JoinLayers.StdAssay <- function(
     DefaultLayer(object = object) <- new
   }
   # Remove the old layers
-  for (lyr in layers) {
-    object[[lyr]] <- NULL
+  if (isTRUE(x = remove)) {
+    for (lyr in layers) {
+      object[[lyr]] <- NULL
+    }
   }
   return(object)
 }
