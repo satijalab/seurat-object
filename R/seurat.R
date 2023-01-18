@@ -232,7 +232,7 @@ CellsByIdentities <- function(
     USE.NAMES = TRUE
   )
   if (any(is.na(x = Idents(object = object)[cells]))) {
-    cells.idents["NA"] <- names(x = which(x = is.na(x = Idents(object = object)[cells])))
+    cells.idents[["NA"]] <- names(x = which(x = is.na(x = Idents(object = object)[cells])))
   }
   return(cells.idents)
 }
