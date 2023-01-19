@@ -1247,7 +1247,8 @@ LayerData.Assay5 <- LayerData.StdAssay
       warning(msg, call. = FALSE, immediate. = TRUE)
     }
     slot(object = object, name = 'layers')[[layer]] <- NULL
-    if (slot(object = object, name = 'default') > length(x = Layers(object = object))) {
+    if (slot(object = object, name = 'default') > length(x = Layers(object = object)) || 
+        !length(x = slot(object = object, name = 'default'))) {
       slot(object = object, name = 'default') <- length(x = Layers(object = object))
     }
     maps <- c(
