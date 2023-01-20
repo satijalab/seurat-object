@@ -744,6 +744,7 @@ Misc.Assay <- .Misc
 #'
 RenameCells.Assay <- function(object, new.names = NULL, ...) {
   CheckDots(...)
+  names(new.names) <- NULL
   for (data.slot in c("counts", "data", "scale.data")) {
     old.data <- GetAssayData(object = object, slot = data.slot)
     if (ncol(x = old.data) <= 1) {
