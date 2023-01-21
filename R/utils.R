@@ -1956,11 +1956,13 @@ CheckDuplicateCellNames <- function(object.list, verbose = TRUE, stop = FALSE) {
       )
     }
     for (i in seq_along(along.with = object.list)) {
-      colnames(x = object.list[[i]]) <- paste(
+      object.list[[i]] <- RenameCells(
+        object = object.list[[i]],
+        new.names = paste(
         colnames(x = object.list[[i]]),
         i,
         sep = '_'
-      )
+      ))
     }
   }
   return(object.list)
