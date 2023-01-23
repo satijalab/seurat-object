@@ -744,6 +744,7 @@ Misc.Assay <- .Misc
 #'
 RenameCells.Assay <- function(object, new.names = NULL, ...) {
   CheckDots(...)
+  names(new.names) <- NULL
   for (data.slot in c("counts", "data", "scale.data")) {
     old.data <- GetAssayData(object = object, slot = data.slot)
     if (ncol(x = old.data) <= 1) {
@@ -1445,6 +1446,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
     warn(message = "NAs passed in cells vector, removing NAs")
     cells <- na.omit(object = cells)
   }
+  cells <- intersect(x = cells, y = colnames(x))
   features <- features %||% rownames(x = x)
   if (all(is.na(x = features))) {
     features <- rownames(x = x)

@@ -1247,7 +1247,8 @@ LayerData.Assay5 <- LayerData.StdAssay
       warning(msg, call. = FALSE, immediate. = TRUE)
     }
     slot(object = object, name = 'layers')[[layer]] <- NULL
-    if (slot(object = object, name = 'default') > length(x = Layers(object = object))) {
+    if (slot(object = object, name = 'default') > length(x = Layers(object = object)) ||
+        !length(x = slot(object = object, name = 'default'))) {
       slot(object = object, name = 'default') <- length(x = Layers(object = object))
     }
     maps <- c(
@@ -1492,7 +1493,7 @@ VariableFeatures.StdAssay <- function(
     var.features <- as.vector(object['var.features', drop = TRUE])
     var.features <- var.features[!is.na(var.features)]
     if (isTRUE(x = simplify) &
-        is.null(x = layer) &
+        (is.null(x = layer) || is.na(x = layer))&
         (is.infinite(x = nfeatures) || length(x = var.features) == nfeatures)
         ) {
           return(var.features)
@@ -2111,6 +2112,7 @@ split.StdAssay <- function(
   if (length(x = f) != length(x = cells)) {
     abort(message = "Not enough splits for this assay")
   }
+  f <- factor(x = f, levels = unique(as.character(f)))
   splits <- split(x = cells, f = f, drop = drop)
   names(x = splits) <- .MakeNames(x = names(x = splits))
   return(switch(

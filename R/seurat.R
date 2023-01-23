@@ -3439,7 +3439,10 @@ subset.Seurat <- function(
     }
     abort(message = "No cells found")
   }
-  if (all(cells %in% Cells(x = x)) && length(x = cells) == length(x = colnames(x = x)) && is.null(x = features)) {
+  if (all(cells %in% Cells(x = x)) &&
+      length(x = cells) == length(x = colnames(x = x)) &&
+      is.null(x = features)
+      ) {
     return(x)
   }
   op <- options(Seurat.object.validate = FALSE)
@@ -3454,25 +3457,34 @@ subset.Seurat <- function(
   Idents(object = x, drop = TRUE) <- Idents(object = x)[cells]
   # Filter Assay objects
   for (assay in Assays(object = x)) {
-    assay.features <- features %||% rownames(x = x[[assay]])
-    slot(object = x, name = 'assays')[[assay]] <- tryCatch(
-      # because subset is also an argument, we need to explictly use the base::subset function
-      expr = suppressWarnings(
-        expr = base::subset(
-          x = x[[assay]],
-          cells = cells,
-          features = assay.features
-        ),
-        classes = 'validationWarning'
-      ),
-      error = function(e) {
-        if (e$message == "Cannot find features provided") {
-          return(NULL)
-        } else {
-          stop(e)
-        }
+    if (length(x = intersect(colnames(x = x[[assay]]), cells)) == 0) {
+      message(assay, " assay doesn't leave any cells, so it is removed")
+      if (DefaultAssay(x) == assay) {
+        stop('No cells left in the default assay, please change the default assay')
       }
-    )
+      slot(object = x, name = 'assays')[[assay]] <- NULL
+    } else {
+      assay.features <- features %||% rownames(x = x[[assay]])
+      slot(object = x, name = 'assays')[[assay]] <- tryCatch(
+        # because subset is also an argument, we need to explictly use the base::subset function
+        expr = suppressWarnings(
+          expr = base::subset(
+            x = x[[assay]],
+            cells = cells,
+            features = assay.features
+          ),
+          classes = 'validationWarning'
+        ),
+        error = function(e) {
+          if (e$message == "Cannot find features provided") {
+            return(NULL)
+          } else {
+            stop(e)
+          }
+        }
+      )
+    }
+
   }
   slot(object = x, name = 'assays') <- Filter(
     f = Negate(f = is.null),
