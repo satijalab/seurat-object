@@ -884,18 +884,18 @@ SVFInfo.Assay <- function(
     EXPR = selection.method,
     'markvariogram' = grep(
       pattern = "r.metric",
-      x = colnames(x = object[[]]),
+      x = colnames(x = object[]),
       value = TRUE
     ),
     'moransi' = grep(
       pattern = 'moransi',
-      x = colnames(x = object[[]]),
+      x = colnames(x = object[]),
       value = TRUE
     ),
     stop("Unknown method: '", selection.method, "'", call. = FALSE)
   )
   tryCatch(
-    expr = svf.info <- object[[vars]],
+    expr = svf.info <- object[vars],
     error = function(e) {
       stop(
         "Unable to find highly variable feature information for method '",
@@ -907,8 +907,8 @@ SVFInfo.Assay <- function(
   )
   colnames(x = svf.info) <- vars
   if (status) {
-    svf.info$variable <- object[[paste0(selection.method, '.spatially.variable')]]
-    svf.info$rank <- object[[paste0(selection.method, '.spatially.variable.rank')]]
+    svf.info$variable <- object[paste0(selection.method, '.spatially.variable')]
+    svf.info$rank <- object[paste0(selection.method, '.spatially.variable.rank')]
   }
   return(svf.info)
 }
