@@ -505,6 +505,8 @@ RenameAssays <- function(object, ...) {
       return(list(...))
     }
   )
+  op <- options(Seurat.object.assay.calcn = FALSE)
+  on.exit(expr = options(op), add = TRUE)
   old.assays <- names(x = assay.pairs)
   # Handle missing assays
   missing.assays <- setdiff(x = old.assays, y = Assays(object = object))
@@ -554,6 +556,15 @@ RenameAssays <- function(object, ...) {
       if (DefaultAssay(object = object[[i]]) == old) {
         DefaultAssay(object = object[[i]]) <- new
       }
+    }
+    # Add new metadata if it exists 
+    if (isTRUE(paste0("nCount_", old) %in% colnames(object@meta.data))) {
+      object[[paste0("nCount_", new)]] <- object[[paste0("nCount_", 
+                                                         old)]]
+    }
+    if (isTRUE(paste0("nFeature_", old) %in% colnames(object@meta.data))) {
+      object[[paste0("nFeature_", new)]] <- object[[paste0("nFeature_", 
+                                                           old)]]
     }
     object[[old]] <- NULL
   }
