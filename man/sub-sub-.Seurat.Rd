@@ -6,7 +6,7 @@
 \alias{tail.Seurat}
 \title{Subobjects and Cell-Level Meta Data}
 \usage{
-\method{[[}{Seurat}(x, i = missing_arg(), ..., drop = FALSE, na.rm = TRUE)
+\method{[[}{Seurat}(x, i = missing_arg(), ..., drop = FALSE, na.rm = FALSE)
 
 \method{head}{Seurat}(x, n = 10L, ...)
 

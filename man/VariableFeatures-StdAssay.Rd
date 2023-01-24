@@ -12,7 +12,7 @@
 \method{VariableFeatures}{StdAssay}(
   object,
   method = NULL,
-  layer = NULL,
+  layer = NA,
   simplify = TRUE,
   nfeatures = Inf,
   ...

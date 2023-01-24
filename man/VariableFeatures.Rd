@@ -93,7 +93,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 \method{VariableFeatures}{Assay5}(
   object,
   method = NULL,
-  layer = NULL,
+  layer = NA,
   simplify = TRUE,
   nfeatures = Inf,
   ...

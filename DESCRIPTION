@@ -79,7 +79,6 @@ Collate:
     'fov.R'
     'neighbor.R'
     'seurat.R'
-    'seurat5.R'
     'sparse.R'
     'utils.R'
 LinkingTo: Rcpp, RcppEigen
