@@ -485,8 +485,7 @@ CastAssay.Assay5 <- CastAssay.StdAssay
 #' @method Cells StdAssay
 #'
 Cells.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
-  layer <- layer %||% DefaultLayer(object = x)
-  if (is_na(x = layer)) {
+  if (is_na(x = layer) || is.null(x = layer)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
   layer <- Layers(object = x, search = layer)
