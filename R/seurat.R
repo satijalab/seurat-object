@@ -3271,9 +3271,15 @@ merge.Seurat <- function(
     active.ident = idents.all,
     project.name = project
   )
-  # Merge cell-level  meta data, images
+  # Merge cell-level meta data, images
   for (i in seq_along(along.with = objects)) {
-    obj.combined[[]] <- objects[[i]][[]]
+    df <- data.frame(
+      lapply(objects[[i]][[]], FUN = function(x) {
+        if (is.factor(x)) as.character(x) else x
+      }), stringsAsFactors=FALSE
+    )
+    rownames(df) <- rownames(objects[[i]][[]])
+    obj.combined[[]] <- df
     for (img in Images(object = objects[[i]])) {
       dest <- ifelse(
         test = img %in% Images(object = obj.combined),
