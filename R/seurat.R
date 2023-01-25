@@ -503,11 +503,11 @@ Reductions <- function(object, slot = NULL) {
 RenameAssays <- function(object, old.assay.name = NULL, new.assay.name = NULL, ...) {
   op <- options(Seurat.object.assay.calcn = FALSE)
   on.exit(expr = options(op), add = TRUE)
-  if (!is.null(x = old.assay.name) & is.null(x = new.assay.name) 
-      | is.null(x = old.assay.name) & !is.null(x = new.assay.name)) {
-    stop("Must provide both old.assay and new.assay if using parameters. Otherwise,", 
+  if ((!is.null(x = old.assay.name) & is.null(x = new.assay.name)) 
+      | (is.null(x = old.assay.name) & !is.null(x = new.assay.name))) {
+    stop("Must provide both old.assay and new.assasy if using parameters. Otherwise, ", 
          "you can set arguments without parameters by doing ",
-         "{old.assay = new.assay} with your own assay names", call. = FALSE)
+         "{old.assay = new.assay} with your own assay names.", call. = FALSE)
   }
   if (!is.null(x = old.assay.name) & !is.null(x = new.assay.name)) {
     assay.pairs <- new.assay.name
