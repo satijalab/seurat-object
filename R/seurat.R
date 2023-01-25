@@ -508,10 +508,12 @@ RenameAssays <- function(object, ...) {
   op <- options(Seurat.object.assay.calcn = FALSE)
   on.exit(expr = options(op), add = TRUE)
   old.assays <- names(x = assay.pairs)
-  old.assays <- unlist(lapply(old.assays, 
-                              function(x)tryCatch(get(x), 
-                                                  error=function(e) x)))
-  names(assay.pairs) <- old.assays
+  old.assays <- unlist(x = lapply(
+    X = old.assays,
+    FUN = function(x) tryCatch(expr = get(x = x), error = function(e) x)
+    )
+    )
+  names(x = assay.pairs) <- old.assays
   # Handle missing assays
   missing.assays <- setdiff(x = old.assays, y = Assays(object = object))
   if (length(x = missing.assays) == length(x = old.assays)) {
@@ -561,14 +563,14 @@ RenameAssays <- function(object, ...) {
         DefaultAssay(object = object[[i]]) <- new
       }
     }
-    # Add new metadata if it exists 
-    if (isTRUE(paste0("nCount_", old) %in% colnames(object@meta.data))) {
-      object@meta.data[paste0("nCount_", new)] <- object[[]][,paste0("nCount_", 
-                                                         old)]
+    # Add new metadata if it exists
+    if (isTRUE(paste0("nCount_", old) %in% colnames(object[[]]))) {
+      object@meta.data[paste0("nCount_", new)] <- object[[]][,
+                                                paste0("nCount_",old)]
     }
-    if (isTRUE(paste0("nFeature_", old) %in% colnames(object@meta.data))) {
-      object@meta.data[paste0("nFeature_", new)] <- object[[]][,paste0("nFeature_", 
-                                                           old)]
+    if (isTRUE(paste0("nFeature_", old) %in% colnames(object[[]]))) {
+      object@meta.data[paste0("nFeature_", new)] <- object[[]][,
+                                                 paste0("nFeature_", old)]
     }
     object[[old]] <- NULL
   }
