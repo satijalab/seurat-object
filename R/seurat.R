@@ -1394,13 +1394,6 @@ Features.Seurat <- function(x, assay = NULL, ...) {
   return(Features(x = x[[assay]], ...))
 }
 
-#' @rdname Embeddings
-#' @export
-#' @method Embeddings Seurat5
-#'
-Embeddings.Seurat5 <- function(object, reduction = 'pca', ...) {
-  return(Embeddings(object = object[[reduction]], ...))
-}
 
 #' @param vars List of all variables to fetch, use keyword \dQuote{ident} to
 #' pull identity classes

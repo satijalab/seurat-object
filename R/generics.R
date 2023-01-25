@@ -545,18 +545,6 @@ CreateSeuratObject <- function(
   UseMethod(generic = 'CreateSeuratObject', object = counts)
 }
 
-#' @export
-#'
-CreateSeurat5Object <- function(
-  counts,
-  assay = 'RNA',
-  names.field = 1L,
-  names.delim = '_',
-  meta.data = NULL,
-  ...
-) {
-  UseMethod(generic = 'CreateSeurat5Object', object = counts)
-}
 
 #' Create Spatial Coordinates
 #'
