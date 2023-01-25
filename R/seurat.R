@@ -487,6 +487,8 @@ Reductions <- function(object, slot = NULL) {
 #' Rename assays in a \code{Seurat} object
 #'
 #' @param object A \code{Seurat} object
+#' @param old.assay.name original name of assay
+#' @param new.assay.name new name of assay
 #' @param ... Named arguments as \code{old.assay = new.assay}
 #'
 #' @return \code{object} with assays renamed
@@ -498,22 +500,34 @@ Reductions <- function(object, slot = NULL) {
 #' @examples
 #' RenameAssays(object = pbmc_small, RNA = 'rna')
 #'
-RenameAssays <- function(object, ...) {
-  assay.pairs <- tryCatch(
-    expr = as.list(x = ...),
-    error = function(e) {
-      return(list(...))
-    }
-  )
+RenameAssays <- function(object, old.assay.name = NULL, new.assay.name = NULL, ...) {
   op <- options(Seurat.object.assay.calcn = FALSE)
   on.exit(expr = options(op), add = TRUE)
-  old.assays <- names(x = assay.pairs)
-  old.assays <- unlist(x = lapply(
-    X = old.assays,
-    FUN = function(x) tryCatch(expr = get(x = x), error = function(e) x)
+  if ((!is.null(x = old.assay.name) & is.null(x = new.assay.name)) 
+      | (is.null(x = old.assay.name) & !is.null(x = new.assay.name))) {
+    stop("Must provide both old.assay and new.assasy if using parameters. Otherwise, ", 
+         "you can set arguments without parameters by doing ",
+         "{old.assay = new.assay} with your own assay names.", call. = FALSE)
+  }
+  if (!is.null(x = old.assay.name) & !is.null(x = new.assay.name)) {
+    assay.pairs <- new.assay.name
+    names(x = assay.pairs) <- old.assay.name
+    old.assays <- names(x = assay.pairs)
+  } else {
+    assay.pairs <- tryCatch(
+      expr = as.list(x = ...),
+      error = function(e) {
+        return(list(...))
+      }
+    )
+    old.assays <- names(x = assay.pairs)
+    old.assays <- unlist(x = lapply(
+      X = old.assays,
+      FUN = function(x) tryCatch(expr = get(x = x), error = function(e) x)
     )
     )
-  names(x = assay.pairs) <- old.assays
+    names(x = assay.pairs) <- old.assays
+  }  
   # Handle missing assays
   missing.assays <- setdiff(x = old.assays, y = Assays(object = object))
   if (length(x = missing.assays) == length(x = old.assays)) {
