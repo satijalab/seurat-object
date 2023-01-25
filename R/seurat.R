@@ -559,12 +559,12 @@ RenameAssays <- function(object, ...) {
     }
     # Add new metadata if it exists 
     if (isTRUE(paste0("nCount_", old) %in% colnames(object@meta.data))) {
-      object[[paste0("nCount_", new)]] <- object[[paste0("nCount_", 
-                                                         old)]]
+      object@meta.data[paste0("nCount_", new)] <- object[[]][,paste0("nCount_", 
+                                                         old)]
     }
     if (isTRUE(paste0("nFeature_", old) %in% colnames(object@meta.data))) {
-      object[[paste0("nFeature_", new)]] <- object[[paste0("nFeature_", 
-                                                           old)]]
+      object@meta.data[paste0("nFeature_", new)] <- object[[]][,paste0("nFeature_", 
+                                                           old)]
     }
     object[[old]] <- NULL
   }
