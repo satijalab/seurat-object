@@ -3237,6 +3237,7 @@ merge.Seurat <- function(
       collapse = collapse,
       merge.data = merge.data
     )
+    Key(assays.all[[assay]]) <- Key(assay)
   }
   names(objects) <- NULL
   all.cells <- Reduce(f = union, x = lapply(X = objects, FUN = colnames))
