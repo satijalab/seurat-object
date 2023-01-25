@@ -508,6 +508,10 @@ RenameAssays <- function(object, ...) {
   op <- options(Seurat.object.assay.calcn = FALSE)
   on.exit(expr = options(op), add = TRUE)
   old.assays <- names(x = assay.pairs)
+  old.assays <- unlist(lapply(old.assays, 
+                              function(x)tryCatch(get(x), 
+                                                  error=function(e) x)))
+  names(assay.pairs) <- old.assays
   # Handle missing assays
   missing.assays <- setdiff(x = old.assays, y = Assays(object = object))
   if (length(x = missing.assays) == length(x = old.assays)) {
