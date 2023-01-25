@@ -1314,7 +1314,7 @@ merge.Assay <- function(
     min.cells = -1,
     min.features = -1
   )
-  Key(object = combined.assay) <- sort(keys)[1]
+  Key(object = combined.assay) <- keys[1]
   if (merge.data) {
     data.mats <- lapply(X = assays, FUN = ValidateDataForMerge, slot = "data")
     merged.data <- RowMergeSparseMatrices(
