@@ -4050,26 +4050,26 @@ setMethod(
       idx <- match(x = i, table = names(x = value))
       # If there are any mismatches in `i` and `names(value)`
       # rename `value` to match `i`
-      if (all(is.na(x = idx))) {
-        warn(message = paste(
-          "None of the column names are found in meta data names;",
-          "replacing to provided meta data names"
-        ))
-      }
+      # if (all(is.na(x = idx))) {
+      #   warn(message = paste(
+      #     "None of the column names are found in meta data names;",
+      #     "replacing to provided meta data names"
+      #   ))
+      # }
       if (any(is.na(x = idx))) {
         meta.missing <- setdiff(
           x = seq_len(length.out = ncol(x = value)),
           y = idx[!is.na(x = idx)]
         )
         names(x = meta.missing) <- i[is.na(x = idx)]
-        for (j in seq_along(along.with = meta.missing)) {
-          warn(message = paste(
-            "Column",
-            sQuote(x = names(x = value)[meta.missing[j]]),
-            "not found in meta data names, changing to",
-            sQuote(x = names(x = meta.missing)[j])
-          ))
-        }
+        # for (j in seq_along(along.with = meta.missing)) {
+        #   warn(message = paste(
+        #     "Column",
+        #     sQuote(x = names(x = value)[meta.missing[j]]),
+        #     "not found in meta data names, changing to",
+        #     sQuote(x = names(x = meta.missing)[j])
+        #   ))
+        # }
         names(x = value)[meta.missing] <- names(x = meta.missing)
       }
     } else if (is.null(x = names(x = value))) {
