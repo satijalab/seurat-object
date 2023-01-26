@@ -1531,7 +1531,6 @@ VariableFeatures.StdAssay <- function(
         USE.NAMES = TRUE
       )
       if (is.null(x = unlist(x = vf))) {
-        warn(message = msg)
         return(NULL)
       } else if (all(is.na(x = unlist(x = vf)))) {
         abort(message = msg)
