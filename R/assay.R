@@ -1284,6 +1284,8 @@ merge.Assay <- function(
   y = NULL,
   add.cell.ids = NULL,
   merge.data = TRUE,
+  labels = NULL,
+  collapse = TRUE,
   ...
 ) {
   CheckDots(...)

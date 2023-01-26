@@ -1957,7 +1957,6 @@ merge.StdAssay <- function(
   collapse = FALSE,
   ...
 ) {
-
   assays <- c(x, y)
   for (i in seq_along(assays)) {
     if (inherits(x = assays[[i]], what = 'Assay')) {

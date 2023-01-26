@@ -4353,7 +4353,7 @@ setMethod(
       ))
     }
     # fast way to add column
-    if (all(names(x = value) == colnames(x = x))) {
+    if (length(x = value) == ncol(x = x) && all(names(x = value) == colnames(x = x))) {
       slot(object = x, name = 'meta.data')[,i] <- value
       return(x)
     }
@@ -4806,7 +4806,7 @@ setMethod(
       ))
     }
     # fast way to add column
-    if (all(names(x = value) == colnames(x = x))) {
+    if (length(x = value) == ncol(x = x) && all(names(x = value) == colnames(x = x))) {
       slot(object = x, name = 'meta.data')[,i] <- value
       return(x)
     }
