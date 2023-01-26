@@ -2515,7 +2515,7 @@ VariableFeatures.Seurat <- function(
   selection.method = NULL,
   assay = NULL,
   nfeatures = NULL,
-  layers = NULL,
+  layer = NULL,
   simplify = TRUE,
   ...
 ) {
@@ -2525,7 +2525,7 @@ VariableFeatures.Seurat <- function(
     object = object[[assay]],
     selection.method = selection.method,
     nfeatures = nfeatures,
-    layers = layers,
+    layer = layer,
     simplify = simplify,
     ...))
 }
