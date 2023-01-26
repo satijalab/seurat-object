@@ -4,7 +4,15 @@
 \alias{merge.Assay}
 \title{Merge Assays}
 \usage{
-\method{merge}{Assay}(x = NULL, y = NULL, add.cell.ids = NULL, merge.data = TRUE, ...)
+\method{merge}{Assay}(
+  x = NULL,
+  y = NULL,
+  add.cell.ids = NULL,
+  merge.data = TRUE,
+  labels = NULL,
+  collapse = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{An \code{\link{Assay}} object}
