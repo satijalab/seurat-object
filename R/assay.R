@@ -198,38 +198,8 @@ CreateAssayObject <- function(
   if (!is.vector(x = colnames(x = data))) {
     colnames(x = data) <- as.vector(x = colnames(x = data))
   }
-  if (any(grepl(pattern = '_', x = rownames(x = counts))) || any(grepl(pattern = '_', x = rownames(x = data)))) {
-    warn(
-      message = "Feature names cannot have underscores ('_'), replacing with dashes ('-')"
-    )
-    rownames(x = counts) <- gsub(
-      pattern = '_',
-      replacement = '-',
-      x = rownames(x = counts)
-    )
-    rownames(x = data) <- gsub(
-      pattern = '_',
-      replacement = '-',
-      x = rownames(x = data)
-    )
-  }
-  if (any(grepl(pattern = '|', x = rownames(x = counts), fixed = TRUE)) || any(grepl(pattern = '|', x = rownames(x = data), fixed = TRUE))) {
-    warn(
-      message = "Feature names cannot have pipe characters ('|'), replacing with dashes ('-')"
-    )
-    rownames(x = counts) <- gsub(
-      pattern = '|',
-      replacement = '-',
-      x = rownames(x = counts),
-      fixed = TRUE
-    )
-    rownames(x = data) <- gsub(
-      pattern = '|',
-      replacement = '-',
-      x = rownames(x = data),
-      fixed = TRUE
-    )
-  }
+  counts <- CheckFeaturesNames(data = counts)
+  data <- CheckFeaturesNames(data = data)
   # Initialize meta.features
   init.meta.features <- data.frame(row.names = rownames(x = data))
   assay <- new(

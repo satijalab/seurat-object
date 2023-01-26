@@ -254,6 +254,10 @@ setClass(
     names(x = counts)[!nzchar(x = names(x = counts))] <- 'counts'
   }
   names(x = counts) <- make.unique(names = names(x = counts), sep = '')
+  counts <- lapply(X = counts, FUN = function(x) {
+    x <- CheckFeaturesNames(data = x)
+    return(x)
+  })
   # Check cell/feature names for all layers
   if (is.atomic(x = cells)) {
     cells <- rep_len(x = list(cells), length.out = length(x = counts))
