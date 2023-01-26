@@ -4067,6 +4067,12 @@ setMethod(
       if (is.null(x = names(x = value))) {
         names(x = value) <- i
       }
+      if (ncol(x = value) == 1) {
+        v <- value[,1]
+        names(v) <- colnames(x = x)
+        x[[i]] <- v
+        return(x)
+      }
       idx <- match(x = i, table = names(x = value))
       # If there are any mismatches in `i` and `names(value)`
       # rename `value` to match `i`
@@ -4341,6 +4347,11 @@ setMethod(
         ),
         class(x = x[[i]])[1L]
       ))
+    }
+    # fast way to add column
+    if (all(names(x = value) == colnames(x = x))) {
+      slot(object = x, name = 'meta.data')[,i] <- value
+      return(x)
     }
     # Add a column of cell-level meta data
     if (is.null(x = names(x = value))) {
@@ -4789,6 +4800,11 @@ setMethod(
         ),
         class(x = x[[i]])[1L]
       ))
+    }
+    # fast way to add column
+    if (all(names(x = value) == colnames(x = x))) {
+      slot(object = x, name = 'meta.data')[,i] <- value
+      return(x)
     }
     # Add a column of cell-level meta data
     if (is.null(x = names(x = value))) {
