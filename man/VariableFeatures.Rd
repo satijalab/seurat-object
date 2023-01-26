@@ -45,7 +45,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
   selection.method = NULL,
   assay = NULL,
   nfeatures = NULL,
-  layers = NULL,
+  layer = NULL,
   simplify = TRUE,
   ...
 )
