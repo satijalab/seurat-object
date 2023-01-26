@@ -2257,7 +2257,7 @@ subset.StdAssay <- function(
   if (is.numeric(x = cells)) {
     cells <- Cells(x = x, layer = NA)[cells]
   }
-  cells <- intersect(x = cells, y = Cells(x = x, layer = NA))
+  cells <- intersect(x = Cells(x = x, layer = NA), y = cells)
   if (!length(x = cells)) {
     stop("None of the cells provided found in this assay", call. = FALSE)
   }

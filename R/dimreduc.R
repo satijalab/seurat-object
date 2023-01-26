@@ -882,7 +882,7 @@ subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
     if (is.numeric(x = cells)) {
       cells <- Cells(x = x)[cells]
     }
-    cells <- intersect(x = cells, y = Cells(x = x))
+    cells <- intersect(x = Cells(x = x), y = cells)
     if (length(x = cells) == 0) {
       stop("Cannot find cell provided", call. = FALSE)
     }

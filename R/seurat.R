@@ -3483,6 +3483,7 @@ subset.Seurat <- function(
   on.exit(expr = options(op), add = TRUE)
   # Remove metadata for cells not present
   orig.cells <- colnames(x = x)
+  cells <- intersect(x = orig.cells, y = cells)
   slot(object = x, name = 'meta.data') <- x[[]][cells, , drop = FALSE]
   if (!all(orig.cells %in% cells)) {
     slot(object = x, name = 'graphs') <- list()

@@ -1446,7 +1446,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
     warn(message = "NAs passed in cells vector, removing NAs")
     cells <- na.omit(object = cells)
   }
-  cells <- intersect(x = cells, y = colnames(x))
+  cells <- intersect(x = colnames(x), y = cells)
   features <- features %||% rownames(x = x)
   if (all(is.na(x = features))) {
     features <- rownames(x = x)
