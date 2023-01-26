@@ -4073,7 +4073,7 @@ setMethod(
       }
       if (ncol(x = value) == 1) {
         v <- value[,1]
-        names(v) <- colnames(x = x)
+        names(x = v) <- rownames(x = value)
         x[[i]] <- v
         return(x)
       }
