@@ -1765,6 +1765,9 @@ WhichCells.Assay5 <- WhichCells.StdAssay
     i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
   data.return <- slot(object = x, name = 'meta.data')[, i, drop = FALSE, ...]
+  if (nrow(x = data.return) == 0) {
+    return(data.return)
+  }
   row.names(x = data.return) <- rownames(x = x)
   if (isTRUE(x = drop)) {
     data.return <- unlist(x = data.return, use.names = FALSE)
@@ -2671,6 +2674,9 @@ setMethod(
       #   NA
       # }
       df[names(x = value), i] <- value
+      if (nrow(x = slot(object = x, name = 'meta.data')) == 0) {
+        slot(object = x, name = 'meta.data') <- EmptyDF(n = nrow(x = x))
+      }
       slot(object = x, name = 'meta.data')[, i] <- df[[i]]
     }
     validObject(object = x)
