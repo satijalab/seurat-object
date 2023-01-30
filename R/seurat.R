@@ -487,7 +487,7 @@ Reductions <- function(object, slot = NULL) {
 #' Rename assays in a \code{Seurat} object
 #'
 #' @param object A \code{Seurat} object
-#' @param old.assay.name original name of assay
+#' @param assay.name original name of assay
 #' @param new.assay.name new name of assay
 #' @param ... Named arguments as \code{old.assay = new.assay}
 #'
@@ -500,18 +500,18 @@ Reductions <- function(object, slot = NULL) {
 #' @examples
 #' RenameAssays(object = pbmc_small, RNA = 'rna')
 #'
-RenameAssays <- function(object, old.assay.name = NULL, new.assay.name = NULL, ...) {
+RenameAssays <- function(object, assay.name = NULL, new.assay.name = NULL, ...) {
   op <- options(Seurat.object.assay.calcn = FALSE)
   on.exit(expr = options(op), add = TRUE)
-  if ((!is.null(x = old.assay.name) & is.null(x = new.assay.name)) 
-      | (is.null(x = old.assay.name) & !is.null(x = new.assay.name))) {
-    stop("Must provide both old.assay and new.assasy if using parameters. Otherwise, ", 
+  if ((!is.null(x = assay.name) & is.null(x = new.assay.name)) 
+      | (is.null(x = assay.name) & !is.null(x = new.assay.name))) {
+    stop("Must provide both assay.name and new.assasy.name if using parameters. Otherwise, ", 
          "you can set arguments without parameters by doing ",
          "{old.assay = new.assay} with your own assay names.", call. = FALSE)
   }
-  if (!is.null(x = old.assay.name) & !is.null(x = new.assay.name)) {
+  if (!is.null(x = assay.name) & !is.null(x = new.assay.name)) {
     assay.pairs <- new.assay.name
-    names(x = assay.pairs) <- old.assay.name
+    names(x = assay.pairs) <- assay.name
     old.assays <- names(x = assay.pairs)
   } else {
     assay.pairs <- tryCatch(
