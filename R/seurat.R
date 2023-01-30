@@ -521,11 +521,6 @@ RenameAssays <- function(object, assay.name = NULL, new.assay.name = NULL, ...) 
       }
     )
     old.assays <- names(x = assay.pairs)
-    old.assays <- unlist(x = lapply(
-      X = old.assays,
-      FUN = function(x) tryCatch(expr = get(x = x), error = function(e) x)
-    )
-    )
     names(x = assay.pairs) <- old.assays
   }  
   # Handle missing assays
@@ -875,7 +870,7 @@ UpdateSeuratObject <- function(object) {
         )
       }
       # Validate object keys
-      message("Ensuring keys are in the proper strucutre")
+      message("Ensuring keys are in the proper structure")
       for (ko in FilterObjects(object = object)) {
         suppressWarnings(
           expr = Key(object = object[[ko]]) <- UpdateKey(key = Key(object = object[[ko]])),
