@@ -523,10 +523,10 @@ LayerData.Assay <- function(
 ) {
   # Figure out which matrix we're pulling
   layer <- layer[1L] %||% DefaultLayer(object = object)
-  layer <- match.arg(
-    arg = layer,
-    choices = Layers(object = object, search = FALSE)
-  )
+  # layer <- match.arg(
+  #   arg = layer,
+  #   choices = Layers(object = object, search = FALSE)
+  # )
   # Handle empty layers
   if (IsMatrixEmpty(x = slot(object = object, name = layer))) {
     msg <- paste("Layer", sQuote(x = layer), "is empty")
@@ -678,7 +678,10 @@ Layers.Assay <- function(object, search = NA, ...) {
     return(DefaultLayer(object = object))
   }
   if (!is_na(x = search)) {
-    layers <- match.arg(arg = search, choices = layers, several.ok = TRUE)
+    layers <- intersect(x = search, y = layers)
+    if (length(x = layers) == 0) {
+      return(NULL)
+    }
   }
   return(layers)
 }

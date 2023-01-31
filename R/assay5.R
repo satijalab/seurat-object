@@ -1405,6 +1405,7 @@ Layers.StdAssay <- function(object, search = NA, ...) {
       warning(message = "No layers found matching search pattern provided",
               call. = FALSE,
               immediate. = TRUE)
+      return(NULL)
     }
   }
   return(layers)
