@@ -1117,7 +1117,7 @@ LayerData.StdAssay <- function(
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   layer <- Layers(object = object, search = layer)[1L]
   # layer <- match.arg(arg = layer, choices = Layers(object = object))
-  if (is.na(layer)) {
+  if (is.null(layer)) {
     msg <- paste("Layer", sQuote(x = layer_name), "is empty")
     opt <- getOption(x = "Seurat.object.assay.v3.missing_layer",
                      default = Seurat.options$Seurat.object.assay.v3.missing_layer)
