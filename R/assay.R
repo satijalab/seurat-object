@@ -1489,9 +1489,18 @@ setAs(
                              layers = i, 
                              new = i) 
       }
+      if(i == "data") {
+        if (isTRUE(Layers(object = from, search = i) == "scale.data")){
+          warning("No counts or data slot in object. Setting 'data' slot using", 
+                  " data from 'scale.data' slot. To recreate 'data' slot, you", 
+                  " must set and normalize data from a 'counts' slot.", 
+                  call. = FALSE)
+        }
+      }
       adata <- LayerData(object = from, layer = i)
       if(inherits(x = adata, what = "IterableMatrix")) {
-        warning("Converting IterableMatrix to sparse dgCMatrix")
+        warning("Converting IterableMatrix to sparse dgCMatrix", 
+                call. = FALSE)
         adata <- as(object = adata, Class = "dgCMatrix")
       }
       data.list[[i]] <- adata 
@@ -1509,7 +1518,7 @@ setAs(
       key = Key(object = from)
     )
     # Add feature-level meta data
-    to@meta.features <- from[]
+    suppressWarnings(to[] <- from[])
     mdata <- Misc(object = from)
     for (i in names(x = mdata)) {
       Misc(object = to, slot = i) <- mdata[[i]]
