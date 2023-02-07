@@ -1485,36 +1485,36 @@ setAs(
     data.list <- c()
     for (i in c('counts', 'data', 'scale.data')) {
       if (length(Layers(object = from, search = i)) > 1) {
-          from <- JoinLayers(object = from, 
-                             layers = i, 
-                             new = i) 
+          from <- JoinLayers(object = from,
+                             layers = i,
+                             new = i)
       }
       if(i == "data") {
         if (isTRUE(Layers(object = from, search = i) == "scale.data")){
-          warning("No counts or data slot in object. Setting 'data' slot using", 
-                  " data from 'scale.data' slot. To recreate 'data' slot, you", 
-                  " must set and normalize data from a 'counts' slot.", 
+          warning("No counts or data slot in object. Setting 'data' slot using",
+                  " data from 'scale.data' slot. To recreate 'data' slot, you",
+                  " must set and normalize data from a 'counts' slot.",
                   call. = FALSE)
         }
       }
       adata <- LayerData(object = from, layer = i)
       if(inherits(x = adata, what = "IterableMatrix")) {
-        warning("Converting IterableMatrix to sparse dgCMatrix", 
+        warning("Converting IterableMatrix to sparse dgCMatrix",
                 call. = FALSE)
         adata <- as(object = adata, Class = "dgCMatrix")
       }
-      data.list[[i]] <- adata 
+      data.list[[i]] <- adata
     }
     if (IsMatrixEmpty(x = data.list[["data"]])){
       data.list[["data"]] <- data.list[["counts"]]
     }
     to <- new(
       Class = 'Assay',
-      counts = data.list[["counts"]], 
-      data = data.list[["data"]], 
+      counts = data.list[["counts"]],
+      data = data.list[["data"]],
       scale.data = data.list[["scale.data"]],
       assay.orig = DefaultAssay(object = from) %||% character(length = 0L),
-      meta.features = data.frame(row.names = rownames(x = data.list[["data"]])), 
+      meta.features = data.frame(row.names = rownames(x = data.list[["data"]])),
       key = Key(object = from)
     )
     # Add feature-level meta data
