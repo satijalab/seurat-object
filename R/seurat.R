@@ -489,6 +489,7 @@ Reductions <- function(object, slot = NULL) {
 #' @param object A \code{Seurat} object
 #' @param assay.name original name of assay
 #' @param new.assay.name new name of assay
+#' @param verbose Whether to print messages
 #' @param ... Named arguments as \code{old.assay = new.assay}
 #'
 #' @return \code{object} with assays renamed
@@ -500,7 +501,12 @@ Reductions <- function(object, slot = NULL) {
 #' @examples
 #' RenameAssays(object = pbmc_small, RNA = 'rna')
 #'
-RenameAssays <- function(object, assay.name = NULL, new.assay.name = NULL, ...) {
+RenameAssays <- function(
+  object,
+  assay.name = NULL,
+  new.assay.name = NULL,
+  verbose = TRUE,
+  ...) {
   op <- options(Seurat.object.assay.calcn = FALSE)
   on.exit(expr = options(op), add = TRUE)
   if ((!is.null(x = assay.name) & is.null(x = new.assay.name)) 
@@ -562,7 +568,9 @@ RenameAssays <- function(object, assay.name = NULL, new.assay.name = NULL, ...) 
     old.key <- Key(object = object[[old]])
     suppressWarnings(expr = object[[new]] <- object[[old]])
     if (old == DefaultAssay(object = object)) {
-      message("Renaming default assay from ", old, " to ", new)
+      if (verbose) {
+        message("Renaming default assay from ", old, " to ", new)
+      }
       DefaultAssay(object = object) <- new
     }
     Key(object = object[[new]]) <- old.key
