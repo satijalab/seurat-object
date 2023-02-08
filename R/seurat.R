@@ -1281,11 +1281,12 @@ CreateSeuratObject.Assay <- function(
     )
   }
   # Calculate nCount and nFeature
-  calcn <- getOption(
+  calcN_option <- getOption(
     x = 'Seurat.object.assay.calcn',
-    default = Seurat.options$Seurat.object.assay.calcn
+    default =  Seurat.options$Seurat.object.assay.calcn
   )
-  if (isTRUE(x = calcn)) {
+  calcN_option <- calcN_option %||% TRUE
+  if (isTRUE(x = calcN_option)) {
     ncalc <- CalcN(object = counts)
     if (!is.null(x = ncalc)) {
       names(x = ncalc) <- paste(names(x = ncalc), assay, sep = '_')
