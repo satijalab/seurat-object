@@ -509,9 +509,9 @@ RenameAssays <- function(
   ...) {
   op <- options(Seurat.object.assay.calcn = FALSE)
   on.exit(expr = options(op), add = TRUE)
-  if ((!is.null(x = assay.name) & is.null(x = new.assay.name)) 
+  if ((!is.null(x = assay.name) & is.null(x = new.assay.name))
       | (is.null(x = assay.name) & !is.null(x = new.assay.name))) {
-    stop("Must provide both assay.name and new.assasy.name if using parameters. Otherwise, ", 
+    stop("Must provide both assay.name and new.assasy.name if using parameters. Otherwise, ",
          "you can set arguments without parameters by doing ",
          "{old.assay = new.assay} with your own assay names.", call. = FALSE)
   }
@@ -528,7 +528,7 @@ RenameAssays <- function(
     )
     old.assays <- names(x = assay.pairs)
     names(x = assay.pairs) <- old.assays
-  }  
+  }
   # Handle missing assays
   missing.assays <- setdiff(x = old.assays, y = Assays(object = object))
   if (length(x = missing.assays) == length(x = old.assays)) {
@@ -815,6 +815,7 @@ UpdateSeuratObject <- function(object) {
       names(x = assay.list) <- "RNA"
       for (i in names(x = object@assay)) {
         assay.list[[i]] <- UpdateAssay(old.assay = object@assay[[i]], assay = i)
+
       }
       new.dr <- UpdateDimReduction(old.dr = object@dr, assay = "RNA")
       object <- new(
@@ -964,12 +965,25 @@ UpdateSeuratObject <- function(object) {
       }
       # Update Assays, DimReducs, and Graphs
       for (x in names(x = object)) {
+
         message("Updating slots in ", x)
         xobj <- object[[x]]
         xobj <- suppressWarnings(
           expr = UpdateSlots(object = xobj),
           classes = 'validationWarning'
         )
+        if (x == "SCT"){
+          sctmodels <- names(x = slot(object = xobj, name = "SCTModel.list"))
+          for (sctmodel in sctmodels){
+            median_umi <- tryCatch(
+              expr = slot(object = xobj@SCTModel.list[[sctmodel]], name = "median_umi"),
+              error = function(...) {
+                return(0)
+              }
+            )
+            xobj@SCTModel.list[[sctmodel]]@median_umi <- median_umi
+          }
+        }
         if (inherits(x = xobj, what = 'DimReduc')) {
           if (any(sapply(X = c('tsne', 'umap'), FUN = grepl, x = tolower(x = x)))) {
             message("Setting ", x, " DimReduc to global")
