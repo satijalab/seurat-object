@@ -202,6 +202,10 @@ CreateAssayObject <- function(
   data <- CheckFeaturesNames(data = data)
   # Initialize meta.features
   init.meta.features <- data.frame(row.names = rownames(x = data))
+  calcN_option <- getOption(
+           x = 'Seurat.object.assay.calcn',
+           default =  Seurat.options$Seurat.object.assay.calcn
+         )
   assay <- new(
     Class = 'Assay',
     counts = counts,
@@ -209,7 +213,7 @@ CreateAssayObject <- function(
     scale.data = new(Class = 'matrix'),
     key = Key(object = key)[1L] %||% '',
     meta.features = init.meta.features,
-    misc = list()
+    misc = list(calcN = calcN_option %||% TRUE)
   )
   return(assay)
 }

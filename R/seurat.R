@@ -4027,10 +4027,8 @@ setMethod(
       name = i
     )
     # Run CalcN
-    do.calcn <- getOption(
-      x = 'Seurat.object.assay.calcn',
-      default = Seurat.options$Seurat.object.assay.calcn
-    )
+    do.calcn <- Misc(object = value, slot = 'calcN')  %||% FALSE
+    suppressWarnings(Misc(object = value, slot = 'calcN') <- NULL)
     if (isTRUE(x = do.calcn)) {
       n.calc <- suppressWarnings(
         expr = .CalcN(object = value, layer = 'counts', simplify = TRUE),

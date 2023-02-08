@@ -83,7 +83,7 @@ Seurat.options <- list(
   Seurat.coords.short_range = 'max',
   Seurat.input.sparse_ratio = 0.4,
   Seurat.io.rds.strict = FALSE,
-  Seurat.object.assay.calcn = FALSE,
+  Seurat.object.assay.calcn = NULL,
   Seurat.object.assay.version = 'v3',
   Seurat.object.assay.v3.missing_layer = 'matrix',
   Seurat.object.project = 'SeuratProject',
