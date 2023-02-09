@@ -1501,6 +1501,26 @@ FetchData.Seurat <- function(
   }
   data.fetched <- EmptyDF(n = length(x = cells))
   row.names(x = data.fetched) <- cells
+  # Pull vars from object metadata
+  meta.vars <- intersect(x = vars, y = names(x = object[[]]))
+  meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
+  if (length(x = meta.vars)) {
+    meta.default <- intersect(x = meta.vars, y = rownames(x = object))
+    if (length(x = meta.default)) {
+      warn(message = paste0(
+        "The following variables were found in both object meta data and the default assay: ",
+        paste0(meta.default, collapse = ', '),
+        "\nReturning meta data; if you want the feature, please use the assay's key (eg. ",
+        paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
+        ")"
+      ))
+    }
+    meta.pull <- object[[meta.vars]]
+    cells.meta <- row.names(x = meta.pull)
+    cells.order <- MatchCells(new = cells.meta, orig = cells, ordered = TRUE)
+    cells.meta <- cells.meta[cells.order]
+    data.fetched[cells.meta, meta.vars] <- meta.pull[cells.meta, , drop = FALSE]
+  }
   # Find all vars that are keyed
   keyed.vars <- sapply(
     X = Keys(object = object),
@@ -1508,7 +1528,7 @@ FetchData.Seurat <- function(
       if (!length(x = key) || !nzchar(x = key)) {
         return(character(length = 0L))
       }
-      return(grep(pattern = paste0('^', key), x = vars, value = TRUE))
+      return(grep(pattern = paste0('^', key), x = setdiff(vars, meta.vars), value = TRUE))
     },
     simplify = FALSE,
     USE.NAMES = TRUE
@@ -1526,6 +1546,7 @@ FetchData.Seurat <- function(
   if (any(ret.spatial2)) {
     abort(message = "Spatial coordinates are no longer fetchable with FetchData")
   }
+
   # Find all keyed.vars
   data.keyed <- lapply(
     X = names(x = keyed.vars),
@@ -1564,26 +1585,6 @@ FetchData.Seurat <- function(
   for (i in seq_along(along.with = data.keyed)) {
     df <- data.keyed[[i]]
     data.fetched[row.names(x = df), names(x = df)] <- df
-  }
-  # Pull vars from object metadata
-  meta.vars <- intersect(x = vars, y = names(x = object[[]]))
-  meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
-  if (length(x = meta.vars)) {
-    meta.default <- intersect(x = meta.vars, y = rownames(x = object))
-    if (length(x = meta.default)) {
-      warn(message = paste0(
-        "The following variables were found in both object meta data and the default assay: ",
-        paste0(meta.default, collapse = ', '),
-        "\nReturning meta data; if you want the feature, please use the assay's key (eg. ",
-        paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
-        ")"
-      ))
-    }
-    meta.pull <- object[[meta.vars]]
-    cells.meta <- row.names(x = meta.pull)
-    cells.order <- MatchCells(new = cells.meta, orig = cells, ordered = TRUE)
-    cells.meta <- cells.meta[cells.order]
-    data.fetched[cells.meta, meta.vars] <- meta.pull[cells.meta, , drop = FALSE]
   }
   # Pull vars from the default assay
   default.vars <- intersect(x = vars, y = rownames(x = object))
