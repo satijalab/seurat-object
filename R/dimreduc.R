@@ -1139,10 +1139,10 @@ setValidity(
     # }
     # TODO: Validate feature loadings
     lds <- Loadings(object = object, projected = FALSE)
-    valid <- c(valid, ValidColnames(mat = lds, ref = dims, type = 'loadings'))
+    valid <- c(valid, ValidColnames(mat = lds, type = 'loadings'))
     # TODO: Validate projected loadings
     prj <- Loadings(object = object, projected = TRUE)
-    valid <- c(valid, ValidColnames(mat = prj, ref = dims, type = 'projected'))
+    valid <- c(valid, ValidColnames(mat = prj, type = 'projected'))
     # TODO: Validate assay used
     if (!rlang::is_scalar_character(x = DefaultAssay(object = object))) {
       valid <- c(valid, "'assay.orig' must be a 1-length character")
