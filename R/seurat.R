@@ -971,10 +971,7 @@ UpdateSeuratObject <- function(object) {
           expr = UpdateSlots(object = xobj),
           classes = 'validationWarning'
         )
-        if (IsSCT(assay = xobj)){
-          if (!inherits(x = xobj, what = "SCTAssay")) {
-            xobj <- as(object = xobj, Class = "SCTAssay")
-          }
+        if (inherits(x = xobj, what = "SCTAssay")){
           sctmodels <- names(x = slot(object = xobj, name = "SCTModel.list"))
           for (sctmodel in sctmodels){
             median_umi <- tryCatch(
