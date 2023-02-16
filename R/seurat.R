@@ -782,14 +782,56 @@ SaveSeuratRds <- function(
 
 
 
-
+#' Save \code{Seurat} Objects as RDS files with BPCells directories in same folder
+#'
+#' @param object A \code{\link{Seurat}} object
+#' @param file file name for \code{\link{Seurat}} object. defaults to
+#' \code{(paste0(Project(object), ".Rds"))}
+#' @param destdir Destination directory (to include both BPCells directory 
+#' and \code{\link{Seurat}} object) 
+#' @param relative Save relative paths instead of absolute ones
+#' @param remove_old Delete old files 
+#' @inheritDotParams base::saveRDS
+#'
+#' @return Invisibly returns \code{file}
+#'
+#' @export
+#'
+#' @template section-progressr
+#'
+#' @templateVar pkg fs
+#' @template note-reqdpkg
+#'
+#' @seealso \code{\link{saveRDS}()} \code{\link{readRDS}()}
+#'
+#' @order 1
+#'
+#' @examples
+#' if (requireNamespace("BPCells") && requireNamespace("fs")) {
+#'   pbmc_small[["RNA5"]] <- as(object = pbmc_small[['RNA']], Class = 'Assay5')
+#'   write_matrix_dir(mat = pbmc_small[['RNA']]$counts, 
+#'     dir = '~/pbmc_counts_BP/')
+#'   mat <- open_matrix_dir(dir = "~/pbmc_counts_BP/")
+#'   pbmc_small[["RNA5"]]$counts <- mat
+#'
+#'   # Save `pbmc_small` to a folder with Rds file and BP Cells directory
+#'   SaveSeuratBP(pbmc_small, 
+#'                filename = "pbmc_small.Rds", 
+#'                destdir = "~/full_object/", 
+#'                relative = T, 
+#'                remove_old = F)
+#'                
+#'   # Load the saved object with on-disk layers back into memory
+#'   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds)
+#'   pbmc2
+#'   pbmc2[["RNA5"]]$counts
+#' }
+#'
 SaveSeuratBP <- function(
   object,
-  # i think file and destdir should be the same thing # gonna chnge to filename 
   filename = NULL,
   destdir = NULL,
   relative = FALSE,
-  # adding this so 
   remove_old = FALSE,
   ...
 ) {
@@ -797,7 +839,6 @@ SaveSeuratBP <- function(
   #file.path(getwd(), paste0(Project(object = object),
   #file <- normalizePath(path = file, mustWork = FALSE)
   # Cache v5 assays
-  # don't know about this one 
   assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
   p <- progressor(along = assays, auto_finish = TRUE)
   on.exit(expr = p(type = 'finish'), add = TRUE)
@@ -812,6 +853,7 @@ SaveSeuratBP <- function(
   )
   cache <- vector(mode = 'list', length = length(x = assays))
   names(x = cache) <- assays
+  # Don't know if we need this temp dir thing
   tdir <- normalizePath(path = tempdir()) 
   destdir <- destdir %||% dirname(path = file)
   if (!is_na(x = destdir) || isTRUE(x = relative)) {
