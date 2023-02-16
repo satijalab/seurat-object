@@ -1869,7 +1869,7 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
       dest <- fs::file_copy(path = path, new_path = new_path)
     }
   } else {
-    function(err) {
+    error_call <- function(err) {
       abort(
         message = err$message,
         class = class(x = err),
@@ -1877,7 +1877,10 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
       )
     }
   }
-  return(dest)
+  return(invisible(x = tryCatch(
+    expr = return(dest),
+    error = function(e) error_call
+  )))
 }
 
 
