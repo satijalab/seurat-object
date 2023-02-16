@@ -1387,6 +1387,21 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   return(path)
 }
 
+#' @rdname dot-FilePath
+#' @method .FilePath IterableMatrix
+#' @export
+#'
+.FilePath.IterableMatrix <- function(x){
+  check_installed(pkg = "BPCells", reason = "for working with BPCells")
+  path <- tryCatch(expr = normalizePath(path = x@matrix@dir), 
+                   error = function(...) NULL)
+  if (is.null(x = path)) {
+    warn(message = "The matrix provided does not exist on-disk")
+  }
+  return(path)
+}
+
+
 #' @rdname dot-SelectFeatures
 #' @method .SelectFeatures list
 #' @export
@@ -1817,6 +1832,7 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
 #' Move files and directories with \pkg{fs}; includes a handler for when
 #' \code{path} is a directory on a different filesystem than \code{new_path}
 #' by explicitly copying and deleting \code{path}
+#' @param delete only delete old file if specified
 #'
 #' @inherit fs::file_move params return
 #' @inheritParams rlang::caller_env
@@ -1830,7 +1846,7 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
 #'
 #' @seealso \code{\link[fs:file_move]{fs::file_move}()}
 #'
-.FileMove <- function(path, new_path, n = 1L) {
+.FileMove <- function(path, new_path, delete = FALSE, n = 1L) {
   check_installed(
     pkg = 'fs',
     reason = 'for moving on-disk files'
@@ -1838,14 +1854,19 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   stopifnot(is_scalar_character(x = path))
   stopifnot(is_scalar_character(x = new_path))
   stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0)
-  hndlr <- if (fs::is_dir(path = path)) {
-    function(...) {
-      path <- fs::path_expand(path = path)
-      new_path <- fs::path_expand(path = new_path)
-      dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
-      fs::dir_copy(path = path, new_path = dest, overwrite = TRUE)
+  if (fs::is_dir(path = path)) {
+    path <- fs::path_expand(path = path)
+    new_path <- fs::path_expand(path = new_path)
+    dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
+    fs::dir_copy(path = path, new_path = dest, overwrite = TRUE)
+    if (isTRUE(x = delete)){
       fs::dir_delete(path = path)
-      return(dest)
+    }
+  } else if (fs::is_file(path = path)){
+    if (isTRUE(x = delete)){
+      dest <- fs::file_move(path = path, new_path = new_path)
+    } else {
+      dest <- fs::file_copy(path = path, new_path = new_path)
     }
   } else {
     function(err) {
@@ -1856,11 +1877,9 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
       )
     }
   }
-  return(invisible(x = tryCatch(
-    expr = fs::file_move(path = path, new_path = new_path),
-    EISDIR = hndlr
-  )))
+  return(dest)
 }
+
 
 #' Get An Option
 #'
