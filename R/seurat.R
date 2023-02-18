@@ -3474,6 +3474,7 @@ subset.Seurat <- function(
   ...
 ) {
   x <- UpdateSlots(object = x)
+  var.features <- VariableFeatures(object = x)
   if (!missing(x = subset)) {
     subset <- enquo(arg = subset)
   }
@@ -3497,7 +3498,7 @@ subset.Seurat <- function(
       ) {
     return(x)
   }
-  op <- options(Seurat.object.validate = FALSE)
+  op <- options(Seurat.object.validate = FALSE, Seurat.object.assay.calcn = FALSE)
   on.exit(expr = options(op), add = TRUE)
   # Remove metadata for cells not present
   orig.cells <- colnames(x = x)
@@ -3563,16 +3564,20 @@ subset.Seurat <- function(
     )
   }
   # Recalculate nCount and nFeature
-  for (assay in FilterObjects(object = x, classes.keep = 'Assay')) {
-    n.calc <- CalcN(object = x[[assay]])
-    if (!is.null(x = n.calc)) {
-      names(x = n.calc) <- paste(names(x = n.calc), assay, sep = '_')
-      suppressWarnings(
-        expr = x[[names(x = n.calc)]] <- n.calc,
-        classes = 'validationWarning'
-      )
+  if (!is.null(features)) {
+    for (assay in FilterObjects(object = x, classes.keep = 'Assay')) {
+      n.calc <- CalcN(object = x[[assay]])
+      if (!is.null(x = n.calc)) {
+        names(x = n.calc) <- paste(names(x = n.calc), assay, sep = '_')
+        suppressWarnings(
+          expr = x[[names(x = n.calc)]] <- n.calc,
+          classes = 'validationWarning'
+        )
+      }
     }
   }
+ # set variable features
+  VariableFeatures(object = x) <- var.features
   # subset images
   for (image in Images(object = x)) {
     x[[image]] <- base::subset(x = x[[image]], cells = cells)
