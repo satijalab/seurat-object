@@ -896,7 +896,7 @@ SVFInfo.Assay <- function(
 #' @method VariableFeatures Assay
 #'
 VariableFeatures.Assay <- function(object, selection.method = NULL, ...) {
-  CheckDots(...)
+  suppressWarnings(CheckDots(...))
   if (!is.null(x = selection.method)) {
     vf <- HVFInfo(
       object = object,
