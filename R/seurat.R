@@ -3565,8 +3565,7 @@ subset.Seurat <- function(
             stop(e)
           }
         }
-      ),
-      classes = 'validationWarning'
+      )
     )
   }
   # Recalculate nCount and nFeature
