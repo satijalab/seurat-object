@@ -1120,7 +1120,13 @@ LayerData.StdAssay <- function(
 ) {
   # Figure out the layer we're pulling
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
-  layer <- Layers(object = object, search = layer)[1L]
+  layer <- Layers(object = object, search = layer)
+  if (length(x = layer) > 1) {
+    warning("multiple layers are identified by ",
+            paste0(layer, collapse = ' '),
+            "\n only the first layer is used")
+    layer <- layer[1L]
+  }
   # layer <- match.arg(arg = layer, choices = Layers(object = object))
   if (is.null(layer) || is.na(layer)) {
     msg <- paste("Layer", sQuote(x = layer_name), "is empty")
