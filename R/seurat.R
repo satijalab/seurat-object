@@ -3505,8 +3505,14 @@ subset.Seurat <- function(
   cells <- intersect(x = orig.cells, y = cells)
   slot(object = x, name = 'meta.data') <- x[[]][cells, , drop = FALSE]
   if (!all(orig.cells %in% cells)) {
-    slot(object = x, name = 'graphs') <- list()
+    # Remove neighbors
     slot(object = x, name = 'neighbors') <- list()
+    # Filter Graphs
+    for (g in names(slot(object = x, name = 'graphs'))) {
+      suppressWarnings(
+        expr =  x[[g]] <- as.Graph(x = x[[g]][cells, cells])
+      )
+    }
   }
   Idents(object = x, drop = TRUE) <- Idents(object = x)[cells]
   # Filter Assay objects
@@ -3577,7 +3583,10 @@ subset.Seurat <- function(
     }
   }
  # set variable features
-  VariableFeatures(object = x) <- var.features
+  suppressWarnings(
+    expr = VariableFeatures(object = x) <- var.features,
+    classes = 'validationWarning'
+  )
   # subset images
   for (image in Images(object = x)) {
     x[[image]] <- base::subset(x = x[[image]], cells = cells)
