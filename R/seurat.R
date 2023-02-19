@@ -3582,10 +3582,12 @@ subset.Seurat <- function(
     }
   }
  # set variable features
-  suppressWarnings(
-    expr = VariableFeatures(object = x) <- var.features,
-    classes = 'validationWarning'
-  )
+  if (!is.null(var.features)) {
+    suppressWarnings(
+      expr = VariableFeatures(object = x) <- var.features,
+      classes = 'validationWarning'
+    )
+  }
   # subset images
   for (image in Images(object = x)) {
     x[[image]] <- base::subset(x = x[[image]], cells = cells)

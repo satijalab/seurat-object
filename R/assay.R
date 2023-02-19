@@ -1523,6 +1523,8 @@ setAs(
     )
     # Add feature-level meta data
     suppressWarnings(to[] <- from[])
+    # set variable features
+    VariableFeatures(object = to) <- VariableFeatures(object = from)
     mdata <- Misc(object = from)
     for (i in names(x = mdata)) {
       Misc(object = to, slot = i) <- mdata[[i]]
