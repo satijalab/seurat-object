@@ -2536,11 +2536,14 @@ setAs(
     )
     # Add feature-level meta data
     to[] <- from[]
+    # Set Variable features
+    VariableFeatures(object = to) <- VariableFeatures(object = from)
     # Add miscellaneous data
     mdata <- Misc(object = from)
     for (i in names(x = mdata)) {
       Misc(object = to, slot = i) <- mdata[[i]]
     }
+
     return(to)
   }
 )
