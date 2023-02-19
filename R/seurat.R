@@ -3473,7 +3473,6 @@ subset.Seurat <- function(
   return.null = FALSE,
   ...
 ) {
-  x <- UpdateSlots(object = x)
   var.features <- VariableFeatures(object = x)
   if (!missing(x = subset)) {
     subset <- enquo(arg = subset)
@@ -3525,26 +3524,27 @@ subset.Seurat <- function(
       slot(object = x, name = 'assays')[[assay]] <- NULL
     } else {
       assay.features <- features %||% rownames(x = x[[assay]])
-      slot(object = x, name = 'assays')[[assay]] <- tryCatch(
-        # because subset is also an argument, we need to explictly use the base::subset function
-        expr = suppressWarnings(
-          expr = base::subset(
-            x = x[[assay]],
-            cells = cells,
-            features = assay.features
+      suppressWarnings(
+        expr = slot(object = x, name = 'assays')[[assay]] <- tryCatch(
+          # because subset is also an argument, we need to explictly use the base::subset function
+          expr = suppressWarnings(
+            expr = base::subset(
+              x = x[[assay]],
+              cells = cells,
+              features = assay.features
+            ),
+            classes = 'validationWarning'
           ),
-          classes = 'validationWarning'
-        ),
-        error = function(e) {
-          if (e$message == "Cannot find features provided") {
-            return(NULL)
-          } else {
-            stop(e)
+          error = function(e) {
+            if (e$message == "Cannot find features provided") {
+              return(NULL)
+            } else {
+              stop(e)
+            }
           }
-        }
-      )
+        )
+        )
     }
-
   }
   slot(object = x, name = 'assays') <- Filter(
     f = Negate(f = is.null),
