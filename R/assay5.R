@@ -1606,9 +1606,13 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   value
 ) {
   value <- intersect(x = value, y = rownames(x = object))
-  if (!length(x = value)) {
-    stop("None of the features specified are present in this assay", call. = FALSE)
+  if (length(x = value) == 0) {
+    object['var.features'] <- NA
+    return(object)
   }
+  # if (!length(x = value)) {
+  #   stop("None of the features specified are present in this assay", call. = FALSE)
+  # }
   object['var.features'] <- value
   # layer <- Layers(object = object, search = layer)
   # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
