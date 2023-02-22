@@ -2394,7 +2394,7 @@ SetIdent.Seurat <- function(object, cells = NULL, value, ...) {
 #'
 SpatiallyVariableFeatures.Seurat <- function(
   object,
-  selection.method = "markvariogram",
+  selection.method = "moransi",
   assay = NULL,
   decreasing = TRUE,
   ...

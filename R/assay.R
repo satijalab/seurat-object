@@ -832,7 +832,7 @@ SetAssayData.Assay <- function(
 #'
 SpatiallyVariableFeatures.Assay <- function(
   object,
-  selection.method = "markvariogram",
+  selection.method = "moransi",
   decreasing = TRUE,
   ...
 ) {
