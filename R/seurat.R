@@ -789,8 +789,9 @@ SaveSeuratRds <- function(
 #' \code{(paste0(Project(object), ".Rds"))}
 #' @param destdir Destination directory (to include both BPCells directory 
 #' and \code{\link{Seurat}} object) 
-#' @param relative Save relative paths instead of absolute ones
-#' @param remove_old Delete old files 
+#' @param relative Save relative paths instead of absolute ones. This is recommended
+#' if sharing the object folder
+#' @param remove_old Delete current BPCells directories after moving
 #' @inheritDotParams base::saveRDS
 #'
 #' @return Invisibly returns \code{file}
@@ -836,15 +837,13 @@ SaveSeuratBP <- function(
   ...
 ) {
   filename <- filename %||% paste0(Project(object = object), '.Rds')
-  #file.path(getwd(), paste0(Project(object = object),
-  #file <- normalizePath(path = file, mustWork = FALSE)
   # Cache v5 assays
   assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
   p <- progressor(along = assays, auto_finish = TRUE)
   on.exit(expr = p(type = 'finish'), add = TRUE)
   p(
     message = paste(
-      "Looking for on-disk matrices (BPCells Directories) in",
+      "Looking for BPCells Directories in",
       length(x = assays),
       "assays"
     ),
@@ -853,8 +852,6 @@ SaveSeuratBP <- function(
   )
   cache <- vector(mode = 'list', length = length(x = assays))
   names(x = cache) <- assays
-  # Don't know if we need this temp dir thing
-  tdir <- normalizePath(path = tempdir()) 
   destdir <- destdir %||% dirname(path = file)
   if (!is_na(x = destdir) || isTRUE(x = relative)) {
     check_installed(
@@ -872,7 +869,7 @@ SaveSeuratBP <- function(
       X = Layers(object = object[[assay]]),
       FUN = function(lyr) {
         ldat <- LayerData(object = object[[assay]], layer = lyr)
-        path <- .FilePath(x = ldat) # now calls iterable matrix version
+        path <- .FilePath(x = ldat) 
         if (is.null(x = path)) {
           return(NULL)
         }
@@ -881,7 +878,6 @@ SaveSeuratBP <- function(
           path = path,
           class = paste(class(x = ldat), collapse = ','),
           pkg = .ClassPkg(object = ldat)
-          #fxn = .DiskLoad(x = ldat) %||% identity
         ))
       }
     )
@@ -893,27 +889,21 @@ SaveSeuratBP <- function(
     if (!is_na(x = destdir)) {
       for (i in seq_len(length.out = nrow(x = df))) {
         pth <- df$path[i]
-        # this line causes issues because tempdir is always returning /tmp..something
-        #mv <- substr(x = pth, start = 1L, stop = nchar(x = tdir)) == tdir ||
-              #isTRUE(x = relative)
-        mv <- TRUE
-        if (isTRUE(x = mv)) {
-          p(
-            message = paste(
-              "Moving layer",
-              sQuote(x = df$layer[i]),
-              "to",
-              sQuote(x = destdir)
-            ),
-            class = 'sticky',
-            amount = 0
-          )
-          df[i, 'path'] <- as.character(x = .FileMove(
-            path = pth,
-            new_path = destdir,
-            delete = FALSE
-          ))
-        }
+        p(
+          message = paste(
+            "Moving layer",
+            sQuote(x = df$layer[i]),
+            "to",
+            sQuote(x = destdir)
+          ),
+          class = 'sticky',
+          amount = 0
+        )
+        df[i, 'path'] <- as.character(x = .FileMove(
+          path = pth,
+          new_path = destdir,
+          delete = FALSE
+        ))
       }
     }
     if (isTRUE(x = relative)) {
@@ -942,41 +932,8 @@ SaveSeuratBP <- function(
       ldat@matrix@dir <- path
       LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat 
     }
-    
-    #   cache[[assay]] <- df
-    #   if (nrow(x = df) == length(x = Layers(object = object[[assay]]))) {
-    #     p(
-    #       message = paste("Clearing layers from", assay),
-    #       class = 'sticky',
-    #       amount = 0
-    #     )
-    #     adata <- S4ToList(object = object[[assay]])
-    #     adata$layers <- list()
-    #     adata$default <- 0L
-    #     adata$cells <- LogMap(y = colnames(x = object[[assay]]))
-    #     adata$features <- LogMap(y = rownames(x = object[[assay]]))
-    #     object[[assay]] <- ListToS4(x = adata)
-    #   } else {
-    #     p(
-    #       message = paste("Clearing", nrow(x = df), "layers from", assay),
-    #       class = 'sticky',
-    #       amount = 0
-    #     )
-    #     for (layer in df$layer) {
-    #       LayerData(object = object[[assay]], layer = layer) <- NULL
-    #     }
-    #   }
-    #   p()
-    
     p()
   }
-  # cache <- do.call(what = 'rbind', args = cache)
-  # if (!is.null(x = cache) && nrow(x = cache)) {
-  #   p(message = "Saving on-disk cache to object", class = 'sticky', amount = 0)
-  #   row.names(x = cache) <- NULL
-  #   Tool(object = object) <- cache
-  # }
-  
   saveRDS(object = object, file = file.path(destdir, filename), ...)
   return(invisible(x = filename))
 }
