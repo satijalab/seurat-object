@@ -4,6 +4,7 @@
 \alias{.FilePath}
 \alias{.FilePath.default}
 \alias{.FilePath.DelayedMatrix}
+\alias{.FilePath.IterableMatrix}
 \title{Find a File Path}
 \usage{
 .FilePath(x)
@@ -11,6 +12,8 @@
 \method{.FilePath}{default}(x)
 
 \method{.FilePath}{DelayedMatrix}(x)
+
+\method{.FilePath}{IterableMatrix}(x)
 }
 \arguments{
 \item{x}{A file-backed object}
