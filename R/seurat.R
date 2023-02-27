@@ -810,17 +810,16 @@ SaveSeuratRds <- function(
 #' @examples
 #' if (requireNamespace("BPCells") && requireNamespace("fs")) {
 #'   pbmc_small[["RNA5"]] <- as(object = pbmc_small[['RNA']], Class = 'Assay5')
-#'   write_matrix_dir(mat = pbmc_small[['RNA']]$counts, 
+#'   pbmc_small[["RNA5"]]$counts <- BPCells::write_matrix_dir(
+#'   mat = pbmc_small[['RNA']]$counts,
 #'     dir = '~/pbmc_counts_BP/')
-#'   mat <- open_matrix_dir(dir = "~/pbmc_counts_BP/")
-#'   pbmc_small[["RNA5"]]$counts <- mat
 #'
 #'   # Save `pbmc_small` to a folder with Rds file and BP Cells directory
 #'   SaveSeuratBP(pbmc_small, 
-#'                filename = "pbmc_small.Rds", 
-#'                destdir = "~/full_object/", 
-#'                relative = T, 
-#'                remove_old = F)
+#'                filename = "pbmc_small.Rds",
+#'                destdir = "~/full_object/",
+#'                relative = TRUE,
+#'                remove_old = FALSE)
 #'                
 #'   # Load the saved object with on-disk layers back into memory
 #'   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds)
@@ -924,13 +923,13 @@ SaveSeuratBP <- function(
     for (i in seq_len(length.out = nrow(x = df))){
       # writing new path
       warning("Changing path in object to point to new BPCells directory location", 
-              call. = F, 
-              immediate. = T)
+              call. = FALSE,
+              immediate. = TRUE)
       ldat <- LayerData(object[[df[i,]$assay]], 
                         layer = df[i,]$layer)
       path <- df[i,]$path
       ldat@matrix@dir <- path
-      LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat 
+      LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat
     }
     p()
   }
