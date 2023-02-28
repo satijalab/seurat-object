@@ -200,7 +200,7 @@ CellsByIdentities <- function(
     USE.NAMES = TRUE
   )
   if (any(is.na(x = Idents(object = object)[cells]))) {
-    cells.idents["NA"] <- names(x = which(x = is.na(x = Idents(object = object)[cells])))
+    cells.idents[["NA"]] <- names(x = which(x = is.na(x = Idents(object = object)[cells])))
   }
   return(cells.idents)
 }
@@ -3508,8 +3508,9 @@ subset.Seurat <- function(
     slot(object = x, name = 'neighbors') <- list()
     # Filter Graphs
     for (g in names(slot(object = x, name = 'graphs'))) {
+      cells.g <- intersect(colnames(x[[g]]), cells)
       suppressWarnings(
-        expr =  x[[g]] <- as.Graph(x = x[[g]][cells, cells])
+        expr =  x[[g]] <- as.Graph(x = x[[g]][cells.g, cells.g, drop = FALSE])
       )
     }
   }
