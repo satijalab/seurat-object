@@ -1487,12 +1487,21 @@ setAs(
   to = 'Assay',
   def = function(from) {
     data.list <- c()
+    original.layers <- Layers(object = from)
+    layers.saved <- c()
     for (i in c('counts', 'data', 'scale.data')) {
+      layers.saved <- c(layers.saved, Layers(object = from, search = i))
       if (length(Layers(object = from, search = i)) > 1) {
+          warning("Joining layers. If you have the same cells in multiple layers, ", 
+                  "the expression value for the cell in the ",
+                  i, " slot will be the value from the ", 
+                  Layers(object = from, search = i)[1], " layer.",
+                  call. = FALSE, 
+                  immediate. = TRUE)
           from <- JoinLayers(object = from,
-                             layers = i,
-                             new = i)
-      }
+                            layers = i,
+                            new = i)
+      } 
       if(i == "data") {
         if (isTRUE(Layers(object = from, search = i) == "scale.data")){
           warning("No counts or data slot in object. Setting 'data' slot using",
@@ -1511,6 +1520,14 @@ setAs(
     }
     if (IsMatrixEmpty(x = data.list[["data"]])){
       data.list[["data"]] <- data.list[["counts"]]
+    }
+    if (any(!(original.layers %in% layers.saved))){
+      layers.remove <- original.layers[!(original.layers %in% layers.saved)]
+      warning("Layers ", paste0(layers.remove, collapse = ', '), 
+              " will be removed from the object as v3 assays only support", 
+              " 'counts', 'data', or 'scale.data' slots.", 
+              call. = FALSE, 
+              immediate. = TRUE)
     }
     to <- new(
       Class = 'Assay',
