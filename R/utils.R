@@ -1855,6 +1855,7 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   stopifnot(is_scalar_character(x = new_path))
   stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0)
   if (fs::is_dir(path = path)) {
+    # Move directory 
     path <- fs::path_expand(path = path)
     new_path <- fs::path_expand(path = new_path)
     dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
@@ -1863,6 +1864,7 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
       fs::dir_delete(path = path)
     }
   } else if (fs::is_file(path = path)){
+    # Move file
     if (isTRUE(x = delete)){
       dest <- fs::file_move(path = path, new_path = new_path)
     } else {
@@ -1879,7 +1881,7 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   }
   return(invisible(x = tryCatch(
     expr = return(dest),
-    error = function(e) error_call
+    error = function(e) return(error_call)
   )))
 }
 

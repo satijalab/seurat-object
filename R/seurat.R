@@ -598,6 +598,29 @@ RenameAssays <- function(
   return(object)
 }
 
+#' Save Seurat Objects 
+#' 
+#' Save Seurat objects. Allows you to save an object with BPCells matrices 
+#' on disk in the same folder as BPCells directories using the destdir parameter.
+#'
+#' @inheritParams saveRDS
+#' @param object 
+#' @param file Path to save \code{Seurat} Object to
+#' @param destdir directory to save BPCells and \code{Seurat} Objects in 
+#' 
+#' @export
+saveRDS.Seurat <- function(
+  object = object, 
+  file = NULL, 
+  destdir = NULL
+) {
+  if(!is.null(destdir)) {
+    SaveSeuratBP(object, filename = basename(file), destdir = destdir)
+  } else {
+    base::saveRDS(object = object, file = file)
+  }
+}
+
 #' Save and Load \code{Seurat} Objects from Rds files
 #'
 #' @param object A \code{\link{Seurat}} object
@@ -898,11 +921,18 @@ SaveSeuratBP <- function(
           class = 'sticky',
           amount = 0
         )
-        df[i, 'path'] <- as.character(x = .FileMove(
-          path = pth,
-          new_path = destdir,
-          delete = FALSE
-        ))
+        df[i, 'path'] <- tryCatch(
+          expr = as.character(x = .FileMove(
+            path = pth,
+            new_path = destdir
+          )), error = function(e) {
+            stop("Can't find path: '", pth, 
+            "'. If path for BPCells directory is relative, change working directory. ",
+            "If path is no longer valid, change object[[assay]]@matrix@dir",
+            " to new path and try again.",
+            call. = FALSE)
+          }
+        )
       }
     }
     if (isTRUE(x = relative)) {
