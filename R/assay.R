@@ -1492,10 +1492,10 @@ setAs(
     for (i in c('counts', 'data', 'scale.data')) {
       layers.saved <- c(layers.saved, Layers(object = from, search = i))
       if (length(Layers(object = from, search = i)) > 1) {
-          warning("Joining layers. If you have the same cells in multiple layers, ", 
-                  "the expression value for the cell in the ",
-                  i, " slot will be the value from the ", 
-                  Layers(object = from, search = i)[1], " layer.",
+          warning("Joining '", i, "' layers. If you have the same cells in multiple layers, ", 
+                  "the expression value for the cell in the '",
+                  i, "' slot will be the value from the '", 
+                  Layers(object = from, search = i)[1], "' layer.",
                   call. = FALSE, 
                   immediate. = TRUE)
           from <- JoinLayers(object = from,
