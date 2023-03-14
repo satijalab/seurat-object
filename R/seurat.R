@@ -613,12 +613,13 @@ saveRDS.Seurat <- function(
   object = object, 
   file = NULL, 
   destdir = NULL,
-  azimuth = FALSE,
+  azimuth = FALSE
 ) {
   if(!is.null(x = destdir)) {
     SaveSeuratBP(object, filename = basename(file), destdir = destdir)
   } else {
     base::saveRDS(object = object, file = file)
+    return(invisible(x = file))
   }
   if(isTRUE(x = azimuth)){
     if(!(is.null(file))){
@@ -856,7 +857,7 @@ SaveSeuratRds <- function(
 #'                remove_old = FALSE)
 #'                
 #'   # Load the saved object with on-disk layers back into memory
-#'   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds)
+#'   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds")
 #'   pbmc2
 #'   pbmc2[["RNA5"]]$counts
 #' }

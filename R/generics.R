@@ -1383,7 +1383,7 @@ S4ToList <- function(object) {
 
 #' @param object object to save
 #'
-#' @return 
+#' @return Invisibly returns \code{file}
 #'
 #' @rdname saveRDS
 #' @export saveRDS
