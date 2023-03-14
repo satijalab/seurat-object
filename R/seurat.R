@@ -612,12 +612,23 @@ RenameAssays <- function(
 saveRDS.Seurat <- function(
   object = object, 
   file = NULL, 
-  destdir = NULL
+  destdir = NULL,
+  azimuth = FALSE,
 ) {
-  if(!is.null(destdir)) {
+  if(!is.null(x = destdir)) {
     SaveSeuratBP(object, filename = basename(file), destdir = destdir)
   } else {
     base::saveRDS(object = object, file = file)
+  }
+  if(isTRUE(x = azimuth)){
+    if(!(is.null(file))){
+      warning("filenames for Azimuth references will automatically ", 
+              "be set to 'ref.Rds' for the reference object and ", 
+              "'idx.annoy' for the neighbors index", 
+              call. = FALSE, 
+              immediate. = TRUE)
+    }
+    Azimuth::SaveAzimuthReference(object, folder = destdir)
   }
 }
 
