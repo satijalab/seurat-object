@@ -598,6 +598,41 @@ RenameAssays <- function(
   return(object)
 }
 
+#' Save Seurat Objects 
+#' 
+#' Save Seurat objects. Allows you to save an object with BPCells matrices 
+#' on disk in the same folder as BPCells directories using the destdir parameter.
+#'
+#' @inheritParams saveRDS
+#' @param object 
+#' @param file Path to save \code{Seurat} Object to
+#' @param destdir directory to save BPCells and \code{Seurat} Objects in 
+#' 
+#' @export
+saveRDS.Seurat <- function(
+  object = object, 
+  file = NULL, 
+  destdir = NULL,
+  azimuth = FALSE
+) {
+  if(!is.null(x = destdir)) {
+    SaveSeuratBP(object, filename = basename(file), destdir = destdir)
+  } else {
+    base::saveRDS(object = object, file = file)
+    return(invisible(x = file))
+  }
+  if(isTRUE(x = azimuth)){
+    if(!(is.null(file))){
+      warning("filenames for Azimuth references will automatically ", 
+              "be set to 'ref.Rds' for the reference object and ", 
+              "'idx.annoy' for the neighbors index", 
+              call. = FALSE, 
+              immediate. = TRUE)
+    }
+    Azimuth::SaveAzimuthReference(object, folder = destdir)
+  }
+}
+
 #' Save and Load \code{Seurat} Objects from Rds files
 #'
 #' @param object A \code{\link{Seurat}} object
@@ -778,6 +813,172 @@ SaveSeuratRds <- function(
   saveRDS(object = object, file = file, ...)
   return(invisible(x = file))
 }
+
+
+
+
+#' Save \code{Seurat} Objects as RDS files with BPCells directories in same folder
+#'
+#' @param object A \code{\link{Seurat}} object
+#' @param file file name for \code{\link{Seurat}} object. defaults to
+#' \code{(paste0(Project(object), ".Rds"))}
+#' @param destdir Destination directory (to include both BPCells directory 
+#' and \code{\link{Seurat}} object) 
+#' @param relative Save relative paths instead of absolute ones. This is recommended
+#' if sharing the object folder
+#' @param remove_old Delete current BPCells directories after moving
+#' @inheritDotParams base::saveRDS
+#'
+#' @return Invisibly returns \code{file}
+#'
+#' @export
+#'
+#' @template section-progressr
+#'
+#' @templateVar pkg fs
+#' @template note-reqdpkg
+#'
+#' @seealso \code{\link{saveRDS}()} \code{\link{readRDS}()}
+#'
+#' @order 1
+#'
+#' @examples
+#' if (requireNamespace("BPCells") && requireNamespace("fs")) {
+#'   pbmc_small[["RNA5"]] <- as(object = pbmc_small[['RNA']], Class = 'Assay5')
+#'   pbmc_small[["RNA5"]]$counts <- BPCells::write_matrix_dir(
+#'   mat = pbmc_small[['RNA']]$counts,
+#'     dir = '~/pbmc_counts_BP/')
+#'
+#'   # Save `pbmc_small` to a folder with Rds file and BP Cells directory
+#'   SaveSeuratBP(pbmc_small, 
+#'                filename = "pbmc_small.Rds",
+#'                destdir = "~/full_object/",
+#'                relative = TRUE,
+#'                remove_old = FALSE)
+#'                
+#'   # Load the saved object with on-disk layers back into memory
+#'   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds")
+#'   pbmc2
+#'   pbmc2[["RNA5"]]$counts
+#' }
+#'
+SaveSeuratBP <- function(
+  object,
+  filename = NULL,
+  destdir = NULL,
+  relative = FALSE,
+  remove_old = FALSE,
+  ...
+) {
+  filename <- filename %||% paste0(Project(object = object), '.Rds')
+  # Cache v5 assays
+  assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
+  p <- progressor(along = assays, auto_finish = TRUE)
+  on.exit(expr = p(type = 'finish'), add = TRUE)
+  p(
+    message = paste(
+      "Looking for BPCells Directories in",
+      length(x = assays),
+      "assays"
+    ),
+    class = 'sticky',
+    amount = 0
+  )
+  cache <- vector(mode = 'list', length = length(x = assays))
+  names(x = cache) <- assays
+  destdir <- destdir %||% dirname(path = file)
+  if (!is_na(x = destdir) || isTRUE(x = relative)) {
+    check_installed(
+      pkg = 'fs',
+      reason = 'for moving on-disk matrices'
+    )
+  }
+  for (assay in assays) {
+    p(
+      message = paste("Searching through assay", assay),
+      class = 'sticky',
+      amount = 0
+    )
+    df <- lapply(
+      X = Layers(object = object[[assay]]),
+      FUN = function(lyr) {
+        ldat <- LayerData(object = object[[assay]], layer = lyr)
+        path <- .FilePath(x = ldat) 
+        if (is.null(x = path)) {
+          return(NULL)
+        }
+        return(data.frame(
+          layer = lyr,
+          path = path,
+          class = paste(class(x = ldat), collapse = ','),
+          pkg = .ClassPkg(object = ldat)
+        ))
+      }
+    )
+    df <- do.call(what = 'rbind', args = df)
+    if (is.null(x = df) || !nrow(x = df)) {
+      p(message = "No on-disk layers found", class = 'sticky', amount = 0)
+      next
+    }
+    if (!is_na(x = destdir)) {
+      for (i in seq_len(length.out = nrow(x = df))) {
+        pth <- df$path[i]
+        p(
+          message = paste(
+            "Moving layer",
+            sQuote(x = df$layer[i]),
+            "to",
+            sQuote(x = destdir)
+          ),
+          class = 'sticky',
+          amount = 0
+        )
+        df[i, 'path'] <- tryCatch(
+          expr = as.character(x = .FileMove(
+            path = pth,
+            new_path = destdir
+          )), error = function(e) {
+            stop("Can't find path: '", pth, 
+            "'. If path for BPCells directory is relative, change working directory. ",
+            "If path is no longer valid, change object[[assay]]@matrix@dir",
+            " to new path and try again.",
+            call. = FALSE)
+          }
+        )
+      }
+    }
+    if (isTRUE(x = relative)) {
+      p(
+        message = paste(
+          "Adjusting paths to be relative to",
+          sQuote(x = dirname(path = destdir), q = FALSE)
+        ),
+        class = 'sticky',
+        amount = 0
+      )
+      df$path <- as.character(x = fs::path_rel(
+        path = df$path,
+        start = dirname(path = destdir)
+      ))
+    }
+    df$assay <- assay
+    for (i in seq_len(length.out = nrow(x = df))){
+      # writing new path
+      warning("Changing path in object to point to new BPCells directory location", 
+              call. = FALSE,
+              immediate. = TRUE)
+      ldat <- LayerData(object[[df[i,]$assay]], 
+                        layer = df[i,]$layer)
+      path <- df[i,]$path
+      ldat@matrix@dir <- path
+      LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat
+    }
+    p()
+  }
+  saveRDS(object = object, file = file.path(destdir, filename), ...)
+  return(invisible(x = filename))
+}
+
 
 #' Update old Seurat object to accommodate new features
 #'
