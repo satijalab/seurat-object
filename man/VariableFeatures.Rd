@@ -62,7 +62,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{SpatiallyVariableFeatures}{Seurat}(
   object,
-  selection.method = "markvariogram",
+  selection.method = "moransi",
   assay = NULL,
   decreasing = TRUE,
   ...
@@ -72,7 +72,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{SpatiallyVariableFeatures}{Assay}(
   object,
-  selection.method = "markvariogram",
+  selection.method = "moransi",
   decreasing = TRUE,
   ...
 )

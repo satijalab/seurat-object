@@ -633,6 +633,14 @@ saveRDS.Seurat <- function(
   }
 }
 
+
+
+#' @inheritParams base::saveRDS
+#' @export
+#'
+saveRDS.default <- base::saveRDS
+
+
 #' Save and Load \code{Seurat} Objects from Rds files
 #'
 #' @param object A \code{\link{Seurat}} object
@@ -1382,6 +1390,10 @@ CreateSeuratObject.default <- function(
   ...
 ) {
   assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
+  if(!inherits(counts, what = "dgCMatrix") && assay.version == 'v3'){
+    message("Counts matrix provided is not sparse. Creating V5 assay in Seurat Object.")
+    assay.version = 'v5'
+  }
   assay.data <- if (tolower(x = assay.version) == 'v3') {
     assay.data <- CreateAssayObject(
       counts = counts,

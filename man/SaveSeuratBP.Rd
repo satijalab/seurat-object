@@ -65,6 +65,27 @@ this function. For more details about \pkg{progressr}, please read
 \href{https://progressr.futureverse.org/articles/progressr-intro.html}{\code{vignette("progressr-intro")}}
 }
 
+\examples{
+if (requireNamespace("BPCells") && requireNamespace("fs")) {
+  pbmc_small[["RNA5"]] <- as(object = pbmc_small[['RNA']], Class = 'Assay5')
+  pbmc_small[["RNA5"]]$counts <- BPCells::write_matrix_dir(
+  mat = pbmc_small[['RNA']]$counts,
+    dir = '~/pbmc_counts_BP/')
+
+  # Save `pbmc_small` to a folder with Rds file and BP Cells directory
+  SaveSeuratBP(pbmc_small, 
+               filename = "pbmc_small.Rds",
+               destdir = "~/full_object/",
+               relative = TRUE,
+               remove_old = FALSE)
+               
+  # Load the saved object with on-disk layers back into memory
+  pbmc2 <- readRDS("~/full_object/pbmc_small.Rds")
+  pbmc2
+  pbmc2[["RNA5"]]$counts
+}
+
+}
 \seealso{
 \code{\link{saveRDS}()} \code{\link{readRDS}()}
 }
