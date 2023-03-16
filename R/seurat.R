@@ -633,6 +633,14 @@ saveRDS.Seurat <- function(
   }
 }
 
+
+
+#' @inheritParams base::saveRDS
+#' @export
+#'
+saveRDS.default <- base::saveRDS
+
+
 #' Save and Load \code{Seurat} Objects from Rds files
 #'
 #' @param object A \code{\link{Seurat}} object
