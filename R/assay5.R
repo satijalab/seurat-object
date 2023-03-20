@@ -1060,7 +1060,20 @@ JoinLayers.StdAssay <- function(
  return(object)
 }
 
+#' @param layers ...
+#' @param new ...
+#' @param default ...
+#' @param nfeatures ...
+#'
+#' @rdname SplitLayers
+#'
+#' @method JoinLayers Assay5
+#' @export
+#'
+JoinLayers.Assay5 <- JoinLayers.StdAssay
 
+# Join single layers
+#
 JoinSingleLayers <- function(
   object,
   layers = NULL,
@@ -1078,8 +1091,8 @@ JoinSingleLayers <- function(
   layers <- Layers(object = object, search = layers)
   new <- new %||% 'newlayer'
   if (length(x = layers) < 2L) {
-      LayerData(object = object, layer = new) <- LayerData(object = object, layer = layers)
-      return(object)
+    LayerData(object = object, layer = new) <- LayerData(object = object, layer = layers)
+    return(object)
   }
   # Stitch the layers together
   ldat <- StitchMatrix(
@@ -1115,18 +1128,6 @@ JoinSingleLayers <- function(
   }
   return(object)
 }
-
-#' @param layers ...
-#' @param new ...
-#' @param default ...
-#' @param nfeatures ...
-#'
-#' @rdname SplitLayers
-#'
-#' @method JoinLayers Assay5
-#' @export
-#'
-JoinLayers.Assay5 <- JoinLayers.StdAssay
 
 #' @rdname Key
 #' @method Key Assay5
