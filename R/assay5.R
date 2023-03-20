@@ -1048,14 +1048,19 @@ JoinLayers.StdAssay <- function(
     stop('Number of layers and new should be the same')
   }
   for (i in seq_along(layers)) {
-    object <- JoinSingleLayers(
-      object = object,
-      layers = layers[i],
-      new = new[i],
-      default = TRUE,
-      nfeatures,
-      ...
+    num.layers <- suppressWarnings(
+      expr = length(x = Layers(object = object, search = layers[i]))
       )
+    if (num.layers > 0L) {
+      object <- JoinSingleLayers(
+        object = object,
+        layers = layers[i],
+        new = new[i],
+        default = TRUE,
+        nfeatures,
+        ...
+      )
+    }
   }
  return(object)
 }
@@ -1090,8 +1095,11 @@ JoinSingleLayers <- function(
   }
   layers <- Layers(object = object, search = layers)
   new <- new %||% 'newlayer'
-  if (length(x = layers) < 2L) {
+  if (length(x = layers) == 1L) {
     LayerData(object = object, layer = new) <- LayerData(object = object, layer = layers)
+    return(object)
+  }
+  if (length(x = layers) == 0L) {
     return(object)
   }
   # Stitch the layers together
