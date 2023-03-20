@@ -1042,10 +1042,44 @@ JoinLayers.StdAssay <- function(
   nfeatures = Inf,
   ...
 ) {
+  layers <- layers %||% c('counts', 'data', 'scale.data')
+  new <- new %||% layers
+  if (length(x = layers) != length(x = new)) {
+    stop('Number of layers and new should be the same')
+  }
+  for (i in seq_along(layers)) {
+    object <- JoinSingleLayers(
+      object = object,
+      layers = layers[i],
+      new = new[i],
+      default = TRUE,
+      nfeatures,
+      ...
+      )
+  }
+ return(object)
+}
+
+
+JoinSingleLayers <- function(
+  object,
+  layers = NULL,
+  new = NULL,
+  default = TRUE,
+  nfeatures = Inf,
+  ...
+) {
+  if (is.null(x = layers)) {
+    stop('Layers cannot be NULL')
+  }
+  if (length(x = layers) > 1L) {
+    stop('The length of input layers should be 1')
+  }
   layers <- Layers(object = object, search = layers)
   new <- new %||% 'newlayer'
   if (length(x = layers) < 2L) {
-    abort(message = "Fewer than two layers ")
+      LayerData(object = object, layer = new) <- LayerData(object = object, layer = layers)
+      return(object)
   }
   # Stitch the layers together
   ldat <- StitchMatrix(
@@ -2123,7 +2157,7 @@ split.StdAssay <- function(
   layers <- Layers(object = x, search = layers)
   layers.splitted <- list()
   for (i in seq_along(along.with = layers)) {
-    if (!all(colnames(x[[layers[i]]]) == colnames(x))) {
+    if (length(colnames(x[[layers[i]]])) != length(colnames(x))) {
       layers.splitted[[i]] <- layers[i]
     }
   }
