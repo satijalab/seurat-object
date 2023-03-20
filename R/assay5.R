@@ -2121,6 +2121,18 @@ split.StdAssay <- function(
   ret <- ret[1L]
   ret <- match.arg(arg = ret)
   layers <- Layers(object = x, search = layers)
+  layers.splitted <- list()
+  for (i in seq_along(along.with = layers)) {
+    if (!all(colnames(x[[layers[i]]]) == colnames(x))) {
+      layers.splitted[[i]] <- layers[i]
+    }
+  }
+  layers.splitted <- unlist(x = layers.splitted)
+  if (length(x = layers.splitted) > 0) {
+   stop('Those layers are splitted already: ', paste(layers.splitted, collapse = ' '),
+        '\n', 'Please join those layers before splitting'
+        )
+  }
   default <- ifelse(
     test = DefaultLayer(object = x) %in% layers,
     yes = DefaultLayer(object = x),
