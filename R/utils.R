@@ -1393,7 +1393,7 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 #'
 .FilePath.IterableMatrix <- function(x){
   check_installed(pkg = "BPCells", reason = "for working with BPCells")
-  path <- tryCatch(expr = normalizePath(path = x@matrix@dir), 
+  path <- tryCatch(expr = normalizePath(path = x@matrix@dir),
                    error = function(...) NULL)
   if (is.null(x = path)) {
     warn(message = "The matrix provided does not exist on-disk")
@@ -1716,6 +1716,22 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
   return(coords)
 }
 
+#' Generate empty dgC sparse matrix
+#'
+#' @param ncol
+#' @param nrow
+#' @export
+#'
+SparseEmptyMatrix <- function(nrow, ncol, rownames = NULL, colnames = NULL) {
+  mat <- new('dgCMatrix')
+  mat@Dim <- c(as.integer(nrow), as.integer(ncol))
+  mat@p <- integer(ncol + 1L)
+  mat@Dimnames <- list(rownames, colnames)
+  return(mat)
+}
+
+
+
 #' @method StitchMatrix default
 #' @export
 #'
@@ -1748,6 +1764,39 @@ StitchMatrix.dgCMatrix <- function(x, y, rowmap, colmap, ...) {
   }
   return(RowMergeSparseMatrices(mat1 = x, mat2 = y))
 }
+
+#' @method StitchMatrix IterableMatrix
+#' @export
+#'
+StitchMatrix.IterableMatrix <- function(x, y,  rowmap, colmap, ...) {
+  on.exit(expr = CheckGC())
+  if (!is_bare_list(x = y)) {
+    y <- list(y)
+  }
+  rowmap <- droplevels(x = rowmap)
+  colmap <- droplevels(x = colmap)
+  stopifnot(ncol(rowmap) == length(y) + 1L)
+  stopifnot(ncol(colmap) == length(y) + 1L)
+  stopifnot(identical(x = colnames(x = rowmap), y = colnames(x = colmap)))
+  y <- c(x, y)
+  for (i in seq_along(along.with = y)) {
+    #expand matrix to the same size
+    missing_row <- setdiff(rownames(rowmap), rowmap[[i]])
+    if (length(x = missing_row) > 0) {
+      zero_i <- SparseEmptyMatrix(
+        nrow = length(x = missing_row),
+        ncol = ncol(y[[i]]),
+        colnames = colmap[[i]],
+        rownames = missing_row
+      )
+      zero_i <- BPCells::write_matrix_memory(mat = zero_i)
+      y[[i]] <- rbind(y[[i]], zero_i)[rownames(rowmap),]
+    }
+  }
+  m <- Reduce(cbind, x = y)
+  return(m)
+}
+
 
 #' @method StitchMatrix matrix
 #' @export
@@ -1855,7 +1904,7 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   stopifnot(is_scalar_character(x = new_path))
   stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0)
   if (fs::is_dir(path = path)) {
-    # Move directory 
+    # Move directory
     path <- fs::path_expand(path = path)
     new_path <- fs::path_expand(path = new_path)
     dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
