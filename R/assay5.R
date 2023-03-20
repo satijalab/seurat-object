@@ -2884,19 +2884,11 @@ setMethod(
       paste(strwrap(x = paste(top.ten, collapse = ', ')), collapse = '\n'),
       '\n'
     )
-    cat("Default layer:", DefaultLayer(object = object) %||% "NULL", '\n')
-    # Layer information
-    layers <- setdiff(
-      x = Layers(object = object),
-      y = DefaultLayer(object = object)
+    cat(
+      "Layers:\n",
+      paste(strwrap(x = paste(Layers(object = object), collapse = ', ')), collapse = '\n'),
+      "\n"
     )
-    if (length(x = layers)) {
-      cat(
-        "Additional layers:\n",
-        paste(strwrap(x = paste(layers, collapse = ', ')), collapse = '\n'),
-        "\n"
-      )
-    }
     return(invisible(x = NULL))
   }
 )
