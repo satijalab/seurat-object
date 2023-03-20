@@ -494,7 +494,7 @@ CastAssay.Assay5 <- CastAssay.StdAssay
 #' @method Cells StdAssay
 #'
 Cells.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
-  if (is_na(x = layer) || is.null(x = layer)) {
+  if (any(is.na(x = layer)) || is.null(x = layer)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
   layer <- Layers(object = x, search = layer)
@@ -1163,7 +1163,7 @@ LayerData.StdAssay <- function(
     layer <- layer[1L]
   }
   # layer <- match.arg(arg = layer, choices = Layers(object = object))
-  if (is.null(layer) || is.na(layer)) {
+  if (is.null(x = layer) || any(is.na(x = layer))) {
     msg <- paste("Layer", sQuote(x = layer_name), "is empty")
     opt <- getOption(x = "Seurat.object.assay.v3.missing_layer",
                      default = Seurat.options$Seurat.object.assay.v3.missing_layer)
@@ -1543,7 +1543,7 @@ VariableFeatures.StdAssay <- function(
     var.features <- as.vector(object['var.features', drop = TRUE])
     var.features <- var.features[!is.na(var.features)]
     if (isTRUE(x = simplify) &
-        (is.null(x = layer) || is.na(x = layer))&
+        (is.null(x = layer) || any(is.na(x = layer)))&
         (is.infinite(x = nfeatures) || length(x = var.features) == nfeatures)
         ) {
           return(var.features)
