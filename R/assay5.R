@@ -829,7 +829,7 @@ FetchData.StdAssay <- function(
       layer = lyr,
       cells = lcells,
       features = lvars
-    )[lvars, lcells, drop = FALSE]), 
+    )[lvars, lcells, drop = FALSE]),
     "matrix")
   }
   # Clean out missing cells from the expression matrix
@@ -1038,8 +1038,6 @@ JoinLayers.StdAssay <- function(
   object,
   layers = NULL,
   new = NULL,
-  default = TRUE,
-  nfeatures = Inf,
   ...
 ) {
   layers <- layers %||% c('counts', 'data', 'scale.data')
@@ -1057,7 +1055,6 @@ JoinLayers.StdAssay <- function(
         layers = layers[i],
         new = new[i],
         default = TRUE,
-        nfeatures,
         ...
       )
     }
@@ -1067,8 +1064,6 @@ JoinLayers.StdAssay <- function(
 
 #' @param layers ...
 #' @param new ...
-#' @param default ...
-#' @param nfeatures ...
 #'
 #' @rdname SplitLayers
 #'
@@ -1076,6 +1071,26 @@ JoinLayers.StdAssay <- function(
 #' @export
 #'
 JoinLayers.Assay5 <- JoinLayers.StdAssay
+
+
+#' @method JoinLayers Seurat
+#' @export
+#'
+JoinLayers.Seurat <- function(
+    object,
+    assay = 'RNA',
+    layers = NULL,
+    new = NULL,
+    ...
+) {
+  object[[assay]] <- JoinLayers(
+    object = object[[assay]],
+    layers = layers,
+    new = new,
+    ...
+    )
+   return(object)
+}
 
 # Join single layers
 #
