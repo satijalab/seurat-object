@@ -1723,13 +1723,14 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
 #' @export
 #'
 SparseEmptyMatrix <- function(nrow, ncol, rownames = NULL, colnames = NULL) {
-  mat <- new('dgCMatrix')
-  mat@Dim <- c(as.integer(nrow), as.integer(ncol))
-  mat@p <- integer(ncol + 1L)
-  mat@Dimnames <- list(rownames, colnames)
+  mat <- new(
+    Class = 'dgCMatrix',
+    p = integer(ncol + 1L),
+    Dim = c(as.integer(nrow), as.integer(ncol)),
+    Dimnames = list(rownames, colnames)
+    )
   return(mat)
 }
-
 
 
 #' @method StitchMatrix default
@@ -1781,19 +1782,19 @@ StitchMatrix.IterableMatrix <- function(x, y,  rowmap, colmap, ...) {
   y <- c(x, y)
   for (i in seq_along(along.with = y)) {
     #expand matrix to the same size
-    missing_row <- setdiff(rownames(rowmap), rowmap[[i]])
+    missing_row <- setdiff(x = rownames(x = rowmap), y = rowmap[[i]])
     if (length(x = missing_row) > 0) {
       zero_i <- SparseEmptyMatrix(
         nrow = length(x = missing_row),
-        ncol = ncol(y[[i]]),
+        ncol = ncol(x = y[[i]]),
         colnames = colmap[[i]],
         rownames = missing_row
       )
-      zero_i <- BPCells::write_matrix_memory(mat = zero_i)
+      zero_i <- BPCells::as(object = zero_i, Class = 'IterableMatrix ')
       y[[i]] <- rbind(y[[i]], zero_i)[rownames(rowmap),]
     }
   }
-  m <- Reduce(cbind, x = y)
+  m <- Reduce(f = cbind, x = y)
   return(m)
 }
 
