@@ -1790,7 +1790,7 @@ StitchMatrix.IterableMatrix <- function(x, y,  rowmap, colmap, ...) {
         colnames = colmap[[i]],
         rownames = missing_row
       )
-      zero_i <- BPCells::as(object = zero_i, Class = 'IterableMatrix ')
+      zero_i <- as(object = zero_i, Class = 'IterableMatrix')
       y[[i]] <- rbind(y[[i]], zero_i)[rownames(rowmap),]
     }
   }
