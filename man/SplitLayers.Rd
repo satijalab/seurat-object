@@ -10,14 +10,7 @@ SplitLayers(object, ...)
 
 JoinLayers(object, ...)
 
-\method{JoinLayers}{Assay5}(
-  object,
-  layers = NULL,
-  new = NULL,
-  default = TRUE,
-  nfeatures = Inf,
-  ...
-)
+\method{JoinLayers}{Assay5}(object, layers = NULL, new = NULL, ...)
 }
 \arguments{
 \item{object}{An object}
@@ -27,10 +20,6 @@ JoinLayers(object, ...)
 \item{layers}{...}
 
 \item{new}{...}
-
-\item{default}{...}
-
-\item{nfeatures}{...}
 }
 \value{
 ...
