@@ -494,7 +494,7 @@ CastAssay.Assay5 <- CastAssay.StdAssay
 #' @method Cells StdAssay
 #'
 Cells.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
-  if (is_na(x = layer) || is.null(x = layer)) {
+  if (any(is.na(x = layer)) || is.null(x = layer)) {
     return(rownames(x = slot(object = x, name = 'cells')))
   }
   layer <- Layers(object = x, search = layer)
@@ -829,7 +829,7 @@ FetchData.StdAssay <- function(
       layer = lyr,
       cells = lcells,
       features = lvars
-    )[lvars, lcells, drop = FALSE]), 
+    )[lvars, lcells, drop = FALSE]),
     "matrix")
   }
   # Clean out missing cells from the expression matrix
@@ -1038,14 +1038,84 @@ JoinLayers.StdAssay <- function(
   object,
   layers = NULL,
   new = NULL,
+  ...
+) {
+  layers <- layers %||% c('counts', 'data', 'scale.data')
+  new <- new %||% layers
+  if (length(x = layers) != length(x = new)) {
+    stop('Number of layers and new should be the same')
+  }
+  for (i in seq_along(layers)) {
+    num.layers <- suppressWarnings(
+      expr = length(x = Layers(object = object, search = layers[i]))
+      )
+    if (num.layers > 0L) {
+      object <- JoinSingleLayers(
+        object = object,
+        layers = layers[i],
+        new = new[i],
+        default = TRUE,
+        ...
+      )
+    }
+  }
+ return(object)
+}
+
+#' @param layers ...
+#' @param new ...
+#'
+#' @rdname SplitLayers
+#'
+#' @method JoinLayers Assay5
+#' @export
+#'
+JoinLayers.Assay5 <- JoinLayers.StdAssay
+
+
+#' @method JoinLayers Seurat
+#' @export
+#'
+JoinLayers.Seurat <- function(
+    object,
+    assay = 'RNA',
+    layers = NULL,
+    new = NULL,
+    ...
+) {
+  object[[assay]] <- JoinLayers(
+    object = object[[assay]],
+    layers = layers,
+    new = new,
+    ...
+    )
+   return(object)
+}
+
+# Join single layers
+#
+JoinSingleLayers <- function(
+  object,
+  layers = NULL,
+  new = NULL,
   default = TRUE,
   nfeatures = Inf,
   ...
 ) {
+  if (is.null(x = layers)) {
+    stop('Layers cannot be NULL')
+  }
+  if (length(x = layers) > 1L) {
+    stop('The length of input layers should be 1')
+  }
   layers <- Layers(object = object, search = layers)
   new <- new %||% 'newlayer'
-  if (length(x = layers) < 2L) {
-    abort(message = "Fewer than two layers ")
+  if (length(x = layers) == 1L) {
+    LayerData(object = object, layer = new) <- LayerData(object = object, layer = layers)
+    return(object)
+  }
+  if (length(x = layers) == 0L) {
+    return(object)
   }
   # Stitch the layers together
   ldat <- StitchMatrix(
@@ -1082,18 +1152,6 @@ JoinLayers.StdAssay <- function(
   return(object)
 }
 
-#' @param layers ...
-#' @param new ...
-#' @param default ...
-#' @param nfeatures ...
-#'
-#' @rdname SplitLayers
-#'
-#' @method JoinLayers Assay5
-#' @export
-#'
-JoinLayers.Assay5 <- JoinLayers.StdAssay
-
 #' @rdname Key
 #' @method Key Assay5
 #' @export
@@ -1129,7 +1187,7 @@ LayerData.StdAssay <- function(
     layer <- layer[1L]
   }
   # layer <- match.arg(arg = layer, choices = Layers(object = object))
-  if (is.null(layer) || is.na(layer)) {
+  if (is.null(x = layer) || any(is.na(x = layer))) {
     msg <- paste("Layer", sQuote(x = layer_name), "is empty")
     opt <- getOption(x = "Seurat.object.assay.v3.missing_layer",
                      default = Seurat.options$Seurat.object.assay.v3.missing_layer)
@@ -1509,7 +1567,7 @@ VariableFeatures.StdAssay <- function(
     var.features <- as.vector(object['var.features', drop = TRUE])
     var.features <- var.features[!is.na(var.features)]
     if (isTRUE(x = simplify) &
-        (is.null(x = layer) || is.na(x = layer))&
+        (is.null(x = layer) || any(is.na(x = layer)))&
         (is.infinite(x = nfeatures) || length(x = var.features) == nfeatures)
         ) {
           return(var.features)
@@ -2121,6 +2179,18 @@ split.StdAssay <- function(
   ret <- ret[1L]
   ret <- match.arg(arg = ret)
   layers <- Layers(object = x, search = layers)
+  layers.splitted <- list()
+  for (i in seq_along(along.with = layers)) {
+    if (length(colnames(x[[layers[i]]])) != length(colnames(x))) {
+      layers.splitted[[i]] <- layers[i]
+    }
+  }
+  layers.splitted <- unlist(x = layers.splitted)
+  if (length(x = layers.splitted) > 0) {
+   stop('Those layers are splitted already: ', paste(layers.splitted, collapse = ' '),
+        '\n', 'Please join those layers before splitting'
+        )
+  }
   default <- ifelse(
     test = DefaultLayer(object = x) %in% layers,
     yes = DefaultLayer(object = x),
@@ -2872,19 +2942,11 @@ setMethod(
       paste(strwrap(x = paste(top.ten, collapse = ', ')), collapse = '\n'),
       '\n'
     )
-    cat("Default layer:", DefaultLayer(object = object) %||% "NULL", '\n')
-    # Layer information
-    layers <- setdiff(
-      x = Layers(object = object),
-      y = DefaultLayer(object = object)
+    cat(
+      "Layers:\n",
+      paste(strwrap(x = paste(Layers(object = object), collapse = ', ')), collapse = '\n'),
+      "\n"
     )
-    if (length(x = layers)) {
-      cat(
-        "Additional layers:\n",
-        paste(strwrap(x = paste(layers, collapse = ', ')), collapse = '\n'),
-        "\n"
-      )
-    }
     return(invisible(x = NULL))
   }
 )
