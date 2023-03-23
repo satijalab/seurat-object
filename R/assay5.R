@@ -248,12 +248,13 @@ setClass(
   cdim <- fmargin(object = type, type = 'cells')
   fdim <- fmargin(object = type, type = 'features')
   # Check layer names
-  if (is.null(x = names(x = counts))) {
-    names(x = counts) <- paste0('counts', seq_along(along.with = counts))
-  } else if (any(!nzchar(x = names(x = counts)))) {
-    names(x = counts)[!nzchar(x = names(x = counts))] <- 'counts'
+  endings <- seq_along(along.with = counts)
+  if (any(nzchar(x = names(x = counts)))){
+    endings[which(nzchar(x = names(x = counts)))] <- names(x = counts)[which(nzchar(x = names(x = counts)))]
   }
+  names(x = counts) <- paste0("counts.", endings)
   names(x = counts) <- make.unique(names = names(x = counts), sep = '')
+
   counts <- lapply(X = counts, FUN = function(x) {
     x <- CheckFeaturesNames(data = x)
     return(x)
