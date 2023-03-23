@@ -1317,21 +1317,8 @@ merge.Assay <- function(
 #'
 #' @inheritParams split.Assay5
 #' @param x An \code{\link{Assay}} object
-#' @param ret Type of return value; choose from:
-#' \itemize{
-#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay}} objects
-#'  \item \dQuote{\code{layers}}: a list of layer matrices
-#' }
 #'
-#' @return Depends on the value of \code{ret}:
-#' \itemize{
-#'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay}} objects;
-#'  the list contains one value per split and each assay contains only the
-#'  layers requested in \code{layers} with the \link[Key]{key} set to the split
-#'  \item \dQuote{\code{layers}}: a list of matrices of length
-#'  \code{length(assays) * length(unique(f))}; the list is named as
-#'  \dQuote{\code{layer.split}}
-#' }
+#' @return Returns a v5 assay with splitted layers
 #'
 #' @method split Assay
 #' @export
@@ -1343,55 +1330,19 @@ split.Assay <- function(
   f,
   drop = FALSE,
   layers = NA,
-  ret = c('multiassay', 'layers'),
   ...
 ) {
-  ret <- ret[1L]
-  ret <- match.arg(arg = ret)
-  layers <- Layers(object = x, search = layers)
-  cells <- colnames(x = x)
-  if (rlang::is_named(x = f)) {
-    f <- f[cells]
-  }
-  if (length(x = f) != ncol(x = x)) {
-    abort(message = "Not enough splits for this assay")
-  }
-  splits <- split(x = cells, f = f, drop = drop)
-  return(switch(
-    EXPR = ret,
-    multiassay = {
-      value <- vector(mode = 'list', length = length(x = splits))
-      names(x = value) <- names(x = splits)
-      for (group in names(x = value)) {
-        xs <- subset(x = x, cells = splits[[group]])
-        for (lyr in setdiff(x = Layers(object = xs), y = layers)) {
-          LayerData(object = xs, layer = lyr) <- NULL
-        }
-        Key(object = xs) <- Key(object = group, quiet = TRUE)
-        value[[group]] <- xs
-      }
-      value
-    },
-    layers = {
-      groups <- apply(
-        X = expand.grid(layers, names(x = splits)),
-        MARGIN = 1L,
-        FUN = paste,
-        collapse = '.'
-      )
-      value <- vector(mode = 'list', length = length(x = groups))
-      names(x = value) <- groups
-      for (lyr in layers) {
-        for (i in seq_along(along.with = splits)) {
-          group <- paste(lyr, names(x = splits)[i], sep = '.')
-          xcells <- intersect(x = splits[[i]], y = cells)
-          value[[group]] <- LayerData(object = x, layer = lyr, cells = xcells)
-        }
-      }
-      value
-    },
-    abort(message = paste("Unknown split return type", sQuote(x = ret)))
-  ))
+ warning('Input is a v3 assay and split only works for v5 assay.',
+         '\n',
+         'It is converted to v5 assay')
+  x <- as(object = x, Class = 'Assay5')
+  split.x <- split(
+    x = x,
+    f = f,
+    drop = drop,
+    layers = layers,
+    ...)
+  return(split.x)
 }
 
 #' @inherit subset.Assay5 title description details sections
