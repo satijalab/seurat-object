@@ -84,6 +84,7 @@ NULL
 #'
 .CreateStdAssay <- function(
   counts,
+  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
@@ -430,6 +431,7 @@ Command <- function(object, ...) {
 #'
 CreateAssay5Object <- function(
   counts,
+  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   # transpose = FALSE,
@@ -1391,7 +1393,7 @@ S4ToList <- function(object) {
 saveRDS <- function(object, ...) {
   UseMethod(generic = 'saveRDS', object = object)
 }
-  
+
 
 #' @param new.data New assay data to add
 #'
