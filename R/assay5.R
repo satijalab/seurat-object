@@ -249,8 +249,11 @@ setClass(
   fdim <- fmargin(object = type, type = 'features')
   # Check layer names
   endings <- seq_along(along.with = counts)
-  if (any(nzchar(x = names(x = counts)))){
-    endings[which(nzchar(x = names(x = counts)))] <- names(x = counts)[which(nzchar(x = names(x = counts)))]
+  for (i in 1:length(counts)) {
+    if (!is.null(names(x = counts)[i])
+        && nzchar(x = names(x = counts)[i])) {
+      endings[i] <- names(x = counts)[i]
+    }
   }
   names(x = counts) <- paste0("counts.", endings)
   names(x = counts) <- make.unique(names = names(x = counts), sep = '')
