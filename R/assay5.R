@@ -168,7 +168,7 @@ setClass(
 #'
 .CreateStdAssay.default <- function(
   counts,
-  layers.type = 'counts',
+  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
@@ -177,6 +177,7 @@ setClass(
   type = 'Assay5',
   ...
 ) {
+  layers.type <- match.arg(arg = layers.type)
   # .NotYetImplemented()
   if (!is_bare_integerish(x = dim(x = counts), n = 2L, finite = TRUE)) {
     abort(message = "'counts' must be a two-dimensional object")
@@ -195,10 +196,11 @@ setClass(
     features <- features %||% dnames[[1L]]
   }
   counts <- list(counts)
-  names(x = counts) <- layer
+  names(x = counts) <- layers.type
   return(.CreateStdAssay(
     counts = counts,
     min.cells = min.cells,
+    layers.type = layers.type,
     min.features = min.features,
     cells = cells,
     features = features,
