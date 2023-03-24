@@ -4,7 +4,7 @@
 \alias{split.Assay}
 \title{Split an Assay}
 \usage{
-\method{split}{Assay}(x, f, drop = FALSE, layers = NA, ret = c("multiassay", "layers"), ...)
+\method{split}{Assay}(x, f, drop = FALSE, layers = NA, ...)
 }
 \arguments{
 \item{x}{An \code{\link{Assay}} object}
@@ -24,24 +24,10 @@
 \item{layers}{Names of layers to include in the split; pass \code{NA} for
 all layers; pass \code{NULL} for the \link[=DefaultLayer]{default layer}}
 
-\item{ret}{Type of return value; choose from:
-\itemize{
- \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay}} objects
- \item \dQuote{\code{layers}}: a list of layer matrices
-}}
-
 \item{...}{Ignored}
 }
 \value{
-Depends on the value of \code{ret}:
-\itemize{
- \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay}} objects;
- the list contains one value per split and each assay contains only the
- layers requested in \code{layers} with the \link[Key]{key} set to the split
- \item \dQuote{\code{layers}}: a list of matrices of length
- \code{length(assays) * length(unique(f))}; the list is named as
- \dQuote{\code{layer.split}}
-}
+Returns a v5 assay with splitted layers
 }
 \description{
 Split an Assay

@@ -161,23 +161,23 @@ setClass(
       ))
 }
 
-#' @param layer Name of layer to store \code{counts} as
-#'
-#' @rdname dot-CreateStdAssay
-#' @method .CreateStdAssay default
-#' @export
+# @param layer Name of layer to store \code{counts} as
+#
+# @rdname dot-CreateStdAssay
+# @method .CreateStdAssay default
 #'
 .CreateStdAssay.default <- function(
   counts,
+  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
   features = NULL,
   transpose = FALSE,
   type = 'Assay5',
-  layer = 'counts',
   ...
 ) {
+  layers.type <- match.arg(arg = layers.type)
   # .NotYetImplemented()
   if (!is_bare_integerish(x = dim(x = counts), n = 2L, finite = TRUE)) {
     abort(message = "'counts' must be a two-dimensional object")
@@ -196,10 +196,11 @@ setClass(
     features <- features %||% dnames[[1L]]
   }
   counts <- list(counts)
-  names(x = counts) <- layer
+  names(x = counts) <- layers.type
   return(.CreateStdAssay(
     counts = counts,
     min.cells = min.cells,
+    layers.type = layers.type,
     min.features = min.features,
     cells = cells,
     features = features,
@@ -223,6 +224,7 @@ setClass(
 #'
 .CreateStdAssay.list <- function(
   counts,
+  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
@@ -233,6 +235,7 @@ setClass(
   fsum = Matrix::rowSums,
   ...
 ) {
+  layers.type <- match.arg(arg = layers.type)
   # Figure out feature/cell MARGINs
   cdef <- getClass(Class = type)
   contains <- names(x = slot(object = cdef, name = 'contains'))
@@ -249,20 +252,23 @@ setClass(
   fdim <- fmargin(object = type, type = 'features')
   # Check layer names
   if(length(x = counts) == 1) {
-    names(x = counts) <- "counts"
+    names(x = counts) <- layers.type
   } else {
     endings <- seq_along(along.with = counts)
     for (i in 1:length(x = counts)) {
       name <- names(x = counts)[i]
       if (!is.null(name) && nzchar(x = name)) {
-        if (grepl("^counts.", name)) {
-          name <- gsub("counts.", "", name)
+        if (grepl(pattern = paste0('^', layers.type, '.'), x = name)) {
+          name <- gsub(
+            pattern = paste0(layers.type, '.'),
+            replacement = "",
+            x = name
+            )
           }
         endings[i] <- name
       }
     }
-    
-    names(x = counts) <- paste0("counts.", endings)
+    names(x = counts) <- paste0(paste0(layers.type, '.'), endings)
     names(x = counts) <- make.unique(names = names(x = counts), sep = '')
   }
 
@@ -359,11 +365,12 @@ setClass(
   features = NULL,
   transpose = FALSE,
   type = 'Assay5',
-  layer = 'counts',
+  layers.type = c('counts','data'),
   ...
 ) {
+  layers.type <- match.arg(arg = layers.type)
   counts <- list(counts)
-  names(x = counts) <- layer
+  names(x = counts) <- layers.type
   if (isTRUE(x = transpose)) {
     csum <- Matrix::rowSums
     fsum <- Matrix::colSums
@@ -373,6 +380,7 @@ setClass(
   }
   return(.CreateStdAssay(
     counts = counts,
+    layers.type = layers.type,
     min.cells = min.cells,
     min.features = min.features,
     cells = cells,
@@ -543,32 +551,18 @@ CreateAssay5Object.default <- function(
   counts,
   min.cells = 0,
   min.features = 0,
-  layer = 'counts',
+  layers.type = c('counts','data'),
   # transpose = FALSE,
   csum = NULL,
   fsum = NULL,
   ...
 ) {
-  # transpose <- FALSE
-  # if (isTRUE(x = transpose)) {
-  #   type <- 'Assay5T'
-  #   csum <- csum %||% Matrix::rowSums
-  #   fsum <- fsum %||% Matrix::colSums
-  # } else {
-  #   type <- 'Assay5'
-  #   csum <- csum %||% Matrix::colSums
-  #   fsum <- fsum %||% Matrix::rowSums
-  # }
   return(.CreateStdAssay(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
-    # transpose = transpose,
-    # type = type,
     type = 'Assay5',
-    layer = layer,
-    # csum = csum,
-    # fsum = fsum,
+    layers.type = layers.type,
     ...
   ))
 }
@@ -579,9 +573,9 @@ CreateAssay5Object.default <- function(
 #'
 CreateAssay5Object.list <- function(
   counts,
+  layers.type = c('counts', 'data'),
   min.cells = 0,
   min.features = 0,
-  # transpose = FALSE,
   csum = NULL,
   fsum = NULL,
   ...
@@ -606,6 +600,7 @@ CreateAssay5Object.list <- function(
   }
   return(.CreateStdAssay(
     counts = counts,
+    layers.type = layers.type,
     min.cells = min.cells,
     min.features = min.features,
     transpose = transpose,
@@ -622,19 +617,16 @@ CreateAssay5Object.list <- function(
 #'
 CreateAssay5Object.Matrix <- function(
   counts,
+  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
-  # transpose = FALSE,
-  layer = 'counts',
   ...
 ) {
   return(.CreateStdAssay(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
-    # transpose = transpose,
-    # type = ifelse(test = isTRUE(x = transpose), yes = 'Assay5T', no = 'Assay5'),
-    layer = layer,
+    layers.type = layers.type,
     ...
   ))
 }
@@ -651,10 +643,9 @@ CreateAssay5Object.matrix <- CreateAssay5Object.Matrix
 #'
 CreateAssay5Object.spam <- function(
   counts,
+  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
-  # transpose = FALSE,
-  layer = 'counts',
   ...
 ) {
   transpose <- FALSE
@@ -674,7 +665,7 @@ CreateAssay5Object.spam <- function(
     min.features = min.features,
     transpose = transpose,
     type = type,
-    layer = layer,
+    layers.type = layers.type,
     csum = csum,
     fsum = fsum,
     ...

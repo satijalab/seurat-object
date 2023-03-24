@@ -9,13 +9,19 @@
 \alias{CreateAssay5Object.spam}
 \title{Create a v5 Assay object}
 \usage{
-CreateAssay5Object(counts, min.cells = 0, min.features = 0, ...)
+CreateAssay5Object(
+  counts,
+  layers.type = c("counts", "data"),
+  min.cells = 0,
+  min.features = 0,
+  ...
+)
 
 \method{CreateAssay5Object}{default}(
   counts,
   min.cells = 0,
   min.features = 0,
-  layer = "counts",
+  layers.type = c("counts", "data"),
   csum = NULL,
   fsum = NULL,
   ...
@@ -23,6 +29,7 @@ CreateAssay5Object(counts, min.cells = 0, min.features = 0, ...)
 
 \method{CreateAssay5Object}{list}(
   counts,
+  layers.type = c("counts", "data"),
   min.cells = 0,
   min.features = 0,
   csum = NULL,
@@ -32,25 +39,25 @@ CreateAssay5Object(counts, min.cells = 0, min.features = 0, ...)
 
 \method{CreateAssay5Object}{Matrix}(
   counts,
+  layers.type = c("counts", "data"),
   min.cells = 0,
   min.features = 0,
-  layer = "counts",
   ...
 )
 
 \method{CreateAssay5Object}{matrix}(
   counts,
+  layers.type = c("counts", "data"),
   min.cells = 0,
   min.features = 0,
-  layer = "counts",
   ...
 )
 
 \method{CreateAssay5Object}{spam}(
   counts,
+  layers.type = c("counts", "data"),
   min.cells = 0,
   min.features = 0,
-  layer = "counts",
   ...
 )
 }
@@ -65,8 +72,6 @@ create a new object with a lower cutoff}
 are detected}
 
 \item{...}{Arguments passed to other methods}
-
-\item{layer}{Name of layer to store \code{counts} as}
 
 \item{csum}{Function for calculating cell sums}
 
