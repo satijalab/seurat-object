@@ -258,20 +258,23 @@ setClass(
     for (i in 1:length(x = counts)) {
       name <- names(x = counts)[i]
       if (!is.null(name) && nzchar(x = name)) {
-        if (grepl(pattern = paste0('^', layers.type, '.'), x = name)) {
+        if (grepl(pattern = paste0('^', layers.type, '[._\\0-9-]+'), x = name)) {
           name <- gsub(
-            pattern = paste0(layers.type, '.'),
+            pattern = paste0(layers.type, '[._\\0-9-]+'),
             replacement = "",
             x = name
-            )
+          )
+          # If replacement leaves empty string 
+          if (!nzchar(x = name)){
+            name <- i
           }
+        }
         endings[i] <- name
       }
     }
     names(x = counts) <- paste0(paste0(layers.type, '.'), endings)
     names(x = counts) <- make.unique(names = names(x = counts), sep = '')
   }
-
   counts <- lapply(X = counts, FUN = function(x) {
     x <- CheckFeaturesNames(data = x)
     return(x)
