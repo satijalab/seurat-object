@@ -1081,11 +1081,12 @@ JoinLayers.Assay5 <- JoinLayers.StdAssay
 #'
 JoinLayers.Seurat <- function(
     object,
-    assay = 'RNA',
+    assay = NULL,
     layers = NULL,
     new = NULL,
     ...
 ) {
+  assay <- assay %||% DefaultAssay(object)
   object[[assay]] <- JoinLayers(
     object = object[[assay]],
     layers = layers,
