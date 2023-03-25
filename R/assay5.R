@@ -554,9 +554,19 @@ CreateAssay5Object <- function(
   counts <- CheckLayersName(matrix.list = counts, layers.type = 'counts')
   data <- CheckLayersName(matrix.list = data, layers.type = 'data')
   if (!is.null(x = counts) & !is.null(data)) {
-    counts.cells <- lapply(counts, function(x) colnames(x))
-    data.cells <- lapply(data, function(x) colnames(x))
-    if(!identical(x = unlist(counts.cells), y = unlist(data.cells))) {
+    counts.cells <- unlist(
+      x = lapply(
+        X = counts,
+        FUN = function(x) colnames(x = x)
+        )
+      )
+    data.cells <- unlist(
+      x = lapply(
+        X = data,
+        FUN = function(x) colnames(x)
+        )
+      )
+    if(!all(counts.cells == data.cells)) {
       stop('counts and data input should have the same cells')
     }
   }

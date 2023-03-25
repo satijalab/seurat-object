@@ -747,7 +747,7 @@ CheckLayersName <- function(
   if (is.null(x = matrix.list)) {
     return(matrix.list)
   }
-  if (inherits(x = matrix.list, what = 'Matrix')) {
+  if (!inherits(x = matrix.list, what = 'list')) {
     matrix.list <- list(matrix.list)
   }
   if (length(x = matrix.list) == 1) {
