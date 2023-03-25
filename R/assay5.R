@@ -264,7 +264,7 @@ setClass(
             replacement = "",
             x = name
           )
-          # If replacement leaves empty string 
+          # If replacement leaves empty string
           if (!nzchar(x = name)){
             name <- i
           }
@@ -2210,7 +2210,12 @@ split.StdAssay <- function(
   if (length(x = f) != length(x = cells)) {
     abort(message = "Not enough splits for this assay")
   }
-  f <- factor(x = f, levels = unique(as.character(f)))
+  if (any(is.na(x = f))) {
+    f <- factor(x = f, levels = c(unique(as.character(f)), 'na'))
+    f[is.na(x = f)] <- 'na'
+  } else {
+    f <- factor(x = f, levels = unique(as.character(f)))
+  }
   splits <- split(x = cells, f = f, drop = drop)
   names(x = splits) <- .MakeNames(x = names(x = splits))
   return(switch(
