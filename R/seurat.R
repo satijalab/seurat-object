@@ -598,38 +598,39 @@ RenameAssays <- function(
   return(object)
 }
 
-#' Save Seurat Objects 
-#' 
-#' Save Seurat objects. Allows you to save an object with BPCells matrices 
+#' Save Seurat Objects
+#'
+#' Save Seurat objects. Allows you to save an object with BPCells matrices
 #' on disk in the same folder as BPCells directories using the destdir parameter.
 #'
 #' @inheritParams saveRDS
-#' @param object 
+#' @param object
 #' @param file Path to save \code{Seurat} Object to
-#' @param destdir directory to save BPCells and \code{Seurat} Objects in 
-#' 
+#' @param destdir directory to save BPCells and \code{Seurat} Objects in
+#'
 #' @export
 saveRDS.Seurat <- function(
-  object = object, 
-  file = NULL, 
+  object = object,
+  file = NULL,
   destdir = NULL,
-  azimuth = FALSE
+  azimuth = FALSE,
+  ...
 ) {
   if(!is.null(x = destdir)) {
-    SaveSeuratBP(object, filename = basename(file), destdir = destdir)
+    SaveSeuratBP(object, filename = basename(file), destdir = destdir, ...)
   } else {
-    base::saveRDS(object = object, file = file)
+    base::saveRDS(object = object, file = file, ...)
     return(invisible(x = file))
   }
   if(isTRUE(x = azimuth)){
     if(!(is.null(file))){
-      warning("filenames for Azimuth references will automatically ", 
-              "be set to 'ref.Rds' for the reference object and ", 
-              "'idx.annoy' for the neighbors index", 
-              call. = FALSE, 
+      warning("filenames for Azimuth references will automatically ",
+              "be set to 'ref.Rds' for the reference object and ",
+              "'idx.annoy' for the neighbors index",
+              call. = FALSE,
               immediate. = TRUE)
     }
-    Azimuth::SaveAzimuthReference(object, folder = destdir)
+    Azimuth::SaveAzimuthReference(object, folder = destdir, ...)
   }
 }
 
@@ -830,8 +831,8 @@ SaveSeuratRds <- function(
 #' @param object A \code{\link{Seurat}} object
 #' @param file file name for \code{\link{Seurat}} object. defaults to
 #' \code{(paste0(Project(object), ".Rds"))}
-#' @param destdir Destination directory (to include both BPCells directory 
-#' and \code{\link{Seurat}} object) 
+#' @param destdir Destination directory (to include both BPCells directory
+#' and \code{\link{Seurat}} object)
 #' @param relative Save relative paths instead of absolute ones. This is recommended
 #' if sharing the object folder
 #' @param remove_old Delete current BPCells directories after moving
@@ -858,12 +859,12 @@ SaveSeuratRds <- function(
 #'     dir = '~/pbmc_counts_BP/')
 #'
 #'   # Save `pbmc_small` to a folder with Rds file and BP Cells directory
-#'   SaveSeuratBP(pbmc_small, 
+#'   SaveSeuratBP(pbmc_small,
 #'                filename = "pbmc_small.Rds",
 #'                destdir = "~/full_object/",
 #'                relative = TRUE,
 #'                remove_old = FALSE)
-#'                
+#'
 #'   # Load the saved object with on-disk layers back into memory
 #'   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds")
 #'   pbmc2
@@ -911,7 +912,7 @@ SaveSeuratBP <- function(
       X = Layers(object = object[[assay]]),
       FUN = function(lyr) {
         ldat <- LayerData(object = object[[assay]], layer = lyr)
-        path <- .FilePath(x = ldat) 
+        path <- .FilePath(x = ldat)
         if (is.null(x = path)) {
           return(NULL)
         }
@@ -946,7 +947,7 @@ SaveSeuratBP <- function(
             path = pth,
             new_path = destdir
           )), error = function(e) {
-            stop("Can't find path: '", pth, 
+            stop("Can't find path: '", pth,
             "'. If path for BPCells directory is relative, change working directory. ",
             "If path is no longer valid, change object[[assay]]@matrix@dir",
             " to new path and try again.",
@@ -972,10 +973,10 @@ SaveSeuratBP <- function(
     df$assay <- assay
     for (i in seq_len(length.out = nrow(x = df))){
       # writing new path
-      warning("Changing path in object to point to new BPCells directory location", 
+      warning("Changing path in object to point to new BPCells directory location",
               call. = FALSE,
               immediate. = TRUE)
-      ldat <- LayerData(object[[df[i,]$assay]], 
+      ldat <- LayerData(object[[df[i,]$assay]],
                         layer = df[i,]$layer)
       path <- df[i,]$path
       ldat@matrix@dir <- path
@@ -3642,6 +3643,34 @@ names.Seurat <- function(x) {
     classes.keep = c('Assay', 'StdAssay', 'DimReduc', 'Graph', 'SpatialImage')
   ))
 
+}
+
+#' @inherit split.Assay5 params return title description details sections
+#'
+#' @keywords internal
+#' @method split Seurat
+#' @export
+#'
+#' @family Seurat
+#'
+split.Seurat <- function(
+    x,
+    f,
+    assay = NULL,
+    drop = FALSE,
+    layers = NA,
+    ...
+){
+  assay <- assay %||% DefaultAssay(x)
+  x[[assay]] <- split(
+    x = x[[assay]],
+    f = f,
+    drop = drop,
+    layers = layers,
+    ret = 'assay',
+    ...
+    )
+  return(x)
 }
 
 #' Subset \code{Seurat} Objects

@@ -224,7 +224,6 @@ setClass(
 #'
 .CreateStdAssay.list <- function(
   counts,
-  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
@@ -235,7 +234,6 @@ setClass(
   fsum = Matrix::rowSums,
   ...
 ) {
-  layers.type <- match.arg(arg = layers.type)
   # Figure out feature/cell MARGINs
   cdef <- getClass(Class = type)
   contains <- names(x = slot(object = cdef, name = 'contains'))
@@ -250,31 +248,7 @@ setClass(
   }
   cdim <- fmargin(object = type, type = 'cells')
   fdim <- fmargin(object = type, type = 'features')
-  # Check layer names
-  if(length(x = counts) == 1) {
-    names(x = counts) <- layers.type
-  } else {
-    endings <- seq_along(along.with = counts)
-    for (i in 1:length(x = counts)) {
-      name <- names(x = counts)[i]
-      if (!is.null(name) && nzchar(x = name)) {
-        if (grepl(pattern = paste0('^', layers.type, '[._\\0-9-]+'), x = name)) {
-          name <- gsub(
-            pattern = paste0(layers.type, '[._\\0-9-]+'),
-            replacement = "",
-            x = name
-          )
-          # If replacement leaves empty string 
-          if (!nzchar(x = name)){
-            name <- i
-          }
-        }
-        endings[i] <- name
-      }
-    }
-    names(x = counts) <- paste0(paste0(layers.type, '.'), endings)
-    names(x = counts) <- make.unique(names = names(x = counts), sep = '')
-  }
+
   counts <- lapply(X = counts, FUN = function(x) {
     x <- CheckFeaturesNames(data = x)
     return(x)
@@ -546,37 +520,25 @@ Cells.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
 #'
 Cells.Assay5 <- Cells.StdAssay
 
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object default
+#' Create a v5 Assay object
+#'
+#' Create an \code{\link{Assay5}} object from a feature expression matrix;
+#' the expected format of the matrix is features x cells
+#'
+#' @inheritParams .CreateStdAssay
+#' @template param-dots-method
+# @param transpose Create a transposed assay
+# @param ... Extra parameters passed to \code{\link{.CreateStdAssay}}
+#'
+#' @return An \code{\link{Assay5}} object
+#'
 #' @export
 #'
-CreateAssay5Object.default <- function(
-  counts,
-  min.cells = 0,
-  min.features = 0,
-  layers.type = c('counts','data'),
-  # transpose = FALSE,
-  csum = NULL,
-  fsum = NULL,
-  ...
-) {
-  return(.CreateStdAssay(
-    counts = counts,
-    min.cells = min.cells,
-    min.features = min.features,
-    type = 'Assay5',
-    layers.type = layers.type,
-    ...
-  ))
-}
-
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object list
-#' @export
+#' @concept assay
 #'
-CreateAssay5Object.list <- function(
-  counts,
-  layers.type = c('counts', 'data'),
+CreateAssay5Object <- function(
+  counts = NULL,
+  data = NULL,
   min.cells = 0,
   min.features = 0,
   csum = NULL,
@@ -584,91 +546,39 @@ CreateAssay5Object.list <- function(
   ...
 ) {
   transpose <- FALSE
-  if (any(sapply(X = counts, FUN = inherits, what = 'spam'))) {
-    check_installed(pkg = 'spam', reason = 'for working with spam matrices')
-    colsums <- spam::colSums
-    rowsums <- spam::rowSums
-  } else {
-    colsums <- Matrix::colSums
-    rowsums <- Matrix::rowSums
+  colsums <- Matrix::colSums
+  rowsums <- Matrix::rowSums
+  type <- 'Assay5'
+  csum <- csum %||% colsums
+  fsum <- fsum %||% rowsums
+  counts <- CheckLayersName(matrix.list = counts, layers.type = 'counts')
+  data <- CheckLayersName(matrix.list = data, layers.type = 'data')
+  if (!is.null(x = counts) & !is.null(data)) {
+    counts.cells <- unlist(
+      x = lapply(
+        X = counts,
+        FUN = function(x) colnames(x = x)
+        )
+      )
+    data.cells <- unlist(
+      x = lapply(
+        X = data,
+        FUN = function(x) colnames(x)
+        )
+      )
+    if(!all(counts.cells == data.cells)) {
+      stop('counts and data input should have the same cells')
+    }
   }
-  if (isTRUE(x = transpose)) {
-    type <- 'Assay5T'
-    csum <- csum %||% rowsums
-    fsum <- fsum %||% colsums
-  } else {
-    type <- 'Assay5'
-    csum <- csum %||% colsums
-    fsum <- fsum %||% rowsums
-  }
-  return(.CreateStdAssay(
-    counts = counts,
-    layers.type = layers.type,
-    min.cells = min.cells,
-    min.features = min.features,
-    transpose = transpose,
-    type = type,
-    csum = csum,
-    fsum = fsum,
-    ...
-  ))
-}
-
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object Matrix
-#' @export
-#'
-CreateAssay5Object.Matrix <- function(
-  counts,
-  layers.type = c('counts','data'),
-  min.cells = 0,
-  min.features = 0,
-  ...
-) {
-  return(.CreateStdAssay(
-    counts = counts,
-    min.cells = min.cells,
-    min.features = min.features,
-    layers.type = layers.type,
-    ...
-  ))
-}
-
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object matrix
-#' @export
-#'
-CreateAssay5Object.matrix <- CreateAssay5Object.Matrix
-
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object spam
-#' @export
-#'
-CreateAssay5Object.spam <- function(
-  counts,
-  layers.type = c('counts','data'),
-  min.cells = 0,
-  min.features = 0,
-  ...
-) {
-  transpose <- FALSE
-  check_installed(pkg = 'spam', reason = 'for working with spam matrices')
-  if (isTRUE(x = transpose)) {
-    type <- 'Assay5T'
-    csum <- spam::rowSums
-    fsum <- spam::colSums
-  } else {
-    type <- 'Assay5'
-    csum <- spam::colSums
-    fsum <- spam::rowSums
-  }
+  counts <- c(counts, data)
+  data <- NULL
+  CheckGC()
   return(.CreateStdAssay(
     counts = counts,
     min.cells = min.cells,
     min.features = min.features,
     transpose = transpose,
     type = type,
-    layers.type = layers.type,
     csum = csum,
     fsum = fsum,
     ...
@@ -1051,6 +961,7 @@ JoinLayers.StdAssay <- function(
   if (length(x = layers) != length(x = new)) {
     stop('Number of layers and new should be the same')
   }
+  var.features <- VariableFeatures(object = object)
   for (i in seq_along(layers)) {
     num.layers <- suppressWarnings(
       expr = length(x = Layers(object = object, search = layers[i]))
@@ -1065,6 +976,7 @@ JoinLayers.StdAssay <- function(
       )
     }
   }
+  VariableFeatures(object = object) <- var.features
  return(object)
 }
 
@@ -1132,22 +1044,6 @@ JoinSingleLayers <- function(
     colmap = slot(object = object, name = 'cells')[, layers]
   )
   LayerData(object = object, layer = new) <- ldat
-  # Combine variable features
-  vf.layers <- tryCatch(
-    expr = .VFLayers(object = object, type = 'hvf', layers = layers),
-    error = \(...) NULL
-  )
-  if (length(x = vf.layers)) {
-    for (method in .VFMethods(object = object, type = 'hvf', layers = vf.layers)) {
-      vf <- VariableFeatures(
-        object = object,
-        method = method,
-        layer = vf.layers,
-        nfeatures = nfeatures
-      )
-      VariableFeatures(object = object, method = method, layer = new) <- vf
-    }
-  }
   # Set the new layer as default
   if (isTRUE(x = default)) {
     DefaultLayer(object = object) <- new
@@ -2210,7 +2106,12 @@ split.StdAssay <- function(
   if (length(x = f) != length(x = cells)) {
     abort(message = "Not enough splits for this assay")
   }
-  f <- factor(x = f, levels = unique(as.character(f)))
+  if (any(is.na(x = f))) {
+    f <- factor(x = f, levels = c(unique(as.character(f)), 'na'))
+    f[is.na(x = f)] <- 'na'
+  } else {
+    f <- factor(x = f, levels = unique(as.character(f)))
+  }
   splits <- split(x = cells, f = f, drop = drop)
   names(x = splits) <- .MakeNames(x = names(x = splits))
   return(switch(

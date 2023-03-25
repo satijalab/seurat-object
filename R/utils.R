@@ -727,6 +727,59 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
   return(invisible(x = NULL))
 }
 
+
+#' Check layers names for the input list
+#'
+#'
+#' @param matrix.list A list of matrices
+#' @param layers.type layers type, such as counts or data
+#'
+#'
+#' @export
+#'
+#' @concept utils
+#'
+CheckLayersName <- function(
+    matrix.list,
+    layers.type = c('counts', 'data')
+) {
+  if (!inherits(x = matrix.list, what = 'list')) {
+    return(matrix.list)
+  }
+  layers.type <- match.arg(arg = layers.type)
+  if (is.null(x = matrix.list)) {
+    return(matrix.list)
+  }
+  if (!inherits(x = matrix.list, what = 'list')) {
+    matrix.list <- list(matrix.list)
+  }
+  if (length(x = matrix.list) == 1) {
+    names(x = matrix.list) <- layers.type
+  } else {
+    endings <- seq_along(along.with = matrix.list)
+    for (i in 1:length(x = matrix.list)) {
+      name <- names(x = matrix.list)[i]
+      if (!is.null(name) && nzchar(x = name)) {
+        if (grepl(pattern = paste0('^', layers.type, '[._\\0-9-]+'), x = name)) {
+          name <- gsub(
+            pattern = paste0(layers.type, '[._\\0-9-]+'),
+            replacement = "",
+            x = name
+          )
+          # If replacement leaves empty string
+          if (!nzchar(x = name)){
+            name <- i
+          }
+        }
+        endings[i] <- name
+      }
+    }
+    names(x = matrix.list) <- paste0(paste0(layers.type, '.'), endings)
+    names(x = matrix.list) <- make.unique(names = names(x = matrix.list), sep = '')
+  }
+  return(matrix.list)
+}
+
 #' Generate a Class Key
 #'
 #' Generate class keys for S4 classes. A class key follows the following
