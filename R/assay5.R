@@ -523,35 +523,23 @@ Cells.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
 #'
 Cells.Assay5 <- Cells.StdAssay
 
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object default
+#' Create a v5 Assay object
+#'
+#' Create an \code{\link{Assay5}} object from a feature expression matrix;
+#' the expected format of the matrix is features x cells
+#'
+#' @inheritParams .CreateStdAssay
+#' @template param-dots-method
+# @param transpose Create a transposed assay
+# @param ... Extra parameters passed to \code{\link{.CreateStdAssay}}
+#'
+#' @return An \code{\link{Assay5}} object
+#'
 #' @export
 #'
-CreateAssay5Object.default <- function(
-  counts,
-  min.cells = 0,
-  min.features = 0,
-  layers.type = c('counts','data'),
-  # transpose = FALSE,
-  csum = NULL,
-  fsum = NULL,
-  ...
-) {
-  return(.CreateStdAssay(
-    counts = counts,
-    min.cells = min.cells,
-    min.features = min.features,
-    type = 'Assay5',
-    layers.type = layers.type,
-    ...
-  ))
-}
-
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object list
-#' @export
+#' @concept assay
 #'
-CreateAssay5Object.list <- function(
+CreateAssay5Object <- function(
   counts,
   layers.type = c('counts', 'data'),
   min.cells = 0,
@@ -585,67 +573,6 @@ CreateAssay5Object.list <- function(
     min.features = min.features,
     transpose = transpose,
     type = type,
-    csum = csum,
-    fsum = fsum,
-    ...
-  ))
-}
-
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object Matrix
-#' @export
-#'
-CreateAssay5Object.Matrix <- function(
-  counts,
-  layers.type = c('counts','data'),
-  min.cells = 0,
-  min.features = 0,
-  ...
-) {
-  return(.CreateStdAssay(
-    counts = counts,
-    min.cells = min.cells,
-    min.features = min.features,
-    layers.type = layers.type,
-    ...
-  ))
-}
-
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object matrix
-#' @export
-#'
-CreateAssay5Object.matrix <- CreateAssay5Object.Matrix
-
-#' @rdname CreateAssay5Object
-#' @method CreateAssay5Object spam
-#' @export
-#'
-CreateAssay5Object.spam <- function(
-  counts,
-  layers.type = c('counts','data'),
-  min.cells = 0,
-  min.features = 0,
-  ...
-) {
-  transpose <- FALSE
-  check_installed(pkg = 'spam', reason = 'for working with spam matrices')
-  if (isTRUE(x = transpose)) {
-    type <- 'Assay5T'
-    csum <- spam::rowSums
-    fsum <- spam::colSums
-  } else {
-    type <- 'Assay5'
-    csum <- spam::colSums
-    fsum <- spam::rowSums
-  }
-  return(.CreateStdAssay(
-    counts = counts,
-    min.cells = min.cells,
-    min.features = min.features,
-    transpose = transpose,
-    type = type,
-    layers.type = layers.type,
     csum = csum,
     fsum = fsum,
     ...
