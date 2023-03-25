@@ -961,6 +961,7 @@ JoinLayers.StdAssay <- function(
   if (length(x = layers) != length(x = new)) {
     stop('Number of layers and new should be the same')
   }
+  var.features <- VariableFeatures(object = object)
   for (i in seq_along(layers)) {
     num.layers <- suppressWarnings(
       expr = length(x = Layers(object = object, search = layers[i]))
@@ -975,6 +976,7 @@ JoinLayers.StdAssay <- function(
       )
     }
   }
+  VariableFeatures(object = object) <- var.features
  return(object)
 }
 
@@ -1042,22 +1044,6 @@ JoinSingleLayers <- function(
     colmap = slot(object = object, name = 'cells')[, layers]
   )
   LayerData(object = object, layer = new) <- ldat
-  # Combine variable features
-  vf.layers <- tryCatch(
-    expr = .VFLayers(object = object, type = 'hvf', layers = layers),
-    error = \(...) NULL
-  )
-  if (length(x = vf.layers)) {
-    for (method in .VFMethods(object = object, type = 'hvf', layers = vf.layers)) {
-      vf <- VariableFeatures(
-        object = object,
-        method = method,
-        layer = vf.layers,
-        nfeatures = nfeatures
-      )
-      VariableFeatures(object = object, method = method, layer = new) <- vf
-    }
-  }
   # Set the new layer as default
   if (isTRUE(x = default)) {
     DefaultLayer(object = object) <- new
