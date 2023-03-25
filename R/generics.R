@@ -430,8 +430,8 @@ Command <- function(object, ...) {
 #' @concept assay
 #'
 CreateAssay5Object <- function(
-  counts = NULL,
-  data = NULL,
+  counts,
+  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   # transpose = FALSE,
