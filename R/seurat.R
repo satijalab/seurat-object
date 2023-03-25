@@ -613,12 +613,13 @@ saveRDS.Seurat <- function(
   object = object, 
   file = NULL, 
   destdir = NULL,
-  azimuth = FALSE
+  azimuth = FALSE, 
+  ...
 ) {
   if(!is.null(x = destdir)) {
-    SaveSeuratBP(object, filename = basename(file), destdir = destdir)
+    SaveSeuratBP(object, filename = basename(file), destdir = destdir, ...)
   } else {
-    base::saveRDS(object = object, file = file)
+    base::saveRDS(object = object, file = file, ...)
     return(invisible(x = file))
   }
   if(isTRUE(x = azimuth)){
@@ -629,7 +630,7 @@ saveRDS.Seurat <- function(
               call. = FALSE, 
               immediate. = TRUE)
     }
-    Azimuth::SaveAzimuthReference(object, folder = destdir)
+    Azimuth::SaveAzimuthReference(object, folder = destdir, ...)
   }
 }
 
