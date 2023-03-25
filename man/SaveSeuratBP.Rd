@@ -16,7 +16,7 @@ SaveSeuratBP(
 \arguments{
 \item{object}{A \code{\link{Seurat}} object}
 
-\item{destdir}{Destination directory (to include both BPCells directory 
+\item{destdir}{Destination directory (to include both BPCells directory
 and \code{\link{Seurat}} object)}
 
 \item{relative}{Save relative paths instead of absolute ones. This is recommended
@@ -73,12 +73,12 @@ if (requireNamespace("BPCells") && requireNamespace("fs")) {
     dir = '~/pbmc_counts_BP/')
 
   # Save `pbmc_small` to a folder with Rds file and BP Cells directory
-  SaveSeuratBP(pbmc_small, 
+  SaveSeuratBP(pbmc_small,
                filename = "pbmc_small.Rds",
                destdir = "~/full_object/",
                relative = TRUE,
                remove_old = FALSE)
-               
+
   # Load the saved object with on-disk layers back into memory
   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds")
   pbmc2

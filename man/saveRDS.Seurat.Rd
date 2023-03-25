@@ -4,16 +4,16 @@
 \alias{saveRDS.Seurat}
 \title{Save Seurat Objects}
 \usage{
-\method{saveRDS}{Seurat}(object = object, file = NULL, destdir = NULL, azimuth = FALSE)
+\method{saveRDS}{Seurat}(object = object, file = NULL, destdir = NULL, azimuth = FALSE, ...)
 }
 \arguments{
-\item{object}{}
+\item{object}{object to save}
 
 \item{file}{Path to save \code{Seurat} Object to}
 
 \item{destdir}{directory to save BPCells and \code{Seurat} Objects in}
 }
 \description{
-Save Seurat objects. Allows you to save an object with BPCells matrices 
+Save Seurat objects. Allows you to save an object with BPCells matrices
 on disk in the same folder as BPCells directories using the destdir parameter.
 }
