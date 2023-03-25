@@ -84,7 +84,6 @@ NULL
 #'
 .CreateStdAssay <- function(
   counts,
-  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
@@ -411,33 +410,6 @@ CheckMatrix <- function(object, checks, ...) {
 #'
 Command <- function(object, ...) {
   UseMethod(generic = 'Command', object = object)
-}
-
-#' Create a v5 Assay object
-#'
-#' Create an \code{\link{Assay5}} object from a feature expression matrix;
-#' the expected format of the matrix is features x cells
-#'
-#' @inheritParams .CreateStdAssay
-#' @template param-dots-method
-# @param transpose Create a transposed assay
-# @param ... Extra parameters passed to \code{\link{.CreateStdAssay}}
-#'
-#' @return An \code{\link{Assay5}} object
-#'
-#' @export
-#'
-#' @concept assay
-#'
-CreateAssay5Object <- function(
-  counts,
-  layers.type = c('counts','data'),
-  min.cells = 0,
-  min.features = 0,
-  # transpose = FALSE,
-  ...
-) {
-  UseMethod(generic = 'CreateAssay5Object', object = counts)
 }
 
 #' Create a \code{\link[SeuratObject:Centroids-class]{Centroids}} Objects
