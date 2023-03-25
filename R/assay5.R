@@ -224,7 +224,6 @@ setClass(
 #'
 .CreateStdAssay.list <- function(
   counts,
-  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
@@ -235,7 +234,6 @@ setClass(
   fsum = Matrix::rowSums,
   ...
 ) {
-  layers.type <- match.arg(arg = layers.type)
   # Figure out feature/cell MARGINs
   cdef <- getClass(Class = type)
   contains <- names(x = slot(object = cdef, name = 'contains'))
@@ -250,8 +248,7 @@ setClass(
   }
   cdim <- fmargin(object = type, type = 'cells')
   fdim <- fmargin(object = type, type = 'features')
-  # Check layer names
-  counts <- CheckLayersName(matrix.list = counts, layers.type = layers.type)
+
   counts <- lapply(X = counts, FUN = function(x) {
     x <- CheckFeaturesNames(data = x)
     return(x)
@@ -540,8 +537,8 @@ Cells.Assay5 <- Cells.StdAssay
 #' @concept assay
 #'
 CreateAssay5Object <- function(
-  counts,
-  layers.type = c('counts', 'data'),
+  counts = NULL,
+  data = NULL,
   min.cells = 0,
   min.features = 0,
   csum = NULL,
@@ -549,26 +546,18 @@ CreateAssay5Object <- function(
   ...
 ) {
   transpose <- FALSE
-  if (any(sapply(X = counts, FUN = inherits, what = 'spam'))) {
-    check_installed(pkg = 'spam', reason = 'for working with spam matrices')
-    colsums <- spam::colSums
-    rowsums <- spam::rowSums
-  } else {
-    colsums <- Matrix::colSums
-    rowsums <- Matrix::rowSums
-  }
-  if (isTRUE(x = transpose)) {
-    type <- 'Assay5T'
-    csum <- csum %||% rowsums
-    fsum <- fsum %||% colsums
-  } else {
-    type <- 'Assay5'
-    csum <- csum %||% colsums
-    fsum <- fsum %||% rowsums
-  }
+  colsums <- Matrix::colSums
+  rowsums <- Matrix::rowSums
+  type <- 'Assay5'
+  csum <- csum %||% colsums
+  fsum <- fsum %||% rowsums
+  counts <- CheckLayersName(matrix.list = counts, layers.type = 'counts')
+  data <- CheckLayersName(matrix.list = data, layers.type = 'data')
+  counts <- c(counts, data)
+  data <- NULL
+  CheckGC()
   return(.CreateStdAssay(
     counts = counts,
-    layers.type = layers.type,
     min.cells = min.cells,
     min.features = min.features,
     transpose = transpose,

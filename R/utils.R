@@ -744,6 +744,12 @@ CheckLayersName <- function(
     layers.type = c('counts', 'data')
 ) {
   layers.type <- match.arg(arg = layers.type)
+  if (is.null(x = matrix.list)) {
+    return(matrix.list)
+  }
+  if (inherits(x = matrix.list, what = 'Matrix')) {
+    matrix.list <- list(matrix.list)
+  }
   if (length(x = matrix.list) == 1) {
     names(x = matrix.list) <- layers.type
   } else {

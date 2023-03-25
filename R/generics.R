@@ -84,7 +84,6 @@ NULL
 #'
 .CreateStdAssay <- function(
   counts,
-  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
