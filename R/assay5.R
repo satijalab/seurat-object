@@ -553,6 +553,13 @@ CreateAssay5Object <- function(
   fsum <- fsum %||% rowsums
   counts <- CheckLayersName(matrix.list = counts, layers.type = 'counts')
   data <- CheckLayersName(matrix.list = data, layers.type = 'data')
+  if (!is.null(x = counts) & !is.null(data)) {
+    counts.cells <- lapply(counts, function(x) colnames(x))
+    data.cells <- lapply(data, function(x) colnames(x))
+    if(!identical(x = unlist(counts.cells), y = unlist(data.cells))) {
+      stop('counts and data input should have the same cells')
+    }
+  }
   counts <- c(counts, data)
   data <- NULL
   CheckGC()
