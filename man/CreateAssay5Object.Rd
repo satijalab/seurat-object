@@ -5,8 +5,8 @@
 \title{Create a v5 Assay object}
 \usage{
 CreateAssay5Object(
-  counts,
-  layers.type = c("counts", "data"),
+  counts = NULL,
+  data = NULL,
   min.cells = 0,
   min.features = 0,
   csum = NULL,
