@@ -1,18 +1,20 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 4.9.9.9080
-Date: 2023-03-25
+Version: 4.9.9.9081
+Date: 2023-03-28
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
-  person(given = 'Andrew', family = 'Butler', email = 'abutler@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0003-3608-0463')),
   person(given = 'Paul', family = 'Hoffman', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0002-7693-8957')),
+  person(given = "Yuhan", family = "Hao", email = 'yhao@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0002-1810-0822')),
+  person(given = "Austin", family = "Hartman", email = 'ahartman@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-7278-1852')),
+  person(given = "Gesmira", family = "Molla", email = 'gmolla@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0002-8628-5056')),
+  person(given = 'Andrew', family = 'Butler', email = 'abutler@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0003-3608-0463')),
   person(given = 'Tim', family = 'Stuart', email = 'tstuart@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0002-3044-0897')),
   person(given = 'Jeff', family = 'Farrell', email = 'jfarrell@g.harvard.edu', role = 'ctb'),
   person(given = 'Shiwei', family = 'Zheng', email = 'szheng@nygenome.org', role = 'ctb', comment = c(ORCID = '0000-0001-6682-6743')),
   person(given = 'Christoph', family = 'Hafemeister', email = 'chafemeister@nygenome.org', role = 'ctb', comment = c(ORCID = '0000-0001-6365-8254')),
-  person(given = 'Patrick', family = 'Roelli', email = 'proelli@nygenome.org', role = 'ctb'),
-  person(given = "Yuhan", family = "Hao", email = 'yhao@nygenome.org', role = 'ctb', comment = c(ORCID = '0000-0002-1810-0822'))
+  person(given = 'Patrick', family = 'Roelli', email = 'proelli@nygenome.org', role = 'ctb')
   )
 Description: Defines S4 classes for single-cell genomic data and associated
   information, such as dimensionality reduction embeddings, nearest-neighbor
@@ -20,7 +22,9 @@ Description: Defines S4 classes for single-cell genomic data and associated
   R-native hooks to ensure the Seurat object is familiar to other R users. See
   Satija R, Farrell J, Gennert D, et al (2015) <doi:10.1038/nbt.3192>,
   Macosko E, Basu A, Satija R, et al (2015) <doi:10.1016/j.cell.2015.05.002>,
-  and Stuart T, Butler A, et al (2019) <doi:10.1016/j.cell.2019.05.031> for
+  and Stuart T, Butler A, et al (2019) <doi:10.1016/j.cell.2019.05.031>,
+  Hao Y, Hao S, et al (2021) <doi:10.1016/j.cell.2021.04.048> and
+  Hao Y, et al (2023) <doi:10.1101/2022.02.24.481684> for
   more details.
 URL: https://mojaveazure.github.io/seurat-object/,
     https://github.com/mojaveazure/seurat-object
