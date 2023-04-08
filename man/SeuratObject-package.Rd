@@ -6,7 +6,7 @@
 \alias{SeuratObject-package}
 \title{SeuratObject: Data Structures for Single Cell Data}
 \description{
-Defines S4 classes for single-cell genomic data and associated information, such as dimensionality reduction embeddings, nearest-neighbor graphs, and spatially-resolved coordinates. Provides data access methods and R-native hooks to ensure the Seurat object is familiar to other R users. See Satija R, Farrell J, Gennert D, et al (2015) \doi{10.1038/nbt.3192}, Macosko E, Basu A, Satija R, et al (2015) \doi{10.1016/j.cell.2015.05.002}, and Stuart T, Butler A, et al (2019) \doi{10.1016/j.cell.2019.05.031} for more details.
+Defines S4 classes for single-cell genomic data and associated information, such as dimensionality reduction embeddings, nearest-neighbor graphs, and spatially-resolved coordinates. Provides data access methods and R-native hooks to ensure the Seurat object is familiar to other R users. See Satija R, Farrell J, Gennert D, et al (2015) \doi{10.1038/nbt.3192}, Macosko E, Basu A, Satija R, et al (2015) \doi{10.1016/j.cell.2015.05.002}, and Stuart T, Butler A, et al (2019) \doi{10.1016/j.cell.2019.05.031}, Hao Y, Hao S, et al (2021) \doi{10.1016/j.cell.2021.04.048} and Hao Y, et al (2023) \doi{10.1101/2022.02.24.481684} for more details.
 }
 \seealso{
 Useful links:
@@ -23,6 +23,9 @@ Useful links:
 Authors:
 \itemize{
   \item Rahul Satija \email{rsatija@nygenome.org} (\href{https://orcid.org/0000-0001-9448-8833}{ORCID})
+  \item Yuhan Hao \email{yhao@nygenome.org} (\href{https://orcid.org/0000-0002-1810-0822}{ORCID})
+  \item Austin Hartman \email{ahartman@nygenome.org} (\href{https://orcid.org/0000-0001-7278-1852}{ORCID})
+  \item Gesmira Molla \email{gmolla@nygenome.org} (\href{https://orcid.org/0000-0002-8628-5056}{ORCID})
   \item Andrew Butler \email{abutler@nygenome.org} (\href{https://orcid.org/0000-0003-3608-0463}{ORCID})
   \item Tim Stuart \email{tstuart@nygenome.org} (\href{https://orcid.org/0000-0002-3044-0897}{ORCID})
 }
@@ -33,7 +36,6 @@ Other contributors:
   \item Shiwei Zheng \email{szheng@nygenome.org} (\href{https://orcid.org/0000-0001-6682-6743}{ORCID}) [contributor]
   \item Christoph Hafemeister \email{chafemeister@nygenome.org} (\href{https://orcid.org/0000-0001-6365-8254}{ORCID}) [contributor]
   \item Patrick Roelli \email{proelli@nygenome.org} [contributor]
-  \item Yuhan Hao \email{yhao@nygenome.org} (\href{https://orcid.org/0000-0002-1810-0822}{ORCID}) [contributor]
 }
 
 }
