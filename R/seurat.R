@@ -2504,7 +2504,7 @@ RenameCells.Seurat <- function(
   for (i in Neighbors(object = object)) {
     slot(object = object, name = "neighbors")[[i]] <- RenameCells(
       object = object[[i]],
-      old.names = old.names,
+      old.names = Cells(x = object[[i]]),
       new.names = new.cell.names[Cells(x = object[[i]])]
     )
   }

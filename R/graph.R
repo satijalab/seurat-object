@@ -186,6 +186,29 @@ setValidity(
   }
 )
 
+
+#' @describeIn Graph-methods Overview of a \code{Graph} object
+#'
+#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
+#' invisibly returns \code{NULL}
+#'
+#' @importFrom methods show
+#'
+#' @export
+#'
+setMethod(
+  f = 'show',
+  signature = 'Graph',
+  definition = function(object) {
+    cat(
+      "A Graph object containing ",
+      nrow(x = object),
+      "cells"
+    )
+  }
+)
+
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
