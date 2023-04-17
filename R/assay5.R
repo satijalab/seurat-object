@@ -280,7 +280,7 @@ setClass(
   if (min.features > 0) {
     for (layer in names(x = counts)) {
       if (inherits(x = counts[[layer]], what = "IterableMatrix")){
-        col_stat <- BPCells::matrix_stats(matrix = counts[[layer]], 
+        col_stat <- BPCells::matrix_stats(matrix = counts[[layer]],
                                           col_stats = 'nonzero')$col_stats
         cells.use <- which(x = col_stat >= min.features)
       } else {
@@ -298,7 +298,7 @@ setClass(
   if (min.cells > 0) {
     for (layer in names(x = counts)) {
       if (inherits(x = counts[[layer]], what = "IterableMatrix")){
-        row_stat <- BPCells::matrix_stats(matrix = counts[[layer]], 
+        row_stat <- BPCells::matrix_stats(matrix = counts[[layer]],
                                           row_stats = 'nonzero')$row_stats
         features.use <- which(x = row_stat >= min.cells)
       } else {
@@ -2331,7 +2331,11 @@ subset.StdAssay <- function(
     object = x,
     name = 'cells'
   ))
-  # TODO: Subset feature-level metadata
+  # Update the cell/feature maps
+  for (i in c('cells', 'features')) {
+    slot(object = x, name = i) <- droplevels(x = slot(object = x, name = i))
+  }
+  # Subset feature-level metadata
   mfeatures <- MatchCells(
     new = Features(x = x, layer = NA),
     orig = features,
@@ -2341,10 +2345,6 @@ subset.StdAssay <- function(
     object = x,
     name = 'meta.data'
   )[mfeatures, , drop = FALSE]
-  # Update the cell/feature maps
-  for (i in c('cells', 'features')) {
-    slot(object = x, name = i) <- droplevels(x = slot(object = x, name = i))
-  }
   validObject(object = x)
   return(x)
 }
