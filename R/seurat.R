@@ -1338,7 +1338,12 @@ Cells.Seurat <- function(x, assay = NULL, ...) {
   if (is.na(x = assay)) {
     return(colnames(x = x))
   }
-  assay <- match.arg(arg = assay, choices = Assays(object = x))
+  assay <- tryCatch(
+    expr = match.arg(arg = assay, choices = Assays(object = x)),
+    error = function(e) {
+      return(NULL)
+    }
+    )
   return(Cells(x = x[[assay]], ...))
 }
 
