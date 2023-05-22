@@ -1446,7 +1446,20 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   path <- tryCatch(expr = normalizePath(path = x@matrix@dir),
                    error = function(...) NULL)
   if (is.null(x = path)) {
-    warn(message = "The matrix provided does not exist on-disk")
+    if (inherits(x@matrix, "10xMatrixH5")){
+      warning("The on-disk matrix is an h5 file and will not be moved ",
+           "to the destination directory. It will remain at: ", x@matrix@path,
+           ". If you would like to save the matrix in BPCells format, use", 
+           "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
+    } else if (inherits(x@matrix, "AnnDataMatrixH5")){
+      warning("The on-disk matrix is an h5ad file and will not be moved ",
+           "to the destination directory. It will remain at: ", x@matrix@path,
+           ". If you would like to save the matrix in BPCells format, use", 
+           "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
+    }
+    else {
+      warn(message = "The matrix provided does not exist on-disk")
+    }
   }
   return(path)
 }
