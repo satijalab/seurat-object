@@ -985,7 +985,7 @@ SaveSeuratBP <- function(
         matrix <- matrix@matrix_list[[df[i,]$matrix_num]]@matrix
       }
       matrix@dir <- path
-      ldat@matrix <- matrix
+      ldat@matrix@matrix_list[[df[i,]$matrix_num]]@matrix <- matrix
       LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat
     }
     p()
