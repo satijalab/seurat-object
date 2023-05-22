@@ -1443,25 +1443,38 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 #'
 .FilePath.IterableMatrix <- function(x){
   check_installed(pkg = "BPCells", reason = "for working with BPCells")
-  path <- tryCatch(expr = normalizePath(path = x@matrix@dir),
-                   error = function(...) NULL)
-  if (is.null(x = path)) {
-    if (inherits(x@matrix, "10xMatrixH5")){
-      warning("The on-disk matrix is an h5 file and will not be moved ",
-           "to the destination directory. It will remain at: ", x@matrix@path,
-           ". If you would like to save the matrix in BPCells format, use", 
-           "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
-    } else if (inherits(x@matrix, "AnnDataMatrixH5")){
-      warning("The on-disk matrix is an h5ad file and will not be moved ",
-           "to the destination directory. It will remain at: ", x@matrix@path,
-           ". If you would like to save the matrix in BPCells format, use", 
-           "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
+  matrix <- slot(x, "matrix")
+  matrices <- c()
+  if ("matrix_list" %in% slotNames(matrix)){
+    for (i in seq_len(length(slot(matrix, "matrix_list")))) {
+      matrices[[i]] <- matrix@matrix_list[[i]]@matrix
     }
-    else {
-      warn(message = "The matrix provided does not exist on-disk")
-    }
+  } else {
+    matrices <- c(matrix)
   }
-  return(path)
+  return_dir_path <- function(matrix){
+    if (inherits(matrix, "10xMatrixH5")){
+      warning("The on-disk matrix is an h5 file and will not be moved ",
+              "to the destination directory. It will remain at: '", matrix@path,
+              "'. If you would like to save the matrix in BPCells format, use", 
+              "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
+      path = NULL 
+    } else if (inherits(matrix, "AnnDataMatrixH5")){
+      warning("The on-disk matrix is an h5ad file and will not be moved ",
+              "to the destination directory. It will remain at: '", matrix@path,
+              "'. If you would like to save the matrix in BPCells format, use", 
+              "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
+      path = NULL
+    } else {
+      path <- tryCatch(expr = normalizePath(path = matrix@dir),
+                       error = function(...) {
+                         warning(message = "The matrix provided does not exist on-disk")
+                         return(NULL)})
+    }
+    return(path)
+  }
+  paths <- unlist(lapply(matrices, return_dir_path))
+  return(paths)
 }
 
 

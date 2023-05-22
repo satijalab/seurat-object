@@ -917,10 +917,11 @@ SaveSeuratBP <- function(
           return(NULL)
         }
         return(data.frame(
-          layer = lyr,
+          layer = rep(lyr, length(path)),
+          matrix_num = seq_len(length(path)),
           path = path,
-          class = paste(class(x = ldat), collapse = ','),
-          pkg = .ClassPkg(object = ldat)
+          class = rep(paste(class(x = ldat), collapse = ','), length(path)),
+          pkg = rep(.ClassPkg(object = ldat), length(path))
         ))
       }
     )
@@ -979,7 +980,12 @@ SaveSeuratBP <- function(
       ldat <- LayerData(object[[df[i,]$assay]],
                         layer = df[i,]$layer)
       path <- df[i,]$path
-      ldat@matrix@dir <- path
+      matrix <- slot(ldat, "matrix")
+      if ("matrix_list" %in% slotNames(matrix)){
+        matrix <- matrix@matrix_list[[df[i,]$matrix_num]]@matrix
+      }
+      matrix@dir <- path
+      ldat@matrix <- matrix
       LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat
     }
     p()
