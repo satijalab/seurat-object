@@ -836,7 +836,6 @@ SaveSeuratRds <- function(
 #' @param relative Save relative paths instead of absolute ones. This is recommended
 #' if sharing the object folder
 #' @inheritDotParams base::saveRDS
-#' @importFrom dplyr %>% 
 #'
 #' @return Invisibly returns \code{file}
 #'
@@ -947,7 +946,7 @@ SaveSeuratBP <- function(
               path = pth,
               new_path = destdir
             )), error = function(e) {
-              warning("Error: ", e)
+              warning("Error: ", e, call. = FALSE)
               # Return original path if can't locate new path
               return(pth)
             }
@@ -979,10 +978,10 @@ SaveSeuratBP <- function(
               call. = FALSE,
               immediate. = TRUE)
       layer <- i
-      df_layer <- df %>% filter(layer == layer)
       ldat <- LayerData(object[[assay]],layer = layer)
-      paths <- df_layer$path
       matrices <- BPCells:::all_matrix_inputs(ldat)
+      df_layer <- df[df$layer == layer]
+      paths <- df_layer$path
       # Ensure num of rows is equal to num of matrix inputs
       if (nrow(df_layer) == length(matrices)){
         for (i in seq_along(matrices)){
