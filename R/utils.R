@@ -1459,10 +1459,7 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
               "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
       path = NULL
     } else {
-      path <- tryCatch(expr = normalizePath(path = matrix@dir),
-                       error = function(...) {
-                         warning(message = "The matrix provided  does not exist on-disk")
-                         return(NULL)})
+      path <- normalizePath(path = matrix@dir)
     }
     return(path)
   }
