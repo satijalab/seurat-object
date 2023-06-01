@@ -835,7 +835,6 @@ SaveSeuratRds <- function(
 #' and \code{\link{Seurat}} object)
 #' @param relative Save relative paths instead of absolute ones. This is recommended
 #' if sharing the object folder
-#' @param remove_old Delete current BPCells directories after moving
 #' @inheritDotParams base::saveRDS
 #'
 #' @return Invisibly returns \code{file}
@@ -862,8 +861,7 @@ SaveSeuratRds <- function(
 #'   SaveSeuratBP(pbmc_small,
 #'                filename = "pbmc_small.Rds",
 #'                destdir = "~/full_object/",
-#'                relative = TRUE,
-#'                remove_old = FALSE)
+#'                relative = TRUE)
 #'
 #'   # Load the saved object with on-disk layers back into memory
 #'   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds")
@@ -876,7 +874,6 @@ SaveSeuratBP <- function(
   filename = NULL,
   destdir = NULL,
   relative = FALSE,
-  remove_old = FALSE,
   ...
 ) {
   filename <- filename %||% paste0(Project(object = object), '.Rds')
@@ -902,7 +899,9 @@ SaveSeuratBP <- function(
       reason = 'for moving on-disk matrices'
     )
   }
+  moved_paths <- c()
   for (assay in assays) {
+    print(assay)
     p(
       message = paste("Searching through assay", assay),
       class = 'sticky',
@@ -943,18 +942,25 @@ SaveSeuratBP <- function(
           class = 'sticky',
           amount = 0
         )
-        df[i, 'path'] <- tryCatch(
-          expr = as.character(x = .FileMove(
-            path = pth,
-            new_path = destdir
-          )), error = function(e) {
-            stop("Can't find path: '", pth,
-            "'. If path for BPCells directory is relative, change working directory. ",
-            "If path is no longer valid, change object[[assay]]@matrix@dir",
-            " to new path and try again.",
-            call. = FALSE)
-          }
-        )
+        if (!pth %in% names(moved_paths)){
+          df[i, 'path'] <- tryCatch(
+            expr = as.character(x = .FileMove(
+              path = pth,
+              new_path = destdir
+            )), error = function(e) {
+              print(e)
+              # stop("Can't find path: '", pth,
+              # "'. If path for BPCells directory is relative, change working directory. ",
+              # "If path is no longer valid, change the matrix path",
+              # " to new path and try again.",
+              # call. = FALSE)
+            }
+          )
+          # Record that this dir was already moved in case a new layer has the same source
+          moved_paths[[pth]] <- df[i, 'path']
+        } else{
+          df[i, 'path'] <- moved_paths[pth]
+        }
       }
     }
     if (isTRUE(x = relative)) {
@@ -972,22 +978,67 @@ SaveSeuratBP <- function(
       ))
     }
     df$assay <- assay
-    for (i in seq_len(length.out = nrow(x = df))){
-      # writing new path
+    for (i in unique(df$layer)){
       warning("Changing path in object to point to new BPCells directory location",
               call. = FALSE,
               immediate. = TRUE)
-      ldat <- LayerData(object[[df[i,]$assay]],
-                        layer = df[i,]$layer)
-      path <- df[i,]$path
-      matrix <- slot(ldat, "matrix")
-      if ("matrix_list" %in% slotNames(matrix)){
-        matrix <- matrix@matrix_list[[df[i,]$matrix_num]]@matrix
+      layer <- i
+      df_layer <- df %>%
+        filter(layer == layer)
+      ldat <- LayerData(object[[assay]],
+                        layer = layer)
+      paths <- df_layer$path
+      matrices <- BPCells:::all_matrix_inputs(ldat)
+      #ensure the number of rows is equal to the number of matrix_inputs
+      if (nrow(df_layer) == length(matrices)){
+        for (i in seq_along(matrices)){
+          matrices[[i]]@dir <- paths[i]
+        }
+        BPCells:::all_matrix_inputs(ldat) <- matrices
+        LayerData(object[[assay]], layer = layer) <- ldat
+      } else {
+        stop("Number of BPCells matrices to replace is not equal to number of matrices")
       }
-      matrix@dir <- path
-      ldat@matrix@matrix_list[[df[i,]$matrix_num]]@matrix <- matrix
-      LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat
     }
+    # for (i in 1:nrow(unique(select(df, layer, assay))){
+    #   warning("Changing path in object to point to new BPCells directory location",
+    #           call. = FALSE,
+    #           immediate. = TRUE)
+    #   layer <- df$layer[i]
+    #   assay <-  df$assay[i]
+    #   df_layer <- df %>%
+    #     filter(layer == layer, assay == assay)
+    #   ldat <- LayerData(object[[assay]],
+    #                     layer = layer)
+    #   paths <- df_layer$path
+    #   matrices <- BPCells:::all_matrix_inputs(ldat)
+    #   #ensure the number of rows is equal to the number of matrix_inputs
+    #   if nrow(df_layer == length(matrices)){
+    #     for (i in matrices){
+    #       matrices[[i]]$path <- paths[i]
+    #     }
+    #     BPCells:::all_matrix_inputs(ldat) <- matrices
+    #     LayerData(object[[assay]], layer = layer) <- ldat
+    #   } else {
+    #     stop("Number of BPCells matrices to replace is not equal to number of matrices")
+    #   }
+    # }
+    # for (i in seq_len(length.out = nrow(x = df))){
+    #   # writing new path
+    #   warning("Changing path in object to point to new BPCells directory location",
+    #           call. = FALSE,
+    #           immediate. = TRUE)
+    #   ldat <- LayerData(object[[df[i,]$assay]],
+    #                     layer = df[i,]$layer)
+    #   path <- df[i,]$path
+    #   matrix <- slot(ldat, "matrix")
+    #   if ("matrix_list" %in% slotNames(matrix)){
+    #     matrix <- matrix@matrix_list[[df[i,]$matrix_num]]@matrix
+    #   }
+    #   matrix@dir <- path
+    #   ldat@matrix@matrix_list[[df[i,]$matrix_num]]@matrix <- matrix
+    #   LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat
+    # }
     p()
   }
   saveRDS(object = object, file = file.path(destdir, filename), ...)
