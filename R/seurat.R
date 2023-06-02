@@ -980,7 +980,7 @@ SaveSeuratBP <- function(
       layer <- i
       ldat <- LayerData(object[[assay]],layer = layer)
       matrices <- BPCells:::all_matrix_inputs(ldat)
-      df_layer <- df[df$layer == layer]
+      df_layer <- df[df$layer == layer, ]
       paths <- df_layer$path
       # Ensure num of rows is equal to num of matrix inputs
       if (nrow(df_layer) == length(matrices)){
