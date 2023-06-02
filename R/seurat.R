@@ -985,7 +985,9 @@ SaveSeuratBP <- function(
       # Ensure num of rows is equal to num of matrix inputs
       if (nrow(df_layer) == length(matrices)){
         for (i in seq_along(matrices)){
-          matrices[[i]]@dir <- paths[i]
+          if (inherits(x = matrices[[i]], what = "MatrixDir")) {
+            matrices[[i]]@dir <- paths[i]
+          }
         }
         BPCells:::all_matrix_inputs(ldat) <- matrices
         LayerData(object[[assay]], layer = layer) <- ldat

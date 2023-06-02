@@ -1446,7 +1446,9 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   matrix <- slot(x, "matrix")
   matrices <- BPCells:::all_matrix_inputs(matrix)
   return_dir_path <- function(matrix){
-    if (inherits(matrix, "10xMatrixH5")){
+    if (inherits(matrix, "MatrixDir")) {
+      path <- normalizePath(path = matrix@dir)
+    } else if (inherits(matrix, "10xMatrixH5")){
       warning("The on-disk matrix is an h5 file and will not be moved ",
               "to the destination directory. It will remain at: '", matrix@path,
               "'. If you would like to save the matrix in BPCells format, use", 
@@ -1459,7 +1461,7 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
               "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
       path = NULL
     } else {
-      path <- normalizePath(path = matrix@dir)
+      path = NULL
     }
     return(path)
   }
