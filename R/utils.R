@@ -1451,14 +1451,14 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
     } else if (inherits(matrix, "10xMatrixH5")){
       warning("The on-disk matrix is an h5 file and will not be moved ",
               "to the destination directory. It will remain at: '", matrix@path,
-              "'. If you would like to save the matrix in BPCells format, use", 
-              "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
+              "'. If you would like to save the matrix in BPCells format, use ", 
+              "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
       path = NULL 
     } else if (inherits(matrix, "AnnDataMatrixH5")){
       warning("The on-disk matrix is an h5ad file and will not be moved ",
               "to the destination directory. It will remain at: '", matrix@path,
-              "'. If you would like to save the matrix in BPCells format, use", 
-              "'write_matrix_dir(mat = data, dir = '/path').", call. = FALSE)
+              "'. If you would like to save the matrix in BPCells format, use ", 
+              "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
       path = NULL
     } else {
       path = NULL

@@ -973,26 +973,17 @@ SaveSeuratBP <- function(
       ))
     }
     df$assay <- assay
-    for (i in unique(df$layer)){
-      warning("Changing path in object to point to new BPCells directory location",
-              call. = FALSE,
-              immediate. = TRUE)
-      layer <- i
-      ldat <- LayerData(object[[assay]],layer = layer)
+    for (layer in unique(df$layer)) {
+      warning("Changing path in object to point to new BPCells directory location", 
+              call. = FALSE, immediate. = TRUE)
+      ldat <- LayerData(object[[assay]], layer = layer)
       matrices <- BPCells:::all_matrix_inputs(ldat)
-      df_layer <- df[df$layer == layer, ]
-      paths <- df_layer$path
-      # Ensure num of rows is equal to num of matrix inputs
-      if (nrow(df_layer) == length(matrices)){
-        for (i in seq_along(matrices)){
-          if (inherits(x = matrices[[i]], what = "MatrixDir")) {
-            matrices[[i]]@dir <- paths[i]
-          }
+      for (i in seq_along(matrices)) {
+        if (inherits(x = matrices[[i]], what = "MatrixDir")) {
+          matrices[[i]]@dir <- df[df$layer == layer, ]$path[i]
         }
         BPCells:::all_matrix_inputs(ldat) <- matrices
         LayerData(object[[assay]], layer = layer) <- ldat
-      } else {
-        stop("Number of BPCells matrices to replace is not equal to number of matrices")
       }
     }
     p()
