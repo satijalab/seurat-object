@@ -313,6 +313,7 @@ setClass(
     }
   }
   features.all <- Reduce(f = union, x = features)
+  cells.all <- make.unique(names = unlist(x = cells))
   calcN_option <- getOption(
     x = 'Seurat.object.assay.calcn',
     default =  Seurat.options$Seurat.object.assay.calcn
@@ -323,7 +324,7 @@ setClass(
     layers = list(),
     default = 0L,
     features = LogMap(y = features.all),
-    cells = LogMap(y = Reduce(f = union, x = cells)),
+    cells = LogMap(y = cells.all),
     meta.data = EmptyDF(n = length(x = features.all)),
     misc = list(calcN = calcN_option %||% TRUE),
     ...
