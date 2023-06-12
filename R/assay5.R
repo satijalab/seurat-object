@@ -1091,8 +1091,14 @@ LayerData.StdAssay <- function(
   cells = NULL,
   features = NULL,
   fast = FALSE,
+  slot = deprecated(),
   ...
 ) {
+  if (is_present(arg = slot)) {
+    deprecate_stop(when = "5.0.0", 
+                   what = "LayerData(slot = )", 
+                   with = "LayerData(layer = )")
+  }
   # Figure out the layer we're pulling
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   layer <- Layers(object = object, search = layer)
@@ -1153,9 +1159,9 @@ LayerData.StdAssay <- function(
   dnames[[1L]] <- dnames[[1L]][features]
   # Pull the layer data
   ldat <- if (.MARGIN(x = object) == 1L) {
-    slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
+    methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
   } else {
-    slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
+    methods::slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
   }
   # Add dimnames and transpose if requested
   ldat <- if (isTRUE(x = fast)) {

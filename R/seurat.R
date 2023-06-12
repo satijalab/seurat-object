@@ -2267,7 +2267,18 @@ Keys.Seurat <- Key.Seurat
 #' @method LayerData Seurat
 #' @export
 #'
-LayerData.Seurat <- function(object, layer = NULL, assay = NULL, ...) {
+LayerData.Seurat <- function(
+    object, 
+    layer = NULL, 
+    assay = NULL, 
+    slot = deprecated(), 
+    ...
+) {
+  if (is_present(arg = slot)) {
+    deprecate_stop(when = "5.0.0", 
+                   what = "LayerData(slot = )", 
+                   with = "LayerData(layer = )")
+  }
   assay <- assay %||% DefaultAssay(object = object)
   assay <- arg_match(arg = assay, values = Assays(object = object))
   return(LayerData(object = object[[assay]], layer = layer, ...))
