@@ -523,8 +523,12 @@ LayerData.Assay <- function(
   layer = NULL,
   cells = NULL,
   features = NULL,
+  slot = deprecated(),
   ...
 ) {
+  if (is_present(arg = slot)) {
+    deprecate_stop
+  }
   # Figure out which matrix we're pulling
   layer <- layer[1L] %||% DefaultLayer(object = object)
   # layer <- match.arg(

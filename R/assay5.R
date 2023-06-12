@@ -1091,8 +1091,12 @@ LayerData.StdAssay <- function(
   cells = NULL,
   features = NULL,
   fast = FALSE,
+  slot = deprecated(),
   ...
 ) {
+  if (is_present(arg = slot)) {
+    deprecate_stop
+  }
   # Figure out the layer we're pulling
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   layer <- Layers(object = object, search = layer)
