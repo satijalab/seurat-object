@@ -527,7 +527,9 @@ LayerData.Assay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop
+    deprecate_stop(when = "5.0.0", 
+                   what = "LayerData(slot = )", 
+                   with = "LayerData(layer = )")
   }
   # Figure out which matrix we're pulling
   layer <- layer[1L] %||% DefaultLayer(object = object)

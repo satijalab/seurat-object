@@ -1095,7 +1095,9 @@ LayerData.StdAssay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop
+    deprecate_stop(when = "5.0.0", 
+                   what = "LayerData(slot = )", 
+                   with = "LayerData(layer = )")
   }
   # Figure out the layer we're pulling
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
