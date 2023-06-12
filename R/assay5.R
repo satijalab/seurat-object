@@ -1159,9 +1159,9 @@ LayerData.StdAssay <- function(
   dnames[[1L]] <- dnames[[1L]][features]
   # Pull the layer data
   ldat <- if (.MARGIN(x = object) == 1L) {
-    slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
+    methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
   } else {
-    slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
+    methods::slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
   }
   # Add dimnames and transpose if requested
   ldat <- if (isTRUE(x = fast)) {
