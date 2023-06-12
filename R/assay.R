@@ -523,7 +523,7 @@ LayerData.Assay <- function(
   layer = NULL,
   cells = NULL,
   features = NULL,
-  slot = deprecated()
+  slot = deprecated(),
   ...
 ) {
   if (is_present(arg = slot)) {
