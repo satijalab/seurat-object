@@ -230,7 +230,7 @@ CreateAssayObject <- function(
 .CalcN.Assay <- function(object, layer = 'counts', ...) {
   layer <- tryCatch(
     expr = Layers(object = object, search = layer),
-    error = \(...) NULL
+    error = function(...) NULL
   )
   if (is.null(x = layer)) {
     return(NULL)
