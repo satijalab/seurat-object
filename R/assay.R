@@ -523,8 +523,14 @@ LayerData.Assay <- function(
   layer = NULL,
   cells = NULL,
   features = NULL,
+  slot = deprecated(),
   ...
 ) {
+  if (is_present(arg = slot)) {
+    deprecate_stop(when = "5.0.0", 
+                   what = "LayerData(slot = )", 
+                   with = "LayerData(layer = )")
+  }
   # Figure out which matrix we're pulling
   layer <- layer[1L] %||% DefaultLayer(object = object)
   # layer <- match.arg(
@@ -532,7 +538,7 @@ LayerData.Assay <- function(
   #   choices = Layers(object = object, search = FALSE)
   # )
   # Handle empty layers
-  if (IsMatrixEmpty(x = slot(object = object, name = layer))) {
+  if (IsMatrixEmpty(x = methods::slot(object = object, name = layer))) {
     msg <- paste("Layer", sQuote(x = layer), "is empty")
     opt <- getOption(
       x = 'Seurat.object.assay.v3.missing_layer',
@@ -578,7 +584,7 @@ LayerData.Assay <- function(
     multiple = TRUE
   )
   # Pull the matrix for the cells/features requested
-  return(slot(object = object, name = layer)[features, cells])
+  return(methods::slot(object = object, name = layer)[features, cells])
 }
 
 #' @rdname Layers

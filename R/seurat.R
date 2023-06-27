@@ -835,7 +835,6 @@ SaveSeuratRds <- function(
 #' and \code{\link{Seurat}} object)
 #' @param relative Save relative paths instead of absolute ones. This is recommended
 #' if sharing the object folder
-#' @param remove_old Delete current BPCells directories after moving
 #' @inheritDotParams base::saveRDS
 #'
 #' @return Invisibly returns \code{file}
@@ -862,8 +861,7 @@ SaveSeuratRds <- function(
 #'   SaveSeuratBP(pbmc_small,
 #'                filename = "pbmc_small.Rds",
 #'                destdir = "~/full_object/",
-#'                relative = TRUE,
-#'                remove_old = FALSE)
+#'                relative = TRUE)
 #'
 #'   # Load the saved object with on-disk layers back into memory
 #'   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds")
@@ -876,7 +874,6 @@ SaveSeuratBP <- function(
   filename = NULL,
   destdir = NULL,
   relative = FALSE,
-  remove_old = FALSE,
   ...
 ) {
   filename <- filename %||% paste0(Project(object = object), '.Rds')
@@ -902,6 +899,7 @@ SaveSeuratBP <- function(
       reason = 'for moving on-disk matrices'
     )
   }
+  moved.paths <- c()
   for (assay in assays) {
     p(
       message = paste("Searching through assay", assay),
@@ -917,10 +915,10 @@ SaveSeuratBP <- function(
           return(NULL)
         }
         return(data.frame(
-          layer = lyr,
+          layer = rep(lyr, length(path)),
           path = path,
-          class = paste(class(x = ldat), collapse = ','),
-          pkg = .ClassPkg(object = ldat)
+          class = rep(paste(class(x = ldat), collapse = ','), length(path)),
+          pkg = rep(.ClassPkg(object = ldat), length(path))
         ))
       }
     )
@@ -942,18 +940,22 @@ SaveSeuratBP <- function(
           class = 'sticky',
           amount = 0
         )
-        df[i, 'path'] <- tryCatch(
-          expr = as.character(x = .FileMove(
-            path = pth,
-            new_path = destdir
-          )), error = function(e) {
-            stop("Can't find path: '", pth,
-            "'. If path for BPCells directory is relative, change working directory. ",
-            "If path is no longer valid, change object[[assay]]@matrix@dir",
-            " to new path and try again.",
-            call. = FALSE)
-          }
-        )
+        if (!pth %in% names(moved.paths)){
+          df[i, 'path'] <- tryCatch(
+            expr = as.character(x = .FileMove(
+              path = pth,
+              new_path = destdir
+            )), error = function(e) {
+              warning("Error: ", e, call. = FALSE)
+              # Return original path if can't locate new path
+              return(pth)
+            }
+          )
+          # Record that this dir was already moved in case a new layer has the same source
+          moved.paths[[pth]] <- df[i, 'path']
+        } else{
+          df[i, 'path'] <- moved.paths[pth]
+        }
       }
     }
     if (isTRUE(x = relative)) {
@@ -971,16 +973,21 @@ SaveSeuratBP <- function(
       ))
     }
     df$assay <- assay
-    for (i in seq_len(length.out = nrow(x = df))){
-      # writing new path
-      warning("Changing path in object to point to new BPCells directory location",
-              call. = FALSE,
-              immediate. = TRUE)
-      ldat <- LayerData(object[[df[i,]$assay]],
-                        layer = df[i,]$layer)
-      path <- df[i,]$path
-      ldat@matrix@dir <- path
-      LayerData(object[[df[i,]$assay]], layer = df[i,]$layer) <- ldat
+    for (layer in unique(df$layer)) {
+      warning("Changing path in object to point to new BPCells directory location", 
+              call. = FALSE, immediate. = TRUE)
+      ldat <- LayerData(object[[assay]], layer = layer)
+      matrices <- BPCells:::all_matrix_inputs(ldat)
+      matrix.dirs <- which(sapply(matrices, function(x) inherits(x, "MatrixDir")))
+      if (length(matrix.dirs) == nrow(df[df$layer == layer, ])){
+        for (i in 1:length(matrix.dirs)) {
+          matrices[[matrix.dirs[i]]]@dir <- df[df$layer == layer, ]$path[i]
+        }
+        BPCells:::all_matrix_inputs(ldat) <- matrices
+        LayerData(object[[assay]], layer = layer) <- ldat
+      } else {
+        stop("Directories to replace is not equal to length of directories")
+      }
     }
     p()
   }
@@ -2263,7 +2270,18 @@ Keys.Seurat <- Key.Seurat
 #' @method LayerData Seurat
 #' @export
 #'
-LayerData.Seurat <- function(object, layer = NULL, assay = NULL, ...) {
+LayerData.Seurat <- function(
+    object, 
+    layer = NULL, 
+    assay = NULL, 
+    slot = deprecated(), 
+    ...
+) {
+  if (is_present(arg = slot)) {
+    deprecate_stop(when = "5.0.0", 
+                   what = "LayerData(slot = )", 
+                   with = "LayerData(layer = )")
+  }
   assay <- assay %||% DefaultAssay(object = object)
   assay <- arg_match(arg = assay, values = Assays(object = object))
   return(LayerData(object = object[[assay]], layer = layer, ...))

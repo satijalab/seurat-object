@@ -1443,12 +1443,30 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 #'
 .FilePath.IterableMatrix <- function(x){
   check_installed(pkg = "BPCells", reason = "for working with BPCells")
-  path <- tryCatch(expr = normalizePath(path = x@matrix@dir),
-                   error = function(...) NULL)
-  if (is.null(x = path)) {
-    warn(message = "The matrix provided does not exist on-disk")
+  matrix <- slot(x, "matrix")
+  matrices <- BPCells:::all_matrix_inputs(matrix)
+  return_dir_path <- function(matrix){
+    if (inherits(matrix, "MatrixDir")) {
+      path <- normalizePath(path = matrix@dir)
+    } else if (inherits(matrix, "10xMatrixH5")){
+      warning("The on-disk matrix is an h5 file and will not be moved ",
+              "to the destination directory. It will remain at: '", matrix@path,
+              "'. If you would like to save the matrix in BPCells format, use ", 
+              "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
+      path = NULL 
+    } else if (inherits(matrix, "AnnDataMatrixH5")){
+      warning("The on-disk matrix is an h5ad file and will not be moved ",
+              "to the destination directory. It will remain at: '", matrix@path,
+              "'. If you would like to save the matrix in BPCells format, use ", 
+              "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
+      path = NULL
+    } else {
+      path = NULL
+    }
+    return(path)
   }
-  return(path)
+  paths <- unlist(lapply(matrices, return_dir_path))
+  return(paths)
 }
 
 
@@ -1932,7 +1950,6 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
 #' Move files and directories with \pkg{fs}; includes a handler for when
 #' \code{path} is a directory on a different filesystem than \code{new_path}
 #' by explicitly copying and deleting \code{path}
-#' @param delete only delete old file if specified
 #'
 #' @inherit fs::file_move params return
 #' @inheritParams rlang::caller_env
@@ -1946,44 +1963,38 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
 #'
 #' @seealso \code{\link[fs:file_move]{fs::file_move}()}
 #'
-.FileMove <- function(path, new_path, delete = FALSE, n = 1L) {
-  check_installed(
-    pkg = 'fs',
-    reason = 'for moving on-disk files'
-  )
+.FileMove <- function (path, new_path, n = 1L) 
+{
+  check_installed(pkg = "fs", reason = "for moving on-disk files")
   stopifnot(is_scalar_character(x = path))
   stopifnot(is_scalar_character(x = new_path))
-  stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0)
+  stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && 
+              n > 0)
   if (fs::is_dir(path = path)) {
-    # Move directory
     path <- fs::path_expand(path = path)
     new_path <- fs::path_expand(path = new_path)
-    dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
-    fs::dir_copy(path = path, new_path = dest, overwrite = TRUE)
-    if (isTRUE(x = delete)){
-      fs::dir_delete(path = path)
-    }
-  } else if (fs::is_file(path = path)){
-    # Move file
-    if (isTRUE(x = delete)){
-      dest <- fs::file_move(path = path, new_path = new_path)
-    } else {
-      dest <- fs::file_copy(path = path, new_path = new_path)
-    }
-  } else {
+    dest <- fs::dir_create(path = file.path(new_path))
+    dest <- tryCatch(expr = fs::dir_copy(path = path, new_path = dest), 
+                     error = function(e) {
+                       stop("Can't move this dir to new path: ", e, 
+                            call. = F)
+                     })
+  }
+  else if (fs::is_file(path = path)) {
+    dest <- fs::file_copy(path = path, new_path = new_path)
+  }
+  else {
+    stop("Can't find path: ", path, ". If path is relative, change working directory.")
     error_call <- function(err) {
-      abort(
-        message = err$message,
-        class = class(x = err),
-        call = caller_env(n = 4L + n)
-      )
+      abort(message = err$message, 
+            class = class(x = err), 
+            call = caller_env(n = 4L + n))
     }
   }
-  return(invisible(x = tryCatch(
-    expr = return(dest),
-    error = function(e) return(error_call)
-  )))
+  return(invisible(x = tryCatch(expr = return(dest), 
+                                error = function(e) return(error_call))))
 }
+
 
 
 #' Get An Option

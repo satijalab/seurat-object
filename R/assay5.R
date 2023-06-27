@@ -313,6 +313,7 @@ setClass(
     }
   }
   features.all <- Reduce(f = union, x = features)
+  cells.all <- make.unique(names = unlist(x = cells))
   calcN_option <- getOption(
     x = 'Seurat.object.assay.calcn',
     default =  Seurat.options$Seurat.object.assay.calcn
@@ -323,7 +324,7 @@ setClass(
     layers = list(),
     default = 0L,
     features = LogMap(y = features.all),
-    cells = LogMap(y = Reduce(f = union, x = cells)),
+    cells = LogMap(y = cells.all),
     meta.data = EmptyDF(n = length(x = features.all)),
     misc = list(calcN = calcN_option %||% TRUE),
     ...
@@ -1090,8 +1091,14 @@ LayerData.StdAssay <- function(
   cells = NULL,
   features = NULL,
   fast = FALSE,
+  slot = deprecated(),
   ...
 ) {
+  if (is_present(arg = slot)) {
+    deprecate_stop(when = "5.0.0", 
+                   what = "LayerData(slot = )", 
+                   with = "LayerData(layer = )")
+  }
   # Figure out the layer we're pulling
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   layer <- Layers(object = object, search = layer)
@@ -1152,9 +1159,9 @@ LayerData.StdAssay <- function(
   dnames[[1L]] <- dnames[[1L]][features]
   # Pull the layer data
   ldat <- if (.MARGIN(x = object) == 1L) {
-    slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
+    methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
   } else {
-    slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
+    methods::slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
   }
   # Add dimnames and transpose if requested
   ldat <- if (isTRUE(x = fast)) {
