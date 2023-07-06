@@ -714,8 +714,16 @@ FetchData.StdAssay <- function(
   # Identify layer(s) to use
   layer <- rev(x = Layers(
     object = object,
-    search = layer %||% DefaultLayer(object = object)
+    search = layer %||% 'data'
   ))
+  if (is.null(layer)) {
+    warning('data layer is not found and counts layer is used')
+    layer <- rev(x = Layers(
+      object = object,
+      search = layer %||% 'counts'
+    ))
+  }
+ 
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
