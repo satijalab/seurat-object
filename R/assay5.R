@@ -2008,6 +2008,8 @@ merge.StdAssay <- function(
   if (isTRUE(x = collapse)) {
     abort(message = "Collapsing layers is not yet supported")
   } else {
+    # Get default layer as default of first assay 
+    default <- DefaultLayer(assays[[1]])
     for (i in seq_along(along.with = assays)) {
       for (lyr in Layers(object = assays[[i]])) {
         LayerData(
@@ -2052,6 +2054,8 @@ merge.StdAssay <- function(
     combined[] <- mf
   }
   # TODO: Add misc
+  DefaultLayer(combined) <- Layers(object = combined, search = default)
+  message("Seting default layers to ", DefaultLayer(combined))
   validObject(object = combined)
   return(combined)
 }
