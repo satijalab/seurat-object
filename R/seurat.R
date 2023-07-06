@@ -1660,6 +1660,11 @@ DefaultFOV.Seurat <- function(object, assay = NULL, ...) {
 #' Embeddings(object = pbmc_small, reduction = "pca")[1:5, 1:5]
 #'
 Embeddings.Seurat <- function(object, reduction = 'pca', ...) {
+  #check if DimReduc is present
+  
+  if (!(reduction %in% names(slot(object = object, name = "reductions")))) {
+    stop(paste0("Cannot find '", reduction, "' in this Seurat object"))
+  }
   return(Embeddings(object = object[[reduction]], ...))
 }
 
