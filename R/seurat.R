@@ -1660,11 +1660,6 @@ DefaultFOV.Seurat <- function(object, assay = NULL, ...) {
 #' Embeddings(object = pbmc_small, reduction = "pca")[1:5, 1:5]
 #'
 Embeddings.Seurat <- function(object, reduction = 'pca', ...) {
-  #check if DimReduc is present
-  
-  if (!(reduction %in% names(slot(object = object, name = "reductions")))) {
-    stop(paste0("Cannot find '", reduction, "' in this Seurat object"))
-  }
   return(Embeddings(object = object[[reduction]], ...))
 }
 
@@ -3127,9 +3122,19 @@ Version.Seurat <- function(object, ...) {
     NULL
   }
   # Pull cell-level meta data
+  
   if (is.null(x = slot.use)) {
-    # Identify the cell-level meta data to use
-    i <- arg_match(arg = i, values = meta.cols, multiple = TRUE)
+    i <- tryCatch(
+      expr = arg_match(arg = i, values = meta.cols, multiple = TRUE),
+      error = function(e) {
+        check.colnames <- sapply(i, function(x) x %in% meta.cols)
+        stop(  paste0( paste0("'", names(check.colnames[!check.colnames]), "'", collapse = ", and/or "),
+                       " not found in Seurat object", "\n", e$body), 
+               call. = FALSE)
+      }
+      )
+    #original
+    #i <- arg_match(arg = i, values = meta.cols, multiple = TRUE)
     # Pull the cell-level meta data
     data.return <- md[, i, drop = FALSE, ...]
     # If requested, remove NAs
