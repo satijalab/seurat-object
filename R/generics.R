@@ -1079,7 +1079,7 @@ LayerData <- function(object, layer, ...) {
 
 #' @param value New two-dimensional data to be added as a layer
 #'
-#' @return \code{Layer<-}: \code{object} with \code{value} added as a layer
+#' @return \code{LayerData<-}: \code{object} with \code{value} added as a layer
 #' named \code{layer}
 #'
 #' @rdname Layers
@@ -1100,7 +1100,18 @@ Layers <- function(object, ...) {
   UseMethod(generic = 'Layers', object = object)
 }
 
-#' Get and set feature loadings
+#' @param value Vector of new names of layers
+#'
+#' @return \code{Layers<-}: \code{object} with layer names \code{value}
+#'
+#' @rdname Layers
+#' @export Layers<-
+#'
+"Layers<-"  <- function(object, assay = NULL, value) {
+  UseMethod(generic = 'Layers<-', object = object)
+}
+
+' Get and set feature loadings
 #'
 #' @template param-dots-method
 #' @param object An object

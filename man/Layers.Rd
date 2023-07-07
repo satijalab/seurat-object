@@ -4,15 +4,18 @@
 \alias{LayerData}
 \alias{LayerData<-}
 \alias{Layers}
+\alias{Layers<-}
 \alias{LayerData.Assay}
 \alias{LayerData<-.Assay}
 \alias{Layers.Assay}
 \alias{LayerData.Assay5}
 \alias{LayerData<-.Assay5}
 \alias{Layers.Assay5}
+\alias{Layers<-.Assay5}
 \alias{LayerData.Seurat}
 \alias{LayerData<-.Seurat}
 \alias{Layers.Seurat}
+\alias{Layers<-.Seurat}
 \title{Query and Manipulate Assay Layers}
 \usage{
 LayerData(object, layer, ...)
@@ -21,7 +24,16 @@ LayerData(object, layer, ...) <- value
 
 Layers(object, ...)
 
-\method{LayerData}{Assay}(object, layer = NULL, cells = NULL, features = NULL, ...)
+Layers(object, assay = NULL) <- value
+
+\method{LayerData}{Assay}(
+  object,
+  layer = NULL,
+  cells = NULL,
+  features = NULL,
+  slot = deprecated(),
+  ...
+)
 
 \method{LayerData}{Assay}(object, layer, ...) <- value
 
@@ -33,18 +45,23 @@ Layers(object, ...)
   cells = NULL,
   features = NULL,
   fast = FALSE,
+  slot = deprecated(),
   ...
 )
 
 \method{LayerData}{Assay5}(object, layer, features = NULL, cells = NULL, ...) <- value
 
-\method{Layers}{Assay5}(object, search = NA, ...)
+\method{Layers}{Assay5}(object, names = NULL, search = NA, ...)
 
-\method{LayerData}{Seurat}(object, layer = NULL, assay = NULL, ...)
+\method{Layers}{Assay5}(object) <- value
+
+\method{LayerData}{Seurat}(object, layer = NULL, assay = NULL, slot = deprecated(), ...)
 
 \method{LayerData}{Seurat}(object, layer, assay = NULL, ...) <- value
 
 \method{Layers}{Seurat}(object, search = NA, assay = NULL, ...)
+
+\method{Layers}{Seurat}(object, assay = NULL) <- value
 }
 \arguments{
 \item{object}{An object}
@@ -53,7 +70,9 @@ Layers(object, ...)
 
 \item{...}{Arguments passed to other methods}
 
-\item{value}{New two-dimensional data to be added as a layer}
+\item{value}{Vector of new names of layers}
+
+\item{assay}{Name of assay to fetch layer data from or assign layer data to}
 
 \item{features, cells}{Vectors of features/cells to include}
 
@@ -73,16 +92,16 @@ Layers(object, ...)
  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell
   names to the layer data}
 }}
-
-\item{assay}{Name of assay to fetch layer data from or assign layer data to}
 }
 \value{
 \code{LayerData}: the layer data for \code{layer} from \code{object}
 
-\code{Layer<-}: \code{object} with \code{value} added as a layer
+\code{LayerData<-}: \code{object} with \code{value} added as a layer
 named \code{layer}
 
 \code{Layers}: the names of the layers present in \code{object}
+
+\code{Layers<-}: \code{object} with layer names \code{value}
 }
 \description{
 Query and Manipulate Assay Layers

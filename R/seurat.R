@@ -2308,6 +2308,20 @@ Layers.Seurat <- function(object, search = NA, assay = NULL, ...) {
   return(Layers(object = object[[assay]], search = search, ...))
 }
 
+#new
+#' @rdname Layers
+#' @method Layers<- Seurat
+#' @export
+#'
+"Layers<-.Seurat" <- function(object, assay = NULL, value) {
+  assay <- assay %||% DefaultAssay(object = object)
+  assay <- arg_match(arg = assay, values = Assays(object = object))
+  Layers(object[[assay]]) <- value
+  return(object)
+}
+
+
+
 #' @param reduction Name of reduction to pull feature loadings for
 #'
 #' @rdname Loadings

@@ -1370,7 +1370,7 @@ LayerData.Assay5 <- LayerData.StdAssay
 #' @method Layers StdAssay
 #' @export
 #'
-Layers.StdAssay <- function(object, search = NA, ...) {
+Layers.StdAssay <- function(object, names = NULL, search = NA, ...) {
   if (is.null(x = search)) {
     return(DefaultLayer(object = object))
   }
@@ -1403,6 +1403,45 @@ Layers.StdAssay <- function(object, search = NA, ...) {
   return(layers)
 }
 
+
+#'
+#' @rdname Layers-StdAssay
+#' @method Layers<- StdAssay
+#' @export
+#'
+"Layers<-.StdAssay" <- function(object, value) {
+  curr <- names(slot(object = object, name = 'layers'))
+  
+  #check that there are enough unique values
+  if (length(unique(value)) != length(value)) {
+    stop("vector provided must have as many unique values as number of layers", 
+         call. = FALSE)
+  }
+  
+  #throw warning if not slots, data, scale.data 
+  results <- sapply(value, function(string) {
+    parts <- strsplit(string, "\\.")[[1]]
+    parts[length(parts) - 1] %in% c("data", "counts", "scale.data")
+  })
+  if (!(all(results == TRUE))) {
+    warnings("Layer names provided are not 'data', 'counts', or 'scale.data'. Please 
+             ensure to specify layer in downstream functions")
+  }
+  
+  #check that number of names provided matches number of layers
+  if (length(value) != length(curr)) {
+    stop("vector provided must have same length as number of layers", 
+         call. = FALSE)
+  }
+  names(slot(object = object, name = 'layers')) <- value
+  
+  colnames(object@features@.Data) <- value
+  colnames(object@cells@.Data) <- value
+  
+  return(object)
+}
+
+
 #' @param search A pattern to search layer names for; pass one of:
 #' \itemize{
 #'  \item \dQuote{\code{NA}} to pull all layers
@@ -1415,6 +1454,17 @@ Layers.StdAssay <- function(object, search = NA, ...) {
 #' @export
 #'
 Layers.Assay5 <- Layers.StdAssay
+
+#' @rdname Layers
+#' @method Layers<- Assay5
+#' @export
+#'
+"Layers<-.Assay5" <- `Layers<-.StdAssay`
+
+#' @rdname Layers-StdAssay
+#' @method Layers StdAssay
+#' @export
+#'
 
 #' @templateVar fxn Misc
 #' @template method-stdassay
