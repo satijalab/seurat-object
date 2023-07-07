@@ -974,7 +974,7 @@ SaveSeuratBP <- function(
     }
     df$assay <- assay
     for (layer in unique(df$layer)) {
-      warning("Changing path in object to point to new BPCells directory location", 
+      warning("Changing path in object to point to new BPCells directory location",
               call. = FALSE, immediate. = TRUE)
       ldat <- LayerData(object[[assay]], layer = layer)
       matrices <- BPCells:::all_matrix_inputs(ldat)
@@ -2271,15 +2271,15 @@ Keys.Seurat <- Key.Seurat
 #' @export
 #'
 LayerData.Seurat <- function(
-    object, 
-    layer = NULL, 
-    assay = NULL, 
-    slot = deprecated(), 
+    object,
+    layer = NULL,
+    assay = NULL,
+    slot = deprecated(),
     ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop(when = "5.0.0", 
-                   what = "LayerData(slot = )", 
+    deprecate_stop(when = "5.0.0",
+                   what = "LayerData(slot = )",
                    with = "LayerData(layer = )")
   }
   assay <- assay %||% DefaultAssay(object = object)
@@ -3122,19 +3122,21 @@ Version.Seurat <- function(object, ...) {
     NULL
   }
   # Pull cell-level meta data
-  
   if (is.null(x = slot.use)) {
     i <- tryCatch(
       expr = arg_match(arg = i, values = meta.cols, multiple = TRUE),
       error = function(e) {
-        check.colnames <- sapply(i, function(x) x %in% meta.cols)
         #error message that indicates which colnames not found
-        stop(paste0( paste0("'", names(check.colnames[!check.colnames]), "'",
-                            collapse = ", "),
-                     " not found in Seurat object", "\n", e$body), 
-               call. = FALSE)
+        abort(
+          message = paste(
+            paste(sQuote(x = setdiff(x = i, y = meta.cols)), collapse = ', '),
+            "not found in this Seurat object\n",
+            e$body
+          ),
+          call = rlang::caller_env(n = 4L)
+        )
       }
-      )
+    )
     # Pull the cell-level meta data
     data.return <- md[, i, drop = FALSE, ...]
     # If requested, remove NAs
