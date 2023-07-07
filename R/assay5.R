@@ -1424,7 +1424,7 @@ Layers.StdAssay <- function(object, names = NULL, search = NA, ...) {
     parts[length(parts) - 1] %in% c("data", "counts", "scale.data")
   })
   if (!(all(results == TRUE))) {
-    warnings("Layer names provided are not 'data', 'counts', or 'scale.data'. Please 
+    warning("Layer names provided are not 'data', 'counts', or 'scale.data'. Please 
              ensure to specify layer in downstream functions")
   }
   
