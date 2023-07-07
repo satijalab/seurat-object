@@ -5055,6 +5055,27 @@ setMethod(
       ),
       name = '.Data'
     )
+    cell.order <- MatchCells(
+      new = colnames(x = value),
+      orig = colnames(x = x),
+      ordered = TRUE
+    )
+    if (is.unsorted(cell.order)) {
+    value.order <- new(
+      Class = 'Assay5',
+      layers = list(),
+      default = 0L,
+      features = value@features,
+      cells = LogMap(colnames(value)[cell.order]),
+      meta.data = value@meta.data,
+      misc = value@misc
+    )
+    for (l in Layers(object = value)) {
+        LayerData(object = value.order, layer = l) <- 
+          LayerData(object = value, layer = l)
+    }
+    value <- value.order
+    }
     return(fn(x = x, i = i, value = value))
   }
 )
