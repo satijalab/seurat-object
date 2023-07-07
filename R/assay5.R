@@ -1420,7 +1420,7 @@ Layers.StdAssay <- function(object, names = NULL, search = NA, ...) {
   
   #check that number of names provided matches number of layers
   if (length(value) != length(curr)) {
-    stop("vector provided must have same length as number of layers", 
+    stop("vector of layer names must have same length as number of layers", 
          call. = FALSE)
   }
   
