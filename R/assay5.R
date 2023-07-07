@@ -904,6 +904,7 @@ GetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
+  layer <- layer %||% 'data'
   return(LayerData(object = object, layer = layer, ...))
 }
 
