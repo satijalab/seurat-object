@@ -905,6 +905,7 @@ GetAssayData.StdAssay <- function(
     layer <- slot
   }
   layer <- layer %||% 'data'
+  object <- JoinLayers(object = object, layers = layer)
   return(LayerData(object = object, layer = layer, ...))
 }
 
