@@ -712,10 +712,23 @@ FetchData.StdAssay <- function(
   ...
 ) {
   # Identify layer(s) to use
-  layer <- rev(x = Layers(
+  layer.set <- rev(x = Layers(
     object = object,
-    search = layer %||% DefaultLayer(object = object)
+    search = layer %||% 'data'
   ))
+  if (is.null(layer.set) & is.null(layer) ) {
+    warning('data layer is not found and counts layer is used')
+    layer.set <- rev(x = Layers(
+      object = object,
+      search = 'counts'
+    ))
+  }
+  if (is.null(layer.set)) {
+  stop('layer ', layer,' is not found in the object')
+  } else {
+    layer <- layer.set
+    }
+  
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
@@ -891,6 +904,7 @@ GetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
+  layer <- layer %||% 'data'
   return(LayerData(object = object, layer = layer, ...))
 }
 
