@@ -3128,13 +3128,13 @@ Version.Seurat <- function(object, ...) {
       expr = arg_match(arg = i, values = meta.cols, multiple = TRUE),
       error = function(e) {
         check.colnames <- sapply(i, function(x) x %in% meta.cols)
-        stop(  paste0( paste0("'", names(check.colnames[!check.colnames]), "'", collapse = ", and/or "),
-                       " not found in Seurat object", "\n", e$body), 
+        #error message that indicates which colnames not found
+        stop(paste0( paste0("'", names(check.colnames[!check.colnames]), "'",
+                            collapse = ", "),
+                     " not found in Seurat object", "\n", e$body), 
                call. = FALSE)
       }
       )
-    #original
-    #i <- arg_match(arg = i, values = meta.cols, multiple = TRUE)
     # Pull the cell-level meta data
     data.return <- md[, i, drop = FALSE, ...]
     # If requested, remove NAs
