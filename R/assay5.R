@@ -1370,7 +1370,7 @@ LayerData.Assay5 <- LayerData.StdAssay
 #' @method Layers StdAssay
 #' @export
 #'
-Layers.StdAssay <- function(object, names = NULL, search = NA, ...) {
+Layers.StdAssay <- function(object, search = NA, ...) {
   if (is.null(x = search)) {
     return(DefaultLayer(object = object))
   }
