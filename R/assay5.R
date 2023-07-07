@@ -410,7 +410,20 @@ setClass(
 #'
 #' @method AddMetaData StdAssay
 #'
-AddMetaData.StdAssay <- .AddMetaData
+AddMetaData.StdAssay <- function(object, metadata, col.name = NULL) {
+  if (is.null(x = col.name) && (is.atomic(x = metadata) && !is.matrix(x = metadata))) {
+    abort(message = "'col.name' must be provided for atomic meta data")
+  }
+  if (inherits(x = metadata, what = c('matrix', 'Matrix'))) {
+    metadata <- as.data.frame(x = metadata)
+  }
+  col.name <- col.name %||% names(x = metadata) %||% colnames(x = metadata)
+  if (is.null(x = col.name)) {
+    abort(message = "No metadata name provided and could not infer it from metadata object")
+  }
+  object[col.name] <- metadata
+  return(object)
+}
 
 #' @rdname AddMetaData
 #' @method AddMetaData Assay5
