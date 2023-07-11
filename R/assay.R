@@ -583,6 +583,9 @@ LayerData.Assay <- function(
     values = Features(x = object, layer = layer),
     multiple = TRUE
   )
+  if (length(x = features) == 0) {
+    stop('features are not found')
+  }
   # Pull the matrix for the cells/features requested
   return(methods::slot(object = object, name = layer)[features, cells])
 }

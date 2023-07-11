@@ -1172,6 +1172,9 @@ LayerData.StdAssay <- function(
     ordered = TRUE
   ))
   dnames[[1L]] <- dnames[[1L]][features]
+  if(length(x = dnames[[1L]]) == 0) {
+    stop('features are not found')
+  }
   # Pull the layer data
   ldat <- if (.MARGIN(x = object) == 1L) {
     methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
