@@ -904,7 +904,14 @@ GetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
-  layer <- layer %||% 'data'
+  layer <- Layers(object = object, search = layer %||% 'data')
+  if (length(x = layer) > 1) {
+    abort("GetAssayData doesn't work for multiple layers in v5 assay.",
+         " You can run 'object <- JoinLayers(object = object, layers = layer)'.")
+  }
+  if (is.null(x = layer)) {
+    abort("No layers are found")
+  }
   return(LayerData(object = object, layer = layer, ...))
 }
 
@@ -1171,6 +1178,9 @@ LayerData.StdAssay <- function(
     ordered = TRUE
   ))
   dnames[[1L]] <- dnames[[1L]][features]
+  if(length(x = dnames[[1L]]) == 0) {
+    stop('features are not found')
+  }
   # Pull the layer data
   ldat <- if (.MARGIN(x = object) == 1L) {
     methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
