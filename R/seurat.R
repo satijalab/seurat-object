@@ -974,7 +974,7 @@ SaveSeuratBP <- function(
     }
     df$assay <- assay
     for (layer in unique(df$layer)) {
-      warning("Changing path in object to point to new BPCells directory location", 
+      warning("Changing path in object to point to new BPCells directory location",
               call. = FALSE, immediate. = TRUE)
       ldat <- LayerData(object[[assay]], layer = layer)
       matrices <- BPCells:::all_matrix_inputs(ldat)
@@ -2271,15 +2271,15 @@ Keys.Seurat <- Key.Seurat
 #' @export
 #'
 LayerData.Seurat <- function(
-    object, 
-    layer = NULL, 
-    assay = NULL, 
-    slot = deprecated(), 
+    object,
+    layer = NULL,
+    assay = NULL,
+    slot = deprecated(),
     ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop(when = "5.0.0", 
-                   what = "LayerData(slot = )", 
+    deprecate_stop(when = "5.0.0",
+                   what = "LayerData(slot = )",
                    with = "LayerData(layer = )")
   }
   assay <- assay %||% DefaultAssay(object = object)
@@ -3123,8 +3123,20 @@ Version.Seurat <- function(object, ...) {
   }
   # Pull cell-level meta data
   if (is.null(x = slot.use)) {
-    # Identify the cell-level meta data to use
-    i <- arg_match(arg = i, values = meta.cols, multiple = TRUE)
+    i <- tryCatch(
+      expr = arg_match(arg = i, values = meta.cols, multiple = TRUE),
+      error = function(e) {
+        #error message that indicates which colnames not found
+        abort(
+          message = paste(
+            paste(sQuote(x = setdiff(x = i, y = meta.cols)), collapse = ', '),
+            "not found in this Seurat object\n",
+            e$body
+          ),
+          call = rlang::caller_env(n = 4L)
+        )
+      }
+    )
     # Pull the cell-level meta data
     data.return <- md[, i, drop = FALSE, ...]
     # If requested, remove NAs
@@ -5055,6 +5067,27 @@ setMethod(
       ),
       name = '.Data'
     )
+    cell.order <- MatchCells(
+      new = colnames(x = value),
+      orig = colnames(x = x),
+      ordered = TRUE
+    )
+    if (is.unsorted(cell.order)) {
+    value.order <- new(
+      Class = 'Assay5',
+      layers = list(),
+      default = 0L,
+      features = value@features,
+      cells = LogMap(colnames(value)[cell.order]),
+      meta.data = value@meta.data,
+      misc = value@misc
+    )
+    for (l in Layers(object = value)) {
+        LayerData(object = value.order, layer = l) <- 
+          LayerData(object = value, layer = l)
+    }
+    value <- value.order
+    }
     return(fn(x = x, i = i, value = value))
   }
 )

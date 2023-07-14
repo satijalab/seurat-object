@@ -712,10 +712,23 @@ FetchData.StdAssay <- function(
   ...
 ) {
   # Identify layer(s) to use
-  layer <- rev(x = Layers(
+  layer.set <- rev(x = Layers(
     object = object,
-    search = layer %||% DefaultLayer(object = object)
+    search = layer %||% 'data'
   ))
+  if (is.null(layer.set) & is.null(layer) ) {
+    warning('data layer is not found and counts layer is used')
+    layer.set <- rev(x = Layers(
+      object = object,
+      search = 'counts'
+    ))
+  }
+  if (is.null(layer.set)) {
+  stop('layer ', layer,' is not found in the object')
+  } else {
+    layer <- layer.set
+    }
+  
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
@@ -890,6 +903,14 @@ GetAssayData.StdAssay <- function(
       with = 'GetAssayData(layer = )'
     )
     layer <- slot
+  }
+  layer <- Layers(object = object, search = layer %||% 'data')
+  if (length(x = layer) > 1) {
+    abort("GetAssayData doesn't work for multiple layers in v5 assay.",
+         " You can run 'object <- JoinLayers(object = object, layers = layer)'.")
+  }
+  if (is.null(x = layer)) {
+    abort("No layers are found")
   }
   return(LayerData(object = object, layer = layer, ...))
 }
@@ -1157,6 +1178,9 @@ LayerData.StdAssay <- function(
     ordered = TRUE
   ))
   dnames[[1L]] <- dnames[[1L]][features]
+  if(length(x = dnames[[1L]]) == 0) {
+    stop('features are not found')
+  }
   # Pull the layer data
   ldat <- if (.MARGIN(x = object) == 1L) {
     methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
@@ -2008,8 +2032,29 @@ merge.StdAssay <- function(
   if (isTRUE(x = collapse)) {
     abort(message = "Collapsing layers is not yet supported")
   } else {
+    # Get default layer as default of first assay 
+    default <- DefaultLayer(assays[[1]])
+    names <- c("counts", "data", "scale.data")
+    keep <- suppressWarnings(
+      c(
+        names[
+          sapply(names, function(layer) all(sapply(assays, function(x) !is.null(Layers(x, search = layer)))))
+        ]
+      )
+    )
+      
+    other <- Layers(assays[[1]])
+    other <- other[!grepl(paste0("^", paste(c("counts", "data", "scale.data"), collapse = "|")), other)]
+    for (i in other) {
+      if (all(sapply(assays, function(x) !is.null(Layers(x, search = i))))) {
+        keep <- c(keep, i)
+      }
+    }
+    if (length(keep) < 1){
+      stop("Error: There are no shared layers between the objects.")
+    }
     for (i in seq_along(along.with = assays)) {
-      for (lyr in Layers(object = assays[[i]])) {
+      for (lyr in keep) {
         LayerData(
           object = combined,
           layer = paste(lyr, labels[i], sep = '.'),
@@ -2052,6 +2097,7 @@ merge.StdAssay <- function(
     combined[] <- mf
   }
   # TODO: Add misc
+  DefaultLayer(combined) <- Layers(object = combined, search = default)
   validObject(object = combined)
   return(combined)
 }
