@@ -906,11 +906,11 @@ GetAssayData.StdAssay <- function(
   }
   layer <- Layers(object = object, search = layer %||% 'data')
   if (length(x = layer) > 1) {
-    stop("GetAssayData doesn't work for multiple layers in v5 assay.",
+    abort("GetAssayData doesn't work for multiple layers in v5 assay.",
          " You can run 'object <- JoinLayers(object = object, layers = layer)'.")
   }
   if (is.null(x = layer)) {
-    stop("No layers are found")
+    abort("No layers are found")
   }
   return(LayerData(object = object, layer = layer, ...))
 }
