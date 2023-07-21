@@ -1064,7 +1064,6 @@ SetIdent <- function(object, ...) {
 
 #' Simplify Geometry
 #'
-#' @inheritParams rgeos::gSimplify
 #' @param coords ...
 #'
 #' @return ...
