@@ -5360,7 +5360,12 @@ setMethod(
   f = "show",
   signature = "Seurat",
   definition = function(object) {
-    #object <- UpdateSlots(object = object)
+    tryCatch( 
+      expr = {slot(object = object, name = 'images')},
+      error = function(cond) {
+        stop("Please run UpdateSeuratObject before proceeding", call.=FALSE)
+      }
+    )
     assays <- .FilterObjects(object = object, classes.keep = c('Assay', 'StdAssay'))
     nfeatures <- sum(vapply(
       X = assays,
