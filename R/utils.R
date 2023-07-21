@@ -708,7 +708,7 @@ S4ToList.list <- function(object) {
   return(object)
 }
 
-#' Check the existence of a package
+#' Simplify segmentations by reducing the number of vertices
 #'
 #' @param coords A `Segmentation` object
 #' @param tol Numerical tolerance value to be used by the Douglas-Peuker algorithm

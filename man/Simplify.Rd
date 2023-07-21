@@ -24,5 +24,5 @@ A `Segmentation` object with simplified segmentation vertices
 \description{
 Simplify Geometry
 
-Check the existence of a package
+Simplify segmentations by reducing the number of vertices
 }
