@@ -154,11 +154,11 @@ setClass(
 #' @method .CalcN default
 #' @export
 #'
-.CalcN.default <- function(object) {
+.CalcN.default <- function(object, ...) {
    return(list(
-      nCount = Matrix::colSums(x = object),
-      nFeature = Matrix::colSums(x = object > 0)
-      ))
+     nCount = Matrix::colSums(x = object),
+     nFeature = Matrix::colSums(x = object > 0)
+   ))
 }
 
 # @param layer Name of layer to store \code{counts} as
