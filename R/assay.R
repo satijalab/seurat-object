@@ -621,7 +621,11 @@ LayerData.Assay <- function(
   )
   # Check the class of the matrix
   if (!inherits(x = value, what = c('matrix', 'dgCMatrix'))) {
-    abort(message = "'value' must be a 'matrix' or 'dgCMatrix'")
+    if (inherits(x = value, what = "IterableMatrix")) {
+      abort(message = "Can't set BPCells matrix to layer in v3 Assays.")
+    } else {
+      abort(message = "'value' must be a 'matrix' or 'dgCMatrix'")
+    }
   }
   if (!IsMatrixEmpty(x = value)) {
     vnames <- dimnames(x = value)
