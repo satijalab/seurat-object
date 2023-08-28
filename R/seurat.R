@@ -4254,7 +4254,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #' \link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
 #' data with \code{[[<-}
 #'
-#' @aliases [[<-.Seurat
+#' @aliases [[<-.Seurat \S4method{[[<-}{Seurat,character,missing,Assay}
 #'
 setMethod(
   f = '[[<-',
@@ -4884,7 +4884,7 @@ setMethod(
 #' \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
 #' \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
 #'
-#' @aliases remove-object remove-objects
+#' @aliases remove-object remove-objects \S4method{[[<-}{Seurat,character,missing,NULL}
 #'
 setMethod(
   f = '[[<-',
