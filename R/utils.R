@@ -1451,13 +1451,13 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
     } else if (inherits(matrix, "10xMatrixH5")){
       warning("The on-disk matrix is an h5 file and will not be moved ",
               "to the destination directory. It will remain at: '", matrix@path,
-              "'. If you would like to save the matrix in BPCells format, use ", 
+              "'. If you would like to save the matrix in BPCells format, use ",
               "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
-      path = NULL 
+      path = NULL
     } else if (inherits(matrix, "AnnDataMatrixH5")){
       warning("The on-disk matrix is an h5ad file and will not be moved ",
               "to the destination directory. It will remain at: '", matrix@path,
-              "'. If you would like to save the matrix in BPCells format, use ", 
+              "'. If you would like to save the matrix in BPCells format, use ",
               "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
       path = NULL
     } else {
@@ -1963,39 +1963,74 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
 #'
 #' @seealso \code{\link[fs:file_move]{fs::file_move}()}
 #'
-.FileMove <- function (path, new_path, n = 1L) 
-{
-  check_installed(pkg = "fs", reason = "for moving on-disk files")
-  stopifnot(is_scalar_character(x = path))
-  stopifnot(is_scalar_character(x = new_path))
-  stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && 
-              n > 0)
-  if (fs::is_dir(path = path)) {
-    path <- fs::path_expand(path = path)
-    new_path <- fs::path_expand(path = new_path)
-    dest <- fs::dir_create(path = file.path(new_path))
-    dest <- tryCatch(expr = fs::dir_copy(path = path, new_path = dest), 
-                     error = function(e) {
-                       stop("Can't move this dir to new path: ", e, 
-                            call. = F)
-                     })
-  }
-  else if (fs::is_file(path = path)) {
-    dest <- fs::file_copy(path = path, new_path = new_path)
-  }
-  else {
-    stop("Can't find path: ", path, ". If path is relative, change working directory.")
-    error_call <- function(err) {
-      abort(message = err$message, 
-            class = class(x = err), 
-            call = caller_env(n = 4L + n))
+.FileMove <- function(path, new_path, overwrite = FALSE, n = 1L) {
+  check_installed(
+    pkg = 'fs',
+    reason = 'for moving on-disk files'
+  )
+  stopifnot(
+    is_scalar_character(x = path),
+    is_scalar_character(x = new_path),
+    rlang::is_bare_logical(x = overwrite, n = 1L),
+    is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0
+  )
+  hndlr <- if (fs::is_dir(path = path)) {
+    function(...) {
+      path <- fs::path_expand(path = path)
+      new_path <- fs::path_expand(path = new_path)
+      dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
+      fs::dir_copy(path = path, new_path = dest, overwrite = overwrite)
+      return(dest)
+    }
+  } else {
+    function(err) {
+      abort(
+        message = err$message,
+        class = class(x = err),
+        call = caller_env(n = 4L + n)
+      )
     }
   }
-  return(invisible(x = tryCatch(expr = return(dest), 
-                                error = function(e) return(error_call))))
+  return(invisible(x = tryCatch(
+    expr = fs::file_copy(
+      path = path,
+      new_path = new_path,
+      overwrite = overwrite
+    ),
+    EISDIR = hndlr
+  )))
 }
 
-
+# .FileMove <- function(path, new_path, n = 1L) {
+#   check_installed(pkg = "fs", reason = "for moving on-disk files")
+#   stopifnot(is_scalar_character(x = path))
+#   stopifnot(is_scalar_character(x = new_path))
+#   stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0)
+#   if (fs::is_dir(path = path)) {
+#     path <- fs::path_expand(path = path)
+#     new_path <- fs::path_expand(path = new_path)
+#     dest <- fs::dir_create(path = file.path(new_path))
+#     dest <- tryCatch(
+#       expr = fs::dir_copy(path = path, new_path = dest),
+#       error = function(e) {
+#         stop("Can't move this dir to new path: ", e, call. = FALSE)
+#       }
+#     )
+#   }
+#   else if (fs::is_file(path = path)) {
+#     dest <- fs::file_copy(path = path, new_path = new_path)
+#   }
+#   else {
+#     stop("Can't find path: ", path, ". If path is relative, change working directory.")
+#     error_call <- function(err) {
+#       abort(message = err$message,
+#             class = class(x = err),
+#             call = caller_env(n = 4L + n))
+#     }
+#   }
+#   return(invisible(x = tryCatch(expr = return(dest),
+#                                 error = function(e) return(error_call))))
+# }
 
 #' Get An Option
 #'

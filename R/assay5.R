@@ -154,11 +154,11 @@ setClass(
 #' @method .CalcN default
 #' @export
 #'
-.CalcN.default <- function(object) {
+.CalcN.default <- function(object, ...) {
    return(list(
-      nCount = Matrix::colSums(x = object),
-      nFeature = Matrix::colSums(x = object > 0)
-      ))
+     nCount = Matrix::colSums(x = object),
+     nFeature = Matrix::colSums(x = object > 0)
+   ))
 }
 
 # @param layer Name of layer to store \code{counts} as
@@ -728,7 +728,7 @@ FetchData.StdAssay <- function(
   } else {
     layer <- layer.set
     }
-  
+
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
   if (is.numeric(x = cells)) {
@@ -904,7 +904,14 @@ GetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
-  layer <- layer %||% 'data'
+  layer <- Layers(object = object, search = layer %||% 'data')
+  if (length(x = layer) > 1) {
+    abort("GetAssayData doesn't work for multiple layers in v5 assay.",
+         " You can run 'object <- JoinLayers(object = object, layers = layer)'.")
+  }
+  if (is.null(x = layer)) {
+    abort("No layers are found")
+  }
   return(LayerData(object = object, layer = layer, ...))
 }
 
@@ -1109,8 +1116,8 @@ LayerData.StdAssay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop(when = "5.0.0", 
-                   what = "LayerData(slot = )", 
+    deprecate_stop(when = "5.0.0",
+                   what = "LayerData(slot = )",
                    with = "LayerData(layer = )")
   }
   # Figure out the layer we're pulling
@@ -1171,6 +1178,9 @@ LayerData.StdAssay <- function(
     ordered = TRUE
   ))
   dnames[[1L]] <- dnames[[1L]][features]
+  if(length(x = dnames[[1L]]) == 0) {
+    stop('features are not found')
+  }
   # Pull the layer data
   ldat <- if (.MARGIN(x = object) == 1L) {
     methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
@@ -2022,7 +2032,7 @@ merge.StdAssay <- function(
   if (isTRUE(x = collapse)) {
     abort(message = "Collapsing layers is not yet supported")
   } else {
-    # Get default layer as default of first assay 
+    # Get default layer as default of first assay
     default <- DefaultLayer(assays[[1]])
     names <- c("counts", "data", "scale.data")
     keep <- suppressWarnings(
@@ -2032,7 +2042,7 @@ merge.StdAssay <- function(
         ]
       )
     )
-      
+
     other <- Layers(assays[[1]])
     other <- other[!grepl(paste0("^", paste(c("counts", "data", "scale.data"), collapse = "|")), other)]
     for (i in other) {
@@ -2582,6 +2592,74 @@ setAs(
       Misc(object = to, slot = i) <- mdata[[i]]
     }
 
+    return(to)
+  }
+)
+
+setAs(
+  from = 'Assay5',
+  to = 'Assay',
+  def = function(from) {
+    data.list <- c()
+    original.layers <- Layers(object = from)
+    layers.saved <- c()
+    for (i in c('counts', 'data', 'scale.data')) {
+      layers.saved <- c(layers.saved, Layers(object = from, search = i))
+      if (length(Layers(object = from, search = i)) > 1) {
+        warning("Joining '", i, "' layers. If you have the same cells in multiple layers, ",
+                "the expression value for the cell in the '",
+                i, "' slot will be the value from the '",
+                Layers(object = from, search = i)[1], "' layer.",
+                call. = FALSE,
+                immediate. = TRUE)
+        from <- JoinLayers(object = from,
+                           layers = i,
+                           new = i)
+      }
+      if(i == "data") {
+        if (isTRUE(Layers(object = from, search = i) == "scale.data")){
+          warning("No counts or data slot in object. Setting 'data' slot using",
+                  " data from 'scale.data' slot. To recreate 'data' slot, you",
+                  " must set and normalize data from a 'counts' slot.",
+                  call. = FALSE)
+        }
+      }
+      adata <- LayerData(object = from, layer = i)
+      if(inherits(x = adata, what = "IterableMatrix")) {
+        warning("Converting IterableMatrix to sparse dgCMatrix",
+                call. = FALSE)
+        adata <- as(object = adata, Class = "dgCMatrix")
+      }
+      data.list[[i]] <- adata
+    }
+    if (IsMatrixEmpty(x = data.list[["data"]])){
+      data.list[["data"]] <- data.list[["counts"]]
+    }
+    if (any(!(original.layers %in% layers.saved))){
+      layers.remove <- original.layers[!(original.layers %in% layers.saved)]
+      warning("Layers ", paste0(layers.remove, collapse = ', '),
+              " will be removed from the object as v3 assays only support",
+              " 'counts', 'data', or 'scale.data' slots.",
+              call. = FALSE,
+              immediate. = TRUE)
+    }
+    to <- new(
+      Class = 'Assay',
+      counts = data.list[["counts"]],
+      data = data.list[["data"]],
+      scale.data = data.list[["scale.data"]],
+      assay.orig = DefaultAssay(object = from) %||% character(length = 0L),
+      meta.features = data.frame(row.names = rownames(x = data.list[["data"]])),
+      key = Key(object = from)
+    )
+    # Add feature-level meta data
+    suppressWarnings(to[] <- from[])
+    # set variable features
+    VariableFeatures(object = to) <- VariableFeatures(object = from)
+    mdata <- Misc(object = from)
+    for (i in names(x = mdata)) {
+      Misc(object = to, slot = i) <- mdata[[i]]
+    }
     return(to)
   }
 )

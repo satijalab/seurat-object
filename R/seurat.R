@@ -1397,9 +1397,9 @@ CreateSeuratObject.default <- function(
   names.field = 1L,
   names.delim = '_',
   meta.data = NULL,
+  project = 'SeuratProject',
   min.cells = 0,
   min.features = 0,
-  project = 'SeuratProject',
   ...
 ) {
   assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
@@ -3691,8 +3691,8 @@ names.Seurat <- function(x) {
 split.Seurat <- function(
     x,
     f,
-    assay = NULL,
     drop = FALSE,
+    assay = NULL,
     layers = NA,
     ...
 ){
@@ -4254,7 +4254,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #' \link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
 #' data with \code{[[<-}
 #'
-#' @aliases [[<-.Seurat
+#' @aliases [[<-.Seurat \S4method{[[<-}{Seurat,character,missing,Assay}
 #'
 setMethod(
   f = '[[<-',
@@ -4884,7 +4884,7 @@ setMethod(
 #' \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
 #' \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
 #'
-#' @aliases remove-object remove-objects
+#' @aliases remove-object remove-objects \S4method{[[<-}{Seurat,character,missing,NULL}
 #'
 setMethod(
   f = '[[<-',
@@ -5083,7 +5083,7 @@ setMethod(
       misc = value@misc
     )
     for (l in Layers(object = value)) {
-        LayerData(object = value.order, layer = l) <- 
+        LayerData(object = value.order, layer = l) <-
           LayerData(object = value, layer = l)
     }
     value <- value.order

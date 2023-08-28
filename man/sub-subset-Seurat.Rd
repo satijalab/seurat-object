@@ -3,6 +3,7 @@
 \name{[[<-,Seurat}
 \alias{[[<-,Seurat}
 \alias{[[<-.Seurat}
+\alias{\S4method{[[<-}{Seurat,character,missing,Assay}}
 \alias{[[<-,Seurat,character,missing,Assay5-method}
 \alias{[[<-,Seurat,character,missing,DimReduc-method}
 \alias{[[<-,Seurat,character,missing,Graph-method}
