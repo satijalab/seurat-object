@@ -1397,9 +1397,9 @@ CreateSeuratObject.default <- function(
   names.field = 1L,
   names.delim = '_',
   meta.data = NULL,
+  project = 'SeuratProject',
   min.cells = 0,
   min.features = 0,
-  project = 'SeuratProject',
   ...
 ) {
   assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
@@ -3691,8 +3691,8 @@ names.Seurat <- function(x) {
 split.Seurat <- function(
     x,
     f,
-    assay = NULL,
     drop = FALSE,
+    assay = NULL,
     layers = NA,
     ...
 ){
@@ -5083,7 +5083,7 @@ setMethod(
       misc = value@misc
     )
     for (l in Layers(object = value)) {
-        LayerData(object = value.order, layer = l) <- 
+        LayerData(object = value.order, layer = l) <-
           LayerData(object = value, layer = l)
     }
     value <- value.order
@@ -5360,7 +5360,7 @@ setMethod(
   f = "show",
   signature = "Seurat",
   definition = function(object) {
-    tryCatch( 
+    tryCatch(
       expr = {slot(object = object, name = 'images')},
       error = function(cond) {
         stop("Please run UpdateSeuratObject before proceeding", call.=FALSE)
