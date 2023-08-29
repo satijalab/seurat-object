@@ -22,7 +22,7 @@
 Cell embeddings for cells \code{i} and dimensions \code{j}
 }
 \description{
-Pull cell embeddings from a \link[DimReduc]{dimensional reduction}
+Pull cell embeddings from a \link[=DimReduc]{dimensional reduction}
 }
 \examples{
 pca <- pbmc_small[["pca"]]

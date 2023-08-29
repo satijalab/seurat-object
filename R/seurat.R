@@ -116,7 +116,7 @@ setClass(
 #'
 #' @name seurat-class
 #' @rdname oldseurat-class
-#' @aliases seurat-class
+#' @aliases seurat-class oldseurat
 #'
 #' @concept unsorted
 #' @concept v2
@@ -2005,8 +2005,8 @@ FetchData.Seurat <- function(
   return(data.fetched)
 }
 
-#' @param assay Specific assay to get data from or set data for; defaults to
-#' the \link[SeuratObject:DefaultAssay]{default assay}
+#' @param assay Specific assay to get data from or set data for;
+#' defaults to the \link[=DefaultAssay]{default assay}
 #'
 #' @rdname AssayData
 #' @export
@@ -3051,10 +3051,11 @@ Version.Seurat <- function(object, ...) {
 
 #' Subobjects and Cell-Level Meta Data
 #'
-#' The \code{[[} operator pulls either subobjects (eg. \link[Assay]{v3} or
-#' \link[Assay5]{v5} assays, \link[DimReduc]{dimensional reduction} information,
-#' or \link[Graph]{nearest-neighbor graphs}) or cell-level meta data from a
-#' \code{\link{Seurat}} object
+#' The \code{[[} operator pulls either subobjects
+#' (eg. \link[=Assay]{v3} or \link[=Assay5]{v5} assays,
+#' \link[=DimReduc]{dimensional reduction} information,
+#' or \link[=Graph]{nearest-neighbor graphs}) or cell-level
+#' meta data from a \code{\link{Seurat}} object
 #'
 #' @inheritParams $.Seurat
 #' @param drop See \code{\link[base]{drop}}
@@ -3066,7 +3067,8 @@ Version.Seurat <- function(object, ...) {
 #'  \item If \code{i} is a vector with cell-level meta data names, a data frame
 #'   (or vector of \code{drop = TRUE}) with cell-level meta data requested
 #'  \item If \code{i} is a one-length character with the
-#'  \link[names.Seurat]{name of a subobject}, the subobject specified by \code{i}
+#'   \link[=names.Seurat]{name of a subobject}, the
+#'   subobject specified by \code{i}
 #' }
 #'
 #' @method [[ Seurat
@@ -3658,10 +3660,10 @@ merge.Seurat <- function(
 #'
 #' @return The names of all of the following subobjects within \code{x}:
 #' \itemize{
-#'  \item \link[Assay]{v3} and \link[Assay5]{v5} assays
-#'  \item \link[DimReduc]{dimensional reductions}
-#'  \item \link[SpatialImage]{images} and \link[FOV]{FOVs}
-#'  \item \link[Graph]{nearest-neighbor graphs}
+#'  \item \link[=Assay]{v3} and \link[=Assay5]{v5} assays
+#'  \item \link[=DimReduc]{dimensional reductions}
+#'  \item \link[=SpatialImage]{images} and \link[=FOV]{FOVs}
+#'  \item \link[=Graph]{nearest-neighbor graphs}
 #' }
 #'
 #' @method names Seurat
@@ -4238,8 +4240,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #' @inheritParams .DollarNames.Seurat
 #' @inheritParams [[.Assay5
 #' @param i Name to add subobject as
-#' @param value A valid subobject (eg. a \link[Assay]{v3} or
-#' \link[Assay5]{v5} assay, or a \link[DimReduc]{dimensional reduction})
+#' @param value A valid subobject (eg. a \link[=Assay]{v3} or \link[=Assay5]{v5}
+#' assay, or a \link[=DimReduc]{dimensional reduction})
 #'
 #' @return \code{x} with \code{value} added as \code{i}
 #'
@@ -5457,7 +5459,7 @@ setMethod(
 
 #' Old Seurat Object Overview
 #'
-#' Overview of a \code{\link[oldseurat-class]{seurat}} object overview
+#' Overview of a \code{\link[=oldseurat]{seurat}} object overview
 #'
 #' @param object An old seurat object
 #'

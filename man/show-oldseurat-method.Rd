@@ -14,7 +14,7 @@ Prints summary to \code{\link[base]{stdout}} and invisibly
 returns \code{NULL}
 }
 \description{
-Overview of a \code{\link[oldseurat-class]{seurat}} object overview
+Overview of a \code{\link[=oldseurat]{seurat}} object overview
 }
 \concept{oldseurat}
 \keyword{internal}

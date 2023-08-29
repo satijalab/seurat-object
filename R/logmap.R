@@ -91,7 +91,7 @@ LogMap <- function(y) {
 #' Coerce Logical Maps to Matrices
 #'
 #' Coerce a logical map to a matrix; this removes all
-#' \link[LogMap]{logical map} class capabilities from
+#' \link[=LogMap]{logical map} class capabilities from
 #' the object and returns a base-R matrix object
 #'
 #' @param x A \code{\link{LogMap}} object
@@ -118,7 +118,7 @@ as.matrix.LogMap <- function(x, ...) {
 
 #' Drop Unused Logical Map Values
 #'
-#' Remove any unused values from a \link[LogMap]{logical map}
+#' Remove any unused values from a \link[=LogMap]{logical map}
 #'
 #' @template param-dots-ignored
 #' @param x A \code{LogMap} object
@@ -164,8 +164,8 @@ droplevels.LogMap <- function(x, ...) {
 
 #' Find Common Logical Map Values
 #'
-#' Identify values in a \link[LogMap]{logical map} that are common to
-#' every observation
+#' Identify values in a \link[=LogMap]{logical map} that are
+#' common to every observation
 #'
 #' @inheritParams droplevels.LogMap
 #' @param y Ignored
@@ -197,8 +197,8 @@ intersect.LogMap <- function(x, y = missing_arg(), ...) {
 
 #' Find Observations by Value
 #'
-#' Identify the observations that contain a specific value in a
-#' \link[LogMap]{logical map}
+#' Identify the observations that contain a specific
+#' value in a \link[=LogMap]{logical map}
 #'
 #' @template param-dots-ignored
 #' @param object A \code{\link{LogMap}} object

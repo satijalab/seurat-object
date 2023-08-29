@@ -37,8 +37,8 @@ of all values and the observations they're found in, according
 to the value of \code{select}
 }
 \description{
-Identify the observations that contain a specific value in a
-\link[LogMap]{logical map}
+Identify the observations that contain a specific
+value in a \link[=LogMap]{logical map}
 }
 \examples{
 map <- LogMap(letters[1:10])

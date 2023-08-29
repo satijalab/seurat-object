@@ -16,7 +16,7 @@
 observation removed
 }
 \description{
-Remove any unused values from a \link[LogMap]{logical map}
+Remove any unused values from a \link[=LogMap]{logical map}
 }
 \examples{
 map <- LogMap(letters[1:10])

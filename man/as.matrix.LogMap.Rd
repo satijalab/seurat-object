@@ -14,7 +14,7 @@ A base-R matrix created from \code{x}
 }
 \description{
 Coerce a logical map to a matrix; this removes all
-\link[LogMap]{logical map} class capabilities from
+\link[=LogMap]{logical map} class capabilities from
 the object and returns a base-R matrix object
 }
 \examples{

@@ -32,7 +32,8 @@ Varies based on the value of \code{i}:
  \item If \code{i} is a vector with cell-level meta data names, a data frame
   (or vector of \code{drop = TRUE}) with cell-level meta data requested
  \item If \code{i} is a one-length character with the
- \link[names.Seurat]{name of a subobject}, the subobject specified by \code{i}
+  \link[=names.Seurat]{name of a subobject}, the
+  subobject specified by \code{i}
 }
 
 \code{head}: The first \code{n} rows of cell-level metadata
@@ -40,10 +41,11 @@ Varies based on the value of \code{i}:
 \code{tail}: The last \code{n} rows of cell-level metadata
 }
 \description{
-The \code{[[} operator pulls either subobjects (eg. \link[Assay]{v3} or
-\link[Assay5]{v5} assays, \link[DimReduc]{dimensional reduction} information,
-or \link[Graph]{nearest-neighbor graphs}) or cell-level meta data from a
-\code{\link{Seurat}} object
+The \code{[[} operator pulls either subobjects
+(eg. \link[=Assay]{v3} or \link[=Assay5]{v5} assays,
+\link[=DimReduc]{dimensional reduction} information,
+or \link[=Graph]{nearest-neighbor graphs}) or cell-level
+meta data from a \code{\link{Seurat}} object
 }
 \examples{
 # Get the cell-level metadata data frame

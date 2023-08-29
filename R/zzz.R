@@ -162,7 +162,7 @@ setOldClass(Classes = 'package_version')
 
 #' Test Intersections of Bounding Boxes
 #'
-#' @param i,j \link[sp::bbox]{Bounding boxes}
+#' @param i,j \link[sp:bbox]{Bounding boxes}
 #' @param constraint Type of intersection to perform; choose from:
 #' \itemize{
 #'  \item \dQuote{\code{intersect}}: \code{i} must fall at least

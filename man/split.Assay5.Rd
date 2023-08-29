@@ -47,7 +47,7 @@ Depends on the value of \code{ret}:
  \code{layers} split based on \code{f}; all other layers are left as-is
  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects;
  the list contains one value per split and each assay contains only the
- layers requested in \code{layers} with the \link[Key]{key} set to the split
+ layers requested in \code{layers} with the \link[=Key]{key} set to the split
  \item \dQuote{\code{layers}}: a list of matrices of length
  \code{length(assays) * length(unique(f))}; the list is named as
  \dQuote{\code{layer.split}}

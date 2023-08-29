@@ -30,8 +30,8 @@
 }
 \description{
 Pull meta-information about cells and dimensions for a given
-\link[DimReduc]{dimensional reduction}; cell meta-information is stored as
-row meta-information (eg. \code{nrow}, \code{rownames}) and dimension
+\link[=DimReduc]{dimensional reduction}; cell meta-information is stored
+as row meta-information (eg. \code{nrow}, \code{rownames}) and dimension
 meta-information is stored as column meta-information (eg. \code{ncol},
 \code{colnames})
 }

@@ -16,8 +16,8 @@ NULL
 #' The \code{StdAssay} class is a virtual class that provides core
 #' infrastructure for assay data in \pkg{Seurat}. Assays contain expression
 #' data (layers) and associated feature-level meta data. Derived classes
-#' (eg. \link[Assay5-class]{the v5 Assay}) may optionally define additional
-#' functionality
+#' (eg. \link[=Assay5]{the v5 Assay}) may optionally
+#' define additional functionality
 #'
 #' @template slot-stdassay
 #' @template slot-misc
@@ -2276,7 +2276,7 @@ split.StdAssay <- function(
 #'  \code{layers} split based on \code{f}; all other layers are left as-is
 #'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects;
 #'  the list contains one value per split and each assay contains only the
-#'  layers requested in \code{layers} with the \link[Key]{key} set to the split
+#'  layers requested in \code{layers} with the \link[=Key]{key} set to the split
 #'  \item \dQuote{\code{layers}}: a list of matrices of length
 #'  \code{length(assays) * length(unique(f))}; the list is named as
 #'  \dQuote{\code{layer.split}}
