@@ -410,7 +410,7 @@ setClass(
 #'
 #' @method AddMetaData StdAssay
 #'
-AddMetaData.StdAssay <- .AddMetaData
+AddMetaData.StdAssay <- AddMetaData.Assay
 
 #' @rdname AddMetaData
 #' @method AddMetaData Assay5
