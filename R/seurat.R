@@ -4272,7 +4272,14 @@ setMethod(
     # Checks for if the assay or name already exists
     if (i %in% names(x = x)) {
       if (!inherits(x = x[[i]], what = c('Assay', 'StdAssay'))) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warning(
@@ -4509,7 +4516,14 @@ setMethod(
     # Checks for if the DimReduc or name already exists
     if (i %in% .Subobjects(object = x)) {
       if (!inherits(x = x[[i]], what = 'DimReduc')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warning(
@@ -4711,7 +4725,14 @@ setMethod(
     # Checks for if the Graph or name already exists
     if (i %in% names(x = x)) {
       if (!inherits(x = x[[i]], what = 'Graph')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warning(
@@ -4822,7 +4843,14 @@ setMethod(
     # Checks for if the Neighbor or name already exists
     if (i %in% .Subobjects(object = x)) {
       if (!inherits(x = x[[i]], what = 'Neighbor')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warn(message = paste(
@@ -4951,7 +4979,14 @@ setMethod(
     # Checks for if the SeuratCommand or name already exists
     if (i %in% .Subobjects(object = x)) {
       if (!inherits(x = x[[i]], what = 'SeuratCommand')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warn(message = paste(
@@ -4997,7 +5032,14 @@ setMethod(
     # Checks for if the image or name already exists
     if (i %in% .Subobjects(object = x)) {
       if (!inherits(x = x[[i]], what = 'SpatialImage')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warn(message = paste(
@@ -5366,7 +5408,7 @@ setMethod(
     x <- tryCatch(
       expr = slot(object = object, name = 'images'),
       error = function(...) {stop("Please run UpdateSeuratObject on your object", call. = FALSE)})
-    
+
     assays <- .FilterObjects(object = object, classes.keep = c('Assay', 'StdAssay'))
     nfeatures <- sum(vapply(
       X = assays,

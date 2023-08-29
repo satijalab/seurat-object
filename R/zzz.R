@@ -6,9 +6,10 @@
 #' deprecate_warn is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
 #' setOldClass setValidity show slot slot<- validObject
-#' @importFrom rlang abort arg_match arg_match0 check_installed enquo eval_tidy
-#' have_name inform is_bare_character is_bare_integerish is_bare_list
-#' is_bare_numeric is_missing is_na is_named is_quosure missing_arg warn
+#' @importFrom rlang abort arg_match arg_match0 caller_env check_installed
+#' enquo eval_tidy have_name inform is_bare_character is_bare_integerish
+#' is_bare_list is_bare_numeric is_missing is_na is_named is_quosure
+#' missing_arg warn
 #' @importClassesFrom Matrix dgCMatrix
 #' @useDynLib SeuratObject
 #'

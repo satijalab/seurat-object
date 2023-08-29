@@ -1922,6 +1922,8 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   return(x)
 }
 
+#' @importFrom stats median
+#'
 .FeatureRank <- function(features, flist, ranks = FALSE) {
   franks <- vapply(
     X = features,
