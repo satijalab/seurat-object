@@ -32,7 +32,7 @@ test_that("AddMetaData adds feature level metadata", {
   pbmc_small[["RNA"]] <- AddMetaData(object = pbmc_small[["RNA"]], metadata = feature_letters, col.name = 'feature_letters')
   expect_equal(pbmc_small[["RNA"]]["feature_letters", drop = TRUE], feature_letters)
   pbmc_small[["RNA"]] <- AddMetaData(object = pbmc_small[["RNA"]], metadata = feature_letters_shuffled, col.name = 'feature_letters_shuffled')
-  expect_equal(pbmc_small[["RNA"]]["feature_letters", drop=TRUE], pbmc_small[["RNA"]]["feature_letters_shuffled", drop=TRUE])
+  expect_equal(pbmc_small[["RNA"]]["feature_letters", drop = TRUE], pbmc_small[["RNA"]]["feature_letters_shuffled", drop = TRUE])
 })
 
 feature_letters_df <- data.frame(A = feature_letters, B = feature_letters_shuffled)
