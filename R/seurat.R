@@ -5362,12 +5362,11 @@ setMethod(
   f = "show",
   signature = "Seurat",
   definition = function(object) {
-    tryCatch(
-      expr = {slot(object = object, name = 'images')},
-      error = function(cond) {
-        stop("Please run UpdateSeuratObject before proceeding", call.=FALSE)
-      }
-    )
+    #object <- UpdateSlots(object = object)
+    x <- tryCatch(
+      expr = slot(object = object, name = 'images'),
+      error = function(...) {stop("Please run UpdateSeuratObject on your object", call. = FALSE)})
+    
     assays <- .FilterObjects(object = object, classes.keep = c('Assay', 'StdAssay'))
     nfeatures <- sum(vapply(
       X = assays,
@@ -5601,7 +5600,7 @@ setValidity(
         }
       }
     }
-    # TODO: Check images
+    # Check images
     if (!IsNamedList(x = slot(object = object, name = 'images'), pass.zero = TRUE)) {
       valid <- c(valid, "'images' must be a named list")
     } else {
