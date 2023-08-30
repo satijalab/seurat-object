@@ -58,4 +58,3 @@ Logical map objects, validity, and interaction methods:
 \code{\link{intersect.LogMap}()}
 }
 \concept{logmap}
-\keyword{internal}

@@ -18,8 +18,6 @@ NULL
 #'
 #' @exportClass LogMap
 #'
-#' @keywords internal
-#'
 #' @family logmap
 #'
 setClass(
@@ -98,8 +96,6 @@ LogMap <- function(y) {
 #'
 #' @return A base-R matrix created from \code{x}
 #'
-#' @keywords internal
-#'
 #' @method as.matrix LogMap
 #' @export
 #'
@@ -125,8 +121,6 @@ as.matrix.LogMap <- function(x, ...) {
 #'
 #' @return \code{x} with values not present in any
 #' observation removed
-#'
-#' @keywords internal
 #'
 #' @method droplevels LogMap
 #' @export
@@ -172,8 +166,6 @@ droplevels.LogMap <- function(x, ...) {
 #'
 #' @return The values of \code{x} that are present in \strong{every} observation
 #'
-#' @keywords internal
-#'
 #' @method intersect LogMap
 #' @export
 #'
@@ -217,8 +209,6 @@ intersect.LogMap <- function(x, y = missing_arg(), ...) {
 #' @return \code{labels}: A list, or vector if \code{simplify} is \code{TRUE},
 #' of all values and the observations they're found in, according
 #' to the value of \code{select}
-#'
-#' @keywords internal
 #'
 #' @method labels LogMap
 #' @export
@@ -589,8 +579,6 @@ setMethod(
 #' Overview of a \code{\link{LogMap}} object
 #'
 #' @template return-show
-#'
-#' @keywords internal
 #'
 #' @concept logmap
 #'

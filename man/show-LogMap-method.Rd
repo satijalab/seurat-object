@@ -14,4 +14,3 @@ returns \code{NULL}
 Overview of a \code{\link{LogMap}} object
 }
 \concept{logmap}
-\keyword{internal}

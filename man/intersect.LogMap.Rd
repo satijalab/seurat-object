@@ -38,4 +38,3 @@ Logical map objects, validity, and interaction methods:
 \code{\link{labels.LogMap}()}
 }
 \concept{logmap}
-\keyword{internal}
