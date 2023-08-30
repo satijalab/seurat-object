@@ -297,6 +297,22 @@ labels.LogMap <- function(
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Matrix-like Subsetting for \link[=LogMap]{Logical Maps}
+#'
+#' @inheritParams base::`[`
+#' @inheritParams LogMap-class
+#' @param i,j ...
+#' @template param-dots-method
+#'
+#' @name [,LogMap
+#' @rdname sub-LogMap-method
+#'
+#' @keywords internal
+#'
+NULL
+
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'missing', j = 'missing'),
@@ -305,6 +321,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'character', j = 'character'),
@@ -317,6 +335,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'character', j = 'missing'),
@@ -329,6 +349,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'missing', j = 'character'),
@@ -341,6 +363,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'numeric', j = 'missing'),
@@ -350,6 +374,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'missing', j = 'numeric'),
@@ -359,7 +385,8 @@ setMethod(
   }
 )
 
-
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'numeric', j = 'numeric'),
@@ -369,7 +396,6 @@ setMethod(
     return(callNextMethod(x, i, j, ..., drop = drop))
   }
 )
-
 
 #' @rdname LogMap-class
 #'
@@ -395,6 +421,19 @@ setMethod(
   }
 )
 
+#' \code{\link{LogMap}} Interaction Methods
+#'
+#' Additional methods for using \code{[[} with \code{\link{LogMap}} objects
+#'
+#' @inheritParams LogMap
+#' @param i An integer or numeric vector of length 1
+#'
+#' @return The rownames that are mapped to \code{i}
+#'
+#' @rdname sub-sub-LogMap-internal-method
+#'
+#' @keywords internal
+#'
 setMethod(
   f = '[[',
   signature = c(x = 'LogMap', i = 'integer', j = 'missing'),
@@ -417,6 +456,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-sub-LogMap-internal-method
+#'
 setMethod(
   f = '[[',
   signature = c(x = 'LogMap', i = 'numeric', j = 'missing'),
@@ -543,7 +584,16 @@ setMethod(
     return(x)
   }
 )
-
+#' \code{\link{LogMap}} Object Overview
+#'
+#' Overview of a \code{\link{LogMap}} object
+#'
+#' @template return-show
+#'
+#' @keywords internal
+#'
+#' @concept logmap
+#'
 setMethod(
   f = 'show',
   signature = 'LogMap',
