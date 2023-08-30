@@ -17,4 +17,8 @@ We do this to enable future expandability of graphs.
 
 \seealso{
 \code{\link[Matrix]{dgCMatrix-class}}
+
+Other graph: 
+\code{\link{as.Graph}()}
 }
+\concept{graph}

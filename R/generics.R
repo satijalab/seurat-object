@@ -196,7 +196,7 @@ AddMetaData <- function(object, metadata, col.name = NULL) {
 #' @rdname as.Graph
 #' @export as.Graph
 #'
-#' @concept graph
+#' @family graph
 #'
 as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
