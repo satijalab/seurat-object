@@ -4245,9 +4245,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #'
 #' @return \code{x} with \code{value} added as \code{i}
 #'
-#' @export
-#'
 #' @name [[<-,Seurat
+#' @rdname sub-subset-Seurat
 #'
 #' @family seurat
 #'
@@ -4257,6 +4256,10 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #' data with \code{[[<-}
 #'
 #' @aliases [[<-.Seurat \S4method{[[<-}{Seurat,character,missing,Assay}
+#'
+NULL
+
+#' @rdname sub-subset-Seurat
 #'
 setMethod(
   f = '[[<-',
@@ -4904,9 +4907,8 @@ setMethod(
 #'
 #' @return \code{x} with \code{i} removed from the object
 #'
-#' @export
-#'
 #' @name [[<-,Seurat,NULL
+#' @rdname sub-subset-Seurat-NULL
 #'
 #' @family seurat
 #'
@@ -4915,6 +4917,10 @@ setMethod(
 #' \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
 #'
 #' @aliases remove-object remove-objects \S4method{[[<-}{Seurat,character,missing,NULL}
+#'
+NULL
+
+#' @rdname sub-subset-Seurat-NULL
 #'
 setMethod(
   f = '[[<-',
