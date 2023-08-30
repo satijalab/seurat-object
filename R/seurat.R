@@ -4288,7 +4288,8 @@ setMethod(
         warning(
           "Different cells and/or features from existing assay ", i,
           call. = FALSE,
-          immediate. = TRUE
+          immediate. = TRUE,
+          class = 'dimWarning'
         )
       }
     }
