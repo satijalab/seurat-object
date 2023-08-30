@@ -1638,6 +1638,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #' @export
 #'
 WhichCells.StdAssay <- WhichCells.Assay
+
 # WhichCells.StdAssay <- function(
 #   object,
 #   cells = NULL,
@@ -2885,6 +2886,25 @@ setMethod(
   }
 )
 
+#' V5 Assay Summaries
+#'
+#' Summary maths for \code{\link{StdAssay}} Objects
+#'
+#' @inheritParams base::colSums
+#' @param layer Name of layer to run function on
+#' @template param-dots-ignored
+#'
+#' @return The results of the summary math function for the layer specified
+#'
+#' @name v5-assay-summaries
+#' @rdname v5-assay-summaries
+#'
+#' @keywords internal
+#'
+NULL
+
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'colMeans',
   signature = c(x = 'StdAssay'),
@@ -2897,6 +2917,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'colSums',
   signature = c(x = 'StdAssay'),
@@ -2909,6 +2931,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'rowMeans',
   signature = c(x = 'StdAssay'),
@@ -2921,6 +2945,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'rowSums',
   signature = c(x = 'StdAssay'),
