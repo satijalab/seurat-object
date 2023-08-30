@@ -977,13 +977,13 @@ SaveSeuratBP <- function(
       warning("Changing path in object to point to new BPCells directory location",
               call. = FALSE, immediate. = TRUE)
       ldat <- LayerData(object[[assay]], layer = layer)
-      matrices <- BPCells:::all_matrix_inputs(ldat)
+      matrices <- BPCells::all_matrix_inputs(ldat)
       matrix.dirs <- which(sapply(matrices, function(x) inherits(x, "MatrixDir")))
       if (length(matrix.dirs) == nrow(df[df$layer == layer, ])){
         for (i in 1:length(matrix.dirs)) {
           matrices[[matrix.dirs[i]]]@dir <- df[df$layer == layer, ]$path[i]
         }
-        BPCells:::all_matrix_inputs(ldat) <- matrices
+        BPCells::all_matrix_inputs(ldat) <- matrices
         LayerData(object[[assay]], layer = layer) <- ldat
       } else {
         stop("Directories to replace is not equal to length of directories")
