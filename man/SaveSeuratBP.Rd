@@ -57,7 +57,7 @@ this function. For more details about \pkg{progressr}, please read
 }
 
 \examples{
-if (requireNamespace("BPCells") && requireNamespace("fs")) {
+if (requireNamespace("BPCells", quietly = TRUE) && requireNamespace("fs" , quietly = TRUE)) {
   pbmc_small[["RNA5"]] <- as(object = pbmc_small[['RNA']], Class = 'Assay5')
   pbmc_small[["RNA5"]]$counts <- BPCells::write_matrix_dir(
   mat = pbmc_small[['RNA']]$counts,

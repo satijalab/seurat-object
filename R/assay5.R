@@ -279,6 +279,7 @@ setClass(
   if (min.features > 0) {
     for (layer in names(x = counts)) {
       if (inherits(x = counts[[layer]], what = "IterableMatrix")) {
+        check_installed(pkg = 'BPCells', reason = 'for working with BPCells')
         col_stat <- BPCells::matrix_stats(matrix = counts[[layer]], col_stats = 'nonzero')$col_stats
         cells.use <- which(x = col_stat >= min.features)
       } else {
@@ -295,9 +296,9 @@ setClass(
   # Filter based on min.cells
   if (min.cells > 0) {
     for (layer in names(x = counts)) {
-      if (inherits(x = counts[[layer]], what = "IterableMatrix")){
-        row_stat <- BPCells::matrix_stats(matrix = counts[[layer]],
-                                          row_stats = 'nonzero')$row_stats
+      if (inherits(x = counts[[layer]], what = "IterableMatrix")) {
+        check_installed(pkg = 'BPCells', reason = 'for working with BPCells')
+        row_stat <- BPCells::matrix_stats(matrix = counts[[layer]], row_stats = 'nonzero')$row_stats
         features.use <- which(x = row_stat >= min.cells)
       } else {
         features.use <- which(x = fsum(counts[[layer]] > 0) >= min.cells)

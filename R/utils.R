@@ -1444,7 +1444,7 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 .FilePath.IterableMatrix <- function(x){
   check_installed(pkg = "BPCells", reason = "for working with BPCells")
   matrix <- slot(x, "matrix")
-  matrices <- BPCells:::all_matrix_inputs(matrix)
+  matrices <- BPCells::all_matrix_inputs(matrix)
   return_dir_path <- function(matrix){
     if (inherits(matrix, "MatrixDir")) {
       path <- normalizePath(path = matrix@dir)
