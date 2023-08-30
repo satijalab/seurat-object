@@ -1355,18 +1355,6 @@ S4ToList <- function(object) {
   UseMethod(generic = 'S4ToList', object = object)
 }
 
-#' @param object object to save
-#'
-#' @return Invisibly returns \code{file}
-#'
-#' @rdname saveRDS
-#' @export saveRDS
-#'
-saveRDS <- function(object, ...) {
-  UseMethod(generic = 'saveRDS', object = object)
-}
-
-
 #' @param new.data New assay data to add
 #'
 #' @return \code{SetAssayData}: \code{object} with the assay data set

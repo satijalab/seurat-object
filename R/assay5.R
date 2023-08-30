@@ -248,7 +248,6 @@ setClass(
   }
   cdim <- fmargin(object = type, type = 'cells')
   fdim <- fmargin(object = type, type = 'features')
-
   counts <- lapply(X = counts, FUN = function(x) {
     x <- CheckFeaturesNames(data = x)
     return(x)
@@ -279,9 +278,8 @@ setClass(
   # Filter based on min.features
   if (min.features > 0) {
     for (layer in names(x = counts)) {
-      if (inherits(x = counts[[layer]], what = "IterableMatrix")){
-        col_stat <- BPCells::matrix_stats(matrix = counts[[layer]],
-                                          col_stats = 'nonzero')$col_stats
+      if (inherits(x = counts[[layer]], what = "IterableMatrix")) {
+        col_stat <- BPCells::matrix_stats(matrix = counts[[layer]], col_stats = 'nonzero')$col_stats
         cells.use <- which(x = col_stat >= min.features)
       } else {
         cells.use <- which(x = csum(counts[[layer]] > 0) >= min.features)
@@ -313,7 +311,7 @@ setClass(
     }
   }
   features.all <- Reduce(f = union, x = features)
-  cells.all <- make.unique(names = unlist(x = cells))
+  cells.all <- Reduce(f = union, x = cells)
   calcN_option <- getOption(
     x = 'Seurat.object.assay.calcn',
     default =  Seurat.options$Seurat.object.assay.calcn

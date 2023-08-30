@@ -598,49 +598,19 @@ RenameAssays <- function(
   return(object)
 }
 
-#' Save Seurat Objects
-#'
-#' Save Seurat objects. Allows you to save an object with BPCells matrices
-#' on disk in the same folder as BPCells directories using the destdir parameter.
-#'
-#' @inheritParams saveRDS
-#' @param object
-#' @param file Path to save \code{Seurat} Object to
-#' @param destdir directory to save BPCells and \code{Seurat} Objects in
-#'
-#' @export
 saveRDS.Seurat <- function(
   object = object,
   file = NULL,
   destdir = NULL,
-  azimuth = FALSE,
   ...
 ) {
-  if(!is.null(x = destdir)) {
+  if (!is.null(x = destdir)) {
     SaveSeuratBP(object, filename = basename(file), destdir = destdir, ...)
   } else {
     base::saveRDS(object = object, file = file, ...)
     return(invisible(x = file))
   }
-  if(isTRUE(x = azimuth)){
-    if(!(is.null(file))){
-      warning("filenames for Azimuth references will automatically ",
-              "be set to 'ref.Rds' for the reference object and ",
-              "'idx.annoy' for the neighbors index",
-              call. = FALSE,
-              immediate. = TRUE)
-    }
-    Azimuth::SaveAzimuthReference(object, folder = destdir, ...)
-  }
 }
-
-
-
-#' @inheritParams base::saveRDS
-#' @export
-#'
-saveRDS.default <- base::saveRDS
-
 
 #' Save and Load \code{Seurat} Objects from Rds files
 #'
@@ -666,7 +636,7 @@ saveRDS.default <- base::saveRDS
 #' @order 1
 #'
 #' @examples
-#' if (requireNamespace("HDF5Array") && requireNamespace("fs")) {
+#' if (requireNamespace("HDF5Array", quietly = TRUE) && requireNamespace("fs", quietly = TRUE)) {
 #'   pbmc_small[["disk"]] <- CreateAssay5Object(list(
 #'     mem = LayerData(pbmc_small, "counts"),
 #'     disk = as(LayerData(pbmc_small, "counts"), "HDF5Array")
@@ -822,9 +792,6 @@ SaveSeuratRds <- function(
   saveRDS(object = object, file = file, ...)
   return(invisible(x = file))
 }
-
-
-
 
 #' Save \code{Seurat} Objects as RDS files with BPCells directories in same folder
 #'
@@ -994,7 +961,6 @@ SaveSeuratBP <- function(
   saveRDS(object = object, file = file.path(destdir, filename), ...)
   return(invisible(x = filename))
 }
-
 
 #' Update old Seurat object to accommodate new features
 #'
