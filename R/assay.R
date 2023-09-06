@@ -635,7 +635,10 @@ LayerData.Assay <- function(
   )
   # Check the class of the matrix
   if (!inherits(x = value, what = c('matrix', 'dgCMatrix'))) {
-    abort(message = "'value' must be a 'matrix' or 'dgCMatrix'")
+   abort(message = paste(
+     "'value' must be a 'matrix' or 'dgCMatrix' in v3 Assays, not a", 
+     sQuote(x = class(x = value)[1L])
+   ))
   }
   if (!IsMatrixEmpty(x = value)) {
     vnames <- dimnames(x = value)

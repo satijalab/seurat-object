@@ -4263,10 +4263,9 @@ setMethod(
         )
       }
       if (!all(dim(x = value) == dim(x = x[[i]]))) {
-        warning(
-          "Different cells and/or features from existing assay ", i,
-          call. = FALSE,
-          immediate. = TRUE
+        warn(
+          message = paste0("Different cells and/or features from existing assay ", i),
+          class = 'dimWarning'
         )
       }
     }
