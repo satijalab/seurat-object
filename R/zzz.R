@@ -469,37 +469,6 @@ NameIndex <- function(x, names, MARGIN) {
 # Hooks
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-.onLoad <- function(libname, pkgname) {
-  toset <- setdiff(x = names(x = Seurat.options), y = names(x = options()))
-  if (length(x = toset)) {
-    options(Seurat.options[toset])
-  }
-  for (i in names(x = .BuiltWith)) {
-    current <- switch(EXPR = i, R = getRversion(), packageVersion(pkg = i))
-    if (current > .BuiltWith[i]) {
-      msg <- paste(
-        sQuote(x = pkgname),
-        "was built",
-        switch(
-          EXPR = i,
-          R = "under R",
-          paste("with package", sQuote(x = i))
-        ),
-        .BuiltWith[i],
-        "but the current version is",
-        paste0(current, ';'),
-        "it is recomended that you reinstall ",
-        sQuote(x = pkgname),
-        " as the ABI for",
-        switch(EXPR = i, R = i, sQuote(x = i)),
-        "may have changed"
-      )
-      packageStartupMessage(paste(strwrap(x = msg), collapse = '\n'))
-    }
-  }
-  return(invisible(x = NULL))
-}
-
 .onAttach <- function(libname, pkgname) {
   for (i in names(x = .BuiltWith)) {
     current <- switch(EXPR = i, R = getRversion(), packageVersion(pkg = i))
@@ -524,4 +493,12 @@ NameIndex <- function(x, names, MARGIN) {
       packageStartupMessage(paste(strwrap(x = msg), collapse = '\n'))
     }
   }
+}
+
+.onLoad <- function(libname, pkgname) {
+  toset <- setdiff(x = names(x = Seurat.options), y = names(x = options()))
+  if (length(x = toset)) {
+    options(Seurat.options[toset])
+  }
+  return(invisible(x = NULL))
 }
