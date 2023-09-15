@@ -23,15 +23,6 @@ Seurat.options <- list(
   Seurat.coords.short_range = 'max',
   progressr.clear = FALSE
 )
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Built With
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-.BuiltWith <- c(
-  R = format(x = getRversion()),
-  Matrix = format(x = packageVersion(pkg = "Matrix"))
-)
-
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Built With
