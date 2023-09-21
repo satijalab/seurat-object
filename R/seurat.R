@@ -5231,7 +5231,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(colMeans(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5255,7 +5255,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::colSums(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5336,7 +5336,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowMeans(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5360,7 +5360,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowSums(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
