@@ -532,7 +532,8 @@ LayerData.Assay <- function(
                    with = "LayerData(layer = )")
   }
   # Figure out which matrix we're pulling
-  layer <- layer[1L] %||% DefaultLayer(object = object)
+  layer <- layer[1L] %||% "data"
+  
   # layer <- match.arg(
   #   arg = layer,
   #   choices = Layers(object = object, search = FALSE)
