@@ -1551,48 +1551,48 @@ VariableFeatures.StdAssay <- function(
   msg <- 'No variable features found'
   layer <- Layers(object = object, search = layer)
   vf <- sapply(
-      X = layer,
-      FUN = function(lyr) {
-        hvf.info <- HVFInfo(
-          object = object,
-          method = method,
-          layer = lyr,
-          status = TRUE,
-          strip = TRUE
-        )
-        if (is.null(x = hvf.info)) {
-          return(NULL)
-        } else if (!'variable' %in% names(x = hvf.info)) {
-          return(NA)
-        }
-        vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
-        if ('rank' %in% names(x = hvf.info)) {
-          vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-        } else {
-          warn(message = paste0(
-            "No variable feature rank found for ",
-            sQuote(x = lyr),
-            ", returning features in assay order"
-          ))
-        }
-      },
-      simplify = FALSE,
-      USE.NAMES = TRUE
-    )
-    if (is.null(x = unlist(x = vf))) {
-      return(NULL)
-    } else if (all(is.na(x = unlist(x = vf)))) {
-      abort(message = msg)
-    }
-    if (isTRUE(x = simplify)) {
-      vf <- .SelectFeatures(
-        object = vf,
-        all.features = intersect(
-          x = slot(object = object, name = 'features')[, layer]
-        ),
-        nfeatures = nfeatures
+    X = layer,
+    FUN = function(lyr) {
+      hvf.info <- HVFInfo(
+        object = object,
+        method = method,
+        layer = lyr,
+        status = TRUE,
+        strip = TRUE
       )
-    }
+      if (is.null(x = hvf.info)) {
+        return(NULL)
+      } else if (!'variable' %in% names(x = hvf.info)) {
+        return(NA)
+      }
+      vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
+      if ('rank' %in% names(x = hvf.info)) {
+        vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
+      } else {
+        warn(message = paste0(
+          "No variable feature rank found for ",
+          sQuote(x = lyr),
+          ", returning features in assay order"
+        ))
+      }
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  if (is.null(x = unlist(x = vf))) {
+    return(NULL)
+  } else if (all(is.na(x = unlist(x = vf)))) {
+    abort(message = msg)
+  }
+  if (isTRUE(x = simplify)) {
+    vf <- .SelectFeatures(
+      object = vf,
+      all.features = intersect(
+        x = slot(object = object, name = 'features')[, layer]
+      ),
+      nfeatures = nfeatures
+    )
+  }
   return(vf)
   # hvf.info <- HVFInfo(
   #   object = object,
