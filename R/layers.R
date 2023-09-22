@@ -154,7 +154,7 @@ setGeneric(
 .PrepLayerData2 <- function(
   x,
   target = NULL,
-  transpose = NULL,
+  transpose = FALSE,
   dnames = NULL,
   fmargin = 1L
 ) {
