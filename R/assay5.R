@@ -1509,15 +1509,26 @@ VariableFeatures.StdAssay <- function(
   ...
 ) {
   nfeatures <- nfeatures %||% Inf
-  if ('var.features' %in% colnames(object[])) {
-    var.features <- as.vector(object['var.features', drop = TRUE])
-    var.features <- var.features[!is.na(var.features)]
-    if (isTRUE(x = simplify) &
-        (is.null(x = layer) || any(is.na(x = layer)))&
-        (is.infinite(x = nfeatures) || length(x = var.features) == nfeatures)
-        ) {
-          return(var.features)
-        }
+  if ("var.features" %in% colnames(object[])) {
+    rank.cols <- grep("rank", colnames(object[]), value = TRUE)
+    # find which indices are current variable features
+    var.features.indices <- which(!is.na(object["var.features"]))
+    # assumes only one column will match 
+    matching_results <- sapply(rank.cols, function(col) {
+      indices = which(!is.na(object[col]))
+      if (length(indices) != length(var.features.indices)) return(FALSE)
+      return(all(indices == var.features.indices))
+    })
+    # which method's rank matches the variable features indices
+    current.method.rank <- names(matching_results)[matching_results]
+    # sort 
+    var.features <- row.names(x = object[])[which(!is.na(object[]$var.features))]
+    var.features <- var.features[order(object[][[current.method.rank]][which(!is.na(object[]$var.features))])]
+    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) & 
+        (is.infinite(x = nfeatures) || length(x = var.features) == 
+         nfeatures)) {
+      return(var.features)
+    }
   }
       msg <- 'No variable features found'
       layer.orig <- layer
