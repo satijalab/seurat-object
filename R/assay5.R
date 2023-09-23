@@ -715,6 +715,9 @@ FetchData.StdAssay <- function(
     object = object,
     search = layer %||% 'data'
   ))
+  if (is.null(layer) && length(layer.set) == 1 && layer.set == 'scale.data'){
+    warning('Default search for "data" layer yielded no results; utilizing "scale.data" layer instead.')
+  }
   if (is.null(layer.set) & is.null(layer) ) {
     warning('data layer is not found and counts layer is used')
     layer.set <- rev(x = Layers(
