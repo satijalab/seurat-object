@@ -1518,6 +1518,11 @@ VariableFeatures.StdAssay <- function(
       if (length(indices) != length(var.features.indices)) return(FALSE)
       return(all(indices == var.features.indices))
     })
+    if (all(matching_results == FALSE)){
+      var.features <- as.vector(object['var.features', drop = TRUE])
+      var.features <- var.features[!is.na(var.features)]
+      return(var.features)
+    }
     # which method's rank matches the variable features indices
     current.method.rank <- names(matching_results)[matching_results]
     # sort 
