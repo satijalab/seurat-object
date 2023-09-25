@@ -1511,25 +1511,26 @@ VariableFeatures.StdAssay <- function(
 ) {
   nfeatures <- nfeatures %||% Inf
   if ("var.features" %in% colnames(object[])) {
-    rank.cols <- grep("rank", colnames(object[]), value = TRUE)
-    # find which indices are current variable features
-    var.features.indices <- which(!is.na(object["var.features"]))
-    # assumes only one column will match 
-    matching_results <- sapply(rank.cols, function(col) {
-      indices = which(!is.na(object[col]))
-      if (length(indices) != length(var.features.indices)) return(FALSE)
-      return(all(indices == var.features.indices))
-    })
-    if (all(matching_results == FALSE)){
-      var.features <- as.vector(object['var.features', drop = TRUE])
-      var.features <- var.features[!is.na(var.features)]
-      return(var.features)
-    }
-    # which method's rank matches the variable features indices
-    current.method.rank <- names(matching_results)[matching_results]
-    # sort 
-    var.features <- row.names(x = object[])[which(!is.na(object[]$var.features))]
-    var.features <- var.features[order(object[][[current.method.rank]][which(!is.na(object[]$var.features))])]
+    # rank.cols <- grep("rank", colnames(object[]), value = TRUE)
+    # # find which indices are current variable features
+    # var.features.indices <- which(!is.na(object["var.features"]))
+    # # assumes only one column will match 
+    # matching_results <- sapply(rank.cols, function(col) {
+    #   indices = which(!is.na(object[col]))
+    #   if (length(indices) != length(var.features.indices)) return(FALSE)
+    #   return(all(indices == var.features.indices))
+    # })
+    # if (all(matching_results == FALSE)){
+    #   var.features <- as.vector(object['var.features', drop = TRUE])
+    #   var.features <- var.features[!is.na(var.features)]
+    #   return(var.features)
+    # }
+    # # which method's rank matches the variable features indices
+    # current.method.rank <- names(matching_results)[matching_results]
+    # # sort 
+    var.features <- row.names(x = object[])[which(!is.na(object[]$var.features.rank))]
+    var.features <- var.features[order(object[][['var.features.rank']][which(!is.na(object[]$var.features))])]
+    
     if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) & 
         (is.infinite(x = nfeatures) || length(x = var.features) == 
          nfeatures)) {
@@ -1630,12 +1631,17 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   value <- intersect(x = value, y = rownames(x = object))
   if (length(x = value) == 0) {
     object['var.features'] <- NA
+    object['var.features.rank'] <- NA
     return(object)
   }
   # if (!length(x = value)) {
   #   stop("None of the features specified are present in this assay", call. = FALSE)
   # }
   object['var.features'] <- value
+  # add rank 
+  object['var.features.rank'] <- NA
+  object[][row.names(object[]) %in% value,]$var.features.rank <- match(row.names(object[])[row.names(object[]) %in% value], value)
+  
   # layer <- Layers(object = object, search = layer)
   # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
   # for (lyr in layer) {
