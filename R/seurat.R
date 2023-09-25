@@ -2070,13 +2070,28 @@ HVFInfo.Seurat <- function(
   method = NULL,
   status = FALSE,
   assay = NULL,
-  selection.method = method,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    f <- if (.IsFutureSeurat(version = '5.1.0')) {
+      deprecate_stop
+    } else if (.IsFutureSeurat(version = '5.0.0')) {
+      deprecate_warn
+    } else {
+      deprecate_soft
+    }
+    f(
+      when = '5.0.0',
+      what = 'HVFInfo(selection.method = )',
+      with = 'HVFInfo(method = )'
+    )
+    method <- selection.method
+  }
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
-  if (is.null(x = selection.method)) {
+  if (is.null(x = method)) {
     cmds <- apply(
       X = expand.grid(
         c('FindVariableFeatures', 'SCTransform'),
@@ -2100,7 +2115,7 @@ HVFInfo.Seurat <- function(
       yes = test.command,
       no = find.command
     )
-    selection.method <- switch(
+    method <- switch(
       EXPR = file_path_sans_ext(x = find.command),
       'FindVariableFeatures' = Command(
         object = object,
@@ -2113,7 +2128,7 @@ HVFInfo.Seurat <- function(
   }
   return(HVFInfo(
     object = object[[assay]],
-    selection.method = selection.method,
+    method = method,
     status = status
   ))
 }
