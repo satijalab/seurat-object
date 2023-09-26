@@ -947,7 +947,7 @@ HVFInfo.StdAssay <- function(
     return(method)
   }
   layer <- layer %||% unname(vf.methods.layers[method])
-  layer <- unname(vf.methods.layers)[which.min(x = adist(x = layer, y = unname(vf.methods.layers[method])))]
+  # layer <- unname(vf.methods.layers)[which.min(x = adist(x = layer, y = unname(vf.methods.layers[method])))]
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
@@ -1511,26 +1511,14 @@ VariableFeatures.StdAssay <- function(
 ) {
   nfeatures <- nfeatures %||% Inf
   if ("var.features" %in% colnames(object[])) {
-    # rank.cols <- grep("rank", colnames(object[]), value = TRUE)
-    # # find which indices are current variable features
-    # var.features.indices <- which(!is.na(object["var.features"]))
-    # # assumes only one column will match 
-    # matching_results <- sapply(rank.cols, function(col) {
-    #   indices = which(!is.na(object[col]))
-    #   if (length(indices) != length(var.features.indices)) return(FALSE)
-    #   return(all(indices == var.features.indices))
-    # })
-    # if (all(matching_results == FALSE)){
-    #   var.features <- as.vector(object['var.features', drop = TRUE])
-    #   var.features <- var.features[!is.na(var.features)]
-    #   return(var.features)
-    # }
-    # # which method's rank matches the variable features indices
-    # current.method.rank <- names(matching_results)[matching_results]
-    # # sort 
-    var.features <- row.names(x = object[])[which(!is.na(object[]$var.features.rank))]
-    var.features <- var.features[order(object[][['var.features.rank']][which(!is.na(object[]$var.features))])]
-    
+    if ("var.features.rank" %in% colnames(object[])) {
+      var.features <- row.names(x = object[])[which(!is.na(object[]$var.features.rank))]
+      var.features <- var.features[order(object[][["var.features.rank"]][which(!is.na(object[]$var.features))])]
+    }
+    else {
+      var.features <- as.vector(object["var.features", drop = TRUE])
+      var.features <- var.features[!is.na(var.features)]
+    }
     if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) & 
         (is.infinite(x = nfeatures) || length(x = var.features) == 
          nfeatures)) {
