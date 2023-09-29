@@ -723,7 +723,7 @@ FetchData.StdAssay <- function(
     ))
   }
   if (is.null(layer.set)) {
-  stop('layer ', layer,' is not found in the object')
+  stop('layer "', layer,'" is not found in the object')
   } else {
     layer <- layer.set
     }
