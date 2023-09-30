@@ -3719,6 +3719,11 @@ subset.Seurat <- function(
   ...
 ) {
   var.features <- VariableFeatures(object = x)
+  args <- list(...)
+  if ("downsample" %in% names(args) & is.null(cells)) {
+    message('Downsampling ', args$downsample, ' cells from "', DefaultAssay(x), '" assay')
+    cells <- colnames(x[[DefaultAssay(x)]])
+  }
   if (!missing(x = subset)) {
     subset <- enquo(arg = subset)
   }
