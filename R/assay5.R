@@ -1562,10 +1562,12 @@ VariableFeatures.StdAssay <- function(
         abort(message = msg)
       }
       if (isTRUE(x = simplify)) {
+        # Pull layers that have values for VariableFeatures only
+        layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
         vf <- .SelectFeatures(
           object = vf,
           all.features = intersect(
-            x = slot(object = object, name = 'features')[, layer]
+            x = slot(object = object, name = 'features')[, layers.vf]
           ),
           nfeatures = nfeatures
         )
