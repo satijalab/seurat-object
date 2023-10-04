@@ -2140,7 +2140,7 @@ split.StdAssay <- function(
   x,
   f,
   drop = FALSE,
-  layers = NULL,
+  layers = NA,
   ret = c('assay', 'multiassays', 'layers'),
   ...
 ) {
