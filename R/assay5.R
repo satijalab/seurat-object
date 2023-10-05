@@ -2603,20 +2603,21 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   )
   # Extract methods and layers
   vf.methods.layers <- lapply(vf.cols, function(col) {
-    components <- strsplit(col, split = '_')[[1]]
+    components <- strsplit(col, split = "_")[[1]]
     method <- components[2]
-    layer <- paste(components[3:(length(components) - 1)], collapse = '_')
+    layer <- paste(components[3:(length(components) - 1)], collapse = "_")
     return(c(method = method, layer = layer))
   })
   
-  # Combine them into a list
-  vf.list <- lapply(unique(unlist(lapply(vf.methods.layers, `[[`, 'method'))), function(method) {
+  # Combine into a list
+  vf.list <- lapply(unique(unlist(lapply(vf.methods.layers, `[[`, "method"))), function(method) {
     layers <- unique(unlist(lapply(vf.methods.layers, function(x) {
-      if(x['method'] == method) return(x['layer'])
+      if (x["method"] == method) 
+        return(x["layer"])
     })))
     return(setNames(list(layers), method))
   })
-  vf.list<- unlist(vf.list, use.names = TRUE)
+  vf.list <- Reduce(modifyList, vf.list)
   if (!length(x = vf.list)) {
     vf.list <- NULL
   }
