@@ -905,20 +905,46 @@ GetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
-  layer <- Layers(object = object, search = layer %||% 'data')
-  if (is.null(layer)) {
+  layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
+  layer.set <- suppressWarnings(expr = Layers(
+    object = object, 
+    search = layer %||% 'data'
+  ))
+  if (is.null(layer.set) & is.null(layer)) {
     warning('data layer is not found and counts layer is used')
     layer <- rev(x = Layers(
       object = object,
       search = 'counts'
     ))
+  } else {
+    layer <- layer.set
   }
   if (length(x = layer) > 1) {
     abort("GetAssayData doesn't work for multiple layers in v5 assay.",
          " You can run 'object <- JoinLayers(object = object, layers = layer)'.")
   }
   if (is.null(x = layer)) {
-    abort("No layers are found")
+    msg <- paste("Layer", sQuote(x = layer_name), "is empty")
+    opt <- getOption(x = "Seurat.object.assay.v3.missing_layer",
+                     default = Seurat.options$Seurat.object.assay.v3.missing_layer)
+    opt <- tryCatch(expr = arg_match0(
+      arg = opt,
+      values = c("matrix","null", "error")),
+      error = function(...) {
+        return(Seurat.options$Seurat.object.assay.v3.missing_layer)
+      }
+    )
+    if (opt == "error") {
+      abort(message = msg)
+    }
+    warn(message = msg)
+    return(switch(
+      EXPR = opt,
+      matrix = switch(
+        EXPR = layer_name,
+        scale.data = new(Class = "matrix"), new(Class = "dgCMatrix")
+      ),
+      NULL))
   }
   return(LayerData(object = object, layer = layer, ...))
 }
