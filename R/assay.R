@@ -534,7 +534,7 @@ Key.Assay <- function(object, ...) {
 #'
 LayerData.Assay <- function(
   object,
-  layer = "data",
+  layer = NULL,
   cells = NULL,
   features = NULL,
   slot = deprecated(),
@@ -545,6 +545,9 @@ LayerData.Assay <- function(
                    what = "LayerData(slot = )",
                    with = "LayerData(layer = )")
   }
+  # Figure out which matrix we're pulling
+  layer <- layer[1L] %||% "data"
+  
   # layer <- match.arg(
   #   arg = layer,
   #   choices = Layers(object = object, search = FALSE)
