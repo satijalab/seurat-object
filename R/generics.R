@@ -196,7 +196,7 @@ AddMetaData <- function(object, metadata, col.name = NULL) {
 #' @rdname as.Graph
 #' @export as.Graph
 #'
-#' @concept graph
+#' @family graph
 #'
 as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
@@ -1354,18 +1354,6 @@ S4ToList <- function(object) {
   }
   UseMethod(generic = 'S4ToList', object = object)
 }
-
-#' @param object object to save
-#'
-#' @return Invisibly returns \code{file}
-#'
-#' @rdname saveRDS
-#' @export saveRDS
-#'
-saveRDS <- function(object, ...) {
-  UseMethod(generic = 'saveRDS', object = object)
-}
-
 
 #' @param new.data New assay data to add
 #'

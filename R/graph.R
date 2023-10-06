@@ -16,9 +16,12 @@ NULL
 #'
 #' @name Graph-class
 #' @rdname Graph-class
+#'
 #' @exportClass Graph
 #'
 #' @seealso \code{\link[Matrix]{dgCMatrix-class}}
+#'
+#' @family graph
 #'
 Graph <- setClass(
   Class = 'Graph',
@@ -53,10 +56,10 @@ as.Graph.Matrix <- function(x, ...) {
   CheckDots(...)
   x <- as.sparse(x = x)
   if (is.null(x = rownames(x = x))) {
-    stop("Please provide rownames to the matrix before converting to a Graph.")
+    abort(message = "Please provide rownames to the matrix before converting to a Graph")
   }
   if (is.null(x = colnames(x = x))) {
-    stop("Please provide colnames to the matrix before converting to a Graph.")
+    abort(message = "Please provide colnames to the matrix before converting to a Graph")
   }
   return(as(object = x, Class = "Graph"))
 }
@@ -186,22 +189,25 @@ setValidity(
   }
 )
 
-
-#' @describeIn Graph-methods Overview of a \code{Graph} object
+#' Graph Object Overview
 #'
-#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
-#' invisibly returns \code{NULL}
+#' Overview of a \code{\link{Graph}} Object
 #'
-#' @importFrom methods show
+#' @template return-show
 #'
-#' @export
+#' @keywords internal
+#'
+#' @concept graph
+#'
+#' @examples
+#' pbmc_small[["RNA_snn"]]
 #'
 setMethod(
   f = 'show',
   signature = 'Graph',
   definition = function(object) {
     cat(
-      "A Graph object containing ",
+      "A Graph object containing",
       nrow(x = object),
       "cells"
     )

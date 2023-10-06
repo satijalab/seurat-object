@@ -509,7 +509,7 @@ Stdev.DimReduc <- function(object, ...) {
 
 #' Get Feature Loadings
 #'
-#' Pull feature loadings from a \link[DimReduc]{dimensional reduction}
+#' Pull feature loadings from a \link[=DimReduc]{dimensional reduction}
 #'
 #' \code{[} does not distinguish between projected and unprojected feature
 #' loadings; to select whether projected or unprojected loadings should be
@@ -561,7 +561,7 @@ Stdev.DimReduc <- function(object, ...) {
 
 #' Get Cell Embeddings
 #'
-#' Pull cell embeddings from a \link[DimReduc]{dimensional reduction}
+#' Pull cell embeddings from a \link[=DimReduc]{dimensional reduction}
 #'
 #' @inheritParams [.DimReduc
 #' @param i Cell names or indices
@@ -606,8 +606,8 @@ Stdev.DimReduc <- function(object, ...) {
 #' Dimensional Reduction Meta-Information
 #'
 #' Pull meta-information about cells and dimensions for a given
-#' \link[DimReduc]{dimensional reduction}; cell meta-information is stored as
-#' row meta-information (eg. \code{nrow}, \code{rownames}) and dimension
+#' \link[=DimReduc]{dimensional reduction}; cell meta-information is stored
+#' as row meta-information (eg. \code{nrow}, \code{rownames}) and dimension
 #' meta-information is stored as column meta-information (eg. \code{ncol},
 #' \code{colnames})
 #'
@@ -670,7 +670,7 @@ length.DimReduc <- function(x) {
 
 #' Merge Dimensional Reductions
 #'
-#' Merge two or more \link[DimReduc]{dimensional reductions} together
+#' Merge two or more \link[=DimReduc]{dimensional reduction} together
 #'
 #' @inheritParams [.DimReduc
 #' @inheritParams merge.Assay5

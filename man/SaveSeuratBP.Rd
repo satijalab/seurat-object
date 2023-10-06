@@ -4,14 +4,7 @@
 \alias{SaveSeuratBP}
 \title{Save \code{Seurat} Objects as RDS files with BPCells directories in same folder}
 \usage{
-SaveSeuratBP(
-  object,
-  filename = NULL,
-  destdir = NULL,
-  relative = FALSE,
-  remove_old = FALSE,
-  ...
-)
+SaveSeuratBP(object, filename = NULL, destdir = NULL, relative = FALSE, ...)
 }
 \arguments{
 \item{object}{A \code{\link{Seurat}} object}
@@ -21,8 +14,6 @@ and \code{\link{Seurat}} object)}
 
 \item{relative}{Save relative paths instead of absolute ones. This is recommended
 if sharing the object folder}
-
-\item{remove_old}{Delete current BPCells directories after moving}
 
 \item{...}{
   Arguments passed on to \code{\link[base:readRDS]{base::saveRDS}}
@@ -66,7 +57,7 @@ this function. For more details about \pkg{progressr}, please read
 }
 
 \examples{
-if (requireNamespace("BPCells") && requireNamespace("fs")) {
+if (requireNamespace("BPCells", quietly = TRUE) && requireNamespace("fs" , quietly = TRUE)) {
   pbmc_small[["RNA5"]] <- as(object = pbmc_small[['RNA']], Class = 'Assay5')
   pbmc_small[["RNA5"]]$counts <- BPCells::write_matrix_dir(
   mat = pbmc_small[['RNA']]$counts,
@@ -76,8 +67,7 @@ if (requireNamespace("BPCells") && requireNamespace("fs")) {
   SaveSeuratBP(pbmc_small,
                filename = "pbmc_small.Rds",
                destdir = "~/full_object/",
-               relative = TRUE,
-               remove_old = FALSE)
+               relative = TRUE)
 
   # Load the saved object with on-disk layers back into memory
   pbmc2 <- readRDS("~/full_object/pbmc_small.Rds")

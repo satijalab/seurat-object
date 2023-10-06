@@ -131,6 +131,60 @@ NULL
 #'
 `%!na%` <- `%!NA%`
 
+#' \pkg{BPCells} Matrix Mode
+#'
+#' Get the mode (on-disk, in-memory) of an \code{IterableMatrix} object
+#' from \pkg{BPCells}
+#'
+#' @param object An \code{IterableMatrix}
+#' @param simplify Return \dQuote{\code{disk}} for on-disk matrices
+#'
+#' @return One of the following, depending on the mode of \code{object}:
+#' \itemize{
+#'  \item \dQuote{\code{memory}}
+#'  \item \dQuote{\code{file}}
+#'  \item \dQuote{\code{directory}}
+#' }
+#' If \code{simplify} is \code{TRUE}, returns \dQuote{\code{disk}} instead of
+#' \dQuote{\code{file}} or \dQuote{\code{directory}}
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+.BPMatrixMode <- function(object, simplify = FALSE) {
+  check_installed(pkg = 'BPCells', reason = 'for working with BPCells')
+  if (!inherits(x = object, what = 'IterableMatrix')) {
+    return(NULL)
+  }
+  stopifnot(rlang::is_bare_logical(x = simplify, n = 1L))
+  # Get a vector of all the slots in all sub-matrices
+  slots <- Reduce(
+    f = union,
+    x = lapply(
+      X = BPCells::all_matrix_inputs(object),
+      FUN = \(x) methods::slotNames(x = methods::getClass(Class = class(x = x)))
+    )
+  )
+  # Figure out if any sub-matrix points to a directory or a file path
+  type <- c(path = FALSE, dir = FALSE)
+  for (s in slots) {
+    if (s %in% names(x = type)) {
+      type[s] <- TRUE
+    }
+  }
+  # If no matrix points to a directory or file, it's an in-memory one
+  if (!any(type)) {
+    return('memory')
+  }
+  # If any matrix points to a directory or file, it's an on-disk matrix
+  if (isTRUE(x = simplify) && any(type)) {
+    return("disk")
+  }
+  # Get the exact type; there should only be one
+  return(c(path = 'file', dir = 'directory')[[names(x = type)[type]]])
+}
+
 #' Identify Object Collections
 #'
 #' Find all collection (named lists) slots in an S4 object
@@ -384,13 +438,13 @@ NULL
 #' @concept utils
 #'
 #' @examples
-#' .PropogateList("counts", c("RNA", "ADT", "SCT"))
-#' .PropogateList(c("counts", "data"), c("RNA", "ADT", "SCT"))
-#' .PropogateList("ADT", c("RNA", "ADT", "SCT"))
-#' .PropogateList(c("RNA", "SCT"), c("RNA", "ADT", "SCT"))
-#' .PropogateList(c("RNA", ADT = "counts"), c("RNA", "ADT", "SCT"))
-#' .PropogateList(list(SCT = c("counts", "data"), ADT = "counts"), c("RNA", "ADT", "SCT"))
-#' .PropogateList(list(SCT = c("counts", "data"), "ADT"), c("RNA", "ADT", "SCT"))
+#' .PropagateList("counts", c("RNA", "ADT", "SCT"))
+#' .PropagateList(c("counts", "data"), c("RNA", "ADT", "SCT"))
+#' .PropagateList("ADT", c("RNA", "ADT", "SCT"))
+#' .PropagateList(c("RNA", "SCT"), c("RNA", "ADT", "SCT"))
+#' .PropagateList(c("RNA", ADT = "counts"), c("RNA", "ADT", "SCT"))
+#' .PropagateList(list(SCT = c("counts", "data"), ADT = "counts"), c("RNA", "ADT", "SCT"))
+#' .PropagateList(list(SCT = c("counts", "data"), "ADT"), c("RNA", "ADT", "SCT"))
 #'
 .PropagateList <- function(x, names, default = NA) {
   # `names` must be a character vector
@@ -1444,21 +1498,29 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 .FilePath.IterableMatrix <- function(x){
   check_installed(pkg = "BPCells", reason = "for working with BPCells")
   matrix <- slot(x, "matrix")
-  matrices <- BPCells:::all_matrix_inputs(matrix)
+  matrices <- BPCells::all_matrix_inputs(matrix)
   return_dir_path <- function(matrix){
     if (inherits(matrix, "MatrixDir")) {
       path <- normalizePath(path = matrix@dir)
-    } else if (inherits(matrix, "10xMatrixH5")){
-      warning("The on-disk matrix is an h5 file and will not be moved ",
-              "to the destination directory. It will remain at: '", matrix@path,
-              "'. If you would like to save the matrix in BPCells format, use ",
-              "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
+    } else if (inherits(matrix, "10xMatrixH5")) {
+      warning(
+        "The on-disk matrix is an h5 file and will not be moved ",
+        "to the destination directory. It will remain at: '",
+        matrix@path,
+        "'. If you would like to save the matrix in BPCells format, use ",
+        "'write_matrix_dir(mat = data, dir = '/path')'.",
+        call. = FALSE
+      )
       path = NULL
-    } else if (inherits(matrix, "AnnDataMatrixH5")){
-      warning("The on-disk matrix is an h5ad file and will not be moved ",
-              "to the destination directory. It will remain at: '", matrix@path,
-              "'. If you would like to save the matrix in BPCells format, use ",
-              "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
+    } else if (inherits(matrix, "AnnDataMatrixH5")) {
+      warning(
+        "The on-disk matrix is an h5ad file and will not be moved ",
+        "to the destination directory. It will remain at: '",
+        matrix@path,
+        "'. If you would like to save the matrix in BPCells format, use ",
+        "'write_matrix_dir(mat = data, dir = '/path')'.",
+        call. = FALSE
+      )
       path = NULL
     } else {
       path = NULL
@@ -1468,7 +1530,6 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   paths <- unlist(lapply(matrices, return_dir_path))
   return(paths)
 }
-
 
 #' @rdname dot-SelectFeatures
 #' @method .SelectFeatures list
@@ -1922,6 +1983,8 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   return(x)
 }
 
+#' @importFrom stats median
+#'
 .FeatureRank <- function(features, flist, ranks = FALSE) {
   franks <- vapply(
     X = features,

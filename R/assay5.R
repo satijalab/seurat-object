@@ -16,8 +16,8 @@ NULL
 #' The \code{StdAssay} class is a virtual class that provides core
 #' infrastructure for assay data in \pkg{Seurat}. Assays contain expression
 #' data (layers) and associated feature-level meta data. Derived classes
-#' (eg. \link[Assay5-class]{the v5 Assay}) may optionally define additional
-#' functionality
+#' (eg. \link[=Assay5]{the v5 Assay}) may optionally
+#' define additional functionality
 #'
 #' @template slot-stdassay
 #' @template slot-misc
@@ -248,7 +248,6 @@ setClass(
   }
   cdim <- fmargin(object = type, type = 'cells')
   fdim <- fmargin(object = type, type = 'features')
-
   counts <- lapply(X = counts, FUN = function(x) {
     x <- CheckFeaturesNames(data = x)
     return(x)
@@ -279,9 +278,9 @@ setClass(
   # Filter based on min.features
   if (min.features > 0) {
     for (layer in names(x = counts)) {
-      if (inherits(x = counts[[layer]], what = "IterableMatrix")){
-        col_stat <- BPCells::matrix_stats(matrix = counts[[layer]],
-                                          col_stats = 'nonzero')$col_stats
+      if (inherits(x = counts[[layer]], what = "IterableMatrix")) {
+        check_installed(pkg = 'BPCells', reason = 'for working with BPCells')
+        col_stat <- BPCells::matrix_stats(matrix = counts[[layer]], col_stats = 'nonzero')$col_stats
         cells.use <- which(x = col_stat >= min.features)
       } else {
         cells.use <- which(x = csum(counts[[layer]] > 0) >= min.features)
@@ -297,9 +296,9 @@ setClass(
   # Filter based on min.cells
   if (min.cells > 0) {
     for (layer in names(x = counts)) {
-      if (inherits(x = counts[[layer]], what = "IterableMatrix")){
-        row_stat <- BPCells::matrix_stats(matrix = counts[[layer]],
-                                          row_stats = 'nonzero')$row_stats
+      if (inherits(x = counts[[layer]], what = "IterableMatrix")) {
+        check_installed(pkg = 'BPCells', reason = 'for working with BPCells')
+        row_stat <- BPCells::matrix_stats(matrix = counts[[layer]], row_stats = 'nonzero')$row_stats
         features.use <- which(x = row_stat >= min.cells)
       } else {
         features.use <- which(x = fsum(counts[[layer]] > 0) >= min.cells)
@@ -313,7 +312,7 @@ setClass(
     }
   }
   features.all <- Reduce(f = union, x = features)
-  cells.all <- make.unique(names = unlist(x = cells))
+  cells.all <- Reduce(f = union, x = cells)
   calcN_option <- getOption(
     x = 'Seurat.object.assay.calcn',
     default =  Seurat.options$Seurat.object.assay.calcn
@@ -410,7 +409,7 @@ setClass(
 #'
 #' @method AddMetaData StdAssay
 #'
-AddMetaData.StdAssay <- .AddMetaData
+AddMetaData.StdAssay <- AddMetaData.Assay
 
 #' @rdname AddMetaData
 #' @method AddMetaData Assay5
@@ -726,7 +725,7 @@ FetchData.StdAssay <- function(
     ))
   }
   if (is.null(layer.set)) {
-  stop('layer ', layer,' is not found in the object')
+  stop('layer "', layer,'" is not found in the object')
   } else {
     layer <- layer.set
   }
@@ -966,12 +965,13 @@ HVFInfo.StdAssay <- function(
   ...
 ) {
   # Find available HVF methods and layers
-  vf.methods <- .VFMethods(object = object, type = 'hvf')
-  vf.layers <- .VFLayers(object = object, type = 'hvf')
+  vf.methods.layers <- .VFMethodsLayers(object = object, type = 'hvf')
+  #vf.methods <- .VFMethods(object = object, type = 'hvf')
+  #vf.layers <- .VFLayers(object = object, type = 'hvf')
   # Determine which method and layer to use
-  method <- (method %||% vf.methods)[1L]
+  method <- method[1L] %||% names(vf.methods.layers[1L]) 
   method <- tryCatch(
-    expr = match.arg(arg = method, choices = vf.methods),
+    expr = match.arg(arg = method, choices = names(vf.methods.layers)),
     error = function(...) {
       return(NULL)
     }
@@ -980,8 +980,8 @@ HVFInfo.StdAssay <- function(
   if (is.null(x = method)) {
     return(method)
   }
-  layer <- (layer %||% vf.layers)[1L]
-  layer <- vf.layers[which.min(x = adist(x = layer, y = vf.layers))]
+  layer <- layer %||% unname(vf.methods.layers[method])
+  # layer <- unname(vf.methods.layers)[which.min(x = adist(x = layer, y = unname(vf.methods.layers[method])))]
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
@@ -1562,15 +1562,20 @@ VariableFeatures.StdAssay <- function(
   ...
 ) {
   nfeatures <- nfeatures %||% Inf
-  if ('var.features' %in% colnames(object[])) {
-    var.features <- as.vector(object['var.features', drop = TRUE])
-    var.features <- var.features[!is.na(var.features)]
-    if (isTRUE(x = simplify) &
-        (is.null(x = layer) || any(is.na(x = layer)))&
-        (is.infinite(x = nfeatures) || length(x = var.features) == nfeatures)
-        ) {
-          return(var.features)
-        }
+  if ("var.features" %in% colnames(object[])) {
+    if ("var.features.rank" %in% colnames(object[])) {
+      var.features <- row.names(x = object[])[which(!is.na(object[]$var.features.rank))]
+      var.features <- var.features[order(object[][["var.features.rank"]][which(!is.na(object[]$var.features))])]
+    }
+    else {
+      var.features <- as.vector(object["var.features", drop = TRUE])
+      var.features <- var.features[!is.na(var.features)]
+    }
+    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) & 
+        (is.infinite(x = nfeatures) || length(x = var.features) == 
+         nfeatures)) {
+      return(var.features)
+    }
   }
   msg <- 'No variable features found'
   layer <- Layers(object = object, search = layer)
@@ -1609,13 +1614,15 @@ VariableFeatures.StdAssay <- function(
     abort(message = msg)
   }
   if (isTRUE(x = simplify)) {
-    vf <- .SelectFeatures(
-      object = vf,
-      all.features = intersect(
-        x = slot(object = object, name = 'features')[, layer]
-      ),
-      nfeatures = nfeatures
-    )
+      # Pull layers that have values for VariableFeatures only
+      layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
+      vf <- .SelectFeatures(
+        object = vf,
+        all.features = intersect(
+            x = slot(object = object, name = 'features')[, layers.vf]
+          ),
+          nfeatures = nfeatures
+        )
   }
   return(vf)
   # hvf.info <- HVFInfo(
@@ -1665,12 +1672,17 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   value <- intersect(x = value, y = rownames(x = object))
   if (length(x = value) == 0) {
     object['var.features'] <- NA
+    object['var.features.rank'] <- NA
     return(object)
   }
   # if (!length(x = value)) {
   #   stop("None of the features specified are present in this assay", call. = FALSE)
   # }
   object['var.features'] <- value
+  # add rank 
+  object['var.features.rank'] <- NA
+  object[][row.names(object[]) %in% value,]$var.features.rank <- match(row.names(object[])[row.names(object[]) %in% value], value)
+  
   # layer <- Layers(object = object, search = layer)
   # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
   # for (lyr in layer) {
@@ -1690,6 +1702,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #' @export
 #'
 WhichCells.StdAssay <- WhichCells.Assay
+
 # WhichCells.StdAssay <- function(
 #   object,
 #   cells = NULL,
@@ -2328,7 +2341,7 @@ split.StdAssay <- function(
 #'  \code{layers} split based on \code{f}; all other layers are left as-is
 #'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects;
 #'  the list contains one value per split and each assay contains only the
-#'  layers requested in \code{layers} with the \link[Key]{key} set to the split
+#'  layers requested in \code{layers} with the \link[=Key]{key} set to the split
 #'  \item \dQuote{\code{layers}}: a list of matrices of length
 #'  \code{length(assays) * length(unique(f))}; the list is named as
 #'  \dQuote{\code{layer.split}}
@@ -2524,6 +2537,7 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
       return(paste(x[3L:(length(x = x) - 1L)], collapse = '_'))
     }
   )))
+  
   if (!isTRUE(x = missing)) {
     vf.layers <- intersect(
       x = vf.layers,
@@ -2592,6 +2606,76 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   }
   return(vf.methods)
 }
+
+#' @param object A \code{\link{StdAssay}} object
+#' @param type Type of variable feature method to pull; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{hvf}}: highly variable features
+#'  \item \dQuote{\code{svf}}: spatially variable features
+#' }
+#' @param layers Vector of layers to restrict methods for, or a search pattern
+#' for multiple layers
+#'
+#' @return A vector of variable feature methods and corresponding layers found in \code{object}
+#'
+#' @noRd
+#'
+.VFMethodsLayers <- function(
+  object,
+  type = c('hvf', 'svf'),
+  layers = NA,
+  missing = FALSE
+) {
+  type <- type[1L]
+  type <- match.arg(arg = type)
+  pattern <- switch(
+    EXPR = type,
+    'hvf' = '^vf_',
+    abort(message = paste("Unknown type:", sQuote(x = type)))
+  )
+  vf.cols <- grep(
+    pattern = paste0(pattern, '[[:alnum:]]+_'),
+    x = colnames(x = object[]),
+    value = TRUE
+  )
+  # layers <- Layers(object = object, search = layers)
+  layers <- .VFLayers(
+    object = object,
+    type = type,
+    layers = layers,
+    missing = missing
+  )
+  vf.cols <- Filter(
+    f = function(x) {
+      x <- unlist(x = strsplit(x = x, split = '_'))
+      x <- paste(x[3:(length(x = x) - 1L)], collapse = '_')
+      return(x %in% layers)
+    },
+    x = vf.cols
+  )
+  # Extract methods and layers
+  vf.methods.layers <- lapply(vf.cols, function(col) {
+    components <- strsplit(col, split = "_")[[1]]
+    method <- components[2]
+    layer <- paste(components[3:(length(components) - 1)], collapse = "_")
+    return(c(method = method, layer = layer))
+  })
+  
+  # Combine into a list
+  vf.list <- lapply(unique(unlist(lapply(vf.methods.layers, `[[`, "method"))), function(method) {
+    layers <- unique(unlist(lapply(vf.methods.layers, function(x) {
+      if (x["method"] == method) 
+        return(x["layer"])
+    })))
+    return(setNames(list(layers), method))
+  })
+  vf.list <- Reduce(modifyList, vf.list)
+  if (!length(x = vf.list)) {
+    vf.list <- NULL
+  }
+  return(vf.list)
+}
+
 
 CalcN5 <- function(object) {
   if (IsMatrixEmpty(x = LayerData(object = object))) {
@@ -2937,6 +3021,25 @@ setMethod(
   }
 )
 
+#' V5 Assay Summaries
+#'
+#' Summary maths for \code{\link{StdAssay}} Objects
+#'
+#' @inheritParams base::colSums
+#' @param layer Name of layer to run function on
+#' @template param-dots-ignored
+#'
+#' @return The results of the summary math function for the layer specified
+#'
+#' @name v5-assay-summaries
+#' @rdname v5-assay-summaries
+#'
+#' @keywords internal
+#'
+NULL
+
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'colMeans',
   signature = c(x = 'StdAssay'),
@@ -2949,6 +3052,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'colSums',
   signature = c(x = 'StdAssay'),
@@ -2961,6 +3066,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'rowMeans',
   signature = c(x = 'StdAssay'),
@@ -2973,6 +3080,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'rowSums',
   signature = c(x = 'StdAssay'),

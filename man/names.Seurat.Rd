@@ -12,10 +12,10 @@
 \value{
 The names of all of the following subobjects within \code{x}:
 \itemize{
- \item \link[Assay]{v3} and \link[Assay5]{v5} assays
- \item \link[DimReduc]{dimensional reductions}
- \item \link[SpatialImage]{images} and \link[FOV]{FOVs}
- \item \link[Graph]{nearest-neighbor graphs}
+ \item \link[=Assay]{v3} and \link[=Assay5]{v5} assays
+ \item \link[=DimReduc]{dimensional reductions}
+ \item \link[=SpatialImage]{images} and \link[=FOV]{FOVs}
+ \item \link[=Graph]{nearest-neighbor graphs}
 }
 }
 \description{
