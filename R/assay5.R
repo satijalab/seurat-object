@@ -2211,17 +2211,24 @@ split.StdAssay <- function(
 ) {
   ret <- ret[1L]
   ret <- match.arg(arg = ret)
+  if (is.na(layers) || is.null(layers)) {
+    layers <- c("counts", "data")
+  }
+  if (identical(layers, c("counts", "data"))) {
+    message("Splitting 'counts' and 'data' layers by default. ", 
+            "If you would like to split other layers, set in ‘layers’ argument.")
+  }
   layers <- Layers(object = x, search = layers)
-  layers.splitted <- list()
+  layers.split <- list()
   for (i in seq_along(along.with = layers)) {
     if (length(colnames(x[[layers[i]]])) != length(colnames(x))) {
-      layers.splitted[[i]] <- layers[i]
+      layers.split[[i]] <- layers[i]
     }
   }
-  layers.splitted <- unlist(x = layers.splitted)
-  if (length(x = layers.splitted) > 0) {
-   stop('Those layers are splitted already: ', paste(layers.splitted, collapse = ' '),
-        '\n', 'Please join those layers before splitting'
+  layers.split <- unlist(x = layers.split)
+  if (length(x = layers.split) > 0) {
+   stop('The selected layers are already split: ', paste(layers.split, collapse = ' '),
+        '\n', 'Please join layers before splitting.'
         )
   }
   default <- ifelse(
