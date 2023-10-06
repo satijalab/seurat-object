@@ -2140,18 +2140,18 @@ split.StdAssay <- function(
   x,
   f,
   drop = FALSE,
-  layers = NULL,
+  layers = c("counts", "data"),
   ret = c('assay', 'multiassays', 'layers'),
   ...
 ) {
   ret <- ret[1L]
   ret <- match.arg(arg = ret)
-  if (is.na(layers) || is.null(layers)) {
-    layers <- c("counts", "data")
-  }
-  if (identical(layers, c("counts", "data"))) {
-    message("Splitting 'counts' and 'data' layers by default. ", 
-            "If you would like to split other layers, set in ‘layers’ argument.")
+  layers.to.split <- Layers(object = x, search = layers)
+  if (!identical(Layers(object = x), layers.to.split)){
+     message('Splitting "', paste(layers.to.split, collapse = ", "), 
+             '" layers. Not splitting "', 
+             paste(setdiff(Layers(object = x), layers.to.split), collapse = ", "), 
+             '". If you would like to split other layers, set in ‘layers’ argument.')
   }
   layers <- Layers(object = x, search = layers)
   layers.split <- list()
