@@ -2057,17 +2057,22 @@ WhichCells.Seurat <- function(
     cell.order <- colnames(x = object)
     cells <- colnames(x = object)[!colnames(x = object) %in% cells]
   }
-  cells <- CellsByIdentities(object = object, cells = cells, ...)
-  cells <- lapply(
-    X = cells,
-    FUN = function(x) {
-      if (length(x = x) > downsample) {
-        x <- sample(x = x, size = downsample, replace = FALSE)
-      }
-      return(x)
-    }
-  )
-  cells <- as.character(x = na.omit(object = unlist(x = cells, use.names = FALSE)))
+  
+  # only perform downsampling when "downsample" is smaller than the number of cells
+  if(downsample <= length(cells)){
+      cells <- CellsByIdentities(object = object, cells = cells, ...)
+      cells <- lapply(
+          X = cells,
+          FUN = function(x) {
+              if (length(x = x) > downsample) {
+                  x <- sample(x = x, size = downsample, replace = FALSE)
+              }
+              return(x)
+          }
+      )
+      cells <- as.character(x = na.omit(object = unlist(x = cells, use.names = FALSE)))
+  }
+  
   cells <- cells[na.omit(object = match(x = cell.order, table = cells))]
   return(cells)
 }
