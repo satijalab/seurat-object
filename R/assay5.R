@@ -706,19 +706,19 @@ FetchData.StdAssay <- function(
   object,
   vars,
   cells = NULL,
-  layer = 'data',
+  layer = NULL,
   clean = TRUE,
   ...
 ) {
   # Identify layer(s) to use
   layer.set <- rev(x = Layers(
     object = object,
-    search = layer
+    search = layer %||% 'data'
   ))
-  if (layer == 'data' && length(layer.set) == 1 && layer.set == 'scale.data'){
+  if (is.null(layer) && length(layer.set) == 1 && layer.set == 'scale.data'){
     warning('Default search for "data" layer yielded no results; utilizing "scale.data" layer instead.')
   }
-  if (is.null(layer.set) & layer == 'data') {
+  if (is.null(layer.set) & is.null(layer) ) {
     warning('data layer is not found and counts layer is used')
     layer.set <- rev(x = Layers(
       object = object,
@@ -726,7 +726,7 @@ FetchData.StdAssay <- function(
     ))
   }
   if (is.null(layer.set)) {
-    stop('layer ', layer,' is not found in the object')
+  stop('layer ', layer,' is not found in the object')
   } else {
     layer <- layer.set
   }
@@ -886,7 +886,7 @@ FetchData.Assay5 <- FetchData.StdAssay
 #'
 GetAssayData.StdAssay <- function(
   object,
-  layer = "data",
+  layer = NULL,
   slot = deprecated(),
   ...
 ) {
@@ -906,9 +906,12 @@ GetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
-  layer_name <- layer[1L] 
-  layer.set <- suppressWarnings(expr = Layers(object = object, search = layer))
-  if (is.null(layer.set) & layer_name == "data") {
+  layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
+  layer.set <- suppressWarnings(expr = Layers(
+    object = object, 
+    search = layer %||% 'data'
+  ))
+  if (is.null(layer.set) & is.null(layer)) {
     warning('data layer is not found and counts layer is used')
     layer <- rev(x = Layers(
       object = object,
@@ -1140,7 +1143,7 @@ Key.Assay5 <- .Key
 #'
 LayerData.StdAssay <- function(
   object,
-  layer = "data",
+  layer = NULL,
   cells = NULL,
   features = NULL,
   fast = FALSE,
@@ -1152,11 +1155,14 @@ LayerData.StdAssay <- function(
                    what = "LayerData(slot = )",
                    with = "LayerData(layer = )")
   }
-  layer_name <- layer[1L] 
+  layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   # Identify layer(s) to use
-  layer.set <- suppressWarnings(expr = Layers(object = object, search = layer))
-  # If layer.set doesnt return anything and layer_name was data 
-  if (is.null(layer.set) & layer_name == "data") {
+  layer.set <- suppressWarnings(expr = Layers(
+    object = object,
+    search = layer %||% 'data'
+  ))
+  # If layer.set doesnt return anything and layer is not defined
+  if (is.null(layer.set) & is.null(layer) ) {
     warning(
       'data layer is not found and counts layer is used', 
       call. = F, 
