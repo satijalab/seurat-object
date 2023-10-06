@@ -293,6 +293,16 @@ setClass(
       cells[[layer]] <- cells[[layer]][cells.use]
     }
   }
+  # For now, coerce to dgCMatrix if not dgCMatrix, IterableMatrix, or DelayedArray
+  if (!inherits(x = counts[[layer]], what = c('dgCMatrix', 'IterableMatrix', 'DelayedArray'))) {
+    warning('Data is of class ', class(counts[[layer]])[1], ". Coercing to dgCMatrix.", 
+            call. = FALSE, immediate. = TRUE)
+    if (inherits(x = counts[[layer]], what = "data.frame")) {
+      counts[[layer]] <- as.sparse(x = counts[[layer]], ...)
+    } else {
+      counts[[layer]] <- as.sparse(x = counts[[layer]])
+    }
+  }
   # Filter based on min.cells
   if (min.cells > 0) {
     for (layer in names(x = counts)) {
