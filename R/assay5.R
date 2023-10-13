@@ -684,8 +684,7 @@ DefaultLayer.Assay5 <- DefaultLayer.StdAssay
 #' @export
 #'
 Features.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
-  layer <- layer %||% DefaultLayer(object = x)
-  if (is_na(x = layer)) {
+  if (any(is.na(x = layer)) || is.null(x = layer)) {
     return(rownames(x = slot(object = x, name = 'features')))
   }
   layer <- Layers(object = x, search = layer)
@@ -725,6 +724,9 @@ FetchData.StdAssay <- function(
     object = object,
     search = layer %||% 'data'
   ))
+  if (is.null(layer) && length(layer.set) == 1 && layer.set == 'scale.data'){
+    warning('Default search for "data" layer yielded no results; utilizing "scale.data" layer instead.')
+  }
   if (is.null(layer.set) & is.null(layer) ) {
     warning('data layer is not found and counts layer is used')
     layer.set <- rev(x = Layers(
@@ -736,7 +738,7 @@ FetchData.StdAssay <- function(
   stop('layer "', layer,'" is not found in the object')
   } else {
     layer <- layer.set
-    }
+  }
 
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
@@ -913,13 +915,46 @@ GetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
-  layer <- Layers(object = object, search = layer %||% 'data')
+  layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
+  layer.set <- suppressWarnings(expr = Layers(
+    object = object, 
+    search = layer %||% 'data'
+  ))
+  if (is.null(layer.set) & is.null(layer)) {
+    warning('data layer is not found and counts layer is used')
+    layer <- rev(x = Layers(
+      object = object,
+      search = 'counts'
+    ))
+  } else {
+    layer <- layer.set
+  }
   if (length(x = layer) > 1) {
     abort("GetAssayData doesn't work for multiple layers in v5 assay.",
          " You can run 'object <- JoinLayers(object = object, layers = layer)'.")
   }
   if (is.null(x = layer)) {
-    abort("No layers are found")
+    msg <- paste("Layer", sQuote(x = layer_name), "is empty")
+    opt <- getOption(x = "Seurat.object.assay.v3.missing_layer",
+                     default = Seurat.options$Seurat.object.assay.v3.missing_layer)
+    opt <- tryCatch(expr = arg_match0(
+      arg = opt,
+      values = c("matrix","null", "error")),
+      error = function(...) {
+        return(Seurat.options$Seurat.object.assay.v3.missing_layer)
+      }
+    )
+    if (opt == "error") {
+      abort(message = msg)
+    }
+    warn(message = msg)
+    return(switch(
+      EXPR = opt,
+      matrix = switch(
+        EXPR = layer_name,
+        scale.data = new(Class = "matrix"), new(Class = "dgCMatrix")
+      ),
+      NULL))
   }
   return(LayerData(object = object, layer = layer, ...))
 }
@@ -1130,9 +1165,27 @@ LayerData.StdAssay <- function(
                    what = "LayerData(slot = )",
                    with = "LayerData(layer = )")
   }
-  # Figure out the layer we're pulling
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
-  layer <- Layers(object = object, search = layer)
+  # Identify layer(s) to use
+  layer.set <- suppressWarnings(expr = Layers(
+    object = object,
+    search = layer %||% 'data'
+  ))
+  # If layer.set doesnt return anything and layer is not defined
+  if (is.null(layer.set) & is.null(layer) ) {
+    warning(
+      'data layer is not found and counts layer is used', 
+      call. = F, 
+      immediate. = T
+    )
+    layer <- Layers(
+      object = object,
+      search = 'counts'
+    )
+  } else {
+    layer <- layer.set
+  }
+
   if (length(x = layer) > 1) {
     warning("multiple layers are identified by ",
             paste0(layer, collapse = ' '),
@@ -1534,54 +1587,53 @@ VariableFeatures.StdAssay <- function(
       return(var.features)
     }
   }
-      msg <- 'No variable features found'
-      layer.orig <- layer
-      layer <- Layers(object = object, search = layer)
-      vf <- sapply(
-        X = layer,
-        FUN = function(lyr) {
-          hvf.info <- HVFInfo(
-            object = object,
-            method = method,
-            layer = lyr,
-            status = TRUE,
-            strip = TRUE
-          )
-          if (is.null(x = hvf.info)) {
-            return(NULL)
-          } else if (!'variable' %in% names(x = hvf.info)) {
-            return(NA)
-          }
-          vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
-          if ('rank' %in% names(x = hvf.info)) {
-            vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-          } else {
-            warn(message = paste0(
-              "No variable feature rank found for ",
-              sQuote(x = lyr),
-              ", returning features in assay order"
-            ))
-          }
-        },
-        simplify = FALSE,
-        USE.NAMES = TRUE
+  msg <- 'No variable features found'
+  layer <- Layers(object = object, search = layer)
+  vf <- sapply(
+    X = layer,
+    FUN = function(lyr) {
+      hvf.info <- HVFInfo(
+        object = object,
+        method = method,
+        layer = lyr,
+        status = TRUE,
+        strip = TRUE
       )
-      if (is.null(x = unlist(x = vf))) {
+      if (is.null(x = hvf.info)) {
         return(NULL)
-      } else if (all(is.na(x = unlist(x = vf)))) {
-        abort(message = msg)
+      } else if (!'variable' %in% names(x = hvf.info)) {
+        return(NA)
       }
-      if (isTRUE(x = simplify)) {
-        # Pull layers that have values for VariableFeatures only
-        layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
-        vf <- .SelectFeatures(
-          object = vf,
-          all.features = intersect(
+      vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
+      if ('rank' %in% names(x = hvf.info)) {
+        vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
+      } else {
+        warn(message = paste0(
+          "No variable feature rank found for ",
+          sQuote(x = lyr),
+          ", returning features in assay order"
+        ))
+      }
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE
+  )
+  if (is.null(x = unlist(x = vf))) {
+    return(NULL)
+  } else if (all(is.na(x = unlist(x = vf)))) {
+    abort(message = msg)
+  }
+  if (isTRUE(x = simplify)) {
+      # Pull layers that have values for VariableFeatures only
+      layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
+      vf <- .SelectFeatures(
+        object = vf,
+        all.features = intersect(
             x = slot(object = object, name = 'features')[, layers.vf]
           ),
           nfeatures = nfeatures
         )
-      }
+  }
   return(vf)
   # hvf.info <- HVFInfo(
   #   object = object,
