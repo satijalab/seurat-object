@@ -4918,11 +4918,6 @@ setMethod(
           }
           # Remove the assay
           slot(object = x, name = slot.use)[[i]] <- value
-          # # Remove the assay entry from the LogMap
-          # slot(object = x, name = 'cells') <- droplevels(x = slot(
-          #   object = x,
-          #   name = 'cells'
-          # ))
         },
         # Remove other subobjects
         slot(object = x, name = slot.use)[[name]] <- value
