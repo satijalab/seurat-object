@@ -10,7 +10,7 @@ Simplify(coords, tol, topologyPreserve = TRUE)
 \method{Simplify}{Spatial}(coords, tol, topologyPreserve = TRUE)
 }
 \arguments{
-\item{coords}{Spatial coordinates to simplify}
+\item{coords}{A `Segmentation` object}
 
 \item{tol}{Numerical tolerance value to be used by the Douglas-Peuker algorithm}
 
@@ -18,6 +18,8 @@ Simplify(coords, tol, topologyPreserve = TRUE)
 }
 \value{
 A simplified version of \code{coords}
+
+A `Segmentation` object with simplified segmentation vertices
 }
 \description{
 Simplify Geometry
