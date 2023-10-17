@@ -43,7 +43,7 @@ Imports:
     future.apply,
     grDevices,
     grid,
-    Matrix (>= 1.5.3),
+    Matrix (>= 1.6.1),
     methods,
     progressr,
     Rcpp (>= 1.0.5),

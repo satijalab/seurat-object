@@ -1,7 +1,8 @@
-# Unreleased
+# SeuratObject 4.1.4
 ## Changes
 - Fixes for `CellsByIdentities` (#80)
 - Remove {rgeos} from Suggests and replace with {sf} due to {rgeos} package retirement
+- New check for potential binary breaks between dependencies and SeuratObject
 
 # SeuratObject 4.1.3
 ## Changes
