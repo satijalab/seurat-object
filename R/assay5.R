@@ -1617,15 +1617,13 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   ...,
   value
 ) {
-  value <- intersect(x = value, y = rownames(x = object))
-  if (length(x = value) == 0) {
-    object['var.features'] <- NA
-    object['var.features.rank'] <- NA
+  if (!length(x = value)) {
     return(object)
   }
-  # if (!length(x = value)) {
-  #   stop("None of the features specified are present in this assay", call. = FALSE)
-  # }
+  value <- intersect(x = value, y = rownames(x = object))
+  if (!length(x = value)) {
+    stop("None of the features specified are present in this assay", call. = FALSE)
+  }
   object['var.features'] <- value
   # add rank
   object['var.features.rank'] <- NA
@@ -2652,6 +2650,7 @@ setAs(
       meta.data = EmptyDF(n = nrow(x = from)),
       key = Key(object = from)
     )
+    # browser()
     # Add the expression matrices
     for (i in c('counts', 'data', 'scale.data')) {
       adata <- GetAssayData(object = from, slot = i)
