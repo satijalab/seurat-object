@@ -781,7 +781,6 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
   return(invisible(x = NULL))
 }
 
-
 #' Check layers names for the input list
 #'
 #'
@@ -794,8 +793,8 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
 #' @concept utils
 #'
 CheckLayersName <- function(
-    matrix.list,
-    layers.type = c('counts', 'data')
+  matrix.list,
+  layers.type = c('counts', 'data')
 ) {
   layers.type <- match.arg(arg = layers.type)
   if (is.null(x = matrix.list)) {
@@ -818,7 +817,7 @@ CheckLayersName <- function(
             x = name
           )
           # If replacement leaves empty string
-          if (!nzchar(x = name)){
+          if (!nzchar(x = name)) {
             name <- i
           }
         }
@@ -1855,18 +1854,20 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
 
 #' Generate empty dgC sparse matrix
 #'
-#' @param ncol
-#' @param nrow
+#' @param ncol,nrow Number of columns and rows in matrix
+#' @param rownames,colnames Optional row- and column names for the matrix
+#'
+#' @keywords internal
+#'
 #' @export
 #'
 SparseEmptyMatrix <- function(nrow, ncol, rownames = NULL, colnames = NULL) {
-  mat <- new(
+  return(new(
     Class = 'dgCMatrix',
-    p = integer(ncol + 1L),
-    Dim = c(as.integer(nrow), as.integer(ncol)),
+    p = integer(length = ncol + 1L),
+    Dim = c(as.integer(x = nrow), as.integer(x = ncol)),
     Dimnames = list(rownames, colnames)
-    )
-  return(mat)
+  ))
 }
 
 

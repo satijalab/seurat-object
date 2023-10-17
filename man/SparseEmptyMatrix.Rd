@@ -6,6 +6,12 @@
 \usage{
 SparseEmptyMatrix(nrow, ncol, rownames = NULL, colnames = NULL)
 }
+\arguments{
+\item{ncol, nrow}{Number of columns and rows in matrix}
+
+\item{rownames, colnames}{Optional row- and column names for the matrix}
+}
 \description{
 Generate empty dgC sparse matrix
 }
+\keyword{internal}
