@@ -17,8 +17,8 @@
 The values of \code{x} that are present in \strong{every} observation
 }
 \description{
-Identify values in a \link[LogMap]{logical map} that are common to
-every observation
+Identify values in a \link[=LogMap]{logical map} that are
+common to every observation
 }
 \examples{
 map <- LogMap(letters[1:10])
@@ -38,4 +38,3 @@ Logical map objects, validity, and interaction methods:
 \code{\link{labels.LogMap}()}
 }
 \concept{logmap}
-\keyword{internal}

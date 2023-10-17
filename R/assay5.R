@@ -16,8 +16,8 @@ NULL
 #' The \code{StdAssay} class is a virtual class that provides core
 #' infrastructure for assay data in \pkg{Seurat}. Assays contain expression
 #' data (layers) and associated feature-level meta data. Derived classes
-#' (eg. \link[Assay5-class]{the v5 Assay}) may optionally define additional
-#' functionality
+#' (eg. \link[=Assay5]{the v5 Assay}) may optionally
+#' define additional functionality
 #'
 #' @template slot-stdassay
 #' @template slot-misc
@@ -248,7 +248,6 @@ setClass(
   }
   cdim <- fmargin(object = type, type = 'cells')
   fdim <- fmargin(object = type, type = 'features')
-
   counts <- lapply(X = counts, FUN = function(x) {
     x <- CheckFeaturesNames(data = x)
     return(x)
@@ -279,9 +278,9 @@ setClass(
   # Filter based on min.features
   if (min.features > 0) {
     for (layer in names(x = counts)) {
-      if (inherits(x = counts[[layer]], what = "IterableMatrix")){
-        col_stat <- BPCells::matrix_stats(matrix = counts[[layer]],
-                                          col_stats = 'nonzero')$col_stats
+      if (inherits(x = counts[[layer]], what = "IterableMatrix")) {
+        check_installed(pkg = 'BPCells', reason = 'for working with BPCells')
+        col_stat <- BPCells::matrix_stats(matrix = counts[[layer]], col_stats = 'nonzero')$col_stats
         cells.use <- which(x = col_stat >= min.features)
       } else {
         cells.use <- which(x = csum(counts[[layer]] > 0) >= min.features)
@@ -294,12 +293,22 @@ setClass(
       cells[[layer]] <- cells[[layer]][cells.use]
     }
   }
+  # For now, coerce to dgCMatrix if not dgCMatrix, IterableMatrix, or DelayedArray
+  if (!inherits(x = counts[[layer]], what = c('dgCMatrix', 'IterableMatrix', 'DelayedArray'))) {
+    warning('Data is of class ', class(counts[[layer]])[1], ". Coercing to dgCMatrix.", 
+            call. = FALSE, immediate. = TRUE)
+    if (inherits(x = counts[[layer]], what = "data.frame")) {
+      counts[[layer]] <- as.sparse(x = counts[[layer]], ...)
+    } else {
+      counts[[layer]] <- as.sparse(x = counts[[layer]])
+    }
+  }
   # Filter based on min.cells
   if (min.cells > 0) {
     for (layer in names(x = counts)) {
-      if (inherits(x = counts[[layer]], what = "IterableMatrix")){
-        row_stat <- BPCells::matrix_stats(matrix = counts[[layer]],
-                                          row_stats = 'nonzero')$row_stats
+      if (inherits(x = counts[[layer]], what = "IterableMatrix")) {
+        check_installed(pkg = 'BPCells', reason = 'for working with BPCells')
+        row_stat <- BPCells::matrix_stats(matrix = counts[[layer]], row_stats = 'nonzero')$row_stats
         features.use <- which(x = row_stat >= min.cells)
       } else {
         features.use <- which(x = fsum(counts[[layer]] > 0) >= min.cells)
@@ -313,7 +322,7 @@ setClass(
     }
   }
   features.all <- Reduce(f = union, x = features)
-  cells.all <- make.unique(names = unlist(x = cells))
+  cells.all <- Reduce(f = union, x = cells)
   calcN_option <- getOption(
     x = 'Seurat.object.assay.calcn',
     default =  Seurat.options$Seurat.object.assay.calcn
@@ -410,7 +419,7 @@ setClass(
 #'
 #' @method AddMetaData StdAssay
 #'
-AddMetaData.StdAssay <- .AddMetaData
+AddMetaData.StdAssay <- AddMetaData.Assay
 
 #' @rdname AddMetaData
 #' @method AddMetaData Assay5
@@ -675,8 +684,7 @@ DefaultLayer.Assay5 <- DefaultLayer.StdAssay
 #' @export
 #'
 Features.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
-  layer <- layer %||% DefaultLayer(object = x)
-  if (is_na(x = layer)) {
+  if (any(is.na(x = layer)) || is.null(x = layer)) {
     return(rownames(x = slot(object = x, name = 'features')))
   }
   layer <- Layers(object = x, search = layer)
@@ -716,6 +724,9 @@ FetchData.StdAssay <- function(
     object = object,
     search = layer %||% 'data'
   ))
+  if (is.null(layer) && length(layer.set) == 1 && layer.set == 'scale.data'){
+    warning('Default search for "data" layer yielded no results; utilizing "scale.data" layer instead.')
+  }
   if (is.null(layer.set) & is.null(layer) ) {
     warning('data layer is not found and counts layer is used')
     layer.set <- rev(x = Layers(
@@ -727,7 +738,7 @@ FetchData.StdAssay <- function(
   stop('layer "', layer,'" is not found in the object')
   } else {
     layer <- layer.set
-    }
+  }
 
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
@@ -904,13 +915,46 @@ GetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
-  layer <- Layers(object = object, search = layer %||% 'data')
+  layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
+  layer.set <- suppressWarnings(expr = Layers(
+    object = object, 
+    search = layer %||% 'data'
+  ))
+  if (is.null(layer.set) & is.null(layer)) {
+    warning('data layer is not found and counts layer is used')
+    layer <- rev(x = Layers(
+      object = object,
+      search = 'counts'
+    ))
+  } else {
+    layer <- layer.set
+  }
   if (length(x = layer) > 1) {
     abort("GetAssayData doesn't work for multiple layers in v5 assay.",
          " You can run 'object <- JoinLayers(object = object, layers = layer)'.")
   }
   if (is.null(x = layer)) {
-    abort("No layers are found")
+    msg <- paste("Layer", sQuote(x = layer_name), "is empty")
+    opt <- getOption(x = "Seurat.object.assay.v3.missing_layer",
+                     default = Seurat.options$Seurat.object.assay.v3.missing_layer)
+    opt <- tryCatch(expr = arg_match0(
+      arg = opt,
+      values = c("matrix","null", "error")),
+      error = function(...) {
+        return(Seurat.options$Seurat.object.assay.v3.missing_layer)
+      }
+    )
+    if (opt == "error") {
+      abort(message = msg)
+    }
+    warn(message = msg)
+    return(switch(
+      EXPR = opt,
+      matrix = switch(
+        EXPR = layer_name,
+        scale.data = new(Class = "matrix"), new(Class = "dgCMatrix")
+      ),
+      NULL))
   }
   return(LayerData(object = object, layer = layer, ...))
 }
@@ -1121,9 +1165,27 @@ LayerData.StdAssay <- function(
                    what = "LayerData(slot = )",
                    with = "LayerData(layer = )")
   }
-  # Figure out the layer we're pulling
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
-  layer <- Layers(object = object, search = layer)
+  # Identify layer(s) to use
+  layer.set <- suppressWarnings(expr = Layers(
+    object = object,
+    search = layer %||% 'data'
+  ))
+  # If layer.set doesnt return anything and layer is not defined
+  if (is.null(layer.set) & is.null(layer) ) {
+    warning(
+      'data layer is not found and counts layer is used', 
+      call. = F, 
+      immediate. = T
+    )
+    layer <- Layers(
+      object = object,
+      search = 'counts'
+    )
+  } else {
+    layer <- layer.set
+  }
+
   if (length(x = layer) > 1) {
     warning("multiple layers are identified by ",
             paste0(layer, collapse = ' '),
@@ -1649,6 +1711,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #' @export
 #'
 WhichCells.StdAssay <- WhichCells.Assay
+
 # WhichCells.StdAssay <- function(
 #   object,
 #   cells = NULL,
@@ -2151,23 +2214,30 @@ split.StdAssay <- function(
   x,
   f,
   drop = FALSE,
-  layers = NA,
+  layers = c("counts", "data"),
   ret = c('assay', 'multiassays', 'layers'),
   ...
 ) {
   ret <- ret[1L]
   ret <- match.arg(arg = ret)
+  layers.to.split <- Layers(object = x, search = layers)
+  if (!identical(Layers(object = x), layers.to.split)){
+     message('Splitting "', paste(layers.to.split, collapse = ", "), 
+             '" layers. Not splitting "', 
+             paste(setdiff(Layers(object = x), layers.to.split), collapse = ", "), 
+             '". If you would like to split other layers, set in ‘layers’ argument.')
+  }
   layers <- Layers(object = x, search = layers)
-  layers.splitted <- list()
+  layers.split <- list()
   for (i in seq_along(along.with = layers)) {
     if (length(colnames(x[[layers[i]]])) != length(colnames(x))) {
-      layers.splitted[[i]] <- layers[i]
+      layers.split[[i]] <- layers[i]
     }
   }
-  layers.splitted <- unlist(x = layers.splitted)
-  if (length(x = layers.splitted) > 0) {
-   stop('Those layers are splitted already: ', paste(layers.splitted, collapse = ' '),
-        '\n', 'Please join those layers before splitting'
+  layers.split <- unlist(x = layers.split)
+  if (length(x = layers.split) > 0) {
+   stop('The selected layers are already split: ', paste(layers.split, collapse = ' '),
+        '\n', 'Please join layers before splitting.'
         )
   }
   default <- ifelse(
@@ -2287,7 +2357,7 @@ split.StdAssay <- function(
 #'  \code{layers} split based on \code{f}; all other layers are left as-is
 #'  \item \dQuote{\code{multiassay}}: a list of \code{\link{Assay5}} objects;
 #'  the list contains one value per split and each assay contains only the
-#'  layers requested in \code{layers} with the \link[Key]{key} set to the split
+#'  layers requested in \code{layers} with the \link[=Key]{key} set to the split
 #'  \item \dQuote{\code{layers}}: a list of matrices of length
 #'  \code{length(assays) * length(unique(f))}; the list is named as
 #'  \dQuote{\code{layer.split}}
@@ -2968,6 +3038,25 @@ setMethod(
   }
 )
 
+#' V5 Assay Summaries
+#'
+#' Summary maths for \code{\link{StdAssay}} Objects
+#'
+#' @inheritParams base::colSums
+#' @param layer Name of layer to run function on
+#' @template param-dots-ignored
+#'
+#' @return The results of the summary math function for the layer specified
+#'
+#' @name v5-assay-summaries
+#' @rdname v5-assay-summaries
+#'
+#' @keywords internal
+#'
+NULL
+
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'colMeans',
   signature = c(x = 'StdAssay'),
@@ -2980,6 +3069,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'colSums',
   signature = c(x = 'StdAssay'),
@@ -2992,6 +3083,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'rowMeans',
   signature = c(x = 'StdAssay'),
@@ -3004,6 +3097,8 @@ setMethod(
   }
 )
 
+#' @rdname v5-assay-summaries
+#'
 setMethod(
   f = 'rowSums',
   signature = c(x = 'StdAssay'),

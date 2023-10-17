@@ -9,8 +9,8 @@
 The \code{StdAssay} class is a virtual class that provides core
 infrastructure for assay data in \pkg{Seurat}. Assays contain expression
 data (layers) and associated feature-level meta data. Derived classes
-(eg. \link[Assay5-class]{the v5 Assay}) may optionally define additional
-functionality
+(eg. \link[=Assay5]{the v5 Assay}) may optionally
+define additional functionality
 }
 \section{Slots}{
 
@@ -21,17 +21,19 @@ defined in the \code{cells} and \code{features} slots. Cell and feature
 membership is recorded in the \code{cells} and \code{features} slots,
 respectively}
 
-\item{\code{cells}}{A \link[LogMap]{logical mapping} of cell names and layer
-membership; this map contains all the possible cells that this assay can
-contain. New layers must have some subset of cells present in this map}
+\item{\code{cells}}{A \link[=LogMap]{logical mapping} of cell names
+and layer membership; this map contains all the possible cells that this
+assay can contain. New layers must have some subset of cells present
+in this map}
 
-\item{\code{features}}{A \link[LogMap]{logical mapping} of feature names and layer
-membership; this map contains all the possible features that this assay can
-contain. New layers must have some subset of features present in this map}
+\item{\code{features}}{A \link[=LogMap]{logical mapping} of feature
+names and layer membership; this map contains all the possible features that
+this assay can contain. New layers must have some subset of features
+present in this map}
 
 \item{\code{default}}{A one-length integer with the end index of the
-\link[DefaultLayer]{default layer}; the default layer be all layers up to
-and including the layer at index \code{default}}
+\link[=DefaultLayer]{default layer}; the default layer be
+all layers up to and including the layer at index \code{default}}
 
 \item{\code{assay.orig}}{Original assay that this assay is based off of;
 used to track assay provenance}

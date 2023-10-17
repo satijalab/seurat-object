@@ -22,7 +22,7 @@
 Feature loadings for features \code{i} and dimensions \code{j}
 }
 \description{
-Pull feature loadings from a \link[DimReduc]{dimensional reduction}
+Pull feature loadings from a \link[=DimReduc]{dimensional reduction}
 }
 \details{
 \code{[} does not distinguish between projected and unprojected feature

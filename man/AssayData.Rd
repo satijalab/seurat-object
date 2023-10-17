@@ -36,8 +36,8 @@ SetAssayData(object, slot, new.data, ...)
 
 \item{new.data}{New assay data to add}
 
-\item{assay}{Specific assay to get data from or set data for; defaults to
-the \link[SeuratObject:DefaultAssay]{default assay}}
+\item{assay}{Specific assay to get data from or set data for;
+defaults to the \link[=DefaultAssay]{default assay}}
 
 \item{layer}{Name of layer to get or set}
 }

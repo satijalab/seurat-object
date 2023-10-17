@@ -23,9 +23,9 @@ CreateSeuratObject(
   names.field = 1L,
   names.delim = "_",
   meta.data = NULL,
+  project = "SeuratProject",
   min.cells = 0,
   min.features = 0,
-  project = "SeuratProject",
   ...
 )
 

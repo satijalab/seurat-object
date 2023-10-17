@@ -252,7 +252,21 @@ CreateAssayObject <- function(
 #' @export
 #' @method AddMetaData Assay
 #'
-AddMetaData.Assay <- .AddMetaData
+AddMetaData.Assay <- function(object, metadata, col.name = NULL) {
+  if (is.null(x = col.name) && (is.atomic(x = metadata) && !is.matrix(x = metadata))) {
+    abort(message = "'col.name' must be provided for atomic meta data")
+  }
+  if (inherits(x = metadata, what = c('matrix', 'Matrix'))) {
+    metadata <- as.data.frame(x = metadata)
+  }
+  col.name <- col.name %||% names(x = metadata) %||% colnames(x = metadata)
+  if (is.null(x = col.name)) {
+    abort(message = "No metadata name provided and could not infer it from metadata object")
+  }
+  object[col.name] <- metadata
+  return(object)
+}
+
 
 #' @rdname DefaultAssay
 #' @export
@@ -532,7 +546,8 @@ LayerData.Assay <- function(
                    with = "LayerData(layer = )")
   }
   # Figure out which matrix we're pulling
-  layer <- layer[1L] %||% DefaultLayer(object = object)
+  layer <- layer[1L] %||% "data"
+  
   # layer <- match.arg(
   #   arg = layer,
   #   choices = Layers(object = object, search = FALSE)
@@ -621,7 +636,10 @@ LayerData.Assay <- function(
   )
   # Check the class of the matrix
   if (!inherits(x = value, what = c('matrix', 'dgCMatrix'))) {
-    abort(message = "'value' must be a 'matrix' or 'dgCMatrix'")
+   abort(message = paste(
+     "'value' must be a 'matrix' or 'dgCMatrix' in v3 Assays, not a", 
+     sQuote(x = class(x = value)[1L])
+   ))
   }
   if (!IsMatrixEmpty(x = value)) {
     vnames <- dimnames(x = value)

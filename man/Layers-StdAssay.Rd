@@ -13,6 +13,7 @@
   cells = NULL,
   features = NULL,
   fast = FALSE,
+  slot = deprecated(),
   ...
 )
 
