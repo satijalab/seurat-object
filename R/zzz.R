@@ -1,9 +1,14 @@
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
 #' @importFrom progressr progressor
+<<<<<<< HEAD
 #' @importFrom utils head tail upgrade packageVersion
 #' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
 #' deprecate_warn is_present
+=======
+#' @importFrom utils head tail upgrade
+#' @importFrom lifecycle deprecated is_present
+>>>>>>> Reorg imports
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
 #' setOldClass setValidity show slot slot<- validObject
 #' @importFrom rlang abort arg_match arg_match0 caller_env check_installed
