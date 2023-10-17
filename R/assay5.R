@@ -979,7 +979,7 @@ HVFInfo.StdAssay <- function(
   #vf.methods <- .VFMethods(object = object, type = 'hvf')
   #vf.layers <- .VFLayers(object = object, type = 'hvf')
   # Determine which method and layer to use
-  method <- method[1L] %||% names(vf.methods.layers[1L]) 
+  method <- method[length(methods)] %||% names(vf.methods.layers[length(vf.methods.layers)])
   method <- tryCatch(
     expr = match.arg(arg = method, choices = names(vf.methods.layers)),
     error = function(...) {
@@ -1581,13 +1581,14 @@ VariableFeatures.StdAssay <- function(
       var.features <- as.vector(object["var.features", drop = TRUE])
       var.features <- var.features[!is.na(var.features)]
     }
-    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) & 
-        (is.infinite(x = nfeatures) || length(x = var.features) == 
+    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) &
+        (is.infinite(x = nfeatures) || length(x = var.features) ==
          nfeatures)) {
       return(var.features)
     }
   }
   msg <- 'No variable features found'
+  layer.orig <- layer
   layer <- Layers(object = object, search = layer)
   vf <- sapply(
     X = layer,
@@ -1624,15 +1625,15 @@ VariableFeatures.StdAssay <- function(
     abort(message = msg)
   }
   if (isTRUE(x = simplify)) {
-      # Pull layers that have values for VariableFeatures only
-      layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
-      vf <- .SelectFeatures(
-        object = vf,
-        all.features = intersect(
-            x = slot(object = object, name = 'features')[, layers.vf]
-          ),
-          nfeatures = nfeatures
-        )
+    # Pull layers that have values for VariableFeatures only
+    layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
+    vf <- .SelectFeatures(
+      object = vf,
+      all.features = intersect(
+        x = slot(object = object, name = 'features')[, layers.vf]
+      ),
+      nfeatures = nfeatures
+    )
   }
   return(vf)
   # hvf.info <- HVFInfo(
@@ -1679,20 +1680,18 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   ...,
   value
 ) {
-  value <- intersect(x = value, y = rownames(x = object))
-  if (length(x = value) == 0) {
-    object['var.features'] <- NA
-    object['var.features.rank'] <- NA
+  if (!length(x = value)) {
     return(object)
   }
-  # if (!length(x = value)) {
-  #   stop("None of the features specified are present in this assay", call. = FALSE)
-  # }
+  value <- intersect(x = value, y = rownames(x = object))
+  if (!length(x = value)) {
+    stop("None of the features specified are present in this assay", call. = FALSE)
+  }
   object['var.features'] <- value
-  # add rank 
+  # add rank
   object['var.features.rank'] <- NA
   object[][row.names(object[]) %in% value,]$var.features.rank <- match(row.names(object[])[row.names(object[]) %in% value], value)
-  
+
   # layer <- Layers(object = object, search = layer)
   # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
   # for (lyr in layer) {
@@ -2554,7 +2553,7 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
       return(paste(x[3L:(length(x = x) - 1L)], collapse = '_'))
     }
   )))
-  
+
   if (!isTRUE(x = missing)) {
     vf.layers <- intersect(
       x = vf.layers,
@@ -2677,11 +2676,11 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
     layer <- paste(components[3:(length(components) - 1)], collapse = "_")
     return(c(method = method, layer = layer))
   })
-  
+
   # Combine into a list
   vf.list <- lapply(unique(unlist(lapply(vf.methods.layers, `[[`, "method"))), function(method) {
     layers <- unique(unlist(lapply(vf.methods.layers, function(x) {
-      if (x["method"] == method) 
+      if (x["method"] == method)
         return(x["layer"])
     })))
     return(setNames(list(layers), method))
@@ -2721,6 +2720,7 @@ setAs(
       meta.data = EmptyDF(n = nrow(x = from)),
       key = Key(object = from)
     )
+    # browser()
     # Add the expression matrices
     for (i in c('counts', 'data', 'scale.data')) {
       adata <- GetAssayData(object = from, slot = i)
