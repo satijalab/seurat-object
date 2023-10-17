@@ -2070,13 +2070,28 @@ HVFInfo.Seurat <- function(
   method = NULL,
   status = FALSE,
   assay = NULL,
-  selection.method = method,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    f <- if (.IsFutureSeurat(version = '5.1.0')) {
+      deprecate_stop
+    } else if (.IsFutureSeurat(version = '5.0.0')) {
+      deprecate_warn
+    } else {
+      deprecate_soft
+    }
+    f(
+      when = '5.0.0',
+      what = 'HVFInfo(selection.method = )',
+      with = 'HVFInfo(method = )'
+    )
+    method <- selection.method
+  }
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
-  if (is.null(x = selection.method)) {
+  if (is.null(x = method)) {
     cmds <- apply(
       X = expand.grid(
         c('FindVariableFeatures', 'SCTransform'),
@@ -2100,7 +2115,7 @@ HVFInfo.Seurat <- function(
       yes = test.command,
       no = find.command
     )
-    selection.method <- switch(
+    method <- switch(
       EXPR = file_path_sans_ext(x = find.command),
       'FindVariableFeatures' = Command(
         object = object,
@@ -2113,7 +2128,7 @@ HVFInfo.Seurat <- function(
   }
   return(HVFInfo(
     object = object[[assay]],
-    selection.method = selection.method,
+    method = method,
     status = status
   ))
 }
@@ -2736,7 +2751,7 @@ VariableFeatures.Seurat <- function(
   selection.method = NULL,
   assay = NULL,
   nfeatures = NULL,
-  layer = NULL,
+  layer = NA,
   simplify = TRUE,
   ...
 ) {
@@ -2870,17 +2885,20 @@ WhichCells.Seurat <- function(
     cell.order <- colnames(x = object)
     cells <- colnames(x = object)[!colnames(x = object) %in% cells]
   }
-  cells <- CellsByIdentities(object = object, cells = cells, ...)
-  cells <- lapply(
-    X = cells,
-    FUN = function(x) {
-      if (length(x = x) > downsample) {
-        x <- sample(x = x, size = downsample, replace = FALSE)
-      }
-      return(x)
-    }
-  )
-  cells <- as.character(x = na.omit(object = unlist(x = cells, use.names = FALSE)))
+  # only perform downsampling when "downsample" is smaller than the number of cells
+  if(downsample <= length(cells)){
+      cells <- CellsByIdentities(object = object, cells = cells, ...)
+      cells <- lapply(
+          X = cells,
+          FUN = function(x) {
+              if (length(x = x) > downsample) {
+                  x <- sample(x = x, size = downsample, replace = FALSE)
+              }
+              return(x)
+          }
+      )
+      cells <- as.character(x = na.omit(object = unlist(x = cells, use.names = FALSE)))
+  }
   cells <- cells[na.omit(object = match(x = cell.order, table = cells))]
   return(cells)
 }
@@ -5216,7 +5234,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(colMeans(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5240,7 +5258,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::colSums(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5321,7 +5339,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowMeans(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5345,7 +5363,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowSums(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
