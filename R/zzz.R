@@ -2,8 +2,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom progressr progressor
 #' @importFrom utils head tail upgrade
-#' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
-#' deprecate_warn is_present
+#' @importFrom lifecycle deprecated is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
 #' setOldClass setValidity show slot slot<- validObject
 #' @importFrom rlang abort arg_match arg_match0 caller_env check_installed
