@@ -1364,7 +1364,7 @@ S4ToList <- function(object) {
 #'
 #' @order 2
 #'
-SetAssayData <- function(object, slot, new.data, ...) {
+SetAssayData <- function(object, layer, new.data, slot = deprecated(), ...) {
   UseMethod(generic = 'SetAssayData', object = object)
 }
 

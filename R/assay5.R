@@ -1472,19 +1472,12 @@ Misc.Assay5 <- .Misc
 SetAssayData.StdAssay <- function(
   object,
   layer,
-  slot = deprecated(),
   new.data,
+  slot = deprecated(),
   ...
 ) {
   if (is_present(arg = slot)) {
-    f <- if (.IsFutureSeurat(version = '5.1.0')) {
-      deprecate_stop
-    } else if (.IsFutureSeurat(version = '5.0.0')) {
-      deprecate_warn
-    } else {
-      deprecate_soft
-    }
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'SetAssayData(slot = )',
       with = 'SetAssayData(layer = )'

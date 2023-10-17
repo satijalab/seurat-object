@@ -636,7 +636,7 @@ LayerData.Assay <- function(
   # Check the class of the matrix
   if (!inherits(x = value, what = c('matrix', 'dgCMatrix'))) {
    abort(message = paste(
-     "'value' must be a 'matrix' or 'dgCMatrix' in v3 Assays, not a", 
+     "'value' must be a 'matrix' or 'dgCMatrix' in v3 Assays, not a",
      sQuote(x = class(x = value)[1L])
    ))
   }
@@ -765,20 +765,29 @@ RenameCells.Assay <- function(object, new.names = NULL, ...) {
 #' @method SetAssayData Assay
 #'
 #' @examples
-#' # Set an Assay slot directly
-#' count.data <- GetAssayData(pbmc_small[["RNA"]], slot = "counts")
+#' # Set an Assay layer directly
+#' count.data <- GetAssayData(pbmc_small[["RNA"]], layer = "counts")
 #' count.data <- as.matrix(x = count.data + 1)
-#' new.assay <- SetAssayData(pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
+#' new.assay <- SetAssayData(pbmc_small[["RNA"]], layer = "counts", new.data = count.data)
 #'
 SetAssayData.Assay <- function(
   object,
-  slot = c('data', 'scale.data', 'counts'),
+  layer = c('data', 'scale.data', 'counts'),
   new.data,
+  slot = deprecated(),
   ...
 ) {
+  if (is_present(arg = slot)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SetAssayData(slot = )',
+      with = 'SetAssayData(layer = )'
+    )
+    layer <- slot
+  }
   CheckDots(...)
-  slot <- slot[1]
-  slot <- match.arg(arg = slot)
+  layer <- layer[1]
+  layer <- match.arg(arg = layer)
   if (!IsMatrixEmpty(x = new.data)) {
     if (any(grepl(pattern = '_', x = rownames(x = new.data)))) {
       warning(
@@ -800,13 +809,13 @@ SetAssayData.Assay <- function(
     }
     num.counts <- nrow(x = object)
     counts.names <- rownames(x = object)
-    if (slot == 'scale.data' && nrow(x = new.data) > num.counts) {
+    if (layer == 'scale.data' && nrow(x = new.data) > num.counts) {
       warning(
         "Adding more features than present in current data",
         call. = FALSE,
         immediate. = TRUE
       )
-    } else if (slot %in% c('counts', 'data') && nrow(x = new.data) != num.counts) {
+    } else if (layer %in% c('counts', 'data') && nrow(x = new.data) != num.counts) {
       warning(
         "The new data doesn't have the same number of features as the current data",
         call. = FALSE,
@@ -832,7 +841,7 @@ SetAssayData.Assay <- function(
       )
     }
     new.data <- new.data[new.features, colnames(x = object), drop = FALSE]
-    if (slot %in% c('counts', 'data') && !all(dim(x = new.data) == dim(x = object))) {
+    if (layer %in% c('counts', 'data') && !all(dim(x = new.data) == dim(x = object))) {
       stop(
         "Attempting to add a different number of cells and/or features",
         call. = FALSE
@@ -845,7 +854,7 @@ SetAssayData.Assay <- function(
   if (!is.vector(x = colnames(x = new.data))) {
     colnames(x = new.data) <- as.vector(x = colnames(x = new.data))
   }
-  slot(object = object, name = slot) <- new.data
+  slot(object = object, name = layer) <- new.data
   return(object)
 }
 
