@@ -60,7 +60,7 @@ Suggests:
     ggplot2,
     HDF5Array,
     rmarkdown,
-    BPCells
+    BPCells,
     sf,
     testthat
 Collate:
