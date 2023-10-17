@@ -990,8 +990,7 @@ HVFInfo.StdAssay <- function(
   if (is.null(x = method)) {
     return(method)
   }
-  layer <- layer %||% unname(vf.methods.layers[method])
-  # layer <- unname(vf.methods.layers)[which.min(x = adist(x = layer, y = unname(vf.methods.layers[method])))]
+  layer <- unname(vf.methods.layers)[which.min(x = adist(x = layer, y = unname(vf.methods.layers[method])))]
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
