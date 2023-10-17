@@ -934,7 +934,7 @@ HVFInfo.StdAssay <- function(
   #vf.methods <- .VFMethods(object = object, type = 'hvf')
   #vf.layers <- .VFLayers(object = object, type = 'hvf')
   # Determine which method and layer to use
-  method <- method[1L] %||% names(vf.methods.layers[1L])
+  method <- method[length(methods)] %||% names(vf.methods.layers[length(vf.methods.layers)])
   method <- tryCatch(
     expr = match.arg(arg = method, choices = names(vf.methods.layers)),
     error = function(...) {
