@@ -264,14 +264,7 @@ FilterObjects <- function(
   object,
   classes.keep = c('Assay', 'StdAssay', 'DimReduc')
 ) {
-  f <- if (.IsFutureSeurat(version = '5.1.0')) {
-    deprecate_stop
-  } else if (.IsFutureSeurat(version = '5.0.0')) {
-    deprecate_warn
-  } else {
-    deprecate_soft
-  }
-  f(when = '5.0.0', what = 'FilterObjects()', with = '.FilterObjects()')
+  .Deprecate(when = '5.0.0', what = 'FilterObjects()', with = '.FilterObjects()')
   object <- UpdateSlots(object = object)
   slots <- na.omit(object = Filter(
     f = function(x) {
@@ -1685,7 +1678,7 @@ FetchData.Seurat <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_soft(
+    .Deprecate(
       when = '5.0.0',
       what = 'FetchData(slot = )',
       with = 'FetchData(layer = )'
@@ -2009,22 +2002,13 @@ GetAssayData.Seurat <- function(
   ...
 ) {
   CheckDots(...)
-  f <- if (.IsFutureSeurat(version = '5.1.0')) {
-    deprecate_stop
-  } else if (.IsFutureSeurat(version = '5.0.0')) {
-    deprecate_warn
-  } else {
-    deprecate_soft
-  }
   if (is_present(arg = slot)) {
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'GetAssayData(slot = )',
       with = 'GetAssayData(layer = )'
     )
     layer <- slot
-  } else {
-    f(when = '5.0.0', what = 'GetAssayData()', with = 'LayerData()')
   }
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
@@ -2440,12 +2424,10 @@ RenameCells.Seurat <- function(
   ...
 ) {
   CheckDots(...)
-
   object <- UpdateSlots(object = object)
   working.cells <- Cells(x = object)
-
   if (is_present(arg = for.merge)) {
-    deprecate_soft(when = '5.0.0', what = 'RenameCells(for.merge = )')
+    .Deprecate(when = '5.0.0', what = 'RenameCells(for.merge = )')
   }
   if (is_missing(x = add.cell.id) && is_missing(x = new.names)) {
     abort(message = "One of 'add.cell.id' and 'new.names' must be set")
