@@ -1898,7 +1898,7 @@ StitchMatrix.dgCMatrix <- function(x, y, rowmap, colmap, ...) {
   dimnames(x = x) <- list(rowmap[[1L]], colmap[[1L]])
   for (i in seq_along(along.with = y)) {
     j <- i + 1L
-    y[[i]] <- as(object = y[[i]], Class = 'CsparseMatrix')
+    y[[i]] <- as(object = y[[i]], Class = 'dgCMatrix')
     dimnames(x = y[[i]]) <- list(rowmap[[j]], colmap[[j]])
   }
   return(RowMergeSparseMatrices(mat1 = x, mat2 = y))
