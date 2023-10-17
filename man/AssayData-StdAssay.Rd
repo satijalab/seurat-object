@@ -8,7 +8,7 @@
 \usage{
 \method{GetAssayData}{StdAssay}(object, layer = NULL, slot = deprecated(), ...)
 
-\method{SetAssayData}{StdAssay}(object, layer, slot = deprecated(), new.data, ...)
+\method{SetAssayData}{StdAssay}(object, layer, new.data, slot = deprecated(), ...)
 }
 \arguments{
 \item{object}{An object}

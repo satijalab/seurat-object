@@ -12,11 +12,18 @@
 \usage{
 GetAssayData(object, ...)
 
-SetAssayData(object, slot, new.data, ...)
+SetAssayData(object, layer, new.data, slot = deprecated(), ...)
 
 \method{GetAssayData}{Seurat}(object, assay = NULL, layer = NULL, slot = deprecated(), ...)
 
-\method{SetAssayData}{Seurat}(object, slot = "data", new.data, assay = NULL, ...)
+\method{SetAssayData}{Seurat}(
+  object,
+  layer = "data",
+  new.data,
+  slot = deprecated(),
+  assay = NULL,
+  ...
+)
 
 \method{GetAssayData}{Assay}(
   object,
@@ -25,21 +32,27 @@ SetAssayData(object, slot, new.data, ...)
   ...
 )
 
-\method{SetAssayData}{Assay}(object, slot = c("data", "scale.data", "counts"), new.data, ...)
+\method{SetAssayData}{Assay}(
+  object,
+  layer = c("data", "scale.data", "counts"),
+  new.data,
+  slot = deprecated(),
+  ...
+)
 }
 \arguments{
 \item{object}{An object}
 
 \item{...}{Arguments passed to other methods}
 
-\item{slot}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")} Specific assay data to get or set}
+\item{layer}{Name of layer to get or set}
 
 \item{new.data}{New assay data to add}
 
+\item{slot}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")} Specific assay data to get or set}
+
 \item{assay}{Specific assay to get data from or set data for;
 defaults to the \link[=DefaultAssay]{default assay}}
-
-\item{layer}{Name of layer to get or set}
 }
 \value{
 \code{GetAssayData}: returns the specified assay data
@@ -69,12 +82,12 @@ use \code{\link{LayerData<-}}
 # Get assay data from the default assay in a Seurat object
 GetAssayData(object = pbmc_small, slot = "data")[1:5,1:5]
 
-# Set an Assay slot through the Seurat object
-count.data <- GetAssayData(object = pbmc_small[["RNA"]], slot = "counts")
+# Set an Assay layer through the Seurat object
+count.data <- GetAssayData(object = pbmc_small[["RNA"]], layer = "counts")
 count.data <- as.matrix(x = count.data + 1)
 new.seurat.object <- SetAssayData(
     object = pbmc_small,
-    slot = "counts",
+    layer = "counts",
     new.data = count.data,
     assay = "RNA"
 )
@@ -82,10 +95,10 @@ new.seurat.object <- SetAssayData(
 # Get the data directly from an Assay object
 GetAssayData(pbmc_small[["RNA"]], layer = "data")[1:5,1:5]
 
-# Set an Assay slot directly
-count.data <- GetAssayData(pbmc_small[["RNA"]], slot = "counts")
+# Set an Assay layer directly
+count.data <- GetAssayData(pbmc_small[["RNA"]], layer = "counts")
 count.data <- as.matrix(x = count.data + 1)
-new.assay <- SetAssayData(pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
+new.assay <- SetAssayData(pbmc_small[["RNA"]], layer = "counts", new.data = count.data)
 
 }
 \concept{data-access}

@@ -2571,20 +2571,21 @@ RenameIdents.Seurat <- function(object, ...) {
 #' @order 4
 #'
 #' @examples
-#' # Set an Assay slot through the Seurat object
-#' count.data <- GetAssayData(object = pbmc_small[["RNA"]], slot = "counts")
+#' # Set an Assay layer through the Seurat object
+#' count.data <- GetAssayData(object = pbmc_small[["RNA"]], layer = "counts")
 #' count.data <- as.matrix(x = count.data + 1)
 #' new.seurat.object <- SetAssayData(
 #'     object = pbmc_small,
-#'     slot = "counts",
+#'     layer = "counts",
 #'     new.data = count.data,
 #'     assay = "RNA"
 #' )
 #'
 SetAssayData.Seurat <- function(
   object,
-  slot = 'data',
+  layer = 'data',
   new.data,
+  slot = deprecated(),
   assay = NULL,
   ...
 ) {
@@ -2593,8 +2594,9 @@ SetAssayData.Seurat <- function(
   assay <- assay %||% DefaultAssay(object = object)
   object[[assay]] <- SetAssayData(
     object = object[[assay]],
-    slot = slot,
+    layer = layer,
     new.data = new.data,
+    slot = slot,
     ...
   )
   return(object)
