@@ -21,4 +21,6 @@ A simplified version of \code{coords}
 }
 \description{
 Simplify Geometry
+
+Simplify segmentations by reducing the number of vertices
 }

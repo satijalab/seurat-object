@@ -1813,35 +1813,43 @@ S4ToList.list <- function(object) {
   return(object)
 }
 
+#' Simplify segmentations by reducing the number of vertices
+#'
+#' @param coords A `Segmentation` object
+#' @param tol Numerical tolerance value to be used by the Douglas-Peuker algorithm
+#' @param topologyPreserve Logical determining if the algorithm should attempt to preserve the topology of the original geometry
+#'
+#' @return A `Segmentation` object with simplified segmentation vertices
+#' 
 #' @rdname Simplify
 #' @method Simplify Spatial
 #' @export
 #'
 Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
-  if (!PackageCheck('rgeos', error = FALSE)) {
-    stop("'Simplify' requires rgeos to be installed", call. = FALSE)
+  if (!PackageCheck("sf", error = FALSE)) {
+    stop("'Simplify' requires sf to be installed", call. = FALSE)
   }
   class.orig <- class(x = coords)
+  coords.orig <- coords
   dest <- ifelse(
-    test = grepl(pattern = '^Spatial', x = class.orig),
+    test = grepl(pattern = "^Spatial", x = class.orig), 
     yes = class.orig,
-    no = grep(
-      pattern = '^Spatial',
-      x = .Contains(object = coords),
-      value = TRUE
-    )[1L]
-  )
-  coords <- rgeos::gSimplify(
-    spgeom = as(object = coords, Class = dest),
-    tol = as.numeric(x = tol),
-    topologyPreserve = isTRUE(x = topologyPreserve)
-  )
-  coords <- tryCatch(
-    expr = as(object = coords, Class = class.orig),
-    error = function(...) {
-      return(coords)
-    }
-  )
+    no = grep(pattern = "^Spatial", x = .Contains(object = coords), value = TRUE)[1L])
+  x <- sf::st_as_sfc(as(object = coords, Class = dest))
+  coords <- sf::st_simplify(
+    x = x,
+    dTolerance = as.numeric(x = tol),
+    preserveTopology = isTRUE(x = topologyPreserve))
+  coords <- sf::st_sf(geometry = coords)
+  coords <- as(coords, Class = "Spatial")
+  coords <- as(coords, Class = "Segmentation")
+  slot(object = coords, name = "polygons") <- mapply(
+    FUN = function(x, y) {
+      slot(object = x, name = "ID") <- y
+      return(x)
+    },
+    slot(object = coords, name = "polygons"),
+    Cells(coords.orig))
   return(coords)
 }
 

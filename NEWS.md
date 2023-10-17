@@ -1,6 +1,11 @@
+# Unreleased
+## Changes
+- Fixes for `CellsByIdentities` (#80)
+- Remove {rgeos} from Suggests and replace with {sf} due to {rgeos} package retirement
+
 # SeuratObject 4.1.3
 ## Changes
-- Move {rgeos} to Suggests; segmentation simplification now requires {regos} to be installed manually
+- Move {rgeos} to Suggests; segmentation simplification now requires {rgeos} to be installed manually
 - Move {sp} to Depends
 
 ## Added

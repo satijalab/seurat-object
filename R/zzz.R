@@ -1,7 +1,7 @@
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
 #' @importFrom progressr progressor
-#' @importFrom utils head tail upgrade
+#' @importFrom utils head tail upgrade packageVersion
 #' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
 #' deprecate_warn is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
@@ -89,6 +89,15 @@ Seurat.options <- list(
   Seurat.object.assay.v3.missing_layer = 'matrix',
   Seurat.object.project = 'SeuratProject',
   progressr.clear = FALSE
+)
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Built With
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+.BuiltWith <- c(
+  R = format(x = getRversion()),
+  Matrix = format(x = packageVersion(pkg = "Matrix"))
 )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -443,5 +452,54 @@ NameIndex <- function(x, names, MARGIN) {
   if (length(x = toset)) {
     options(Seurat.options[toset])
   }
+  for (i in names(x = .BuiltWith)) {
+    current <- switch(EXPR = i, R = getRversion(), packageVersion(pkg = i))
+    if (current > .BuiltWith[i]) {
+      msg <- paste(
+        sQuote(x = pkgname),
+        "was built",
+        switch(
+          EXPR = i,
+          R = "under R",
+          paste("with package", sQuote(x = i))
+        ),
+        .BuiltWith[i],
+        "but the current version is",
+        paste0(current, ';'),
+        "it is recomended that you reinstall ",
+        sQuote(x = pkgname),
+        " as the ABI for",
+        switch(EXPR = i, R = i, sQuote(x = i)),
+        "may have changed"
+      )
+      packageStartupMessage(paste(strwrap(x = msg), collapse = '\n'))
+    }
+  }
   return(invisible(x = NULL))
+}
+
+.onAttach <- function(libname, pkgname) {
+  for (i in names(x = .BuiltWith)) {
+    current <- switch(EXPR = i, R = getRversion(), packageVersion(pkg = i))
+    if (current > .BuiltWith[i]) {
+      msg <- paste(
+        sQuote(x = pkgname),
+        "was built",
+        switch(
+          EXPR = i,
+          R = "under R",
+          paste("with package", sQuote(x = i))
+        ),
+        .BuiltWith[i],
+        "but the current version is",
+        paste0(current, ';'),
+        "it is recomended that you reinstall ",
+        sQuote(x = pkgname),
+        " as the ABI for",
+        switch(EXPR = i, R = i, sQuote(x = i)),
+        "may have changed"
+      )
+      packageStartupMessage(paste(strwrap(x = msg), collapse = '\n'))
+    }
+  }
 }
