@@ -305,14 +305,7 @@ Features.Assay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    f <- if (.IsFutureSeurat(version = '5.1.0')) {
-      deprecate_stop
-    } else if (.IsFutureSeurat(version = '5.0.0')) {
-      deprecate_warn
-    } else {
-      deprecate_soft
-    }
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'Features(slot = )',
       with = 'Features(layer = )'
@@ -340,8 +333,8 @@ FetchData.Assay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_soft(
-      when = '4.9.0',
+    .Deprecate(
+      when = '5.0.0',
       what = 'FetchData(slot = )',
       with = 'FetchData(layer = )'
     )
@@ -416,14 +409,7 @@ GetAssayData.Assay <- function(
 ) {
   CheckDots(...)
   if (is_present(arg = slot)) {
-    f <- if (.IsFutureSeurat(version = '5.1.0')) {
-      deprecate_stop
-    } else if (.IsFutureSeurat(version = '5.0.0')) {
-      deprecate_warn
-    } else {
-      deprecate_soft
-    }
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'GetAssayData(slot = )',
       with = 'GetAssayData(layer = )'
@@ -452,14 +438,7 @@ HVFInfo.Assay <- function(
 ) {
   CheckDots(...)
   if (is_present(arg = selection.method)) {
-    f <- if (.IsFutureSeurat(version = '5.1.0')) {
-      deprecate_stop
-    } else if (.IsFutureSeurat(version = '5.0.0')) {
-      deprecate_warn
-    } else {
-      deprecate_soft
-    }
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'HVFInfo(selection.method = )',
       with = 'HVFInfo(method = )'
