@@ -295,7 +295,7 @@ setClass(
   }
   # For now, coerce to dgCMatrix if not dgCMatrix, IterableMatrix, or DelayedArray
   if (!inherits(x = counts[[layer]], what = c('dgCMatrix', 'IterableMatrix', 'DelayedArray'))) {
-    warning('Data is of class ', class(counts[[layer]])[1], ". Coercing to dgCMatrix.", 
+    warning('Data is of class ', class(counts[[layer]])[1], ". Coercing to dgCMatrix.",
             call. = FALSE, immediate. = TRUE)
     if (inherits(x = counts[[layer]], what = "data.frame")) {
       counts[[layer]] <- as.sparse(x = counts[[layer]], ...)
@@ -917,7 +917,7 @@ GetAssayData.StdAssay <- function(
   }
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   layer.set <- suppressWarnings(expr = Layers(
-    object = object, 
+    object = object,
     search = layer %||% 'data'
   ))
   if (is.null(layer.set) & is.null(layer)) {
@@ -1174,8 +1174,8 @@ LayerData.StdAssay <- function(
   # If layer.set doesnt return anything and layer is not defined
   if (is.null(layer.set) & is.null(layer) ) {
     warning(
-      'data layer is not found and counts layer is used', 
-      call. = F, 
+      'data layer is not found and counts layer is used',
+      call. = F,
       immediate. = T
     )
     layer <- Layers(
@@ -1825,7 +1825,7 @@ WhichCells.Assay5 <- WhichCells.StdAssay
 #'
 #' Get and set layer data
 #'
-#' @inheritParams [[.Assay5
+#' @inheritParams [.Assay5
 #'
 #' @return {$}: Layer data for layer \code{i}
 #'
@@ -1861,7 +1861,38 @@ WhichCells.Assay5 <- WhichCells.StdAssay
 #'
 #' @family stdassay
 #'
-"[.StdAssay" <- function(x, i, j, ..., drop = FALSE) {
+"[.StdAssay" <- `[.Assay`
+
+#' Layer Data
+#'
+#' Get and set layer data
+#'
+#' @inheritParams [[.Assay5
+#' @param i Name of layer data to get or set
+#' @param ... Arguments passed to \code{\link{LayerData}}
+#'
+#' @return \code{[}: The layer data for layer \code{i}
+#'
+#' @method [ Assay5
+#' @export
+#'
+#' @family assay5
+#'
+#' @seealso \code{\link{LayerData}}
+#'
+#' @order 1
+#'
+"[.Assay5" <- `[.StdAssay`
+
+#' @inherit [[.Assay5 params return title description details sections
+#'
+#' @keywords internal
+#' @method [[ StdAssay
+#' @export
+#'
+#' @family stdassay
+#'
+"[[.StdAssay" <- function(x, i, j, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.data'))
   }
@@ -1890,43 +1921,12 @@ WhichCells.Assay5 <- WhichCells.StdAssay
 #' @param drop See \code{\link{drop}}
 #' @template param-dots-ignored
 #'
-#' @return \code{[}: The feature-level meta data for \code{i}
-#'
-#' @method [ Assay5
-#' @export
-#'
-#' @family assay5
-#'
-#' @order 1
-#'
-"[.Assay5" <- `[.StdAssay`
-
-#' @inherit [[.Assay5 params return title description details sections
-#'
-#' @keywords internal
-#' @method [[ StdAssay
-#' @export
-#'
-#' @family stdassay
-#'
-"[[.StdAssay" <- `[[.Assay`
-
-#' Layer Data
-#'
-#' Get and set layer data
-#'
-#' @inheritParams [.Assay5
-#' @param i Name of layer data to get or set
-#' @param ... Arguments passed to \code{\link{LayerData}}
-#'
-#' @return \code{[[}: The layer data for layer \code{i}
+#' @return \code{[[}: The feature-level meta data for \code{i}
 #'
 #' @method [[ Assay5
 #' @export
 #'
 #' @family assay5
-#'
-#' @seealso \code{\link{LayerData}}
 #'
 #' @order 1
 #'
@@ -1953,7 +1953,7 @@ dim.StdAssay <- function(x) {
 
 #' Feature and Cell Numbers
 #'
-#' @inheritParams [.Assay5
+#' @inheritParams [[.Assay5
 #'
 #' @return A two-length numeric vector with the total number of
 #' features and cells in \code{x}
@@ -1982,7 +1982,7 @@ dimnames.StdAssay <- function(x) {
 #'
 #' Get and set feature and cell names in v5 Assays
 #'
-#' @inheritParams [.Assay5
+#' @inheritParams [[.Assay5
 #'
 #' @return \code{dimnames}: A two-length list with the following values:
 #' \itemize{
@@ -2029,7 +2029,7 @@ dimnames.Assay5 <- dimnames.StdAssay
 #'
 "dimnames<-.Assay5" <- `dimnames<-.StdAssay`
 
-#' @rdname sub-.StdAssay
+#' @rdname sub-sub-.StdAssay
 #'
 #' @method head StdAssay
 #' @export
@@ -2040,7 +2040,7 @@ head.StdAssay <- head.Assay
 #'
 #' @return \code{head}: The first \code{n} rows of feature-level meta data
 #'
-#' @rdname sub-.Assay5
+#' @rdname sub-sub-.Assay5
 #'
 #' @method head Assay5
 #' @export
@@ -2148,7 +2148,7 @@ merge.StdAssay <- function(
   # Add feature-level metadata
   for (i in seq_along(along.with = assays)) {
     # Rename HVF columns
-    mf <- assays[[i]][]
+    mf <- assays[[i]][[]]
     if (!ncol(x = mf)) {
       next
     }
@@ -2227,24 +2227,29 @@ split.StdAssay <- function(
   ret <- ret[1L]
   ret <- match.arg(arg = ret)
   layers.to.split <- Layers(object = x, search = layers)
-  if (!identical(Layers(object = x), layers.to.split)){
-     message('Splitting "', paste(layers.to.split, collapse = ", "), 
-             '" layers. Not splitting "', 
-             paste(setdiff(Layers(object = x), layers.to.split), collapse = ", "), 
-             '". If you would like to split other layers, set in ‘layers’ argument.')
+  if (!identical(Layers(object = x), layers.to.split)) {
+     message(
+       'Splitting "',
+       paste(layers.to.split, collapse = ", "),
+       '" layers. Not splitting "',
+       paste(setdiff(Layers(object = x), layers.to.split), collapse = ", "),
+       '". If you would like to split other layers, set in ‘layers’ argument.'
+     )
   }
   layers <- Layers(object = x, search = layers)
   layers.split <- list()
   for (i in seq_along(along.with = layers)) {
-    if (length(colnames(x[[layers[i]]])) != length(colnames(x))) {
+    if (length(colnames(x[layers[i]])) != length(colnames(x))) {
       layers.split[[i]] <- layers[i]
     }
   }
   layers.split <- unlist(x = layers.split)
   if (length(x = layers.split) > 0) {
-   stop('The selected layers are already split: ', paste(layers.split, collapse = ' '),
-        '\n', 'Please join layers before splitting.'
-        )
+   stop(
+     'The selected layers are already split: ',
+     paste(layers.split, collapse = ' '),
+     '\n', 'Please join layers before splitting.'
+   )
   }
   default <- ifelse(
     test = DefaultLayer(object = x) %in% layers,
@@ -2491,7 +2496,7 @@ subset.StdAssay <- function(
 
 #' Subset an Assay
 #'
-#' @inheritParams [.Assay5
+#' @inheritParams [[.Assay5
 #' @param cells Cell names
 #' @param features Feature names
 #' @param layers Layer to keep; defaults to all layers
@@ -2506,7 +2511,7 @@ subset.StdAssay <- function(
 #'
 subset.Assay5 <- subset.StdAssay
 
-#' @rdname sub-.StdAssay
+#' @rdname sub-sub-.StdAssay
 #'
 #' @method tail StdAssay
 #' @export
@@ -2515,7 +2520,7 @@ tail.StdAssay <- tail.Assay
 
 #' @return \code{tail}: the last \code{n} rows of feature-level meta data
 #'
-#' @rdname sub-.Assay5
+#' @rdname sub-sub-.Assay5
 #'
 #' @method tail Assay5
 #' @export
@@ -2698,7 +2703,6 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   return(vf.list)
 }
 
-
 CalcN5 <- function(object) {
   if (IsMatrixEmpty(x = LayerData(object = object))) {
     return(NULL)
@@ -2742,7 +2746,7 @@ setAs(
       no = 'data'
     )
     # Add feature-level meta data
-    to[] <- from[]
+    to[[]] <- from[[]]
     # Set Variable features
     VariableFeatures(object = to) <- VariableFeatures(object = from)
     # Add miscellaneous data
@@ -2775,8 +2779,8 @@ setAs(
                            layers = i,
                            new = i)
       }
-      if(i == "data") {
-        if (isTRUE(Layers(object = from, search = i) == "scale.data")){
+      if (i == "data") {
+        if (isTRUE(Layers(object = from, search = i) == "scale.data")) {
           warning("No counts or data slot in object. Setting 'data' slot using",
                   " data from 'scale.data' slot. To recreate 'data' slot, you",
                   " must set and normalize data from a 'counts' slot.",
@@ -2812,7 +2816,7 @@ setAs(
       key = Key(object = from)
     )
     # Add feature-level meta data
-    suppressWarnings(to[] <- from[])
+    suppressWarnings(to[[]] <- from[[]])
     # set variable features
     VariableFeatures(object = to) <- VariableFeatures(object = from)
     mdata <- Misc(object = from)
@@ -2827,6 +2831,31 @@ setAs(
 #'
 setMethod(
   f = '[<-',
+  signature = c(x = 'StdAssay', i = 'character'),
+  definition = function(x, i, ..., value) {
+    LayerData(object = x, layer = i, ...) <- value
+    return(x)
+  }
+)
+
+#' @param value A matrix-like object to add as a new layer
+#'
+#' @return \code{[<-}: \code{x} with layer data \code{value} saved as \code{i}
+#'
+#' @rdname sub-.Assay5
+#'
+setMethod(
+  f = '[<-',
+  signature = c(x = 'Assay5', i = 'character'),
+  definition = function(x, i, ..., value) {
+    return(callNextMethod(x = x, i = i, ..., value = value))
+  }
+)
+
+#' @rdname sub-sub-.StdAssay
+#'
+setMethod(
+  f = '[[<-',
   signature = c(
     x = 'StdAssay',
     i = 'character',
@@ -2847,23 +2876,21 @@ setMethod(
     } else if (nrow(x = value) == nrow(x = x)) {
       row.names(x = value) <- Features(x = x, layer = NA)
     } else {
-      stop(
-        "Cannot add more or less meta data without feature names",
-        call. = FALSE
-      )
+      abort(message = "Cannot add more or less meta data without feature names")
     }
     for (n in i) {
       v <- value[[n]]
       names(x = v) <- row.names(value)
-      x[n] <- v
+      x[[n]] <- v
     }
     return(x)
   }
 )
 
-#' @rdname sub-.StdAssay
+#' @rdname sub-sub-.StdAssay
+#'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(
     x = 'StdAssay',
     i = 'missing',
@@ -2873,14 +2900,14 @@ setMethod(
   definition = function(x, ..., value) {
     # Allow removing all meta data
     if (IsMatrixEmpty(x = value)) {
-      x[names(x = x[])] <- NULL
+      x[[names(x = x[[]])]] <- NULL
       return(x)
     }
     if (is.null(names(x = value))) {
-      warning('colnames of input cannot be NULL')
+      warn(message = 'colnames of input cannot be NULL')
     } else {
       # If no `i` provided, use the column names from value
-      x[names(x = value)] <- value
+      x[[names(x = value)]] <- value
     }
     return(x)
   }
@@ -2888,15 +2915,15 @@ setMethod(
 
 #' @importFrom methods selectMethod
 #'
-#' @rdname sub-.StdAssay
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'factor'),
   definition = function(x, i, ..., value) {
     f <- slot(
       object = selectMethod(
-        f = '[<-',
+        f = '[[<-',
         signature = c(
           x = 'StdAssay',
           i = 'character',
@@ -2910,10 +2937,10 @@ setMethod(
   }
 )
 
-#' @rdname sub-.StdAssay
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'NULL'),
   definition = function(x, i, ..., value) {
     for (name in i) {
@@ -2923,17 +2950,17 @@ setMethod(
   }
 )
 
-#' @rdname sub-.StdAssay
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(x = 'StdAssay', i = 'character', j = 'missing', value = 'vector'),
   definition = function(x, i, ..., value) {
     # Add multiple bits of metadata
     if (length(x = i) > 1L) {
       value <- rep_len(x = value, length.out = length(x = i))
       for (idx in seq_along(along.with = i)) {
-        x[i[idx]] <- value[[idx]]
+        x[[i[idx]]] <- value[[idx]]
       }
     } else {
       # Add a single column of metadata
@@ -2945,21 +2972,18 @@ setMethod(
           names(x = value) <- value
         }
       }
-        names.intersect <- intersect(
-          x = names(x = value),
-          y = Features(x = x, layer = NA)
-        )
-        if (!length(x = names.intersect)) {
-          stop(
-            "No feature overlap between new meta data and assay",
-            call. = FALSE
-          )
-        }
-        value <- value[names.intersect]
+      names.intersect <- intersect(
+        x = names(x = value),
+        y = Features(x = x, layer = NA)
+      )
+      if (!length(x = names.intersect)) {
+        abort(message = "No feature overlap between new meta data and assay")
+      }
+      value <- value[names.intersect]
       df <- EmptyDF(n = nrow(x = x))
       rownames(x = df) <- Features(x = x, layer = NA)
-      # df[[i]] <- if (i %in% names(x = x[])) {
-      #   x[i]
+      # df[[i]] <- if (i %in% names(x = x[[]])) {
+      #   x[[i]]
       # } else {
       #   NA
       # }
@@ -2974,27 +2998,27 @@ setMethod(
   }
 )
 
-#' @rdname sub-.StdAssay
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(x = 'StdAssay', i = 'numeric', j = 'missing', value = 'ANY'),
   definition = function(x, i, ..., value) {
-    if (ncol(x = x[])) {
-      i <- colnames(x = x[])[as.integer(x = i)]
+    if (ncol(x = x[[]])) {
+      i <- colnames(x = x[[]])[as.integer(x = i)]
       i <- i[!is.na(x = i)]
       if (length(x = i)) {
-        x[i] <- value
+        x[[i]] <- value
       }
     }
     return(x)
   }
 )
 
-#' @rdname sub-.StdAssay
+#' @rdname sub-sub-.StdAssay
 #'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(x = 'StdAssay', i = 'missing', j = 'missing', value = 'NULL'),
   definition = function(x, ..., value) {
     slot(object = x, name = 'meta.data') <- EmptyDF(n = nrow(x = x))
@@ -3004,41 +3028,16 @@ setMethod(
 
 #' @param value Feature-level meta data to add
 #'
-#' @return \code{[<-}: \code{x} with \code{value} added as \code{i}
+#' @return \code{[[<-}: \code{x} with \code{value} added as \code{i}
 #' in feature-level meta data
 #'
-#' @rdname sub-.Assay5
+#' @rdname sub-sub-.Assay5
 #'
 #' @order 2
 #'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(x = 'Assay5'),
-  definition = function(x, i, ..., value) {
-    return(callNextMethod(x = x, i = i, ..., value = value))
-  }
-)
-
-#' @rdname sub-sub-.StdAssay
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'StdAssay', i = 'character'),
-  definition = function(x, i, ..., value) {
-    LayerData(object = x, layer = i, ...) <- value
-    return(x)
-  }
-)
-
-#' @param value A matrix-like object to add as a new layer
-#'
-#' @return \code{[[<-}: \code{x} with layer data \code{value} saved as \code{i}
-#'
-#' @rdname sub-sub-.Assay5
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Assay5', i = 'character'),
   definition = function(x, i, ..., value) {
     return(callNextMethod(x = x, i = i, ..., value = value))
   }
@@ -3175,7 +3174,6 @@ setMethod(
     return(invisible(x = NULL))
   }
 )
-
 
 #' @rdname split.StdAssay
 #'

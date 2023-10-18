@@ -19,7 +19,8 @@
     the data frame \code{x} using the usual non-standard evaluation
     rules.}
 
-\item{drop}{See \code{\link{drop}}}
+\item{drop}{logical indicating if levels that do not occur should be dropped
+    (if \code{f} is a \code{factor} or a list).}
 
 \item{layers}{Names of layers to include in the split; pass \code{NA} for
 all layers; pass \code{NULL} for the \link[=DefaultLayer]{default layer}}
