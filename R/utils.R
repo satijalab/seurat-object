@@ -302,9 +302,9 @@ NULL
 #'
 #' @export
 #'
-#' @seealso \code{\link[deprecate:deprecate_soft]{deprecate::deprecate_soft}()}
-#' \code{\link[deprecate:deprecate_warn]{deprecate::deprecate_warn}()}
-#' \code{\link[deprecate:deprecate_stop]{deprecate::deprecate_stop}()}
+#' @seealso \code{\link[lifecycle:deprecate_soft]{lifecycle::deprecate_soft}()}
+#' \code{\link[lifecycle:deprecate_warn]{lifecycle::deprecate_warn}()}
+#' \code{\link[lifecycle:deprecate_stop]{lifecycle::deprecate_stop}()}
 #'
 .Deprecate <- function(
   when,
