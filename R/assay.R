@@ -1292,6 +1292,7 @@ head.Assay <- function(x, n = 10L, ...) {
 #' @param merge.data Merge the data slots instead of just merging the counts
 #' (which requires renormalization); this is recommended if the same
 #' normalization approach was applied to all objects
+#' @param labels,collapse Currently unused
 #'
 #' @return A new assay with data merged from \code{c(x, y)}
 #'

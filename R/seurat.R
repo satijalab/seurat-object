@@ -3427,6 +3427,8 @@ levels.Seurat <- function(x) {
 #' Merge Seurat Objects
 #'
 #' @inheritParams CreateSeuratObject
+#' @inheritParams merge.Assay5
+#' @param x A \code{\link{Seurat}} object
 #' @param y A single \code{Seurat} object or a list of \code{Seurat} objects
 #' @param add.cell.ids A character vector of \code{length(x = c(x, y))};
 #' appends the corresponding values to the start of each objects' cell names
@@ -3953,6 +3955,30 @@ upgrade.seurat <- function(object, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Original double-bracket assign
+#'
+#' This function has been replaced with value-specific double-bracket
+#' assign methods and should generally not be called
+#'
+#' @param x A \code{\link{Seurat}} object
+#' @param i The name to store a subobject or various cell-level meta data as
+#' @param value New subobject or cell-level meta data
+#'
+#' @return \code{x} with \code{value} stored as \code{i}
+#'
+#' @name old-assign
+#' @rdname old-assign
+#'
+#' @keywords internal
+#'
+#' @seealso See \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
+#' \link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
+#' data with \code{[[<-}
+#'
+NULL
+
+#' @rdname old-assign
+#'
 setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   f = '[[<-',
   signature = c('x' = 'Seurat', i = 'character', value = 'ANY'),

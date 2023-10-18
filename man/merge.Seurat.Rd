@@ -19,10 +19,15 @@
 )
 }
 \arguments{
+\item{x}{A \code{\link{Seurat}} object}
+
 \item{y}{A single \code{Seurat} object or a list of \code{Seurat} objects}
 
 \item{add.cell.ids}{A character vector of \code{length(x = c(x, y))};
 appends the corresponding values to the start of each objects' cell names}
+
+\item{collapse}{If \code{TRUE}, merge layers of the same name together; if
+\code{FALSE}, appends \code{labels} to the layer name}
 
 \item{merge.data}{Merge the data slots instead of just merging the counts
 (which requires renormalization); this is recommended if the same
