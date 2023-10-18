@@ -1558,7 +1558,7 @@ setMethod(
 #' Calculate \code{\link{rowSums}}, \code{\link{colSums}},
 #' \code{\link{rowMeans}}, and \code{\link{colMeans}} on \code{Assay} objects
 #'
-#' @inheritParams [.Assay
+#' @inheritParams [[.Assay
 #' @inheritParams Matrix::colMeans
 #' @param slot Name of assay expression matrix to calculate column/row
 #' means/sums on
