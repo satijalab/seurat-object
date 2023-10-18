@@ -1715,10 +1715,10 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   if (!length(x = value)) {
     stop("None of the features specified are present in this assay", call. = FALSE)
   }
-  object['var.features'] <- value
+  object[['var.features']] <- value
   # add rank
-  object['var.features.rank'] <- NA
-  object[][row.names(object[]) %in% value,]$var.features.rank <- match(row.names(object[])[row.names(object[]) %in% value], value)
+  object[['var.features.rank']] <- NA
+  object[[]][row.names(object[[]]) %in% value,]$var.features.rank <- match(row.names(object[[]])[row.names(object[[]]) %in% value], value)
 
   # layer <- Layers(object = object, search = layer)
   # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
@@ -2196,7 +2196,7 @@ merge.StdAssay <- function(
         )
       }
     }
-    combined[] <- mf
+    combined[[]] <- mf
   }
   # TODO: Add misc
   DefaultLayer(combined) <- Layers(object = combined, search = default)
