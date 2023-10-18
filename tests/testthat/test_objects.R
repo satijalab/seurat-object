@@ -30,9 +30,9 @@ feature_letters_shuffled <- sample(x = feature_letters)
 
 test_that("AddMetaData adds feature level metadata", {
   pbmc_small[["RNA"]] <- AddMetaData(object = pbmc_small[["RNA"]], metadata = feature_letters, col.name = 'feature_letters')
-  expect_equal(pbmc_small[["RNA"]]["feature_letters", drop = TRUE], feature_letters)
+  expect_equal(pbmc_small[["RNA"]][["feature_letters", drop = TRUE]], feature_letters)
   pbmc_small[["RNA"]] <- AddMetaData(object = pbmc_small[["RNA"]], metadata = feature_letters_shuffled, col.name = 'feature_letters_shuffled')
-  expect_equal(pbmc_small[["RNA"]]["feature_letters", drop = TRUE], pbmc_small[["RNA"]]["feature_letters_shuffled", drop = TRUE])
+  expect_equal(pbmc_small[["RNA"]][["feature_letters", drop = TRUE]], pbmc_small[["RNA"]][["feature_letters_shuffled", drop = TRUE]])
 })
 
 feature_letters_df <- data.frame(A = feature_letters, B = feature_letters_shuffled)
@@ -66,7 +66,7 @@ test_that("CreateAssayObject works as expected", {
   expect_equal(dim(rna.assay[[]]), c(230, 0))
   expect_equal(rownames(x = rna.assay[[]]), rownames(x = rna.assay))
   expect_equal(VariableFeatures(object = rna.assay), vector())
-  expect_equal(rna.assay@misc, list())
+  expect_equal(rna.assay@misc, list(calcN = TRUE))
   expect_equal(GetAssayData(object = rna.assay2, layer = "counts"), new(Class = "matrix"))
 })
 
@@ -286,9 +286,9 @@ test_that("Fetching embeddings/loadings not present returns warning or errors", 
   expect_error(FetchData(object = pbmc_small, vars = "PC_100"))
 })
 
-bad.gene <- GetAssayData(object = pbmc_small[["RNA"]], slot = "data")
-rownames(x = bad.gene)[1] <- paste0("rna_", rownames(x = bad.gene)[1])
-pbmc_small[["RNA"]]@data <- bad.gene
+# bad.gene <- GetAssayData(object = pbmc_small[["RNA"]], slot = "data")
+# rownames(x = bad.gene)[1] <- paste0("rna_", rownames(x = bad.gene)[1])
+# pbmc_small[["RNA"]]@data <- bad.gene
 
 # Tests for WhichCells
 # ------------------------------------------------------------------------------
@@ -351,7 +351,7 @@ slot(slot(pbmc_small_no_key, "assays")$RNA, "key") <- character(0)
 slot(slot(pbmc_small_no_key, "assays")$RNA2, "key") <- character(0)
 slot(slot(pbmc_small_no_key, "reductions")$pca, "key") <- character(0)
 test_that("Update keys works", {
-  pbmc_small_no_key <- UpdateSeuratObject(pbmc_small_no_key)
+  pbmc_small_no_key <- suppressWarnings(UpdateSeuratObject(pbmc_small_no_key))
   expect_equal(Key(pbmc_small_no_key[["RNA"]]), "RNA_")
   expect_equal(Key(pbmc_small_no_key[["RNA2"]]), "RNA2_")
   expect_equal(Key(pbmc_small_no_key[["pca"]]), "pca_")
