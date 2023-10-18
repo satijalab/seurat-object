@@ -1653,6 +1653,17 @@ Features.Seurat <- function(x, assay = NULL, ...) {
 #' pull identity classes
 #' @param cells Cells to collect data for (default is all cells)
 #' @param layer Layer to pull feature data for
+#' @param clean Remove cells that are missing data; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{all}}: consider all columns for cleaning
+#'  \item \dQuote{\code{ident}}: consider all columns except the identity
+#'   class for cleaning
+#'  \item \dQuote{\code{project}}: consider all columns except the identity
+#'   class for cleaning; fill missing identity values with the object's project
+#'  \item \dQuote{\code{none}}: do not clean
+#' }
+#' Passing \code{TRUE} is a shortcut for \dQuote{\code{ident}}; passing
+#' \code{FALSE} is a shortcut for \dQuote{\code{none}}
 #' @param slot Deprecated in favor of \code{layer}
 #'
 #' @return A data frame with cells as rows and cellular data as columns
@@ -2146,6 +2157,7 @@ Idents.Seurat <- function(object, ...) {
 
 #' @param cells Set cell identities for specific cells
 #' @param drop Drop unused levels
+#' @param replace Replace identities for unset cells with \code{NA}
 #'
 #' @rdname Idents
 #' @export

@@ -93,6 +93,7 @@ LogMap <- function(y) {
 #' the object and returns a base-R matrix object
 #'
 #' @param x A \code{\link{LogMap}} object
+#' @template param-dots-ignored
 #'
 #' @return A base-R matrix created from \code{x}
 #'
@@ -574,9 +575,12 @@ setMethod(
     return(x)
   }
 )
+
 #' \code{\link{LogMap}} Object Overview
 #'
 #' Overview of a \code{\link{LogMap}} object
+#'
+#' @param object A \code{\link{LogMap}} object
 #'
 #' @template return-show
 #'

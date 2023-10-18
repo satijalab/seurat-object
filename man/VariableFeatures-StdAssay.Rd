@@ -41,7 +41,16 @@ For \code{SVFInfo} and \code{SpatiallyVariableFeatures}, choose from:
 
 \item{status}{Add variable status to the resulting data frame}
 
+\item{layer}{Layer to pull variable features for}
+
+\item{strip}{Remove method/layer identifiers from highly variable data frame}
+
 \item{...}{Arguments passed to other methods}
+
+\item{simplify}{When pulling for multiple layers, combine into a single
+vector and select a common set of variable features for all layers}
+
+\item{nfeatures}{Maximum number of features to select when simplifying}
 
 \item{selection.method}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
 

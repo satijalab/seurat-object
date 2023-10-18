@@ -135,8 +135,17 @@ For \code{SVFInfo} and \code{SpatiallyVariableFeatures}, choose from:
 
 \item{selection.method}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
 
+\item{nfeatures}{Maximum number of features to select when simplifying}
+
+\item{layer}{Layer to pull variable features for}
+
+\item{simplify}{When pulling for multiple layers, combine into a single
+vector and select a common set of variable features for all layers}
+
 \item{decreasing}{Return features in decreasing order (most spatially
 variable first).}
+
+\item{strip}{Remove method/layer identifiers from highly variable data frame}
 }
 \value{
 \code{HVFInfo}: A data frame with feature means, dispersion, and

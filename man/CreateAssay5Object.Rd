@@ -17,6 +17,8 @@ CreateAssay5Object(
 \arguments{
 \item{counts}{A two-dimensional expression matrix}
 
+\item{data}{Optional prenormalized data matrix}
+
 \item{min.cells}{Include features detected in at least this many cells;
 will subset the counts matrix as well. To reintroduce excluded features,
 create a new object with a lower cutoff}

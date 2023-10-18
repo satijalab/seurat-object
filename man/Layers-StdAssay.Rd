@@ -38,6 +38,8 @@
   names to the layer data}
 }}
 
+\item{slot}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
+
 \item{...}{Arguments passed to other methods}
 
 \item{value}{New two-dimensional data to be added as a layer}
