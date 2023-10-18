@@ -1517,10 +1517,10 @@ Misc.Assay5 <- .Misc
 "Misc<-.StdAssay" <- `.Misc<-`
 
 #' @rdname Misc
-#' @method Misc Assay5
+#' @method Misc<- Assay5
 #' @export
 #'
-"Misc<-Assay5" <- `.Misc<-`
+"Misc<-.Assay5" <- `.Misc<-`
 
 #' @rdname AssayData-StdAssay
 #' @method SetAssayData StdAssay
