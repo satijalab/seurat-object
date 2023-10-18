@@ -2613,16 +2613,25 @@ SetIdent.Seurat <- function(object, cells = NULL, value, ...) {
 #'
 SpatiallyVariableFeatures.Seurat <- function(
   object,
-  selection.method = "moransi",
+  method = "moransi",
   assay = NULL,
   decreasing = TRUE,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SpatiallyVariableFeatures(selection.method = )',
+      with = 'SpatiallyVariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
   assay <- assay %||% DefaultAssay(object = object)
   return(SpatiallyVariableFeatures(
     object = object[[assay]],
-    selection.method = selection.method,
+    method = method,
     decreasing = decreasing
   ))
 }
@@ -2678,18 +2687,23 @@ Stdev.Seurat <- function(object, reduction = 'pca', ...) {
 #'
 SVFInfo.Seurat <- function(
   object,
-  selection.method = c("markvariogram", "moransi"),
+  method = c("markvariogram", "moransi"),
   status = FALSE,
   assay = NULL,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SVFInfo(selection.method = )',
+      with = 'SVFInfo(method = )'
+    )
+    method <- selection.method
+  }
   assay <- assay %||% DefaultAssay(object = object)
-  return(SVFInfo(
-    object = object[[assay]],
-    selection.method = selection.method,
-    status = status
-  ))
+  return(SVFInfo(object = object[[assay]], method = method, status = status))
 }
 
 #' @param slot Name of tool to pull
@@ -2749,22 +2763,32 @@ Tool.Seurat <- function(object, slot = NULL, ...) {
 #'
 VariableFeatures.Seurat <- function(
   object,
-  selection.method = NULL,
+  method = NULL,
   assay = NULL,
   nfeatures = NULL,
   layer = NA,
   simplify = TRUE,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'VariableFeatures(selection.method = )',
+      with = 'VariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
   assay <- assay %||% DefaultAssay(object = object)
   return(VariableFeatures(
     object = object[[assay]],
-    selection.method = selection.method,
+    method = method,
     nfeatures = nfeatures,
     layer = layer,
     simplify = simplify,
-    ...))
+    ...
+  ))
 }
 
 #' @rdname VariableFeatures
