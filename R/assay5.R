@@ -2216,11 +2216,14 @@ split.StdAssay <- function(
   layers.to.split <- Layers(object = x, search = layers)
   if (!identical(Layers(object = x), layers.to.split)) {
      message(
-       'Splitting "',
-       paste(layers.to.split, collapse = ", "),
-       '" layers. Not splitting "',
-       paste(setdiff(Layers(object = x), layers.to.split), collapse = ", "),
-       '". If you would like to split other layers, set in ‘layers’ argument.'
+       'Splitting ',
+       paste(sQuote(x = layers.to.split), collapse = ', '),
+       ' layers. Not splitting ',
+       paste(
+         sQuote(x = setdiff(Layers(object = x), layers.to.split)),
+         collapse = ', '
+       ),
+       '. If you would like to split other layers, set in `layers` argument.'
      )
   }
   layers <- Layers(object = x, search = layers)
