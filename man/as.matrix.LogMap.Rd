@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{A \code{\link{LogMap}} object}
+
+\item{...}{Ignored}
 }
 \value{
 A base-R matrix created from \code{x}

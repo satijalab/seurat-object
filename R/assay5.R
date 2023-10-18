@@ -548,6 +548,7 @@ Cells.Assay5 <- Cells.StdAssay
 #' the expected format of the matrix is features x cells
 #'
 #' @inheritParams .CreateStdAssay
+#' @param data Optional prenormalized data matrix
 #' @template param-dots-method
 # @param transpose Create a transposed assay
 # @param ... Extra parameters passed to \code{\link{.CreateStdAssay}}
@@ -588,8 +589,8 @@ CreateAssay5Object <- function(
         FUN = function(x) colnames(x)
         )
       )
-    if(!all(counts.cells == data.cells)) {
-      stop('counts and data input should have the same cells')
+    if (!all(counts.cells == data.cells)) {
+      abort(message = 'counts and data input should have the same cells')
     }
   }
   counts <- c(counts, data)
@@ -1013,6 +1014,9 @@ HVFInfo.StdAssay <- function(
   return(hvf.info)
 }
 
+#' @param layer Layer to pull variable features for
+#' @param strip Remove method/layer identifiers from highly variable data frame
+#'
 #' @rdname VariableFeatures
 #' @method HVFInfo Assay5
 #' @export
@@ -1522,6 +1526,24 @@ Misc.Assay5 <- .Misc
 #'
 "Misc<-.Assay5" <- `.Misc<-`
 
+#' @templateVar fxn RenameCells
+#' @template method-stdassay
+#'
+#' @method RenameCells StdAssay
+#' @export
+#'
+RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
+  CheckDots(...)
+  colnames(object) <- new.names[colnames(object)]
+  return(object)
+}
+
+#' @rdname RenameCells
+#' @method RenameCells Assay5
+#' @export
+#'
+RenameCells.Assay5 <- RenameCells.StdAssay
+
 #' @rdname AssayData-StdAssay
 #' @method SetAssayData StdAssay
 #' @export
@@ -1664,6 +1686,10 @@ VariableFeatures.StdAssay <- function(
   # return(vf)
 }
 
+#' @param simplify When pulling for multiple layers, combine into a single
+#' vector and select a common set of variable features for all layers
+#' @param nfeatures Maximum number of features to select when simplifying
+#'
 #' @rdname VariableFeatures
 #' @method VariableFeatures Assay5
 #' @export
@@ -2524,15 +2550,6 @@ tail.StdAssay <- tail.Assay
 #' @export
 #'
 tail.Assay5 <- tail.StdAssay
-
-#' Rename assay5
-#'
-#' @export
-RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
-  CheckDots(...)
-  colnames(object) <- new.names[colnames(object)]
-  return(object)
-}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal

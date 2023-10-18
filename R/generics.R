@@ -1068,6 +1068,7 @@ Keys <- function(object, ...) {
 #' @template param-dots-method
 #' @param object An object
 #' @param layer Name of layer to fetch or set
+#' @param slot \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 #'
 #' @return \code{LayerData}: the layer data for \code{layer} from \code{object}
 #'

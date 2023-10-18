@@ -65,6 +65,8 @@ Layers(object, ...)
 
 \item{features, cells}{Vectors of features/cells to include}
 
+\item{slot}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
+
 \item{search}{A pattern to search layer names for; pass one of:
 \itemize{
  \item \dQuote{\code{NA}} to pull all layers
