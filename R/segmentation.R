@@ -284,12 +284,12 @@ setMethod(
 )
 
 setMethod(
-  f = 'over',
+  f = 'sf::st_intersects',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
-    return(over(
-      x = as(object = x, Class = 'SpatialPolygons'),
-      y = as(object = y, Class = 'SpatialPolygons'),
+    return(sf::st_intersects(
+      x = as(object = x, Class = 'sf'),
+      y = as(object = y, Class = 'sf'),
       returnList = returnList,
       fn = fn,
       ...
