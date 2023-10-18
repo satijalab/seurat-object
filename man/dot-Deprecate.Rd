@@ -69,8 +69,8 @@ Run for its side effect and invisibly returns \code{NULL}
 Provides automatic deprecation and defunctation of functions and arguments;
 }
 \seealso{
-\code{\link[deprecate:deprecate_soft]{deprecate::deprecate_soft}()}
-\code{\link[deprecate:deprecate_warn]{deprecate::deprecate_warn}()}
-\code{\link[deprecate:deprecate_stop]{deprecate::deprecate_stop}()}
+\code{\link[lifecycle:deprecate_soft]{lifecycle::deprecate_soft}()}
+\code{\link[lifecycle:deprecate_warn]{lifecycle::deprecate_warn}()}
+\code{\link[lifecycle:deprecate_stop]{lifecycle::deprecate_stop}()}
 }
 \keyword{internal}
