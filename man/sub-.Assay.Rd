@@ -32,10 +32,10 @@ Get and set layer data
 rna <- pbmc_small[["RNA"]]
 
 # Get a vector of layer names in this assay
-rna[[]]
+rna[]
 
 # Fetch layer data
-rna[["data"]][1:10, 1:4]
+rna["data"][1:10, 1:4]
 
 # Set layer data
 rna["data"] <- rna["counts"]

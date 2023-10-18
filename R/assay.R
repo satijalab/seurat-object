@@ -1118,10 +1118,10 @@ WhichCells.Assay <- function(
 #' rna <- pbmc_small[["RNA"]]
 #'
 #' # Get a vector of layer names in this assay
-#' rna[[]]
+#' rna[]
 #'
 #' # Fetch layer data
-#' rna[["data"]][1:10, 1:4]
+#' rna["data"][1:10, 1:4]
 #'
 "[.Assay" <- function(x, i = rlang::missing_arg(), ...) {
   if (rlang::is_missing(x = i)) {
@@ -1146,11 +1146,11 @@ WhichCells.Assay <- function(
 #' rna <- pbmc_small[["RNA"]]
 #'
 #' # Pull the entire feature-level meta data data frame
-#' head(rna[])
+#' head(rna[[]])
 #'
 #' # Pull a specific column of feature-level meta data
-#' head(rna["vst.mean"])
-#' head(rna["vst.mean", drop = TRUE])
+#' head(rna[["vst.mean"]])
+#' head(rna[["vst.mean", drop = TRUE]])
 #'
 "[[.Assay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {

@@ -50,11 +50,11 @@ Get and set feature-level meta data
 rna <- pbmc_small[["RNA"]]
 
 # Pull the entire feature-level meta data data frame
-head(rna[])
+head(rna[[]])
 
 # Pull a specific column of feature-level meta data
-head(rna["vst.mean"])
-head(rna["vst.mean", drop = TRUE])
+head(rna[["vst.mean"]])
+head(rna[["vst.mean", drop = TRUE]])
 
 # `head` and `tail` can be used to quickly view feature-level meta data
 head(rna)
