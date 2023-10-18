@@ -354,9 +354,9 @@ setMethod(
   f = 'over',
   signature = c(x = 'Centroids', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
-    return(over(
-      x = as(object = x, Class = 'SpatialPoints'),
-      y = as(object = y, Class = 'SpatialPolygons'),
+    return(sf::st_intersects(
+      x = as(object = x, Class = 'sf'),
+      y = as(object = y, Class = 'sf'),
       returnList = returnList,
       fn = fn,
       ...
