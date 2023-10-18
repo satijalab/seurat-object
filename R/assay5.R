@@ -1555,8 +1555,17 @@ VariableFeatures.StdAssay <- function(
   layer = NA,
   simplify = TRUE,
   nfeatures = Inf,
+  selection.method = deprecated(),
   ...
 ) {
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'VariableFeatures(selection.method = )',
+      with = 'VariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
   nfeatures <- nfeatures %||% Inf
   if ("var.features" %in% colnames(object[])) {
     if ("var.features.rank" %in% colnames(object[])) {
@@ -2633,6 +2642,9 @@ RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
 #' for multiple layers
 #'
 #' @return A vector of variable feature methods and corresponding layers found in \code{object}
+#'
+#' @importFrom stats setNames
+#' @importFrom utils modifyList
 #'
 #' @noRd
 #'

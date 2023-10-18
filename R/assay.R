@@ -449,20 +449,20 @@ HVFInfo.Assay <- function(
   if (tolower(x = method) %in% disp.methods) {
     method <- 'mvp'
   }
-  selection.method <- switch(
+  method <- switch(
     EXPR = tolower(x = method),
-    'sctransform' = 'sct',
+    sctransform = 'sct',
     method
   )
   vars <- switch(
     EXPR = method,
-    'vst' = c('mean', 'variance', 'variance.standardized'),
-    'mvp' = c('mean', 'dispersion', 'dispersion.scaled'),
-    'sct' = c('gmean', 'variance', 'residual_variance'),
-    stop("Unknown method: '", method, "'", call. = FALSE)
+    vst = c('mean', 'variance', 'variance.standardized'),
+    mvp = c('mean', 'dispersion', 'dispersion.scaled'),
+    sct = c('gmean', 'variance', 'residual_variance'),
+    abort(message = paste("Unknown method:", sQuote(x = method)))
   )
   tryCatch(
-    expr = hvf.info <- object[paste(method, vars, sep = '.')],
+    expr = hvf.info <- object[[paste(method, vars, sep = '.')]],
     error = function(e) {
       stop(
         "Unable to find highly variable feature information for method '",
@@ -474,7 +474,7 @@ HVFInfo.Assay <- function(
   )
   colnames(x = hvf.info) <- vars
   if (status) {
-    hvf.info$variable <- object[paste0(method, '.variable')]
+    hvf.info$variable <- object[[paste0(method, '.variable')]]
   }
   return(hvf.info)
 }
@@ -849,12 +849,21 @@ SetAssayData.Assay <- function(
 #'
 SpatiallyVariableFeatures.Assay <- function(
   object,
-  selection.method = "moransi",
+  method = "moransi",
   decreasing = TRUE,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
-  vf <- SVFInfo(object = object, selection.method = selection.method, status = TRUE)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SpatiallyVariableFeatures(selection.method = )',
+      with = 'SpatiallyVariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
+  vf <- SVFInfo(object = object, method = method, status = TRUE)
   vf <- vf[rownames(x = vf)[which(x = vf[, "variable"][, 1])], ]
   if (!is.null(x = decreasing)) {
     vf <- vf[order(x = vf[, "rank"], decreasing = !decreasing), ]
@@ -868,33 +877,42 @@ SpatiallyVariableFeatures.Assay <- function(
 #'
 SVFInfo.Assay <- function(
   object,
-  selection.method = c("markvariogram", "moransi"),
+  method = c("markvariogram", "moransi"),
   status = FALSE,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
-  selection.method <- selection.method[1]
-  selection.method <- match.arg(arg = selection.method)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SVFInfo(selection.method = )',
+      with = 'SVFInfo(method = )'
+    )
+    method <- selection.method
+  }
+  method <- method[1]
+  method <- match.arg(arg = method)
   vars <- switch(
-    EXPR = selection.method,
-    'markvariogram' = grep(
+    EXPR = method,
+    markvariogram = grep(
       pattern = "r.metric",
       x = colnames(x = object[]),
       value = TRUE
     ),
-    'moransi' = grep(
+    moransi = grep(
       pattern = 'moransi',
       x = colnames(x = object[]),
       value = TRUE
     ),
-    stop("Unknown method: '", selection.method, "'", call. = FALSE)
+    abort(message = paste("Unknown method:", sQuote(x = method)))
   )
   tryCatch(
-    expr = svf.info <- object[vars],
+    expr = svf.info <- object[[vars]],
     error = function(e) {
       stop(
         "Unable to find highly variable feature information for method '",
-        selection.method,
+        method,
         "'",
         call. = FALSE
       )
@@ -902,8 +920,8 @@ SVFInfo.Assay <- function(
   )
   colnames(x = svf.info) <- vars
   if (status) {
-    svf.info$variable <- object[paste0(selection.method, '.spatially.variable')]
-    svf.info$rank <- object[paste0(selection.method, '.spatially.variable.rank')]
+    svf.info$variable <- object[[paste0(method, '.spatially.variable')]]
+    svf.info$rank <- object[[paste0(method, '.spatially.variable.rank')]]
   }
   return(svf.info)
 }
@@ -912,12 +930,25 @@ SVFInfo.Assay <- function(
 #' @export
 #' @method VariableFeatures Assay
 #'
-VariableFeatures.Assay <- function(object, selection.method = NULL, ...) {
+VariableFeatures.Assay <- function(
+  object,
+  method = NULL,
+  selection.method = deprecated(),
+  ...
+) {
   suppressWarnings(CheckDots(...))
-  if (!is.null(x = selection.method)) {
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'VariableFeatures(selection.method = )',
+      with = 'VariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
+  if (!is.null(x = method)) {
     vf <- HVFInfo(
       object = object,
-      selection.method = selection.method,
+      method = method,
       status = TRUE
     )
     return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
@@ -946,10 +977,7 @@ VariableFeatures.Assay <- function(object, selection.method = NULL, ...) {
   value <- split(x = value, f = value %in% rownames(x = object))
   if (length(x = value[['FALSE']]) > 0) {
     if (length(x = value[['TRUE']]) == 0) {
-      stop(
-        "None of the features provided are in this Assay object",
-        call. = FALSE
-      )
+      abort(message = "None of the features provided are in this Assay object")
     } else {
       warning(
         "Not all features provided are in this Assay object, removing the following feature(s): ",
