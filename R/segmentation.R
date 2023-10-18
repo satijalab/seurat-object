@@ -305,7 +305,7 @@ setMethod(
   f = 'Overlay',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
-    idx <- over(x = x, y = y)
+    idx <-  sf::st_intersects(x = x, y = y)
     idx <- idx[!is.na(x = idx)]
     if (!length(idx)) {
       warning("The selected region does not contain any cell segmentations")
