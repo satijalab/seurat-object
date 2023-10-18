@@ -2,67 +2,49 @@
 % Please edit documentation in R/assay.R
 \name{[.Assay}
 \alias{[.Assay}
-\alias{[<-,Assay,ANY,ANY,ANY-method}
-\alias{head.Assay}
-\alias{tail.Assay}
-\alias{[<-,Assay,missing,missing,data.frame-method}
-\title{Feature-Level Meta Data}
+\alias{[<-,Assay,character,ANY,ANY-method}
+\title{Layer Data}
 \usage{
-\method{[}{Assay}(x, i, ..., drop = FALSE)
+\method{[}{Assay}(x, i = rlang::missing_arg(), ...)
 
-\S4method{[}{Assay,ANY,ANY,ANY}(x, i, j, ...) <- value
-
-\method{head}{Assay}(x, n = 10L, ...)
-
-\method{tail}{Assay}(x, n = 10L, ...)
-
-\S4method{[}{Assay,missing,missing,data.frame}(x, i, j, ...) <- value
+\S4method{[}{Assay,character,ANY,ANY}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{An \code{\link{Assay}} object}
 
-\item{i}{Name of feature-level meta data to fetch or add}
+\item{i}{Name of layer data to get or set}
 
-\item{...}{Ignored}
-
-\item{drop}{See \code{\link{drop}}}
+\item{...}{Arguments passed to \code{\link{LayerData}}}
 
 \item{j}{Ignored}
 
-\item{value}{Feature-level meta data to add}
-
-\item{n}{Number of meta data rows to show}
+\item{value}{A matrix-like object to add as a new layer}
 }
 \value{
-\code{[}: The feature-level meta data for \code{i}
+\code{[}: The layer data for layer \code{i}
 
-\code{[<-}: \code{x} with \code{value} added as \code{i}
-in feature-level meta data
-
-\code{head}: The first \code{n} rows of feature-level meta data
-
-\code{tail}: the last \code{n} rows of feature-level meta data
+\code{[<-}: \code{x} with layer data \code{value} saved as \code{i}
 }
 \description{
-Get and set feature-level meta data
+Get and set layer data
 }
 \examples{
 rna <- pbmc_small[["RNA"]]
 
-# Pull the entire feature-level meta data data frame
-head(rna[])
+# Get a vector of layer names in this assay
+rna[[]]
 
-# Pull a specific column of feature-level meta data
-head(rna["vst.mean"])
-head(rna["vst.mean", drop = TRUE])
+# Fetch layer data
+rna[["data"]][1:10, 1:4]
 
-# `head` and `tail` can be used to quickly view feature-level meta data
-head(rna)
-
-tail(rna)
+# Set layer data
+rna["data"] <- rna["counts"]
+rna["data"][1:10, 1:4]
 
 }
 \seealso{
+\code{\link{LayerData}}
+
 v3 Assay object, validity, and interaction methods:
 \code{\link{$.Assay}()},
 \code{\link{Assay-class}},

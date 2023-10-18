@@ -203,9 +203,9 @@ CreateAssayObject <- function(
   # Initialize meta.features
   init.meta.features <- data.frame(row.names = rownames(x = data))
   calcN_option <- getOption(
-           x = 'Seurat.object.assay.calcn',
-           default =  Seurat.options$Seurat.object.assay.calcn
-         )
+    x = 'Seurat.object.assay.calcn',
+    default =  Seurat.options$Seurat.object.assay.calcn
+  )
   assay <- new(
     Class = 'Assay',
     counts = counts,
@@ -263,7 +263,7 @@ AddMetaData.Assay <- function(object, metadata, col.name = NULL) {
   if (is.null(x = col.name)) {
     abort(message = "No metadata name provided and could not infer it from metadata object")
   }
-  object[col.name] <- metadata
+  object[[col.name]] <- metadata
   return(object)
 }
 
@@ -541,13 +541,15 @@ LayerData.Assay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop(when = "5.0.0",
-                   what = "LayerData(slot = )",
-                   with = "LayerData(layer = )")
+    deprecate_stop(
+      when = "5.0.0",
+      what = "LayerData(slot = )",
+      with = "LayerData(layer = )"
+    )
   }
   # Figure out which matrix we're pulling
   layer <- layer[1L] %||% "data"
-  
+
   # layer <- match.arg(
   #   arg = layer,
   #   choices = Layers(object = object, search = FALSE)
@@ -637,7 +639,7 @@ LayerData.Assay <- function(
   # Check the class of the matrix
   if (!inherits(x = value, what = c('matrix', 'dgCMatrix'))) {
    abort(message = paste(
-     "'value' must be a 'matrix' or 'dgCMatrix' in v3 Assays, not a", 
+     "'value' must be a 'matrix' or 'dgCMatrix' in v3 Assays, not a",
      sQuote(x = class(x = value)[1L])
    ))
   }
@@ -1101,13 +1103,44 @@ WhichCells.Assay <- function(
 #'
 #' @inheritParams [.Assay5
 #' @param x An \code{\link{Assay}} object
+#' @param j Ignored
 #'
 #' @method [ Assay
 #' @export
 #'
 #' @order 1
 #'
+#' @seealso \code{\link{LayerData}}
+#'
 #' @family assay
+#'
+#' @examples
+#' rna <- pbmc_small[["RNA"]]
+#'
+#' # Get a vector of layer names in this assay
+#' rna[[]]
+#'
+#' # Fetch layer data
+#' rna[["data"]][1:10, 1:4]
+#'
+"[.Assay" <- function(x, i = rlang::missing_arg(), ...) {
+  if (rlang::is_missing(x = i)) {
+    return(Layers(object = x))
+  }
+  return(LayerData(object = x, layer = i, ...))
+}
+
+#' @inherit [[.Assay5 return title description details sections
+#'
+#' @inheritParams [[.Assay5
+#' @param x An \code{\link{Assay}} object
+#'
+#' @method [[ Assay
+#' @export
+#'
+#' @family assay
+#'
+#' @order 1
 #'
 #' @examples
 #' rna <- pbmc_small[["RNA"]]
@@ -1119,7 +1152,7 @@ WhichCells.Assay <- function(
 #' head(rna["vst.mean"])
 #' head(rna["vst.mean", drop = TRUE])
 #'
-"[.Assay" <- function(x, i, ..., drop = FALSE) {
+"[[.Assay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.features'))
   }
@@ -1129,38 +1162,6 @@ WhichCells.Assay <- function(
     names(x = data.return) <- rep.int(x = rownames(x = x), times = length(x = i))
   }
   return(data.return)
-}
-
-#' @inherit [[.Assay5 return title description details sections
-#'
-#' @inheritParams [.Assay
-#' @inheritParams [[.Assay5
-#' @param j Ignored
-#'
-#' @method [[ Assay
-#' @export
-#'
-#' @family assay
-#'
-#' @seealso \code{\link{LayerData}}
-#'
-#' @order 1
-#'
-#' @examples
-#' rna <- pbmc_small[["RNA"]]
-#'
-#' # Get a vector of layer names in this assay
-#' rna[[]]
-#'
-#' # Fetch layer data
-#' rna[["data"]][1:10, 1:4]
-#'
-"[[.Assay" <- function(x, i = rlang::missing_arg(), ...) {
-  # if (missing(x = i)) {
-  if (rlang::is_missing(x = i)) {
-    return(Layers(object = x))
-  }
-  return(LayerData(object = x, layer = i, ...))
 }
 
 #' @inherit dim.Assay5 return title description details sections
@@ -1251,7 +1252,7 @@ dimnames.Assay <- function(x) {
   return(x)
 }
 
-#' @rdname sub-.Assay
+#' @rdname sub-sub-.Assay
 #'
 #' @method head Assay
 #' @export
@@ -1261,14 +1262,14 @@ dimnames.Assay <- function(x) {
 #' head(rna)
 #'
 head.Assay <- function(x, n = 10L, ...) {
-  return(head(x[], n = 10L, ...))
+  return(head(x[[]], n = 10L, ...))
 }
 
 #' Merge Assays
 #'
 #' Merge one or more v3 assays together
 #'
-#' @inheritParams [.Assay
+#' @inheritParams [[.Assay
 #' @param y One or more \code{\link{Assay}} objects
 #' @param add.cell.ids A character vector of \code{length(x = c(x, y))};
 #' appends the corresponding values to the start of each objects' cell names
@@ -1439,12 +1440,12 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
     new(Class = 'matrix')
   }
   VariableFeatures(object = x) <- VariableFeatures(object = x)[VariableFeatures(object = x) %in% features]
-  slot(object = x, name = 'meta.features') <- x[][features, , drop = FALSE]
+  slot(object = x, name = 'meta.features') <- x[[]][features, , drop = FALSE]
   validObject(object = x)
   return(x)
 }
 
-#' @rdname sub-.Assay
+#' @rdname sub-sub-.Assay
 #'
 #' @method tail Assay
 #' @export
@@ -1453,7 +1454,7 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
 #' tail(rna)
 #'
 tail.Assay <- function(x, n = 10L, ...) {
-  return(tail(x[], n = n, ...))
+  return(tail(x[[]], n = n, ...))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1462,13 +1463,29 @@ tail.Assay <- function(x, n = 10L, ...) {
 
 #' @rdname sub-.Assay
 #'
-#' @order 2
+#' @examples
+#' # Set layer data
+#' rna["data"] <- rna["counts"]
+#' rna["data"][1:10, 1:4]
 #'
 setMethod(
   f = '[<-',
+  signature = c(x = 'Assay', i = 'character'),
+  definition = function(x, i, ..., value) {
+    LayerData(object = x, layer = i, ...) <- value
+    return(x)
+  }
+)
+
+#' @rdname sub-sub-.Assay
+#'
+#' @order 2
+#'
+setMethod(
+  f = '[[<-',
   signature = c(x = 'Assay'),
   definition = function(x, i, ..., value) {
-    meta.data <- x[]
+    meta.data <- x[[]]
     feature.names <- rownames(x = meta.data)
     if (is.data.frame(x = value)) {
       value <- lapply(
@@ -1510,9 +1527,10 @@ setMethod(
   }
 )
 
-#' @rdname sub-.Assay
+#' @rdname sub-sub-.Assay
+#'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(
     x = 'Assay',
     i = 'missing',
@@ -1522,31 +1540,15 @@ setMethod(
   definition = function(x, ..., value) {
     # Allow removing all meta data
     if (IsMatrixEmpty(x = value)) {
-      x[names(x = x[])] <- NULL
+      x[[names(x = x[[]])]] <- NULL
       return(x)
     }
     if (is.null(names(x = value))) {
-      warning('colnames of input cannot be NULL')
+      warn(message = 'colnames of input cannot be NULL')
     } else {
       # If no `i` provided, use the column names from value
-      x[names(x = value)] <- value
+      x[[names(x = value)]] <- value
     }
-    return(x)
-  }
-)
-
-#' @rdname sub-sub-.Assay
-#'
-#' @examples
-#' # Set layer data
-#' rna[["data"]] <- rna[["counts"]]
-#' rna[["data"]][1:10, 1:4]
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Assay', i = 'character'),
-  definition = function(x, i, ..., value) {
-    LayerData(object = x, layer = i, ...) <- value
     return(x)
   }
 )
