@@ -1045,6 +1045,23 @@ UpdateSeuratObject <- function(object) {
           object = slot(object = object, name = FindObject(object, ko))[[ko]],
           name = 'key'
         ) <- UpdateKey(key)
+        if (inherits(x = slot(object = object, name = FindObject(object, ko))[[ko]], what = 'DimReduc')) {
+          message("Updating matrix keys for DimReduc ", sQuote(ko))
+          for (m in c('cell.embeddings', 'feature.loadings', 'feature.loadings.projected')) {
+            mat <- slot(
+              object = slot(object = object, name = FindObject(object, ko))[[ko]],
+              name = m
+            )
+            if (IsMatrixEmpty(mat)) {
+              next
+            }
+            colnames(x = mat) <- paste0(key, seq_len(ncol(mat)))
+            slot(
+              object = slot(object = object, name = FindObject(object, ko))[[ko]],
+              name = m
+            ) <- mat
+          }
+        }
       }
       # Rename assays
       assays <- make.names(names = Assays(object = object))
@@ -1102,12 +1119,12 @@ UpdateSeuratObject <- function(object) {
         rownames(x = slot(object = assay, name = "meta.features")) <-  gsub(
           pattern = '_',
           replacement = '-',
-          x = rownames(x = assay[])
+          x = rownames(x = assay[[]])
         )
         rownames(x = slot(object = assay, name = "meta.features")) <-  gsub(
           pattern = '|',
           replacement = '-',
-          x = rownames(x = assay[]),
+          x = rownames(x = assay[[]]),
           fixed = TRUE
         )
         # reorder features in scale.data and meta.features to match counts
