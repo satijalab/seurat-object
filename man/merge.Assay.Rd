@@ -26,6 +26,8 @@ appends the corresponding values to the start of each objects' cell names}
 (which requires renormalization); this is recommended if the same
 normalization approach was applied to all objects}
 
+\item{labels, collapse}{Currently unused}
+
 \item{...}{Ignored}
 }
 \value{
