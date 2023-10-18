@@ -3,7 +3,7 @@
 #' @include keymixin.R
 #' @importFrom future.apply future_lapply
 #' @importClassesFrom sp CRS SpatialPoints
-#'
+#' @importFrom sf st_intersects
 NULL
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

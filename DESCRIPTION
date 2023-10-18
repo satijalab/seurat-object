@@ -37,7 +37,8 @@ Additional_repositories:
     https://bnprks.r-universe.dev
 Depends:
     R (>= 4.0.0),
-    sp (>= 1.5.0)
+    sp (>= 1.5.0),
+    sf (>= 1.0.0)
 Imports:
     future,
     future.apply,

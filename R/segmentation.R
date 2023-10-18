@@ -3,7 +3,8 @@
 #' @importFrom sp coordinates
 #' @importFrom methods as callNextMethod
 #' @importClassesFrom sp SpatialPolygons
-#'
+#' @importFrom sf st_intersects
+
 NULL
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -284,7 +285,7 @@ setMethod(
 )
 
 setMethod(
-  f = 'sf::st_intersects',
+  f = 'over',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
     return(sf::st_intersects(
