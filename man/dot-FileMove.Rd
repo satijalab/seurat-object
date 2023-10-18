@@ -4,7 +4,7 @@
 \alias{.FileMove}
 \title{Move Files and Directories}
 \usage{
-.FileMove(path, new_path, delete = FALSE, n = 1L)
+.FileMove(path, new_path, overwrite = FALSE, n = 1L)
 }
 \arguments{
 \item{path}{A character vector of one or more paths.}
@@ -14,8 +14,6 @@ will be moved into that directory; otherwise it will be moved/renamed to
 the full path.
 
 Should either be the same length as \code{path}, or a single directory.}
-
-\item{delete}{only delete old file if specified}
 
 \item{n}{The number of callers to go back.}
 }

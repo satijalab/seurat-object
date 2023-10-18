@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \code{\link{DimReduc}} object}
 
-\item{i}{Name of feature-level meta data to fetch or add}
+\item{i}{Feature identifiers or indices}
 
 \item{j}{Dimension identifiers or indices}
 
@@ -22,7 +22,7 @@
 Feature loadings for features \code{i} and dimensions \code{j}
 }
 \description{
-Pull feature loadings from a \link[DimReduc]{dimensional reduction}
+Pull feature loadings from a \link[=DimReduc]{dimensional reduction}
 }
 \details{
 \code{[} does not distinguish between projected and unprojected feature

@@ -3,6 +3,7 @@
 \docType{class}
 \name{seurat-class}
 \alias{seurat-class}
+\alias{oldseurat}
 \title{The Seurat Class}
 \description{
 The Seurat object is the center of each single cell analysis. It stores all

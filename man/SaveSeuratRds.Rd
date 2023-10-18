@@ -59,7 +59,7 @@ this function. For more details about \pkg{progressr}, please read
 }
 
 \examples{
-if (requireNamespace("HDF5Array") && requireNamespace("fs")) {
+if (requireNamespace("HDF5Array", quietly = TRUE) && requireNamespace("fs", quietly = TRUE)) {
   pbmc_small[["disk"]] <- CreateAssay5Object(list(
     mem = LayerData(pbmc_small, "counts"),
     disk = as(LayerData(pbmc_small, "counts"), "HDF5Array")

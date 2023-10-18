@@ -131,6 +131,60 @@ NULL
 #'
 `%!na%` <- `%!NA%`
 
+#' \pkg{BPCells} Matrix Mode
+#'
+#' Get the mode (on-disk, in-memory) of an \code{IterableMatrix} object
+#' from \pkg{BPCells}
+#'
+#' @param object An \code{IterableMatrix}
+#' @param simplify Return \dQuote{\code{disk}} for on-disk matrices
+#'
+#' @return One of the following, depending on the mode of \code{object}:
+#' \itemize{
+#'  \item \dQuote{\code{memory}}
+#'  \item \dQuote{\code{file}}
+#'  \item \dQuote{\code{directory}}
+#' }
+#' If \code{simplify} is \code{TRUE}, returns \dQuote{\code{disk}} instead of
+#' \dQuote{\code{file}} or \dQuote{\code{directory}}
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+.BPMatrixMode <- function(object, simplify = FALSE) {
+  check_installed(pkg = 'BPCells', reason = 'for working with BPCells')
+  if (!inherits(x = object, what = 'IterableMatrix')) {
+    return(NULL)
+  }
+  stopifnot(rlang::is_bare_logical(x = simplify, n = 1L))
+  # Get a vector of all the slots in all sub-matrices
+  slots <- Reduce(
+    f = union,
+    x = lapply(
+      X = BPCells::all_matrix_inputs(object),
+      FUN = \(x) methods::slotNames(x = methods::getClass(Class = class(x = x)))
+    )
+  )
+  # Figure out if any sub-matrix points to a directory or a file path
+  type <- c(path = FALSE, dir = FALSE)
+  for (s in slots) {
+    if (s %in% names(x = type)) {
+      type[s] <- TRUE
+    }
+  }
+  # If no matrix points to a directory or file, it's an in-memory one
+  if (!any(type)) {
+    return('memory')
+  }
+  # If any matrix points to a directory or file, it's an on-disk matrix
+  if (isTRUE(x = simplify) && any(type)) {
+    return("disk")
+  }
+  # Get the exact type; there should only be one
+  return(c(path = 'file', dir = 'directory')[[names(x = type)[type]]])
+}
+
 #' Identify Object Collections
 #'
 #' Find all collection (named lists) slots in an S4 object
@@ -227,6 +281,117 @@ NULL
     return(NULL)
   }
   return(images)
+}
+
+#' Deprecate Functions and Arguments
+#'
+#' Provides automatic deprecation and defunctation of functions and arguments;
+#'
+#' @inheritParams lifecycle::deprecate_soft
+#' @inheritDotParams lifecycle::deprecate_soft
+#' @param pkg Name of package to use for comparison
+#' @param env,user_env Managed internally by \code{.Deprecate()}
+#'
+#' @return Run for its side effect and invisibly returns \code{NULL}
+#'
+#' @importFrom rlang ns_env_name
+#' @importFrom utils packageVersion
+#' @importFrom lifecycle deprecate_soft deprecate_stop deprecate_warn
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @seealso \code{\link[lifecycle:deprecate_soft]{lifecycle::deprecate_soft}()}
+#' \code{\link[lifecycle:deprecate_warn]{lifecycle::deprecate_warn}()}
+#' \code{\link[lifecycle:deprecate_stop]{lifecycle::deprecate_stop}()}
+#'
+.Deprecate <- function(
+  when,
+  what,
+  with = NULL,
+  ...,
+  pkg = NULL,
+  env = missing_arg(),
+  user_env = missing_arg()
+) {
+  # Figure out current version, rounding up development versions
+  caller <- caller_env()
+  current <- as.character(x = packageVersion(pkg = ns_env_name(x = caller)))
+  current <- unlist(x = strsplit(x = current, split = '\\.'))
+  if (length(x = current) > 4L) {
+    current[4L] <- paste(
+      current[seq.int(from = 4L, to = length(x = current))],
+      collapse = '.'
+    )
+    current <- current[1:4]
+  }
+  names(x = current) <- c('major', 'minor', 'patch', 'devel')[seq_along(along.with = current)]
+  if (!is_na(x = current['devel'])) {
+    if (all(current[c('minor', 'patch')] == '9')) {
+      current['major'] <- as.character(x = as.integer(x = current['major']) + 1L)
+      current[c('minor', 'patch')] <- '0'
+    } else if (current['patch'] == '0') {
+      current['minor'] <- as.character(x = as.integer(x = current['minor']) + 1L)
+      current['patch'] <- '0'
+    } else {
+      current['patch'] <- as.character(x = as.integer(x = current['patch']) + 1L)
+    }
+    current <- current[c('major', 'minor', 'patch')]
+  }
+  cv <- paste(current, collapse = '.')
+  current <- vapply(
+    X = current,
+    FUN = as.integer,
+    FUN.VALUE = integer(length = 1L),
+    USE.NAMES = TRUE
+  )
+  # Ensure our 'when' is a valid version
+  wv <- when <- as.character(x = numeric_version(x = when, strict = TRUE))
+  # If we haven't reached deprecation, exit out silently
+  if (cv < wv) {
+    return(invisible(x = NULL))
+  }
+  # Figure out if this is a soft deprecation, a warning deprecation, or a defunct
+  when <- unlist(x = strsplit(x = when, split = '\\.'))
+  if (length(x = when) > 4L) {
+    when[4L] <- paste(
+      when[seq.int(from = 4L, to = length(x = when))],
+      collapse = '.'
+    )
+    when <- when[1:4]
+  }
+  names(x = when) <- c('major', 'minor', 'patch', 'devel')[seq_along(along.with = when)]
+  when <- vapply(
+    X = when,
+    FUN = as.integer,
+    FUN.VALUE = integer(length = 1L),
+    USE.NAMES = TRUE
+  )
+  diffs <- abs(current - when)
+  if (diffs['major'] >= 1L || diffs['minor'] >= 3L) {
+    deprecate_stop(
+      when = wv,
+      what = what,
+      with = with,
+      env = caller,
+      ...
+    )
+  }
+  fn <- if (diffs['minor'] >= 1L) {
+    deprecate_warn
+  } else {
+    deprecate_soft
+  }
+  fn(
+    when = wv,
+    what = what,
+    with = with,
+    env = caller,
+    user_env = caller_env(n = 2L),
+    ...
+  )
+  return(invisible(x = NULL))
 }
 
 #' Find Subobjects Of A Certain Class
@@ -384,13 +549,13 @@ NULL
 #' @concept utils
 #'
 #' @examples
-#' .PropogateList("counts", c("RNA", "ADT", "SCT"))
-#' .PropogateList(c("counts", "data"), c("RNA", "ADT", "SCT"))
-#' .PropogateList("ADT", c("RNA", "ADT", "SCT"))
-#' .PropogateList(c("RNA", "SCT"), c("RNA", "ADT", "SCT"))
-#' .PropogateList(c("RNA", ADT = "counts"), c("RNA", "ADT", "SCT"))
-#' .PropogateList(list(SCT = c("counts", "data"), ADT = "counts"), c("RNA", "ADT", "SCT"))
-#' .PropogateList(list(SCT = c("counts", "data"), "ADT"), c("RNA", "ADT", "SCT"))
+#' .PropagateList("counts", c("RNA", "ADT", "SCT"))
+#' .PropagateList(c("counts", "data"), c("RNA", "ADT", "SCT"))
+#' .PropagateList("ADT", c("RNA", "ADT", "SCT"))
+#' .PropagateList(c("RNA", "SCT"), c("RNA", "ADT", "SCT"))
+#' .PropagateList(c("RNA", ADT = "counts"), c("RNA", "ADT", "SCT"))
+#' .PropagateList(list(SCT = c("counts", "data"), ADT = "counts"), c("RNA", "ADT", "SCT"))
+#' .PropagateList(list(SCT = c("counts", "data"), "ADT"), c("RNA", "ADT", "SCT"))
 #'
 .PropagateList <- function(x, names, default = NA) {
   # `names` must be a character vector
@@ -727,7 +892,6 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
   return(invisible(x = NULL))
 }
 
-
 #' Check layers names for the input list
 #'
 #'
@@ -740,8 +904,8 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
 #' @concept utils
 #'
 CheckLayersName <- function(
-    matrix.list,
-    layers.type = c('counts', 'data')
+  matrix.list,
+  layers.type = c('counts', 'data')
 ) {
   layers.type <- match.arg(arg = layers.type)
   if (is.null(x = matrix.list)) {
@@ -764,7 +928,7 @@ CheckLayersName <- function(
             x = name
           )
           # If replacement leaves empty string
-          if (!nzchar(x = name)){
+          if (!nzchar(x = name)) {
             name <- i
           }
         }
@@ -1444,21 +1608,29 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 .FilePath.IterableMatrix <- function(x){
   check_installed(pkg = "BPCells", reason = "for working with BPCells")
   matrix <- slot(x, "matrix")
-  matrices <- BPCells:::all_matrix_inputs(matrix)
+  matrices <- BPCells::all_matrix_inputs(matrix)
   return_dir_path <- function(matrix){
     if (inherits(matrix, "MatrixDir")) {
       path <- normalizePath(path = matrix@dir)
-    } else if (inherits(matrix, "10xMatrixH5")){
-      warning("The on-disk matrix is an h5 file and will not be moved ",
-              "to the destination directory. It will remain at: '", matrix@path,
-              "'. If you would like to save the matrix in BPCells format, use ", 
-              "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
-      path = NULL 
-    } else if (inherits(matrix, "AnnDataMatrixH5")){
-      warning("The on-disk matrix is an h5ad file and will not be moved ",
-              "to the destination directory. It will remain at: '", matrix@path,
-              "'. If you would like to save the matrix in BPCells format, use ", 
-              "'write_matrix_dir(mat = data, dir = '/path')'.", call. = FALSE)
+    } else if (inherits(matrix, "10xMatrixH5")) {
+      warning(
+        "The on-disk matrix is an h5 file and will not be moved ",
+        "to the destination directory. It will remain at: '",
+        matrix@path,
+        "'. If you would like to save the matrix in BPCells format, use ",
+        "'write_matrix_dir(mat = data, dir = '/path')'.",
+        call. = FALSE
+      )
+      path = NULL
+    } else if (inherits(matrix, "AnnDataMatrixH5")) {
+      warning(
+        "The on-disk matrix is an h5ad file and will not be moved ",
+        "to the destination directory. It will remain at: '",
+        matrix@path,
+        "'. If you would like to save the matrix in BPCells format, use ",
+        "'write_matrix_dir(mat = data, dir = '/path')'.",
+        call. = FALSE
+      )
       path = NULL
     } else {
       path = NULL
@@ -1468,7 +1640,6 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   paths <- unlist(lapply(matrices, return_dir_path))
   return(paths)
 }
-
 
 #' @rdname dot-SelectFeatures
 #' @method .SelectFeatures list
@@ -1786,18 +1957,20 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
 
 #' Generate empty dgC sparse matrix
 #'
-#' @param ncol
-#' @param nrow
+#' @param ncol,nrow Number of columns and rows in matrix
+#' @param rownames,colnames Optional row- and column names for the matrix
+#'
+#' @keywords internal
+#'
 #' @export
 #'
 SparseEmptyMatrix <- function(nrow, ncol, rownames = NULL, colnames = NULL) {
-  mat <- new(
+  return(new(
     Class = 'dgCMatrix',
-    p = integer(ncol + 1L),
-    Dim = c(as.integer(nrow), as.integer(ncol)),
+    p = integer(length = ncol + 1L),
+    Dim = c(as.integer(x = nrow), as.integer(x = ncol)),
     Dimnames = list(rownames, colnames)
-    )
-  return(mat)
+  ))
 }
 
 
@@ -1828,7 +2001,7 @@ StitchMatrix.dgCMatrix <- function(x, y, rowmap, colmap, ...) {
   dimnames(x = x) <- list(rowmap[[1L]], colmap[[1L]])
   for (i in seq_along(along.with = y)) {
     j <- i + 1L
-    y[[i]] <- as(object = y[[i]], Class = 'CsparseMatrix')
+    y[[i]] <- as(object = y[[i]], Class = 'dgCMatrix')
     dimnames(x = y[[i]]) <- list(rowmap[[j]], colmap[[j]])
   }
   return(RowMergeSparseMatrices(mat1 = x, mat2 = y))
@@ -1922,6 +2095,8 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   return(x)
 }
 
+#' @importFrom stats median
+#'
 .FeatureRank <- function(features, flist, ranks = FALSE) {
   franks <- vapply(
     X = features,
@@ -1963,39 +2138,74 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
 #'
 #' @seealso \code{\link[fs:file_move]{fs::file_move}()}
 #'
-.FileMove <- function (path, new_path, n = 1L) 
-{
-  check_installed(pkg = "fs", reason = "for moving on-disk files")
-  stopifnot(is_scalar_character(x = path))
-  stopifnot(is_scalar_character(x = new_path))
-  stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && 
-              n > 0)
-  if (fs::is_dir(path = path)) {
-    path <- fs::path_expand(path = path)
-    new_path <- fs::path_expand(path = new_path)
-    dest <- fs::dir_create(path = file.path(new_path))
-    dest <- tryCatch(expr = fs::dir_copy(path = path, new_path = dest), 
-                     error = function(e) {
-                       stop("Can't move this dir to new path: ", e, 
-                            call. = F)
-                     })
-  }
-  else if (fs::is_file(path = path)) {
-    dest <- fs::file_copy(path = path, new_path = new_path)
-  }
-  else {
-    stop("Can't find path: ", path, ". If path is relative, change working directory.")
-    error_call <- function(err) {
-      abort(message = err$message, 
-            class = class(x = err), 
-            call = caller_env(n = 4L + n))
+.FileMove <- function(path, new_path, overwrite = FALSE, n = 1L) {
+  check_installed(
+    pkg = 'fs',
+    reason = 'for moving on-disk files'
+  )
+  stopifnot(
+    is_scalar_character(x = path),
+    is_scalar_character(x = new_path),
+    rlang::is_bare_logical(x = overwrite, n = 1L),
+    is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0
+  )
+  hndlr <- if (fs::is_dir(path = path)) {
+    function(...) {
+      path <- fs::path_expand(path = path)
+      new_path <- fs::path_expand(path = new_path)
+      dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
+      fs::dir_copy(path = path, new_path = dest, overwrite = overwrite)
+      return(dest)
+    }
+  } else {
+    function(err) {
+      abort(
+        message = err$message,
+        class = class(x = err),
+        call = caller_env(n = 4L + n)
+      )
     }
   }
-  return(invisible(x = tryCatch(expr = return(dest), 
-                                error = function(e) return(error_call))))
+  return(invisible(x = tryCatch(
+    expr = fs::file_copy(
+      path = path,
+      new_path = new_path,
+      overwrite = overwrite
+    ),
+    EISDIR = hndlr
+  )))
 }
 
-
+# .FileMove <- function(path, new_path, n = 1L) {
+#   check_installed(pkg = "fs", reason = "for moving on-disk files")
+#   stopifnot(is_scalar_character(x = path))
+#   stopifnot(is_scalar_character(x = new_path))
+#   stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0)
+#   if (fs::is_dir(path = path)) {
+#     path <- fs::path_expand(path = path)
+#     new_path <- fs::path_expand(path = new_path)
+#     dest <- fs::dir_create(path = file.path(new_path))
+#     dest <- tryCatch(
+#       expr = fs::dir_copy(path = path, new_path = dest),
+#       error = function(e) {
+#         stop("Can't move this dir to new path: ", e, call. = FALSE)
+#       }
+#     )
+#   }
+#   else if (fs::is_file(path = path)) {
+#     dest <- fs::file_copy(path = path, new_path = new_path)
+#   }
+#   else {
+#     stop("Can't find path: ", path, ". If path is relative, change working directory.")
+#     error_call <- function(err) {
+#       abort(message = err$message,
+#             class = class(x = err),
+#             call = caller_env(n = 4L + n))
+#     }
+#   }
+#   return(invisible(x = tryCatch(expr = return(dest),
+#                                 error = function(e) return(error_call))))
+# }
 
 #' Get An Option
 #'

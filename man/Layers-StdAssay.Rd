@@ -13,6 +13,7 @@
   cells = NULL,
   features = NULL,
   fast = FALSE,
+  slot = deprecated(),
   ...
 )
 
@@ -36,6 +37,8 @@
  \item{\code{TRUE}}{Do not apply any transpositions or add feature/cell
   names to the layer data}
 }}
+
+\item{slot}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
 
 \item{...}{Arguments passed to other methods}
 

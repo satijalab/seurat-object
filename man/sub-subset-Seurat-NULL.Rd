@@ -4,6 +4,8 @@
 \alias{[[<-,Seurat,NULL}
 \alias{remove-object}
 \alias{remove-objects}
+\alias{\S4method{[[<-}{Seurat,character,missing,NULL}}
+\alias{[[<-,Seurat,character,missing,NULL-method}
 \title{Remove Subobjects and Cell-Level Meta Data}
 \usage{
 \S4method{[[}{Seurat,character,missing,`NULL`}(x, i, j, ...) <- value
@@ -15,7 +17,7 @@
 
 \item{j}{Ignored}
 
-\item{...}{Arguments passed to \code{\link{LayerData}}}
+\item{...}{Ignored}
 
 \item{value}{NULL}
 }

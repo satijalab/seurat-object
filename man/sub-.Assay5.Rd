@@ -2,48 +2,35 @@
 % Please edit documentation in R/assay5.R
 \name{[.Assay5}
 \alias{[.Assay5}
-\alias{[<-,Assay5,ANY,ANY,ANY-method}
-\alias{head.Assay5}
-\alias{tail.Assay5}
-\title{Feature-Level Meta Data}
+\alias{[<-,Assay5,character,ANY,ANY-method}
+\title{Layer Data}
 \usage{
-\method{[}{Assay5}(x, i, j, ..., drop = FALSE)
+\method{[}{Assay5}(x, i = rlang::missing_arg(), ...)
 
-\S4method{[}{Assay5,ANY,ANY,ANY}(x, i, j, ...) <- value
-
-\method{head}{Assay5}(x, n = 10L, ...)
-
-\method{tail}{Assay5}(x, n = 10L, ...)
+\S4method{[}{Assay5,character,ANY,ANY}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{An \code{\link{Assay5}} object}
 
-\item{i}{Name of feature-level meta data to fetch or add}
+\item{i}{Name of layer data to get or set}
+
+\item{...}{Arguments passed to \code{\link{LayerData}}}
 
 \item{j}{Ignored}
 
-\item{...}{Ignored}
-
-\item{drop}{See \code{\link{drop}}}
-
-\item{value}{Feature-level meta data to add}
-
-\item{n}{Number of meta data rows to show}
+\item{value}{A matrix-like object to add as a new layer}
 }
 \value{
-\code{[}: The feature-level meta data for \code{i}
+\code{[}: The layer data for layer \code{i}
 
-\code{[<-}: \code{x} with \code{value} added as \code{i}
-in feature-level meta data
-
-\code{head}: The first \code{n} rows of feature-level meta data
-
-\code{tail}: the last \code{n} rows of feature-level meta data
+\code{[<-}: \code{x} with layer data \code{value} saved as \code{i}
 }
 \description{
-Get and set feature-level meta data
+Get and set layer data
 }
 \seealso{
+\code{\link{LayerData}}
+
 v5 Assay object, validity, and interaction methods:
 \code{\link{$.Assay5}()},
 \code{\link{Assay5-class}},

@@ -18,8 +18,6 @@ NULL
 #'
 #' @exportClass LogMap
 #'
-#' @keywords internal
-#'
 #' @family logmap
 #'
 setClass(
@@ -91,14 +89,13 @@ LogMap <- function(y) {
 #' Coerce Logical Maps to Matrices
 #'
 #' Coerce a logical map to a matrix; this removes all
-#' \link[LogMap]{logical map} class capabilities from
+#' \link[=LogMap]{logical map} class capabilities from
 #' the object and returns a base-R matrix object
 #'
 #' @param x A \code{\link{LogMap}} object
+#' @template param-dots-ignored
 #'
 #' @return A base-R matrix created from \code{x}
-#'
-#' @keywords internal
 #'
 #' @method as.matrix LogMap
 #' @export
@@ -118,15 +115,13 @@ as.matrix.LogMap <- function(x, ...) {
 
 #' Drop Unused Logical Map Values
 #'
-#' Remove any unused values from a \link[LogMap]{logical map}
+#' Remove any unused values from a \link[=LogMap]{logical map}
 #'
 #' @template param-dots-ignored
 #' @param x A \code{LogMap} object
 #'
 #' @return \code{x} with values not present in any
 #' observation removed
-#'
-#' @keywords internal
 #'
 #' @method droplevels LogMap
 #' @export
@@ -164,15 +159,13 @@ droplevels.LogMap <- function(x, ...) {
 
 #' Find Common Logical Map Values
 #'
-#' Identify values in a \link[LogMap]{logical map} that are common to
-#' every observation
+#' Identify values in a \link[=LogMap]{logical map} that are
+#' common to every observation
 #'
 #' @inheritParams droplevels.LogMap
 #' @param y Ignored
 #'
 #' @return The values of \code{x} that are present in \strong{every} observation
-#'
-#' @keywords internal
 #'
 #' @method intersect LogMap
 #' @export
@@ -197,8 +190,8 @@ intersect.LogMap <- function(x, y = missing_arg(), ...) {
 
 #' Find Observations by Value
 #'
-#' Identify the observations that contain a specific value in a
-#' \link[LogMap]{logical map}
+#' Identify the observations that contain a specific
+#' value in a \link[=LogMap]{logical map}
 #'
 #' @template param-dots-ignored
 #' @param object A \code{\link{LogMap}} object
@@ -217,8 +210,6 @@ intersect.LogMap <- function(x, y = missing_arg(), ...) {
 #' @return \code{labels}: A list, or vector if \code{simplify} is \code{TRUE},
 #' of all values and the observations they're found in, according
 #' to the value of \code{select}
-#'
-#' @keywords internal
 #'
 #' @method labels LogMap
 #' @export
@@ -297,6 +288,22 @@ labels.LogMap <- function(
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Matrix-like Subsetting for \link[=LogMap]{Logical Maps}
+#'
+#' @inheritParams base::`[`
+#' @inheritParams LogMap-class
+#' @param i,j ...
+#' @template param-dots-method
+#'
+#' @name [,LogMap
+#' @rdname sub-LogMap-method
+#'
+#' @keywords internal
+#'
+NULL
+
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'missing', j = 'missing'),
@@ -305,6 +312,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'character', j = 'character'),
@@ -317,6 +326,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'character', j = 'missing'),
@@ -329,6 +340,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'missing', j = 'character'),
@@ -341,6 +354,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'numeric', j = 'missing'),
@@ -350,6 +365,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'missing', j = 'numeric'),
@@ -359,7 +376,8 @@ setMethod(
   }
 )
 
-
+#' @rdname sub-LogMap-method
+#'
 setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'numeric', j = 'numeric'),
@@ -369,7 +387,6 @@ setMethod(
     return(callNextMethod(x, i, j, ..., drop = drop))
   }
 )
-
 
 #' @rdname LogMap-class
 #'
@@ -395,6 +412,19 @@ setMethod(
   }
 )
 
+#' \code{\link{LogMap}} Interaction Methods
+#'
+#' Additional methods for using \code{[[} with \code{\link{LogMap}} objects
+#'
+#' @inheritParams LogMap
+#' @param i An integer or numeric vector of length 1
+#'
+#' @return The rownames that are mapped to \code{i}
+#'
+#' @rdname sub-sub-LogMap-internal-method
+#'
+#' @keywords internal
+#'
 setMethod(
   f = '[[',
   signature = c(x = 'LogMap', i = 'integer', j = 'missing'),
@@ -417,6 +447,8 @@ setMethod(
   }
 )
 
+#' @rdname sub-sub-LogMap-internal-method
+#'
 setMethod(
   f = '[[',
   signature = c(x = 'LogMap', i = 'numeric', j = 'missing'),
@@ -544,6 +576,16 @@ setMethod(
   }
 )
 
+#' \code{\link{LogMap}} Object Overview
+#'
+#' Overview of a \code{\link{LogMap}} object
+#'
+#' @param object A \code{\link{LogMap}} object
+#'
+#' @template return-show
+#'
+#' @concept logmap
+#'
 setMethod(
   f = 'show',
   signature = 'LogMap',

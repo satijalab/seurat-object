@@ -116,7 +116,7 @@ setClass(
 #'
 #' @name seurat-class
 #' @rdname oldseurat-class
-#' @aliases seurat-class
+#' @aliases seurat-class oldseurat
 #'
 #' @concept unsorted
 #' @concept v2
@@ -264,14 +264,7 @@ FilterObjects <- function(
   object,
   classes.keep = c('Assay', 'StdAssay', 'DimReduc')
 ) {
-  f <- if (.IsFutureSeurat(version = '5.1.0')) {
-    deprecate_stop
-  } else if (.IsFutureSeurat(version = '5.0.0')) {
-    deprecate_warn
-  } else {
-    deprecate_soft
-  }
-  f(when = '5.0.0', what = 'FilterObjects()', with = '.FilterObjects()')
+  .Deprecate(when = '5.0.0', what = 'FilterObjects()', with = '.FilterObjects()')
   object <- UpdateSlots(object = object)
   slots <- na.omit(object = Filter(
     f = function(x) {
@@ -598,49 +591,19 @@ RenameAssays <- function(
   return(object)
 }
 
-#' Save Seurat Objects
-#'
-#' Save Seurat objects. Allows you to save an object with BPCells matrices
-#' on disk in the same folder as BPCells directories using the destdir parameter.
-#'
-#' @inheritParams saveRDS
-#' @param object
-#' @param file Path to save \code{Seurat} Object to
-#' @param destdir directory to save BPCells and \code{Seurat} Objects in
-#'
-#' @export
 saveRDS.Seurat <- function(
   object = object,
   file = NULL,
   destdir = NULL,
-  azimuth = FALSE,
   ...
 ) {
-  if(!is.null(x = destdir)) {
+  if (!is.null(x = destdir)) {
     SaveSeuratBP(object, filename = basename(file), destdir = destdir, ...)
   } else {
     base::saveRDS(object = object, file = file, ...)
     return(invisible(x = file))
   }
-  if(isTRUE(x = azimuth)){
-    if(!(is.null(file))){
-      warning("filenames for Azimuth references will automatically ",
-              "be set to 'ref.Rds' for the reference object and ",
-              "'idx.annoy' for the neighbors index",
-              call. = FALSE,
-              immediate. = TRUE)
-    }
-    Azimuth::SaveAzimuthReference(object, folder = destdir, ...)
-  }
 }
-
-
-
-#' @inheritParams base::saveRDS
-#' @export
-#'
-saveRDS.default <- base::saveRDS
-
 
 #' Save and Load \code{Seurat} Objects from Rds files
 #'
@@ -666,7 +629,7 @@ saveRDS.default <- base::saveRDS
 #' @order 1
 #'
 #' @examples
-#' if (requireNamespace("HDF5Array") && requireNamespace("fs")) {
+#' if (requireNamespace("HDF5Array", quietly = TRUE) && requireNamespace("fs", quietly = TRUE)) {
 #'   pbmc_small[["disk"]] <- CreateAssay5Object(list(
 #'     mem = LayerData(pbmc_small, "counts"),
 #'     disk = as(LayerData(pbmc_small, "counts"), "HDF5Array")
@@ -823,9 +786,6 @@ SaveSeuratRds <- function(
   return(invisible(x = file))
 }
 
-
-
-
 #' Save \code{Seurat} Objects as RDS files with BPCells directories in same folder
 #'
 #' @param object A \code{\link{Seurat}} object
@@ -851,7 +811,7 @@ SaveSeuratRds <- function(
 #' @order 1
 #'
 #' @examples
-#' if (requireNamespace("BPCells") && requireNamespace("fs")) {
+#' if (requireNamespace("BPCells", quietly = TRUE) && requireNamespace("fs" , quietly = TRUE)) {
 #'   pbmc_small[["RNA5"]] <- as(object = pbmc_small[['RNA']], Class = 'Assay5')
 #'   pbmc_small[["RNA5"]]$counts <- BPCells::write_matrix_dir(
 #'   mat = pbmc_small[['RNA']]$counts,
@@ -977,13 +937,13 @@ SaveSeuratBP <- function(
       warning("Changing path in object to point to new BPCells directory location",
               call. = FALSE, immediate. = TRUE)
       ldat <- LayerData(object[[assay]], layer = layer)
-      matrices <- BPCells:::all_matrix_inputs(ldat)
+      matrices <- BPCells::all_matrix_inputs(ldat)
       matrix.dirs <- which(sapply(matrices, function(x) inherits(x, "MatrixDir")))
-      if (length(matrix.dirs) == nrow(df[df$layer == layer, ])){
+      if (length(matrix.dirs) == nrow(df[df$layer == layer, ])) {
         for (i in 1:length(matrix.dirs)) {
           matrices[[matrix.dirs[i]]]@dir <- df[df$layer == layer, ]$path[i]
         }
-        BPCells:::all_matrix_inputs(ldat) <- matrices
+        BPCells::all_matrix_inputs(ldat) <- matrices
         LayerData(object[[assay]], layer = layer) <- ldat
       } else {
         stop("Directories to replace is not equal to length of directories")
@@ -994,7 +954,6 @@ SaveSeuratBP <- function(
   saveRDS(object = object, file = file.path(destdir, filename), ...)
   return(invisible(x = filename))
 }
-
 
 #' Update old Seurat object to accommodate new features
 #'
@@ -1079,6 +1038,23 @@ UpdateSeuratObject <- function(object) {
           object = slot(object = object, name = FindObject(object, ko))[[ko]],
           name = 'key'
         ) <- UpdateKey(key)
+        if (inherits(x = slot(object = object, name = FindObject(object, ko))[[ko]], what = 'DimReduc')) {
+          message("Updating matrix keys for DimReduc ", sQuote(ko))
+          for (m in c('cell.embeddings', 'feature.loadings', 'feature.loadings.projected')) {
+            mat <- slot(
+              object = slot(object = object, name = FindObject(object, ko))[[ko]],
+              name = m
+            )
+            if (IsMatrixEmpty(mat)) {
+              next
+            }
+            colnames(x = mat) <- paste0(key, seq_len(ncol(mat)))
+            slot(
+              object = slot(object = object, name = FindObject(object, ko))[[ko]],
+              name = m
+            ) <- mat
+          }
+        }
       }
       # Rename assays
       assays <- make.names(names = Assays(object = object))
@@ -1136,12 +1112,12 @@ UpdateSeuratObject <- function(object) {
         rownames(x = slot(object = assay, name = "meta.features")) <-  gsub(
           pattern = '_',
           replacement = '-',
-          x = rownames(x = assay[])
+          x = rownames(x = assay[[]])
         )
         rownames(x = slot(object = assay, name = "meta.features")) <-  gsub(
           pattern = '|',
           replacement = '-',
-          x = rownames(x = assay[]),
+          x = rownames(x = assay[[]]),
           fixed = TRUE
         )
         # reorder features in scale.data and meta.features to match counts
@@ -1397,9 +1373,9 @@ CreateSeuratObject.default <- function(
   names.field = 1L,
   names.delim = '_',
   meta.data = NULL,
+  project = 'SeuratProject',
   min.cells = 0,
   min.features = 0,
-  project = 'SeuratProject',
   ...
 ) {
   assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
@@ -1677,6 +1653,17 @@ Features.Seurat <- function(x, assay = NULL, ...) {
 #' pull identity classes
 #' @param cells Cells to collect data for (default is all cells)
 #' @param layer Layer to pull feature data for
+#' @param clean Remove cells that are missing data; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{all}}: consider all columns for cleaning
+#'  \item \dQuote{\code{ident}}: consider all columns except the identity
+#'   class for cleaning
+#'  \item \dQuote{\code{project}}: consider all columns except the identity
+#'   class for cleaning; fill missing identity values with the object's project
+#'  \item \dQuote{\code{none}}: do not clean
+#' }
+#' Passing \code{TRUE} is a shortcut for \dQuote{\code{ident}}; passing
+#' \code{FALSE} is a shortcut for \dQuote{\code{none}}
 #' @param slot Deprecated in favor of \code{layer}
 #'
 #' @return A data frame with cells as rows and cellular data as columns
@@ -1702,7 +1689,7 @@ FetchData.Seurat <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_soft(
+    .Deprecate(
       when = '5.0.0',
       what = 'FetchData(slot = )',
       with = 'FetchData(layer = )'
@@ -2005,8 +1992,8 @@ FetchData.Seurat <- function(
   return(data.fetched)
 }
 
-#' @param assay Specific assay to get data from or set data for; defaults to
-#' the \link[SeuratObject:DefaultAssay]{default assay}
+#' @param assay Specific assay to get data from or set data for;
+#' defaults to the \link[=DefaultAssay]{default assay}
 #'
 #' @rdname AssayData
 #' @export
@@ -2026,22 +2013,13 @@ GetAssayData.Seurat <- function(
   ...
 ) {
   CheckDots(...)
-  f <- if (.IsFutureSeurat(version = '5.1.0')) {
-    deprecate_stop
-  } else if (.IsFutureSeurat(version = '5.0.0')) {
-    deprecate_warn
-  } else {
-    deprecate_soft
-  }
   if (is_present(arg = slot)) {
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'GetAssayData(slot = )',
       with = 'GetAssayData(layer = )'
     )
     layer <- slot
-  } else {
-    f(when = '5.0.0', what = 'GetAssayData()', with = 'LayerData()')
   }
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
@@ -2104,13 +2082,28 @@ HVFInfo.Seurat <- function(
   method = NULL,
   status = FALSE,
   assay = NULL,
-  selection.method = method,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    f <- if (.IsFutureSeurat(version = '5.1.0')) {
+      deprecate_stop
+    } else if (.IsFutureSeurat(version = '5.0.0')) {
+      deprecate_warn
+    } else {
+      deprecate_soft
+    }
+    f(
+      when = '5.0.0',
+      what = 'HVFInfo(selection.method = )',
+      with = 'HVFInfo(method = )'
+    )
+    method <- selection.method
+  }
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
-  if (is.null(x = selection.method)) {
+  if (is.null(x = method)) {
     cmds <- apply(
       X = expand.grid(
         c('FindVariableFeatures', 'SCTransform'),
@@ -2134,7 +2127,7 @@ HVFInfo.Seurat <- function(
       yes = test.command,
       no = find.command
     )
-    selection.method <- switch(
+    method <- switch(
       EXPR = file_path_sans_ext(x = find.command),
       'FindVariableFeatures' = Command(
         object = object,
@@ -2147,7 +2140,7 @@ HVFInfo.Seurat <- function(
   }
   return(HVFInfo(
     object = object[[assay]],
-    selection.method = selection.method,
+    method = method,
     status = status
   ))
 }
@@ -2164,6 +2157,7 @@ Idents.Seurat <- function(object, ...) {
 
 #' @param cells Set cell identities for specific cells
 #' @param drop Drop unused levels
+#' @param replace Replace identities for unset cells with \code{NA}
 #'
 #' @rdname Idents
 #' @export
@@ -2442,12 +2436,10 @@ RenameCells.Seurat <- function(
   ...
 ) {
   CheckDots(...)
-
   object <- UpdateSlots(object = object)
   working.cells <- Cells(x = object)
-
   if (is_present(arg = for.merge)) {
-    deprecate_soft(when = '5.0.0', what = 'RenameCells(for.merge = )')
+    .Deprecate(when = '5.0.0', what = 'RenameCells(for.merge = )')
   }
   if (is_missing(x = add.cell.id) && is_missing(x = new.names)) {
     abort(message = "One of 'add.cell.id' and 'new.names' must be set")
@@ -2573,20 +2565,21 @@ RenameIdents.Seurat <- function(object, ...) {
 #' @order 4
 #'
 #' @examples
-#' # Set an Assay slot through the Seurat object
-#' count.data <- GetAssayData(object = pbmc_small[["RNA"]], slot = "counts")
+#' # Set an Assay layer through the Seurat object
+#' count.data <- GetAssayData(object = pbmc_small[["RNA"]], layer = "counts")
 #' count.data <- as.matrix(x = count.data + 1)
 #' new.seurat.object <- SetAssayData(
 #'     object = pbmc_small,
-#'     slot = "counts",
+#'     layer = "counts",
 #'     new.data = count.data,
 #'     assay = "RNA"
 #' )
 #'
 SetAssayData.Seurat <- function(
   object,
-  slot = 'data',
+  layer = 'data',
   new.data,
+  slot = deprecated(),
   assay = NULL,
   ...
 ) {
@@ -2595,8 +2588,9 @@ SetAssayData.Seurat <- function(
   assay <- assay %||% DefaultAssay(object = object)
   object[[assay]] <- SetAssayData(
     object = object[[assay]],
-    slot = slot,
+    layer = layer,
     new.data = new.data,
+    slot = slot,
     ...
   )
   return(object)
@@ -2631,16 +2625,25 @@ SetIdent.Seurat <- function(object, cells = NULL, value, ...) {
 #'
 SpatiallyVariableFeatures.Seurat <- function(
   object,
-  selection.method = "moransi",
+  method = "moransi",
   assay = NULL,
   decreasing = TRUE,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SpatiallyVariableFeatures(selection.method = )',
+      with = 'SpatiallyVariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
   assay <- assay %||% DefaultAssay(object = object)
   return(SpatiallyVariableFeatures(
     object = object[[assay]],
-    selection.method = selection.method,
+    method = method,
     decreasing = decreasing
   ))
 }
@@ -2696,18 +2699,23 @@ Stdev.Seurat <- function(object, reduction = 'pca', ...) {
 #'
 SVFInfo.Seurat <- function(
   object,
-  selection.method = c("markvariogram", "moransi"),
+  method = c("markvariogram", "moransi"),
   status = FALSE,
   assay = NULL,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SVFInfo(selection.method = )',
+      with = 'SVFInfo(method = )'
+    )
+    method <- selection.method
+  }
   assay <- assay %||% DefaultAssay(object = object)
-  return(SVFInfo(
-    object = object[[assay]],
-    selection.method = selection.method,
-    status = status
-  ))
+  return(SVFInfo(object = object[[assay]], method = method, status = status))
 }
 
 #' @param slot Name of tool to pull
@@ -2767,22 +2775,32 @@ Tool.Seurat <- function(object, slot = NULL, ...) {
 #'
 VariableFeatures.Seurat <- function(
   object,
-  selection.method = NULL,
+  method = NULL,
   assay = NULL,
   nfeatures = NULL,
-  layer = NULL,
+  layer = NA,
   simplify = TRUE,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'VariableFeatures(selection.method = )',
+      with = 'VariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
   assay <- assay %||% DefaultAssay(object = object)
   return(VariableFeatures(
     object = object[[assay]],
-    selection.method = selection.method,
+    method = method,
     nfeatures = nfeatures,
     layer = layer,
     simplify = simplify,
-    ...))
+    ...
+  ))
 }
 
 #' @rdname VariableFeatures
@@ -2904,17 +2922,20 @@ WhichCells.Seurat <- function(
     cell.order <- colnames(x = object)
     cells <- colnames(x = object)[!colnames(x = object) %in% cells]
   }
-  cells <- CellsByIdentities(object = object, cells = cells, ...)
-  cells <- lapply(
-    X = cells,
-    FUN = function(x) {
-      if (length(x = x) > downsample) {
-        x <- sample(x = x, size = downsample, replace = FALSE)
-      }
-      return(x)
-    }
-  )
-  cells <- as.character(x = na.omit(object = unlist(x = cells, use.names = FALSE)))
+  # only perform downsampling when "downsample" is smaller than the number of cells
+  if(downsample <= length(cells)){
+      cells <- CellsByIdentities(object = object, cells = cells, ...)
+      cells <- lapply(
+          X = cells,
+          FUN = function(x) {
+              if (length(x = x) > downsample) {
+                  x <- sample(x = x, size = downsample, replace = FALSE)
+              }
+              return(x)
+          }
+      )
+      cells <- as.character(x = na.omit(object = unlist(x = cells, use.names = FALSE)))
+  }
   cells <- cells[na.omit(object = match(x = cell.order, table = cells))]
   return(cells)
 }
@@ -3051,10 +3072,11 @@ Version.Seurat <- function(object, ...) {
 
 #' Subobjects and Cell-Level Meta Data
 #'
-#' The \code{[[} operator pulls either subobjects (eg. \link[Assay]{v3} or
-#' \link[Assay5]{v5} assays, \link[DimReduc]{dimensional reduction} information,
-#' or \link[Graph]{nearest-neighbor graphs}) or cell-level meta data from a
-#' \code{\link{Seurat}} object
+#' The \code{[[} operator pulls either subobjects
+#' (eg. \link[=Assay]{v3} or \link[=Assay5]{v5} assays,
+#' \link[=DimReduc]{dimensional reduction} information,
+#' or \link[=Graph]{nearest-neighbor graphs}) or cell-level
+#' meta data from a \code{\link{Seurat}} object
 #'
 #' @inheritParams $.Seurat
 #' @param drop See \code{\link[base]{drop}}
@@ -3066,7 +3088,8 @@ Version.Seurat <- function(object, ...) {
 #'  \item If \code{i} is a vector with cell-level meta data names, a data frame
 #'   (or vector of \code{drop = TRUE}) with cell-level meta data requested
 #'  \item If \code{i} is a one-length character with the
-#'  \link[names.Seurat]{name of a subobject}, the subobject specified by \code{i}
+#'   \link[=names.Seurat]{name of a subobject}, the
+#'   subobject specified by \code{i}
 #' }
 #'
 #' @method [[ Seurat
@@ -3404,6 +3427,8 @@ levels.Seurat <- function(x) {
 #' Merge Seurat Objects
 #'
 #' @inheritParams CreateSeuratObject
+#' @inheritParams merge.Assay5
+#' @param x A \code{\link{Seurat}} object
 #' @param y A single \code{Seurat} object or a list of \code{Seurat} objects
 #' @param add.cell.ids A character vector of \code{length(x = c(x, y))};
 #' appends the corresponding values to the start of each objects' cell names
@@ -3658,10 +3683,10 @@ merge.Seurat <- function(
 #'
 #' @return The names of all of the following subobjects within \code{x}:
 #' \itemize{
-#'  \item \link[Assay]{v3} and \link[Assay5]{v5} assays
-#'  \item \link[DimReduc]{dimensional reductions}
-#'  \item \link[SpatialImage]{images} and \link[FOV]{FOVs}
-#'  \item \link[Graph]{nearest-neighbor graphs}
+#'  \item \link[=Assay]{v3} and \link[=Assay5]{v5} assays
+#'  \item \link[=DimReduc]{dimensional reductions}
+#'  \item \link[=SpatialImage]{images} and \link[=FOV]{FOVs}
+#'  \item \link[=Graph]{nearest-neighbor graphs}
 #' }
 #'
 #' @method names Seurat
@@ -3691,8 +3716,8 @@ names.Seurat <- function(x) {
 split.Seurat <- function(
     x,
     f,
-    assay = NULL,
     drop = FALSE,
+    assay = NULL,
     layers = NA,
     ...
 ){
@@ -3930,6 +3955,30 @@ upgrade.seurat <- function(object, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Original double-bracket assign
+#'
+#' This function has been replaced with value-specific double-bracket
+#' assign methods and should generally not be called
+#'
+#' @param x A \code{\link{Seurat}} object
+#' @param i The name to store a subobject or various cell-level meta data as
+#' @param value New subobject or cell-level meta data
+#'
+#' @return \code{x} with \code{value} stored as \code{i}
+#'
+#' @name old-assign
+#' @rdname old-assign
+#'
+#' @keywords internal
+#'
+#' @seealso See \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
+#' \link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
+#' data with \code{[[<-}
+#'
+NULL
+
+#' @rdname old-assign
+#'
 setMethod( # because R doesn't allow S3-style [[<- for S4 classes
   f = '[[<-',
   signature = c('x' = 'Seurat', i = 'character', value = 'ANY'),
@@ -4238,14 +4287,13 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #' @inheritParams .DollarNames.Seurat
 #' @inheritParams [[.Assay5
 #' @param i Name to add subobject as
-#' @param value A valid subobject (eg. a \link[Assay]{v3} or
-#' \link[Assay5]{v5} assay, or a \link[DimReduc]{dimensional reduction})
+#' @param value A valid subobject (eg. a \link[=Assay]{v3} or \link[=Assay5]{v5}
+#' assay, or a \link[=DimReduc]{dimensional reduction})
 #'
 #' @return \code{x} with \code{value} added as \code{i}
 #'
-#' @export
-#'
 #' @name [[<-,Seurat
+#' @rdname sub-subset-Seurat
 #'
 #' @family seurat
 #'
@@ -4254,7 +4302,11 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
 #' \link[=[[<-,Seurat,NULL]{here} for removing subobjects and cell-level meta
 #' data with \code{[[<-}
 #'
-#' @aliases [[<-.Seurat
+#' @aliases [[<-.Seurat \S4method{[[<-}{Seurat,character,missing,Assay}
+#'
+NULL
+
+#' @rdname sub-subset-Seurat
 #'
 setMethod(
   f = '[[<-',
@@ -4270,7 +4322,14 @@ setMethod(
     # Checks for if the assay or name already exists
     if (i %in% names(x = x)) {
       if (!inherits(x = x[[i]], what = c('Assay', 'StdAssay'))) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warning(
@@ -4285,10 +4344,9 @@ setMethod(
         )
       }
       if (!all(dim(x = value) == dim(x = x[[i]]))) {
-        warning(
-          "Different cells and/or features from existing assay ", i,
-          call. = FALSE,
-          immediate. = TRUE
+        warn(
+          message = paste0("Different cells and/or features from existing assay ", i),
+          class = 'dimWarning'
         )
       }
     }
@@ -4507,7 +4565,14 @@ setMethod(
     # Checks for if the DimReduc or name already exists
     if (i %in% .Subobjects(object = x)) {
       if (!inherits(x = x[[i]], what = 'DimReduc')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warning(
@@ -4709,7 +4774,14 @@ setMethod(
     # Checks for if the Graph or name already exists
     if (i %in% names(x = x)) {
       if (!inherits(x = x[[i]], what = 'Graph')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warning(
@@ -4820,7 +4892,14 @@ setMethod(
     # Checks for if the Neighbor or name already exists
     if (i %in% .Subobjects(object = x)) {
       if (!inherits(x = x[[i]], what = 'Neighbor')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warn(message = paste(
@@ -4874,9 +4953,8 @@ setMethod(
 #'
 #' @return \code{x} with \code{i} removed from the object
 #'
-#' @export
-#'
 #' @name [[<-,Seurat,NULL
+#' @rdname sub-subset-Seurat-NULL
 #'
 #' @family seurat
 #'
@@ -4884,7 +4962,11 @@ setMethod(
 #' \link[=$.Seurat]{here} for adding metadata with \code{[[<-}, and
 #' \link[=[[<-,Seurat]{here} for adding subobjects with \code{[[<-}
 #'
-#' @aliases remove-object remove-objects
+#' @aliases remove-object remove-objects \S4method{[[<-}{Seurat,character,missing,NULL}
+#'
+NULL
+
+#' @rdname sub-subset-Seurat-NULL
 #'
 setMethod(
   f = '[[<-',
@@ -4917,11 +4999,6 @@ setMethod(
           }
           # Remove the assay
           slot(object = x, name = slot.use)[[i]] <- value
-          # # Remove the assay entry from the LogMap
-          # slot(object = x, name = 'cells') <- droplevels(x = slot(
-          #   object = x,
-          #   name = 'cells'
-          # ))
         },
         # Remove other subobjects
         slot(object = x, name = slot.use)[[name]] <- value
@@ -4949,7 +5026,14 @@ setMethod(
     # Checks for if the SeuratCommand or name already exists
     if (i %in% .Subobjects(object = x)) {
       if (!inherits(x = x[[i]], what = 'SeuratCommand')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warn(message = paste(
@@ -4995,7 +5079,14 @@ setMethod(
     # Checks for if the image or name already exists
     if (i %in% .Subobjects(object = x)) {
       if (!inherits(x = x[[i]], what = 'SpatialImage')) {
-        .DuplicateError(name = i, cls = class(x = x[[i]]))
+        abort(
+          message = paste(
+            sQuote(i),
+            "already exists as an object of class",
+            class(x = x[[i]])[1L]
+          ),
+          class = 'duplicateError'
+        )
       }
       if (!identical(x = class(x = value), y = class(x = x[[i]]))) {
         warn(message = paste(
@@ -5083,7 +5174,7 @@ setMethod(
       misc = value@misc
     )
     for (l in Layers(object = value)) {
-        LayerData(object = value.order, layer = l) <- 
+        LayerData(object = value.order, layer = l) <-
           LayerData(object = value, layer = l)
     }
     value <- value.order
@@ -5206,7 +5297,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(colMeans(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5230,7 +5321,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::colSums(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5311,7 +5402,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowMeans(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5335,7 +5426,7 @@ setMethod(
   signature = c('x' = 'Seurat'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowSums(
-      x = GetAssayData(object = x, slot = slot),
+      x = LayerData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -5361,6 +5452,10 @@ setMethod(
   signature = "Seurat",
   definition = function(object) {
     #object <- UpdateSlots(object = object)
+    x <- tryCatch(
+      expr = slot(object = object, name = 'images'),
+      error = function(...) {stop("Please run UpdateSeuratObject on your object", call. = FALSE)})
+
     assays <- .FilterObjects(object = object, classes.keep = c('Assay', 'StdAssay'))
     nfeatures <- sum(vapply(
       X = assays,
@@ -5452,7 +5547,7 @@ setMethod(
 
 #' Old Seurat Object Overview
 #'
-#' Overview of a \code{\link[oldseurat-class]{seurat}} object overview
+#' Overview of a \code{\link[=oldseurat]{seurat}} object overview
 #'
 #' @param object An old seurat object
 #'
@@ -5594,7 +5689,7 @@ setValidity(
         }
       }
     }
-    # TODO: Check images
+    # Check images
     if (!IsNamedList(x = slot(object = object, name = 'images'), pass.zero = TRUE)) {
       valid <- c(valid, "'images' must be a named list")
     } else {

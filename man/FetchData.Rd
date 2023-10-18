@@ -32,6 +32,18 @@ pull identity classes}
 
 \item{layer}{Layer to pull feature data for}
 
+\item{clean}{Remove cells that are missing data; choose from:
+\itemize{
+ \item \dQuote{\code{all}}: consider all columns for cleaning
+ \item \dQuote{\code{ident}}: consider all columns except the identity
+  class for cleaning
+ \item \dQuote{\code{project}}: consider all columns except the identity
+  class for cleaning; fill missing identity values with the object's project
+ \item \dQuote{\code{none}}: do not clean
+}
+Passing \code{TRUE} is a shortcut for \dQuote{\code{ident}}; passing
+\code{FALSE} is a shortcut for \dQuote{\code{none}}}
+
 \item{slot}{Deprecated in favor of \code{layer}}
 }
 \value{

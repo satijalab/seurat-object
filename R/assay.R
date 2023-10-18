@@ -203,9 +203,9 @@ CreateAssayObject <- function(
   # Initialize meta.features
   init.meta.features <- data.frame(row.names = rownames(x = data))
   calcN_option <- getOption(
-           x = 'Seurat.object.assay.calcn',
-           default =  Seurat.options$Seurat.object.assay.calcn
-         )
+    x = 'Seurat.object.assay.calcn',
+    default =  Seurat.options$Seurat.object.assay.calcn
+  )
   assay <- new(
     Class = 'Assay',
     counts = counts,
@@ -252,7 +252,21 @@ CreateAssayObject <- function(
 #' @export
 #' @method AddMetaData Assay
 #'
-AddMetaData.Assay <- .AddMetaData
+AddMetaData.Assay <- function(object, metadata, col.name = NULL) {
+  if (is.null(x = col.name) && (is.atomic(x = metadata) && !is.matrix(x = metadata))) {
+    abort(message = "'col.name' must be provided for atomic meta data")
+  }
+  if (inherits(x = metadata, what = c('matrix', 'Matrix'))) {
+    metadata <- as.data.frame(x = metadata)
+  }
+  col.name <- col.name %||% names(x = metadata) %||% colnames(x = metadata)
+  if (is.null(x = col.name)) {
+    abort(message = "No metadata name provided and could not infer it from metadata object")
+  }
+  object[[col.name]] <- metadata
+  return(object)
+}
+
 
 #' @rdname DefaultAssay
 #' @export
@@ -291,14 +305,7 @@ Features.Assay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    f <- if (.IsFutureSeurat(version = '5.1.0')) {
-      deprecate_stop
-    } else if (.IsFutureSeurat(version = '5.0.0')) {
-      deprecate_warn
-    } else {
-      deprecate_soft
-    }
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'Features(slot = )',
       with = 'Features(layer = )'
@@ -326,8 +333,8 @@ FetchData.Assay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_soft(
-      when = '4.9.0',
+    .Deprecate(
+      when = '5.0.0',
       what = 'FetchData(slot = )',
       with = 'FetchData(layer = )'
     )
@@ -402,14 +409,7 @@ GetAssayData.Assay <- function(
 ) {
   CheckDots(...)
   if (is_present(arg = slot)) {
-    f <- if (.IsFutureSeurat(version = '5.1.0')) {
-      deprecate_stop
-    } else if (.IsFutureSeurat(version = '5.0.0')) {
-      deprecate_warn
-    } else {
-      deprecate_soft
-    }
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'GetAssayData(slot = )',
       with = 'GetAssayData(layer = )'
@@ -438,14 +438,7 @@ HVFInfo.Assay <- function(
 ) {
   CheckDots(...)
   if (is_present(arg = selection.method)) {
-    f <- if (.IsFutureSeurat(version = '5.1.0')) {
-      deprecate_stop
-    } else if (.IsFutureSeurat(version = '5.0.0')) {
-      deprecate_warn
-    } else {
-      deprecate_soft
-    }
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'HVFInfo(selection.method = )',
       with = 'HVFInfo(method = )'
@@ -456,20 +449,20 @@ HVFInfo.Assay <- function(
   if (tolower(x = method) %in% disp.methods) {
     method <- 'mvp'
   }
-  selection.method <- switch(
+  method <- switch(
     EXPR = tolower(x = method),
-    'sctransform' = 'sct',
+    sctransform = 'sct',
     method
   )
   vars <- switch(
     EXPR = method,
-    'vst' = c('mean', 'variance', 'variance.standardized'),
-    'mvp' = c('mean', 'dispersion', 'dispersion.scaled'),
-    'sct' = c('gmean', 'variance', 'residual_variance'),
-    stop("Unknown method: '", method, "'", call. = FALSE)
+    vst = c('mean', 'variance', 'variance.standardized'),
+    mvp = c('mean', 'dispersion', 'dispersion.scaled'),
+    sct = c('gmean', 'variance', 'residual_variance'),
+    abort(message = paste("Unknown method:", sQuote(x = method)))
   )
   tryCatch(
-    expr = hvf.info <- object[paste(method, vars, sep = '.')],
+    expr = hvf.info <- object[[paste(method, vars, sep = '.')]],
     error = function(e) {
       stop(
         "Unable to find highly variable feature information for method '",
@@ -481,7 +474,7 @@ HVFInfo.Assay <- function(
   )
   colnames(x = hvf.info) <- vars
   if (status) {
-    hvf.info$variable <- object[paste0(method, '.variable')]
+    hvf.info$variable <- object[[paste0(method, '.variable')]]
   }
   return(hvf.info)
 }
@@ -527,12 +520,15 @@ LayerData.Assay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop(when = "5.0.0", 
-                   what = "LayerData(slot = )", 
-                   with = "LayerData(layer = )")
+    deprecate_stop(
+      when = "5.0.0",
+      what = "LayerData(slot = )",
+      with = "LayerData(layer = )"
+    )
   }
   # Figure out which matrix we're pulling
-  layer <- layer[1L] %||% DefaultLayer(object = object)
+  layer <- layer[1L] %||% "data"
+
   # layer <- match.arg(
   #   arg = layer,
   #   choices = Layers(object = object, search = FALSE)
@@ -621,7 +617,10 @@ LayerData.Assay <- function(
   )
   # Check the class of the matrix
   if (!inherits(x = value, what = c('matrix', 'dgCMatrix'))) {
-    abort(message = "'value' must be a 'matrix' or 'dgCMatrix'")
+   abort(message = paste(
+     "'value' must be a 'matrix' or 'dgCMatrix' in v3 Assays, not a",
+     sQuote(x = class(x = value)[1L])
+   ))
   }
   if (!IsMatrixEmpty(x = value)) {
     vnames <- dimnames(x = value)
@@ -748,20 +747,29 @@ RenameCells.Assay <- function(object, new.names = NULL, ...) {
 #' @method SetAssayData Assay
 #'
 #' @examples
-#' # Set an Assay slot directly
-#' count.data <- GetAssayData(pbmc_small[["RNA"]], slot = "counts")
+#' # Set an Assay layer directly
+#' count.data <- GetAssayData(pbmc_small[["RNA"]], layer = "counts")
 #' count.data <- as.matrix(x = count.data + 1)
-#' new.assay <- SetAssayData(pbmc_small[["RNA"]], slot = "counts", new.data = count.data)
+#' new.assay <- SetAssayData(pbmc_small[["RNA"]], layer = "counts", new.data = count.data)
 #'
 SetAssayData.Assay <- function(
   object,
-  slot = c('data', 'scale.data', 'counts'),
+  layer = c('data', 'scale.data', 'counts'),
   new.data,
+  slot = deprecated(),
   ...
 ) {
+  if (is_present(arg = slot)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SetAssayData(slot = )',
+      with = 'SetAssayData(layer = )'
+    )
+    layer <- slot
+  }
   CheckDots(...)
-  slot <- slot[1]
-  slot <- match.arg(arg = slot)
+  layer <- layer[1]
+  layer <- match.arg(arg = layer)
   if (!IsMatrixEmpty(x = new.data)) {
     if (any(grepl(pattern = '_', x = rownames(x = new.data)))) {
       warning(
@@ -783,13 +791,13 @@ SetAssayData.Assay <- function(
     }
     num.counts <- nrow(x = object)
     counts.names <- rownames(x = object)
-    if (slot == 'scale.data' && nrow(x = new.data) > num.counts) {
+    if (layer == 'scale.data' && nrow(x = new.data) > num.counts) {
       warning(
         "Adding more features than present in current data",
         call. = FALSE,
         immediate. = TRUE
       )
-    } else if (slot %in% c('counts', 'data') && nrow(x = new.data) != num.counts) {
+    } else if (layer %in% c('counts', 'data') && nrow(x = new.data) != num.counts) {
       warning(
         "The new data doesn't have the same number of features as the current data",
         call. = FALSE,
@@ -815,7 +823,7 @@ SetAssayData.Assay <- function(
       )
     }
     new.data <- new.data[new.features, colnames(x = object), drop = FALSE]
-    if (slot %in% c('counts', 'data') && !all(dim(x = new.data) == dim(x = object))) {
+    if (layer %in% c('counts', 'data') && !all(dim(x = new.data) == dim(x = object))) {
       stop(
         "Attempting to add a different number of cells and/or features",
         call. = FALSE
@@ -828,7 +836,7 @@ SetAssayData.Assay <- function(
   if (!is.vector(x = colnames(x = new.data))) {
     colnames(x = new.data) <- as.vector(x = colnames(x = new.data))
   }
-  slot(object = object, name = slot) <- new.data
+  slot(object = object, name = layer) <- new.data
   return(object)
 }
 
@@ -841,12 +849,21 @@ SetAssayData.Assay <- function(
 #'
 SpatiallyVariableFeatures.Assay <- function(
   object,
-  selection.method = "moransi",
+  method = "moransi",
   decreasing = TRUE,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
-  vf <- SVFInfo(object = object, selection.method = selection.method, status = TRUE)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SpatiallyVariableFeatures(selection.method = )',
+      with = 'SpatiallyVariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
+  vf <- SVFInfo(object = object, method = method, status = TRUE)
   vf <- vf[rownames(x = vf)[which(x = vf[, "variable"][, 1])], ]
   if (!is.null(x = decreasing)) {
     vf <- vf[order(x = vf[, "rank"], decreasing = !decreasing), ]
@@ -860,33 +877,42 @@ SpatiallyVariableFeatures.Assay <- function(
 #'
 SVFInfo.Assay <- function(
   object,
-  selection.method = c("markvariogram", "moransi"),
+  method = c("markvariogram", "moransi"),
   status = FALSE,
+  selection.method = deprecated(),
   ...
 ) {
   CheckDots(...)
-  selection.method <- selection.method[1]
-  selection.method <- match.arg(arg = selection.method)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SVFInfo(selection.method = )',
+      with = 'SVFInfo(method = )'
+    )
+    method <- selection.method
+  }
+  method <- method[1]
+  method <- match.arg(arg = method)
   vars <- switch(
-    EXPR = selection.method,
-    'markvariogram' = grep(
+    EXPR = method,
+    markvariogram = grep(
       pattern = "r.metric",
       x = colnames(x = object[]),
       value = TRUE
     ),
-    'moransi' = grep(
+    moransi = grep(
       pattern = 'moransi',
       x = colnames(x = object[]),
       value = TRUE
     ),
-    stop("Unknown method: '", selection.method, "'", call. = FALSE)
+    abort(message = paste("Unknown method:", sQuote(x = method)))
   )
   tryCatch(
-    expr = svf.info <- object[vars],
+    expr = svf.info <- object[[vars]],
     error = function(e) {
       stop(
         "Unable to find highly variable feature information for method '",
-        selection.method,
+        method,
         "'",
         call. = FALSE
       )
@@ -894,8 +920,8 @@ SVFInfo.Assay <- function(
   )
   colnames(x = svf.info) <- vars
   if (status) {
-    svf.info$variable <- object[paste0(selection.method, '.spatially.variable')]
-    svf.info$rank <- object[paste0(selection.method, '.spatially.variable.rank')]
+    svf.info$variable <- object[[paste0(method, '.spatially.variable')]]
+    svf.info$rank <- object[[paste0(method, '.spatially.variable.rank')]]
   }
   return(svf.info)
 }
@@ -904,12 +930,25 @@ SVFInfo.Assay <- function(
 #' @export
 #' @method VariableFeatures Assay
 #'
-VariableFeatures.Assay <- function(object, selection.method = NULL, ...) {
+VariableFeatures.Assay <- function(
+  object,
+  method = NULL,
+  selection.method = deprecated(),
+  ...
+) {
   suppressWarnings(CheckDots(...))
-  if (!is.null(x = selection.method)) {
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'VariableFeatures(selection.method = )',
+      with = 'VariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
+  if (!is.null(x = method)) {
     vf <- HVFInfo(
       object = object,
-      selection.method = selection.method,
+      method = method,
       status = TRUE
     )
     return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
@@ -938,10 +977,7 @@ VariableFeatures.Assay <- function(object, selection.method = NULL, ...) {
   value <- split(x = value, f = value %in% rownames(x = object))
   if (length(x = value[['FALSE']]) > 0) {
     if (length(x = value[['TRUE']]) == 0) {
-      stop(
-        "None of the features provided are in this Assay object",
-        call. = FALSE
-      )
+      abort(message = "None of the features provided are in this Assay object")
     } else {
       warning(
         "Not all features provided are in this Assay object, removing the following feature(s): ",
@@ -1083,25 +1119,56 @@ WhichCells.Assay <- function(
 #'
 #' @inheritParams [.Assay5
 #' @param x An \code{\link{Assay}} object
+#' @param j Ignored
 #'
 #' @method [ Assay
 #' @export
 #'
 #' @order 1
 #'
+#' @seealso \code{\link{LayerData}}
+#'
 #' @family assay
 #'
 #' @examples
 #' rna <- pbmc_small[["RNA"]]
 #'
+#' # Get a vector of layer names in this assay
+#' rna[]
+#'
+#' # Fetch layer data
+#' rna["data"][1:10, 1:4]
+#'
+"[.Assay" <- function(x, i = rlang::missing_arg(), ...) {
+  if (rlang::is_missing(x = i)) {
+    return(Layers(object = x))
+  }
+  return(LayerData(object = x, layer = i, ...))
+}
+
+#' @inherit [[.Assay5 return title description details sections
+#'
+#' @inheritParams [[.Assay5
+#' @param x An \code{\link{Assay}} object
+#'
+#' @method [[ Assay
+#' @export
+#'
+#' @family assay
+#'
+#' @order 1
+#'
+#' @examples
+#' rna <- pbmc_small[["RNA"]]
+#'
 #' # Pull the entire feature-level meta data data frame
-#' head(rna[])
+#' head(rna[[]])
 #'
 #' # Pull a specific column of feature-level meta data
-#' head(rna["vst.mean"])
-#' head(rna["vst.mean", drop = TRUE])
+#' head(rna[["vst.mean"]])
+#' head(rna[["vst.mean", drop = TRUE]])
 #'
-"[.Assay" <- function(x, i, ..., drop = FALSE) {
+"[[.Assay" <- function(x, i, ..., drop = FALSE) {
   if (missing(x = i)) {
     i <- colnames(x = slot(object = x, name = 'meta.features'))
   }
@@ -1111,38 +1178,6 @@ WhichCells.Assay <- function(
     names(x = data.return) <- rep.int(x = rownames(x = x), times = length(x = i))
   }
   return(data.return)
-}
-
-#' @inherit [[.Assay5 return title description details sections
-#'
-#' @inheritParams [.Assay
-#' @inheritParams [[.Assay5
-#' @param j Ignored
-#'
-#' @method [[ Assay
-#' @export
-#'
-#' @family assay
-#'
-#' @seealso \code{\link{LayerData}}
-#'
-#' @order 1
-#'
-#' @examples
-#' rna <- pbmc_small[["RNA"]]
-#'
-#' # Get a vector of layer names in this assay
-#' rna[[]]
-#'
-#' # Fetch layer data
-#' rna[["data"]][1:10, 1:4]
-#'
-"[[.Assay" <- function(x, i = rlang::missing_arg(), ...) {
-  # if (missing(x = i)) {
-  if (rlang::is_missing(x = i)) {
-    return(Layers(object = x))
-  }
-  return(LayerData(object = x, layer = i, ...))
 }
 
 #' @inherit dim.Assay5 return title description details sections
@@ -1233,7 +1268,7 @@ dimnames.Assay <- function(x) {
   return(x)
 }
 
-#' @rdname sub-.Assay
+#' @rdname sub-sub-.Assay
 #'
 #' @method head Assay
 #' @export
@@ -1243,20 +1278,21 @@ dimnames.Assay <- function(x) {
 #' head(rna)
 #'
 head.Assay <- function(x, n = 10L, ...) {
-  return(head(x[], n = 10L, ...))
+  return(head(x[[]], n = 10L, ...))
 }
 
 #' Merge Assays
 #'
 #' Merge one or more v3 assays together
 #'
-#' @inheritParams [.Assay
+#' @inheritParams [[.Assay
 #' @param y One or more \code{\link{Assay}} objects
 #' @param add.cell.ids A character vector of \code{length(x = c(x, y))};
 #' appends the corresponding values to the start of each objects' cell names
 #' @param merge.data Merge the data slots instead of just merging the counts
 #' (which requires renormalization); this is recommended if the same
 #' normalization approach was applied to all objects
+#' @param labels,collapse Currently unused
 #'
 #' @return A new assay with data merged from \code{c(x, y)}
 #'
@@ -1421,12 +1457,12 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
     new(Class = 'matrix')
   }
   VariableFeatures(object = x) <- VariableFeatures(object = x)[VariableFeatures(object = x) %in% features]
-  slot(object = x, name = 'meta.features') <- x[][features, , drop = FALSE]
+  slot(object = x, name = 'meta.features') <- x[[]][features, , drop = FALSE]
   validObject(object = x)
   return(x)
 }
 
-#' @rdname sub-.Assay
+#' @rdname sub-sub-.Assay
 #'
 #' @method tail Assay
 #' @export
@@ -1435,90 +1471,38 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
 #' tail(rna)
 #'
 tail.Assay <- function(x, n = 10L, ...) {
-  return(tail(x[], n = n, ...))
+  return(tail(x[[]], n = n, ...))
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-setAs(
-  from = 'Assay5',
-  to = 'Assay',
-  def = function(from) {
-    data.list <- c()
-    original.layers <- Layers(object = from)
-    layers.saved <- c()
-    for (i in c('counts', 'data', 'scale.data')) {
-      layers.saved <- c(layers.saved, Layers(object = from, search = i))
-      if (length(Layers(object = from, search = i)) > 1) {
-          warning("Joining '", i, "' layers. If you have the same cells in multiple layers, ", 
-                  "the expression value for the cell in the '",
-                  i, "' slot will be the value from the '", 
-                  Layers(object = from, search = i)[1], "' layer.",
-                  call. = FALSE, 
-                  immediate. = TRUE)
-          from <- JoinLayers(object = from,
-                            layers = i,
-                            new = i)
-      } 
-      if(i == "data") {
-        if (isTRUE(Layers(object = from, search = i) == "scale.data")){
-          warning("No counts or data slot in object. Setting 'data' slot using",
-                  " data from 'scale.data' slot. To recreate 'data' slot, you",
-                  " must set and normalize data from a 'counts' slot.",
-                  call. = FALSE)
-        }
-      }
-      adata <- LayerData(object = from, layer = i)
-      if(inherits(x = adata, what = "IterableMatrix")) {
-        warning("Converting IterableMatrix to sparse dgCMatrix",
-                call. = FALSE)
-        adata <- as(object = adata, Class = "dgCMatrix")
-      }
-      data.list[[i]] <- adata
-    }
-    if (IsMatrixEmpty(x = data.list[["data"]])){
-      data.list[["data"]] <- data.list[["counts"]]
-    }
-    if (any(!(original.layers %in% layers.saved))){
-      layers.remove <- original.layers[!(original.layers %in% layers.saved)]
-      warning("Layers ", paste0(layers.remove, collapse = ', '), 
-              " will be removed from the object as v3 assays only support", 
-              " 'counts', 'data', or 'scale.data' slots.", 
-              call. = FALSE, 
-              immediate. = TRUE)
-    }
-    to <- new(
-      Class = 'Assay',
-      counts = data.list[["counts"]],
-      data = data.list[["data"]],
-      scale.data = data.list[["scale.data"]],
-      assay.orig = DefaultAssay(object = from) %||% character(length = 0L),
-      meta.features = data.frame(row.names = rownames(x = data.list[["data"]])),
-      key = Key(object = from)
-    )
-    # Add feature-level meta data
-    suppressWarnings(to[] <- from[])
-    # set variable features
-    VariableFeatures(object = to) <- VariableFeatures(object = from)
-    mdata <- Misc(object = from)
-    for (i in names(x = mdata)) {
-      Misc(object = to, slot = i) <- mdata[[i]]
-    }
-    return(to)
+#' @rdname sub-.Assay
+#'
+#' @examples
+#' # Set layer data
+#' rna["data"] <- rna["counts"]
+#' rna["data"][1:10, 1:4]
+#'
+setMethod(
+  f = '[<-',
+  signature = c(x = 'Assay', i = 'character'),
+  definition = function(x, i, ..., value) {
+    LayerData(object = x, layer = i, ...) <- value
+    return(x)
   }
 )
 
-#' @rdname sub-.Assay
+#' @rdname sub-sub-.Assay
 #'
 #' @order 2
 #'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(x = 'Assay'),
   definition = function(x, i, ..., value) {
-    meta.data <- x[]
+    meta.data <- x[[]]
     feature.names <- rownames(x = meta.data)
     if (is.data.frame(x = value)) {
       value <- lapply(
@@ -1560,9 +1544,10 @@ setMethod(
   }
 )
 
-#' @rdname sub-.Assay
+#' @rdname sub-sub-.Assay
+#'
 setMethod(
-  f = '[<-',
+  f = '[[<-',
   signature = c(
     x = 'Assay',
     i = 'missing',
@@ -1572,31 +1557,15 @@ setMethod(
   definition = function(x, ..., value) {
     # Allow removing all meta data
     if (IsMatrixEmpty(x = value)) {
-      x[names(x = x[])] <- NULL
+      x[[names(x = x[[]])]] <- NULL
       return(x)
     }
     if (is.null(names(x = value))) {
-      warning('colnames of input cannot be NULL')
+      warn(message = 'colnames of input cannot be NULL')
     } else {
       # If no `i` provided, use the column names from value
-      x[names(x = value)] <- value
+      x[[names(x = value)]] <- value
     }
-    return(x)
-  }
-)
-
-#' @rdname sub-sub-.Assay
-#'
-#' @examples
-#' # Set layer data
-#' rna[["data"]] <- rna[["counts"]]
-#' rna[["data"]][1:10, 1:4]
-#'
-setMethod(
-  f = '[[<-',
-  signature = c(x = 'Assay', i = 'character'),
-  definition = function(x, i, ..., value) {
-    LayerData(object = x, layer = i, ...) <- value
     return(x)
   }
 )
@@ -1606,7 +1575,7 @@ setMethod(
 #' Calculate \code{\link{rowSums}}, \code{\link{colSums}},
 #' \code{\link{rowMeans}}, and \code{\link{colMeans}} on \code{Assay} objects
 #'
-#' @inheritParams [.Assay
+#' @inheritParams [[.Assay
 #' @inheritParams Matrix::colMeans
 #' @param slot Name of assay expression matrix to calculate column/row
 #' means/sums on

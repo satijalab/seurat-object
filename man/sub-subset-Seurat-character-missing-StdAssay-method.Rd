@@ -13,10 +13,10 @@
 
 \item{j}{Ignored}
 
-\item{...}{Arguments passed to \code{\link{LayerData}}}
+\item{...}{Ignored}
 
-\item{value}{A valid subobject (eg. a \link[Assay]{v3} or
-\link[Assay5]{v5} assay, or a \link[DimReduc]{dimensional reduction})}
+\item{value}{A valid subobject (eg. a \link[=Assay]{v3} or \link[=Assay5]{v5}
+assay, or a \link[=DimReduc]{dimensional reduction})}
 }
 \value{
 \code{x} with \code{value} added as \code{i}

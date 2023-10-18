@@ -21,7 +21,7 @@ provided to append to all cell names; if \code{TRUE}, uses \code{labels} as
 A new \code{DimReduc} object with data merged from \code{c(x, y)}
 }
 \description{
-Merge two or more \link[DimReduc]{dimensional reductions} together
+Merge two or more \link[=DimReduc]{dimensional reduction} together
 }
 \seealso{
 Dimensional reduction object, validity, and interaction methods

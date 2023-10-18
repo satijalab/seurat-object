@@ -22,13 +22,13 @@ A named list where the names are present in both \code{x} and
 Propagate a List
 }
 \examples{
-.PropogateList("counts", c("RNA", "ADT", "SCT"))
-.PropogateList(c("counts", "data"), c("RNA", "ADT", "SCT"))
-.PropogateList("ADT", c("RNA", "ADT", "SCT"))
-.PropogateList(c("RNA", "SCT"), c("RNA", "ADT", "SCT"))
-.PropogateList(c("RNA", ADT = "counts"), c("RNA", "ADT", "SCT"))
-.PropogateList(list(SCT = c("counts", "data"), ADT = "counts"), c("RNA", "ADT", "SCT"))
-.PropogateList(list(SCT = c("counts", "data"), "ADT"), c("RNA", "ADT", "SCT"))
+.PropagateList("counts", c("RNA", "ADT", "SCT"))
+.PropagateList(c("counts", "data"), c("RNA", "ADT", "SCT"))
+.PropagateList("ADT", c("RNA", "ADT", "SCT"))
+.PropagateList(c("RNA", "SCT"), c("RNA", "ADT", "SCT"))
+.PropagateList(c("RNA", ADT = "counts"), c("RNA", "ADT", "SCT"))
+.PropagateList(list(SCT = c("counts", "data"), ADT = "counts"), c("RNA", "ADT", "SCT"))
+.PropagateList(list(SCT = c("counts", "data"), "ADT"), c("RNA", "ADT", "SCT"))
 
 }
 \concept{utils}

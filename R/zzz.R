@@ -2,13 +2,13 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom progressr progressor
 #' @importFrom utils head tail upgrade
-#' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
-#' deprecate_warn is_present
+#' @importFrom lifecycle deprecated is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
 #' setOldClass setValidity show slot slot<- validObject
-#' @importFrom rlang abort arg_match arg_match0 check_installed enquo eval_tidy
-#' have_name inform is_bare_character is_bare_integerish is_bare_list
-#' is_bare_numeric is_missing is_na is_named is_quosure missing_arg warn
+#' @importFrom rlang abort arg_match arg_match0 caller_env check_installed
+#' enquo eval_tidy have_name inform is_bare_character is_bare_integerish
+#' is_bare_list is_bare_numeric is_missing is_na is_named is_quosure
+#' missing_arg warn
 #' @importClassesFrom Matrix dgCMatrix
 #' @useDynLib SeuratObject
 #'
@@ -84,7 +84,7 @@ Seurat.options <- list(
   Seurat.input.sparse_ratio = 0.4,
   Seurat.io.rds.strict = FALSE,
   Seurat.object.assay.calcn = NULL,
-  Seurat.object.assay.version = 'v3',
+  Seurat.object.assay.version = 'v5',
   Seurat.object.assay.v3.missing_layer = 'matrix',
   Seurat.object.project = 'SeuratProject',
   progressr.clear = FALSE
@@ -162,7 +162,7 @@ setOldClass(Classes = 'package_version')
 
 #' Test Intersections of Bounding Boxes
 #'
-#' @param i,j \link[sp::bbox]{Bounding boxes}
+#' @param i,j \link[sp:bbox]{Bounding boxes}
 #' @param constraint Type of intersection to perform; choose from:
 #' \itemize{
 #'  \item \dQuote{\code{intersect}}: \code{i} must fall at least

@@ -196,7 +196,7 @@ AddMetaData <- function(object, metadata, col.name = NULL) {
 #' @rdname as.Graph
 #' @export as.Graph
 #'
-#' @concept graph
+#' @family graph
 #'
 as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
@@ -817,7 +817,7 @@ GetTissueCoordinates <- function(object, ...) {
 #'
 #' @template param-dots-method
 #' @param object An object
-#' @param selection.method Which method to pull. For \code{HVFInfo} and
+#' @param method Which method to pull. For \code{HVFInfo} and
 #' \code{VariableFeatures}, choose one from one of the
 #' following:
 #' \itemize{
@@ -832,6 +832,7 @@ GetTissueCoordinates <- function(object, ...) {
 #'  \item \dQuote{moransi}
 #' }
 #' @param status Add variable status to the resulting data frame
+#' @param selection.method \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 #'
 #' @return \code{HVFInfo}: A data frame with feature means, dispersion, and
 #' scaled dispersion
@@ -1067,6 +1068,7 @@ Keys <- function(object, ...) {
 #' @template param-dots-method
 #' @param object An object
 #' @param layer Name of layer to fetch or set
+#' @param slot \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 #'
 #' @return \code{LayerData}: the layer data for \code{layer} from \code{object}
 #'
@@ -1355,18 +1357,6 @@ S4ToList <- function(object) {
   UseMethod(generic = 'S4ToList', object = object)
 }
 
-#' @param object object to save
-#'
-#' @return Invisibly returns \code{file}
-#'
-#' @rdname saveRDS
-#' @export saveRDS
-#'
-saveRDS <- function(object, ...) {
-  UseMethod(generic = 'saveRDS', object = object)
-}
-
-
 #' @param new.data New assay data to add
 #'
 #' @return \code{SetAssayData}: \code{object} with the assay data set
@@ -1376,7 +1366,7 @@ saveRDS <- function(object, ...) {
 #'
 #' @order 2
 #'
-SetAssayData <- function(object, slot, new.data, ...) {
+SetAssayData <- function(object, layer, new.data, slot = deprecated(), ...) {
   UseMethod(generic = 'SetAssayData', object = object)
 }
 
@@ -1415,7 +1405,7 @@ Simplify <- function(coords, tol, topologyPreserve = TRUE) {
 #'
 #' @order 5
 #'
-SpatiallyVariableFeatures <- function(object, selection.method, ...) {
+SpatiallyVariableFeatures <- function(object, method, ...) {
   UseMethod(generic = 'SpatiallyVariableFeatures', object = object)
 }
 
@@ -1491,7 +1481,7 @@ StitchMatrix <- function(x, y, rowmap, colmap, ...) {
 #'
 #' @order 4
 #'
-SVFInfo <- function(object, selection.method, status, ...) {
+SVFInfo <- function(object, method, status, ...) {
   UseMethod(generic = 'SVFInfo', object = object)
 }
 
@@ -1571,7 +1561,7 @@ Tool <- function(object, ...) {
 #'
 #' @order 2
 #'
-VariableFeatures <- function(object, selection.method = NULL, ...) {
+VariableFeatures <- function(object, method = NULL, ...) {
   UseMethod(generic = 'VariableFeatures', object = object)
 }
 

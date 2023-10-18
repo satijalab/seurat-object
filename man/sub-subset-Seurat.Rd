@@ -3,6 +3,8 @@
 \name{[[<-,Seurat}
 \alias{[[<-,Seurat}
 \alias{[[<-.Seurat}
+\alias{\S4method{[[<-}{Seurat,character,missing,Assay}}
+\alias{[[<-,Seurat,character,missing,Assay-method}
 \alias{[[<-,Seurat,character,missing,Assay5-method}
 \alias{[[<-,Seurat,character,missing,DimReduc-method}
 \alias{[[<-,Seurat,character,missing,Graph-method}
@@ -32,10 +34,10 @@
 
 \item{j}{Ignored}
 
-\item{...}{Arguments passed to \code{\link{LayerData}}}
+\item{...}{Ignored}
 
-\item{value}{A valid subobject (eg. a \link[Assay]{v3} or
-\link[Assay5]{v5} assay, or a \link[DimReduc]{dimensional reduction})}
+\item{value}{A valid subobject (eg. a \link[=Assay]{v3} or \link[=Assay5]{v5}
+assay, or a \link[=DimReduc]{dimensional reduction})}
 }
 \value{
 \code{x} with \code{value} added as \code{i}

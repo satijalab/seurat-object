@@ -21,7 +21,14 @@ LayerData(object, layer, ...) <- value
 
 Layers(object, ...)
 
-\method{LayerData}{Assay}(object, layer = NULL, cells = NULL, features = NULL, ...)
+\method{LayerData}{Assay}(
+  object,
+  layer = NULL,
+  cells = NULL,
+  features = NULL,
+  slot = deprecated(),
+  ...
+)
 
 \method{LayerData}{Assay}(object, layer, ...) <- value
 
@@ -33,6 +40,7 @@ Layers(object, ...)
   cells = NULL,
   features = NULL,
   fast = FALSE,
+  slot = deprecated(),
   ...
 )
 
@@ -40,7 +48,7 @@ Layers(object, ...)
 
 \method{Layers}{Assay5}(object, search = NA, ...)
 
-\method{LayerData}{Seurat}(object, layer = NULL, assay = NULL, ...)
+\method{LayerData}{Seurat}(object, layer = NULL, assay = NULL, slot = deprecated(), ...)
 
 \method{LayerData}{Seurat}(object, layer, assay = NULL, ...) <- value
 
@@ -56,6 +64,8 @@ Layers(object, ...)
 \item{value}{New two-dimensional data to be added as a layer}
 
 \item{features, cells}{Vectors of features/cells to include}
+
+\item{slot}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
 
 \item{search}{A pattern to search layer names for; pass one of:
 \itemize{
