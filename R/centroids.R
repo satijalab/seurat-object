@@ -354,7 +354,7 @@ setMethod(
   f = 'over',
   signature = c(x = 'Centroids', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
-    return(sf::st_intersects(
+    return(over(
       x = as(object = x, Class = 'sf'),
       y = as(object = y, Class = 'sf'),
       returnList = returnList,
@@ -371,8 +371,10 @@ setMethod(
   f = 'Overlay',
   signature = c(x = 'Centroids', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
-    idx <- over(x = x, y = y)
-    idx <- idx[!is.na(x = idx)]
+    idx <- st_intersects(x = as(x,"sf"), y = as(y,"sf"), sparse=F)
+    idx <- which(idx)
+    names_in_sf_object1 <- if (!is.null(row.names(x))) row.names(x)[idx] else x$id[idx]
+    idx <- setNames(rep(TRUE, length(idx)), names_in_sf_object1)
     if (!length(idx)) {
       warning("The selected region does not contain any cell centroids")
       return(NULL)
