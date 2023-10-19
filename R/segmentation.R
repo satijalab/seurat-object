@@ -291,7 +291,7 @@ setMethod(
     return(over(
       x = as(object = x, Class = 'sf'),
       y = as(object = y, Class = 'sf'),
-      sparse = F,
+      sparse = FALSE,
       returnList = returnList,
       fn = fn,
       ...
