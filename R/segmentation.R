@@ -287,6 +287,7 @@ setMethod(
   f = 'over',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
+    check_installed(pkg = 'sf')
     return(over(
       x = as(object = x, Class = 'sf'),
       y = as(object = y, Class = 'sf'),
