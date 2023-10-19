@@ -38,8 +38,7 @@ Additional_repositories:
     https://bnprks.r-universe.dev
 Depends:
     R (>= 4.0.0),
-    sp (>= 1.5.0),
-    sf (>= 1.0.0)
+    sp (>= 1.5.0)
 Imports:
     future,
     future.apply,
@@ -64,7 +63,8 @@ Suggests:
     rmarkdown,
     rgeos,
     testthat,
-    BPCells
+    BPCells,
+    sf (>= 1.0.0)
 Collate:
     'RcppExports.R'
     'zzz.R'
