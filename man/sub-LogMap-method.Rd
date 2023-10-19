@@ -28,7 +28,8 @@
 \arguments{
 \item{x}{A \code{LogMap} object}
 
-\item{i, j}{...}
+\item{i, j}{Vectors of values (\code{i}) and observations (\code{j}) to pull
+from \code{x}}
 
 \item{...}{Arguments passed to other methods}
 
@@ -40,5 +41,26 @@
 }
 \description{
 Matrix-like Subsetting for \link[=LogMap]{Logical Maps}
+}
+\note{
+\code{i} is not reordable; passing a different order for \code{i}
+will return a subset with rows in the same order as \code{x}
+}
+\examples{
+map <- LogMap(letters[1:10])
+map[['obs']] <- c(1, 3, 7)
+map[['entry']] <- c(2, 7, 10)
+
+map[]
+map[1:5, 2L]
+map[c("b", "c", "f"), "obs"]
+
+# Pass `drop = TRUE` to cast to `matrix`
+map[1:3, , drop = TRUE]
+
+# Note that `i` is non-reordable
+rownames(map)[1:3]
+rownames(map[3:1, ])
+
 }
 \keyword{internal}

@@ -292,13 +292,33 @@ labels.LogMap <- function(
 #'
 #' @inheritParams base::`[`
 #' @inheritParams LogMap-class
-#' @param i,j ...
+#' @param i,j Vectors of values (\code{i}) and observations (\code{j}) to pull
+#' from \code{x}
 #' @template param-dots-method
+#'
+#' @note \code{i} is not reordable; passing a different order for \code{i}
+#' will return a subset with rows in the same order as \code{x}
 #'
 #' @name [,LogMap
 #' @rdname sub-LogMap-method
 #'
 #' @keywords internal
+#'
+#' @examples
+#' map <- LogMap(letters[1:10])
+#' map[['obs']] <- c(1, 3, 7)
+#' map[['entry']] <- c(2, 7, 10)
+#'
+#' map[]
+#' map[1:5, 2L]
+#' map[c("b", "c", "f"), "obs"]
+#'
+#' # Pass `drop = TRUE` to cast to `matrix`
+#' map[1:3, , drop = TRUE]
+#'
+#' # Note that `i` is non-reordable
+#' rownames(map)[1:3]
+#' rownames(map[3:1, ])
 #'
 NULL
 
@@ -318,6 +338,7 @@ setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'character', j = 'character'),
   definition = function(x, i, j, ..., drop = FALSE) {
+    i <- i[MatchCells(new = i, orig = rownames(x = x), ordered = TRUE)]
     x <- as.matrix(x = x)[i, j, drop = drop]
     if (!isTRUE(x = drop)) {
       x <- as(object = x, Class = 'LogMap')
@@ -332,6 +353,7 @@ setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'character', j = 'missing'),
   definition = function(x, i, j, ..., drop = FALSE) {
+    i <- i[MatchCells(new = i, orig = rownames(x = x), ordered = TRUE)]
     x <- as.matrix(x = x)[i, , drop = drop]
     if (!isTRUE(x = drop)) {
       x <- as(object = x, Class = 'LogMap')
@@ -360,6 +382,10 @@ setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'numeric', j = 'missing'),
   definition = function(x, i, j, ..., drop = FALSE) {
+    stopifnot(is_bare_integerish(x = i))
+    if (is.unsorted(x = i)) {
+      i <- sort(x = i)
+    }
     i <- rownames(x = x)[i]
     return(callNextMethod(x, i, ..., drop = drop))
   }
@@ -371,6 +397,7 @@ setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'missing', j = 'numeric'),
   definition = function(x, i, j, ..., drop = FALSE) {
+    stopifnot(is_bare_integerish(x = j))
     j <- colnames(x = x)[j]
     return(callNextMethod(x, , j, ..., drop = drop))
   }
@@ -382,6 +409,10 @@ setMethod(
   f = '[',
   signature = c(x = 'LogMap', i = 'numeric', j = 'numeric'),
   definition = function(x, i, j, ..., drop = FALSE) {
+    stopifnot(is_bare_integerish(x = i), is_bare_integerish(x = j))
+    if (is.unsorted(x = i)) {
+      i <- sort(x = i)
+    }
     i <- rownames(x = x)[i]
     j <- colnames(x = x)[j]
     return(callNextMethod(x, i, j, ..., drop = drop))
