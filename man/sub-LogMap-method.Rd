@@ -60,7 +60,7 @@ map[1:3, , drop = TRUE]
 
 # Note that `i` is non-reordable
 rownames(map)[1:3]
-rownames(map[3:1, ])
+map[c("b", "c", "a"), , drop = TRUE]
 
 }
 \keyword{internal}

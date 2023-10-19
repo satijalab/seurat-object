@@ -318,7 +318,7 @@ labels.LogMap <- function(
 #'
 #' # Note that `i` is non-reordable
 #' rownames(map)[1:3]
-#' rownames(map[3:1, ])
+#' map[c("b", "c", "a"), , drop = TRUE]
 #'
 NULL
 
