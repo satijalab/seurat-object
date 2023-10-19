@@ -7,7 +7,7 @@
 \alias{Misc.Assay}
 \alias{Misc<-.Assay}
 \alias{Misc.Assay5}
-\alias{Misc<-Assay5}
+\alias{Misc<-.Assay5}
 \alias{Misc.DimReduc}
 \alias{Misc<-.DimReduc}
 \alias{Misc.Seurat}
@@ -24,7 +24,7 @@ Misc(object, ...) <- value
 
 \method{Misc}{Assay5}(object, slot = NULL, ...)
 
-\method{Misc}{Assay5}(object, slot, ..., value)
+\method{Misc}{Assay5}(object, slot, ...) <- value
 
 \method{Misc}{DimReduc}(object, slot = NULL, ...)
 

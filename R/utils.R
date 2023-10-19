@@ -283,6 +283,117 @@ NULL
   return(images)
 }
 
+#' Deprecate Functions and Arguments
+#'
+#' Provides automatic deprecation and defunctation of functions and arguments;
+#'
+#' @inheritParams lifecycle::deprecate_soft
+#' @inheritDotParams lifecycle::deprecate_soft
+#' @param pkg Name of package to use for comparison
+#' @param env,user_env Managed internally by \code{.Deprecate()}
+#'
+#' @return Run for its side effect and invisibly returns \code{NULL}
+#'
+#' @importFrom rlang ns_env_name
+#' @importFrom utils packageVersion
+#' @importFrom lifecycle deprecate_soft deprecate_stop deprecate_warn
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @seealso \code{\link[lifecycle:deprecate_soft]{lifecycle::deprecate_soft}()}
+#' \code{\link[lifecycle:deprecate_warn]{lifecycle::deprecate_warn}()}
+#' \code{\link[lifecycle:deprecate_stop]{lifecycle::deprecate_stop}()}
+#'
+.Deprecate <- function(
+  when,
+  what,
+  with = NULL,
+  ...,
+  pkg = NULL,
+  env = missing_arg(),
+  user_env = missing_arg()
+) {
+  # Figure out current version, rounding up development versions
+  caller <- caller_env()
+  current <- as.character(x = packageVersion(pkg = ns_env_name(x = caller)))
+  current <- unlist(x = strsplit(x = current, split = '\\.'))
+  if (length(x = current) > 4L) {
+    current[4L] <- paste(
+      current[seq.int(from = 4L, to = length(x = current))],
+      collapse = '.'
+    )
+    current <- current[1:4]
+  }
+  names(x = current) <- c('major', 'minor', 'patch', 'devel')[seq_along(along.with = current)]
+  if (!is_na(x = current['devel'])) {
+    if (all(current[c('minor', 'patch')] == '9')) {
+      current['major'] <- as.character(x = as.integer(x = current['major']) + 1L)
+      current[c('minor', 'patch')] <- '0'
+    } else if (current['patch'] == '0') {
+      current['minor'] <- as.character(x = as.integer(x = current['minor']) + 1L)
+      current['patch'] <- '0'
+    } else {
+      current['patch'] <- as.character(x = as.integer(x = current['patch']) + 1L)
+    }
+    current <- current[c('major', 'minor', 'patch')]
+  }
+  cv <- paste(current, collapse = '.')
+  current <- vapply(
+    X = current,
+    FUN = as.integer,
+    FUN.VALUE = integer(length = 1L),
+    USE.NAMES = TRUE
+  )
+  # Ensure our 'when' is a valid version
+  wv <- when <- as.character(x = numeric_version(x = when, strict = TRUE))
+  # If we haven't reached deprecation, exit out silently
+  if (cv < wv) {
+    return(invisible(x = NULL))
+  }
+  # Figure out if this is a soft deprecation, a warning deprecation, or a defunct
+  when <- unlist(x = strsplit(x = when, split = '\\.'))
+  if (length(x = when) > 4L) {
+    when[4L] <- paste(
+      when[seq.int(from = 4L, to = length(x = when))],
+      collapse = '.'
+    )
+    when <- when[1:4]
+  }
+  names(x = when) <- c('major', 'minor', 'patch', 'devel')[seq_along(along.with = when)]
+  when <- vapply(
+    X = when,
+    FUN = as.integer,
+    FUN.VALUE = integer(length = 1L),
+    USE.NAMES = TRUE
+  )
+  diffs <- abs(current - when)
+  if (diffs['major'] >= 1L || diffs['minor'] >= 3L) {
+    deprecate_stop(
+      when = wv,
+      what = what,
+      with = with,
+      env = caller,
+      ...
+    )
+  }
+  fn <- if (diffs['minor'] >= 1L) {
+    deprecate_warn
+  } else {
+    deprecate_soft
+  }
+  fn(
+    when = wv,
+    what = what,
+    with = with,
+    env = caller,
+    user_env = caller_env(n = 2L),
+    ...
+  )
+  return(invisible(x = NULL))
+}
+
 #' Find Subobjects Of A Certain Class
 #'
 #' @inheritParams .Collections
@@ -781,7 +892,6 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
   return(invisible(x = NULL))
 }
 
-
 #' Check layers names for the input list
 #'
 #'
@@ -794,8 +904,8 @@ CheckGC <- function(option = 'SeuratObject.memsafe') {
 #' @concept utils
 #'
 CheckLayersName <- function(
-    matrix.list,
-    layers.type = c('counts', 'data')
+  matrix.list,
+  layers.type = c('counts', 'data')
 ) {
   layers.type <- match.arg(arg = layers.type)
   if (is.null(x = matrix.list)) {
@@ -818,7 +928,7 @@ CheckLayersName <- function(
             x = name
           )
           # If replacement leaves empty string
-          if (!nzchar(x = name)){
+          if (!nzchar(x = name)) {
             name <- i
           }
         }
@@ -1847,18 +1957,20 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
 
 #' Generate empty dgC sparse matrix
 #'
-#' @param ncol
-#' @param nrow
+#' @param ncol,nrow Number of columns and rows in matrix
+#' @param rownames,colnames Optional row- and column names for the matrix
+#'
+#' @keywords internal
+#'
 #' @export
 #'
 SparseEmptyMatrix <- function(nrow, ncol, rownames = NULL, colnames = NULL) {
-  mat <- new(
+  return(new(
     Class = 'dgCMatrix',
-    p = integer(ncol + 1L),
-    Dim = c(as.integer(nrow), as.integer(ncol)),
+    p = integer(length = ncol + 1L),
+    Dim = c(as.integer(x = nrow), as.integer(x = ncol)),
     Dimnames = list(rownames, colnames)
-    )
-  return(mat)
+  ))
 }
 
 
@@ -1889,7 +2001,7 @@ StitchMatrix.dgCMatrix <- function(x, y, rowmap, colmap, ...) {
   dimnames(x = x) <- list(rowmap[[1L]], colmap[[1L]])
   for (i in seq_along(along.with = y)) {
     j <- i + 1L
-    y[[i]] <- as(object = y[[i]], Class = 'CsparseMatrix')
+    y[[i]] <- as(object = y[[i]], Class = 'dgCMatrix')
     dimnames(x = y[[i]]) <- list(rowmap[[j]], colmap[[j]])
   }
   return(RowMergeSparseMatrices(mat1 = x, mat2 = y))

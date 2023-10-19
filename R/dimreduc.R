@@ -515,8 +515,8 @@ Stdev.DimReduc <- function(object, ...) {
 #' loadings; to select whether projected or unprojected loadings should be
 #' pulled, please use \code{\link{Loadings}}
 #'
-#' @inheritParams [.Assay5
 #' @param x A \code{\link{DimReduc}} object
+#' @param i Feature identifiers or indices
 #' @param j Dimension identifiers or indices
 #' @param drop Coerce the result to the lowest possible dimension; see
 #' \code{\link{drop}} for further details

@@ -6,6 +6,9 @@
 \usage{
 \S4method{show}{LogMap}(object)
 }
+\arguments{
+\item{object}{A \code{\link{LogMap}} object}
+}
 \value{
 Prints summary to \code{\link[base]{stdout}} and invisibly
 returns \code{NULL}

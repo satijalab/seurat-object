@@ -72,6 +72,8 @@ identities themselves}
 
 \item{drop}{Drop unused levels}
 
+\item{replace}{Replace identities for unset cells with \code{NA}}
+
 \item{reverse}{Reverse ordering}
 
 \item{afxn}{Function to evaluate each identity class based on; default is

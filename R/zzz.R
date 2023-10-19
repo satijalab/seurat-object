@@ -2,8 +2,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom progressr progressor
 #' @importFrom utils head tail upgrade
-#' @importFrom lifecycle deprecated deprecate_soft deprecate_stop
-#' deprecate_warn is_present
+#' @importFrom lifecycle deprecated is_present
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
 #' setOldClass setValidity show slot slot<- validObject
 #' @importFrom rlang abort arg_match arg_match0 caller_env check_installed
@@ -85,7 +84,7 @@ Seurat.options <- list(
   Seurat.input.sparse_ratio = 0.4,
   Seurat.io.rds.strict = FALSE,
   Seurat.object.assay.calcn = NULL,
-  Seurat.object.assay.version = 'v3',
+  Seurat.object.assay.version = 'v5',
   Seurat.object.assay.v3.missing_layer = 'matrix',
   Seurat.object.project = 'SeuratProject',
   progressr.clear = FALSE

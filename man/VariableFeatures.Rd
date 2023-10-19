@@ -23,30 +23,31 @@
 \usage{
 HVFInfo(object, method, status = FALSE, ...)
 
-VariableFeatures(object, selection.method = NULL, ...)
+VariableFeatures(object, method = NULL, ...)
 
 VariableFeatures(object, ...) <- value
 
-SVFInfo(object, selection.method, status, ...)
+SVFInfo(object, method, status, ...)
 
-SpatiallyVariableFeatures(object, selection.method, ...)
+SpatiallyVariableFeatures(object, method, ...)
 
 \method{HVFInfo}{Seurat}(
   object,
   method = NULL,
   status = FALSE,
   assay = NULL,
-  selection.method = method,
+  selection.method = deprecated(),
   ...
 )
 
 \method{VariableFeatures}{Seurat}(
   object,
-  selection.method = NULL,
+  method = NULL,
   assay = NULL,
   nfeatures = NULL,
-  layer = NULL,
+  layer = NA,
   simplify = TRUE,
+  selection.method = deprecated(),
   ...
 )
 
@@ -54,17 +55,19 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{SVFInfo}{Seurat}(
   object,
-  selection.method = c("markvariogram", "moransi"),
+  method = c("markvariogram", "moransi"),
   status = FALSE,
   assay = NULL,
+  selection.method = deprecated(),
   ...
 )
 
 \method{SpatiallyVariableFeatures}{Seurat}(
   object,
-  selection.method = "moransi",
+  method = "moransi",
   assay = NULL,
   decreasing = TRUE,
+  selection.method = deprecated(),
   ...
 )
 
@@ -72,19 +75,21 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 
 \method{SpatiallyVariableFeatures}{Assay}(
   object,
-  selection.method = "moransi",
+  method = "moransi",
   decreasing = TRUE,
+  selection.method = deprecated(),
   ...
 )
 
 \method{SVFInfo}{Assay}(
   object,
-  selection.method = c("markvariogram", "moransi"),
+  method = c("markvariogram", "moransi"),
   status = FALSE,
+  selection.method = deprecated(),
   ...
 )
 
-\method{VariableFeatures}{Assay}(object, selection.method = NULL, ...)
+\method{VariableFeatures}{Assay}(object, method = NULL, selection.method = deprecated(), ...)
 
 \method{VariableFeatures}{Assay}(object, ...) <- value
 
@@ -96,6 +101,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
   layer = NA,
   simplify = TRUE,
   nfeatures = Inf,
+  selection.method = deprecated(),
   ...
 )
 
@@ -104,11 +110,7 @@ SpatiallyVariableFeatures(object, selection.method, ...)
 \arguments{
 \item{object}{An object}
 
-\item{status}{Add variable status to the resulting data frame}
-
-\item{...}{Arguments passed to other methods}
-
-\item{selection.method}{Which method to pull. For \code{HVFInfo} and
+\item{method}{Which method to pull. For \code{HVFInfo} and
 \code{VariableFeatures}, choose one from one of the
 following:
 \itemize{
@@ -123,12 +125,27 @@ For \code{SVFInfo} and \code{SpatiallyVariableFeatures}, choose from:
  \item \dQuote{moransi}
 }}
 
+\item{status}{Add variable status to the resulting data frame}
+
+\item{...}{Arguments passed to other methods}
+
 \item{value}{A character vector of variable features}
 
 \item{assay}{Name of assay to pull highly variable feature information for}
 
+\item{selection.method}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
+
+\item{nfeatures}{Maximum number of features to select when simplifying}
+
+\item{layer}{Layer to pull variable features for}
+
+\item{simplify}{When pulling for multiple layers, combine into a single
+vector and select a common set of variable features for all layers}
+
 \item{decreasing}{Return features in decreasing order (most spatially
 variable first).}
+
+\item{strip}{Remove method/layer identifiers from highly variable data frame}
 }
 \value{
 \code{HVFInfo}: A data frame with feature means, dispersion, and
