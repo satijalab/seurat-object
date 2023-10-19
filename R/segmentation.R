@@ -3,7 +3,7 @@
 #' @importFrom sp coordinates
 #' @importFrom methods as callNextMethod
 #' @importClassesFrom sp SpatialPolygons
-#' @importFrom sf st_intersects
+#' @importFrom sf st_intersection
 
 NULL
 
@@ -284,13 +284,19 @@ setMethod(
   }
 )
 
+      # sf::st_intersects(
+      # x = as(object = x, Class = 'sf'),
+      # y = as(object = y, Class = 'sf'),
+
 setMethod(
   f = 'over',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
-    return(sf::st_intersects(
+    browser()
+    return(st_intersection(
       x = as(object = x, Class = 'sf'),
       y = as(object = y, Class = 'sf'),
+      sparse = F,
       returnList = returnList,
       fn = fn,
       ...
@@ -305,8 +311,11 @@ setMethod(
   f = 'Overlay',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
-    idx <-  sf::st_intersects(x = x, y = y)
-    idx <- idx[!is.na(x = idx)]
+    browser()
+    idx <- st_intersects(x = as(x,"sf"), y = as(y,"sf"), sparse=F)
+    idx <- which(idx)
+    names_in_sf_object1 <- if (!is.null(row.names(x))) row.names(x)[idx] else x$id[idx]
+    idx <- setNames(rep(TRUE, length(idx)), names_in_sf_object1)
     if (!length(idx)) {
       warning("The selected region does not contain any cell segmentations")
       return(NULL)
