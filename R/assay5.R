@@ -736,7 +736,7 @@ FetchData.StdAssay <- function(
     ))
   }
   if (is.null(layer.set)) {
-  stop('layer ', layer,' is not found in the object')
+  stop('layer "', layer,'" is not found in the object')
   } else {
     layer <- layer.set
   }
@@ -1609,11 +1609,8 @@ VariableFeatures.StdAssay <- function(
     }
   }
   msg <- 'No variable features found'
-<<<<<<< HEAD
-=======
   layer.orig <- layer
   methods <- .VFMethodsLayers(object = object, type = 'hvf', layers = layer)
->>>>>>> fix variablefeatures
   layer <- Layers(object = object, search = layer)
   method <- method %||% names(x = methods)[length(x = methods)]
   method <- match.arg(arg = method, choices = names(x = methods))
@@ -1655,10 +1652,12 @@ VariableFeatures.StdAssay <- function(
     abort(message = msg)
   }
   if (isTRUE(x = simplify)) {
+    # Pull layers that have values for VariableFeatures only
+    layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
     vf <- .SelectFeatures(
       object = vf,
       all.features = intersect(
-        x = slot(object = object, name = 'features')[, layer]
+        x = slot(object = object, name = 'features')[, layers.vf]
       ),
       nfeatures = nfeatures
     )
@@ -2246,7 +2245,7 @@ split.StdAssay <- function(
   x,
   f,
   drop = FALSE,
-  layers = NA,
+  layers = c("counts", "data"),
   ret = c('assay', 'multiassays', 'layers'),
   ...
 ) {

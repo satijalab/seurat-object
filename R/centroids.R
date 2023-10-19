@@ -2,7 +2,7 @@
 #' @include generics.R
 #' @importFrom methods as callNextMethod
 #' @importClassesFrom sp SpatialPoints
-
+#'
 NULL
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
