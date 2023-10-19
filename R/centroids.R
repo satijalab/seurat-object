@@ -2,7 +2,7 @@
 #' @include generics.R
 #' @importFrom methods as callNextMethod
 #' @importClassesFrom sp SpatialPoints
-#' @importFrom sf st_intersects
+
 NULL
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -371,7 +371,10 @@ setMethod(
   f = 'Overlay',
   signature = c(x = 'Centroids', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
-    idx <- st_intersects(x = as(x,"sf"), y = as(y,"sf"), sparse=F)
+    if (!PackageCheck("sf", error = FALSE)) {
+      stop("'Overlay' requires sf to be installed", call. = FALSE)
+    }
+    idx <- sf::st_intersects(x = as(x,"sf"), y = as(y,"sf"), sparse=F)
     idx <- which(idx)
     names_in_sf_object1 <- if (!is.null(row.names(x))) row.names(x)[idx] else x$id[idx]
     idx <- setNames(rep(TRUE, length(idx)), names_in_sf_object1)
