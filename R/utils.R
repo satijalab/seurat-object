@@ -1944,7 +1944,8 @@ Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
   dest <- ifelse(
     test = grepl(pattern = "^Spatial", x = class.orig), 
     yes = class.orig,
-    no = grep(pattern = "^Spatial", x = .Contains(object = coords), value = TRUE)[1L])
+    no = grep(pattern = "^Spatial", x = .Contains(object = coords), value = TRUE)[1L]
+  )
   x <- sf::st_as_sfc(as(object = coords, Class = dest))
   coords <- sf::st_simplify(
     x = x,
