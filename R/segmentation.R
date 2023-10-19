@@ -293,7 +293,7 @@ setMethod(
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
     browser()
-    return(st_intersection(
+    return(over(
       x = as(object = x, Class = 'sf'),
       y = as(object = y, Class = 'sf'),
       sparse = F,
@@ -311,7 +311,6 @@ setMethod(
   f = 'Overlay',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
-    browser()
     idx <- st_intersects(x = as(x,"sf"), y = as(y,"sf"), sparse=F)
     idx <- which(idx)
     names_in_sf_object1 <- if (!is.null(row.names(x))) row.names(x)[idx] else x$id[idx]
