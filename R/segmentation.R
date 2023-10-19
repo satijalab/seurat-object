@@ -3,7 +3,6 @@
 #' @importFrom sp coordinates
 #' @importFrom methods as callNextMethod
 #' @importClassesFrom sp SpatialPolygons
-#' @importFrom sf st_intersection
 
 NULL
 
