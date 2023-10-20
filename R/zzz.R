@@ -1,8 +1,9 @@
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
+#' @importFrom Matrix nnzero
 #' @importFrom progressr progressor
-#' @importFrom utils head packageVersion tail upgrade
 #' @importFrom lifecycle deprecated is_present
+#' @importFrom utils head packageVersion tail upgrade
 #' @importFrom methods new setClass setClassUnion setGeneric setMethod
 #' setOldClass setValidity show slot slot<- validObject
 #' @importFrom rlang abort arg_match arg_match0 caller_env check_installed
