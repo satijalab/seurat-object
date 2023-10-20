@@ -966,7 +966,6 @@ SaveSeuratBP <- function(
 #' @return Returns a Seurat object compatible with latest changes
 #'
 #' @importFrom methods .hasSlot new slot
-#' @importFrom utils packageVersion
 #'
 #' @export
 #'
@@ -1379,9 +1378,13 @@ CreateSeuratObject.default <- function(
   ...
 ) {
   assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
-  if(!inherits(counts, what = "dgCMatrix") && assay.version == 'v3'){
-    message("Counts matrix provided is not sparse. Creating V5 assay in Seurat Object.")
-    assay.version = 'v5'
+  if (.GetSeuratCompat() < '5.0.0') {
+    assay.version <- 'v3'
+  } else if (!inherits(counts, what = "AnyMatrix") && assay.version == 'v3') {
+    message(
+      "Counts matrix provided is not sparse; vreating v5 assay in Seurat object"
+    )
+    assay.version <- 'v5'
   }
   assay.data <- if (tolower(x = assay.version) == 'v3') {
     assay.data <- CreateAssayObject(
@@ -5587,6 +5590,9 @@ setMethod(
 setValidity(
   Class = 'Seurat',
   method = function(object) {
+    if (.GetSeuratCompat() < '5.0.0') {
+      return(TRUE)
+    }
     if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
       warn(
         message = paste("Not validating", class(x = object)[1L], "objects"),
