@@ -1475,15 +1475,6 @@ CreateSeuratObject.Assay <- function(
   ))
   options(op)
   object[['orig.ident']] <- idents
-  # Add provided meta data
-  if (!is.null(x = meta.data)) {
-    tryCatch(
-      expr = object[[]] <- meta.data,
-      error = function(e) {
-        warning(e$message, call. = FALSE, immediate. = TRUE)
-      }
-    )
-  }
   # Calculate nCount and nFeature
   calcN_option <- getOption(
     x = 'Seurat.object.assay.calcn',
@@ -1496,6 +1487,15 @@ CreateSeuratObject.Assay <- function(
       names(x = ncalc) <- paste(names(x = ncalc), assay, sep = '_')
       object[[]] <- ncalc
     }
+  }
+  # Add provided meta data
+  if (!is.null(x = meta.data)) {
+    tryCatch(
+      expr = object[[]] <- meta.data,
+      error = function(e) {
+        warning(e$message, call. = FALSE, immediate. = TRUE)
+      }
+    )
   }
   # Validate and return
   validObject(object = object)
@@ -4320,6 +4320,9 @@ setMethod(
     value = 'Assay'
   ),
   definition = function(x, i, ..., value) {
+    if (.GetSeuratCompat() < '5.0.0') {
+      return(callNextMethod(x = x, i = i, value = value))
+    }
     validObject(object = value)
     i <- make.names(names = i)
     # Checks for if the assay or name already exists
