@@ -1242,6 +1242,11 @@ ListToS4 <- function(x) {
 #'
 #' @return Invisibly returns boolean denoting if the package is installed
 #'
+#' @templateVar fxn PackageCheck
+#' @templateVar ver 5.0.0
+#' @templateVar repl rlang::check_installed
+#' @template lifecycle-deprecated
+#'
 #' @export
 #'
 #' @concept utils
@@ -1250,6 +1255,11 @@ ListToS4 <- function(x) {
 #' PackageCheck("SeuratObject", error = FALSE)
 #'
 PackageCheck <- function(..., error = TRUE) {
+  .Deprecate(
+    when = '5.0.0',
+    what = 'PackageCheck()',
+    with = 'rlang::check_installed()'
+  )
   pkgs <- unlist(x = c(...), use.names = FALSE)
   package.installed <- vapply(
     X = pkgs,
@@ -1930,19 +1940,17 @@ S4ToList.list <- function(object) {
 #' @param topologyPreserve Logical determining if the algorithm should attempt to preserve the topology of the original geometry
 #'
 #' @return A `Segmentation` object with simplified segmentation vertices
-#' 
+#'
 #' @rdname Simplify
 #' @method Simplify Spatial
 #' @export
 #'
 Simplify.Spatial <- function(coords, tol, topologyPreserve = TRUE) {
-  if (!PackageCheck("sf", error = FALSE)) {
-    stop("'Simplify' requires sf to be installed", call. = FALSE)
-  }
+  check_installed(pkg = 'sf', reason = 'to simplify spatial data')
   class.orig <- class(x = coords)
   coords.orig <- coords
   dest <- ifelse(
-    test = grepl(pattern = "^Spatial", x = class.orig), 
+    test = grepl(pattern = "^Spatial", x = class.orig),
     yes = class.orig,
     no = grep(pattern = "^Spatial", x = .Contains(object = coords), value = TRUE)[1L]
   )

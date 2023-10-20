@@ -287,6 +287,11 @@ setMethod(
   f = 'over',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
+    deprecate_stop(
+      when = '5.0.0',
+      what = 'over()',
+      details = "Future integration with `sf` is on the roadmap with no current ETA"
+    )
     check_installed(pkg = 'sf')
     return(over(
       x = as(object = x, Class = 'sf'),
@@ -306,15 +311,24 @@ setMethod(
   f = 'Overlay',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
-    if (!PackageCheck("sf", error = FALSE)) {
-      stop("'Overlay' requires sf to be installed", call. = FALSE)
+    check_installed(pkg = 'sf', reason = 'to overlay spatial information')
+    idx <- sf::st_intersects(
+      x = as(object = x, Class = 'sf'),
+      y = as(object = y, Class = 'sf'),
+      sparse = FALSE
+    )
+    idx <- which(x = idx)
+    names_in_sf_object1 <- if (!is.null(x = row.names(x = x))) {
+      row.names(x = x)[idx]
+    } else {
+      x$id[idx]
     }
-    idx <- sf::st_intersects(x = as(x,"sf"), y = as(y,"sf"), sparse=F)
-    idx <- which(idx)
-    names_in_sf_object1 <- if (!is.null(row.names(x))) row.names(x)[idx] else x$id[idx]
-    idx <- setNames(rep(TRUE, length(idx)), names_in_sf_object1)
-    if (!length(idx)) {
-      warning("The selected region does not contain any cell segmentations")
+    idx <- setNames(
+      object = rep.int(x = TRUE, times = length(x = idx)),
+      nm = names_in_sf_object1
+    )
+    if (!length(x = idx)) {
+      warn("The selected region does not contain any cell segmentations")
       return(NULL)
     }
     names(x = idx) <- vapply(

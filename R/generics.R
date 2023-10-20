@@ -1203,6 +1203,9 @@ Molecules <- function(object, ...) {
 #' @return \code{x} with only the components that fall within the
 #' bounds of \code{y}
 #'
+#' @templateVar pkg sf
+#' @template note-reqdpkg
+#'
 #' @export
 #'
 setGeneric(
