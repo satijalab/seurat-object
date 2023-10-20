@@ -388,7 +388,19 @@ LoadSeuratRds <- function(file, ...) {
       return(object)
     }
     # Check the files
-    exists <- fs::is_file(path = cache$path) | fs::dir_exists(path = cache$path)
+    exists <- vapply(
+      X = cache$path,
+      FUN = function(x) {
+        x <- unlist(x = strsplit(x = x, split = ','))
+        res <- vector(mode = 'logical', length = length(x = x))
+        for (i in seq_along(along.with = x)) {
+          res[i] <- fs::is_file(path = x[i]) || fs::dir_exists(path = x[i])
+        }
+        return(all(res))
+      },
+      FUN.VALUE = logical(length = 1L),
+      USE.NAMES = FALSE
+    )
     exists[is.na(exists)] <- FALSE
     cache <- cache[exists, , drop = FALSE]
     if (!nrow(x = cache)) {

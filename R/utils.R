@@ -1609,10 +1609,26 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   if (!length(x = fxns)) {
     return(NULL)
   }
-  if (length(x = fxns) > 1L) {
-    abort(message = "too many matrices")
+  fn <- if (length(x = fxns) > 1L) {
+    # fxns <- paste('list(', paste(sQuote(x = fxns, q = FALSE), collapse = ', '), ')')
+    fn <- paste(
+      "function(x) {",
+      "paths <- unlist(x = strsplit(x = x, split = ','));",
+      "fxns <- list(", paste(sQuote(x = fxns, q = FALSE), collapse = ', '), ");",
+      "mats <- vector(mode = 'list', length = length(x = paths));",
+      "for (i in seq_along(paths)) {",
+      "fn <- eval(str2lang(fxns[[i]]));",
+      "mats[[i]] <- fn(paths[i]);",
+      "};",
+      "return(Reduce(cbind, mats));",
+      "}"
+    )
+    fn
+    # abort(message = "too many matrices")
+  } else {
+    fxns[[1L]]
   }
-  return(fxns[[1L]])
+  return(fn)
 }
 
 #' @rdname dot-DiskLoad
