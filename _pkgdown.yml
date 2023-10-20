@@ -33,7 +33,6 @@ reference:
   - title: The SeuratCommand Class and Interaction Methods
     contents:
       - "SeuratCommand-class"
-      # - "SeuratCommand-methods"
       - has_concept("command")
   - title: The SpatialImage Class and Interaction Methods
     contents:
@@ -57,11 +56,15 @@ reference:
     contents:
       - "SeuratObject-package"
       - pbmc_small
+  - title: Logical Maps
+    contents:
+      - has_concept("logmap")
   - title: internal
     contents:
       - Boundaries
       - CastAssay
       - "Centroids-methods"
+      - CheckFeaturesNames
       - CreateCentroids
       - CreateFOV
       - CreateMolecules
@@ -73,12 +76,14 @@ reference:
       - FOV-methods
       - FOV-validity
       - JoinLayers
-      - LogMap
       - Molecules-methods
       - Overlay
       - RenameCells.StdAssay
+      - SaveSeuratBP
       - SaveSeuratRds
       - Segmentation-methods
       - Simplify
+      - SparseEmptyMatrix
+      - saveRDS.Seurat
       - Theta
       - as.Centroids
