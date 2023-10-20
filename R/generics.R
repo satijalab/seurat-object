@@ -1203,6 +1203,9 @@ Molecules <- function(object, ...) {
 #' @return \code{x} with only the components that fall within the
 #' bounds of \code{y}
 #'
+#' @templateVar pkg sf
+#' @template note-reqdpkg
+#'
 #' @export
 #'
 setGeneric(
@@ -1386,8 +1389,7 @@ SetIdent <- function(object, ...) {
 
 #' Simplify Geometry
 #'
-#' @inheritParams rgeos::gSimplify
-#' @param coords Spatial coordinates to simplify
+#' @param coords ...
 #'
 #' @return A simplified version of \code{coords}
 #'

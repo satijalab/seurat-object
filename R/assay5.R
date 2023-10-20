@@ -974,10 +974,12 @@ HVFInfo.StdAssay <- function(
   #vf.layers <- .VFLayers(object = object, type = 'hvf')
   # Determine which method and layer to use
   method <- method[length(methods)] %||% names(vf.methods.layers[length(vf.methods.layers)])
-  disp.methods <- c('mean.var.plot', 'dispersion', 'disp')
-  if (tolower(x = method) %in% disp.methods) {
-    method <- 'mvp'
-  }
+  method <- switch(
+    EXPR = tolower(x = method),
+    mean.var.plot = 'mvp',
+    dispersion = 'disp',
+    method
+  )
   method <- tryCatch(
     expr = match.arg(arg = method, choices = names(vf.methods.layers)),
     error = function(...) {
@@ -988,8 +990,9 @@ HVFInfo.StdAssay <- function(
   if (is.null(x = method)) {
     return(method)
   }
+  vf.methods.layers <- unlist(vf.methods.layers, use.names = FALSE)
   layer <- Layers(object = object, search = layer)
-  layer <- vf.methods.layers[[method]][which.min(x = adist(x = layer, y = unname(vf.methods.layers[method])))]
+  layer <- vf.methods.layers[which.min(x = adist(x = layer, y = vf.methods.layers))]
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
@@ -1130,7 +1133,7 @@ JoinSingleLayers <- function(
   }
   # Remove the old layers
   for (lyr in layers) {
-    object[[lyr]] <- NULL
+    object[lyr] <- NULL
   }
   return(object)
 }
@@ -1615,7 +1618,7 @@ VariableFeatures.StdAssay <- function(
   method <- method %||% names(x = methods)[length(x = methods)]
   method <- match.arg(arg = method, choices = names(x = methods))
   if (is_na(x = layer.orig) || is.null(x = layer.orig)) {
-    layer <- methods[method]
+    layer <- unlist(methods[method], use.names = FALSE)
   }
   vf <- sapply(
     X = layer,
@@ -1652,12 +1655,10 @@ VariableFeatures.StdAssay <- function(
     abort(message = msg)
   }
   if (isTRUE(x = simplify)) {
-    # Pull layers that have values for VariableFeatures only
-    layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
     vf <- .SelectFeatures(
       object = vf,
       all.features = intersect(
-        x = slot(object = object, name = 'features')[, layers.vf]
+        x = slot(object = object, name = 'features')[,layer]
       ),
       nfeatures = nfeatures
     )
@@ -2249,6 +2250,8 @@ split.StdAssay <- function(
   ret = c('assay', 'multiassays', 'layers'),
   ...
 ) {
+  op <- options(Seurat.object.assay.brackets = 'v5')
+  on.exit(expr = options(op))
   ret <- ret[1L]
   ret <- match.arg(arg = ret)
   layers.to.split <- Layers(object = x, search = layers)
@@ -2267,17 +2270,19 @@ split.StdAssay <- function(
   layers <- Layers(object = x, search = layers)
   layers.split <- list()
   for (i in seq_along(along.with = layers)) {
-    if (length(colnames(x[layers[i]])) != length(colnames(x))) {
+    if (length(x = colnames(x = x[layers[i]])) != length(x = colnames(x = x))) {
       layers.split[[i]] <- layers[i]
     }
   }
   layers.split <- unlist(x = layers.split)
-  if (length(x = layers.split) > 0) {
-   stop(
-     'The selected layers are already split: ',
-     paste(layers.split, collapse = ' '),
-     '\n', 'Please join layers before splitting.'
-   )
+  if (length(x = layers.split)) {
+    abort(message = paste(
+      strwrap(x = paste(
+        "The following layers are already split:",
+        paste(sQuote(x = layers.split), collapse = ', '),
+        "\nPlease join before splitting"
+      ))
+    ))
   }
   default <- ifelse(
     test = DefaultLayer(object = x) %in% layers,
@@ -2285,7 +2290,7 @@ split.StdAssay <- function(
     no = layers[1L]
   )
   cells <- Cells(x = x, layer = layers)
-  if (rlang::is_named(x = f)) {
+  if (is_named(x = f)) {
     f <- f[cells]
   }
   if (length(x = f) != length(x = cells)) {
@@ -2295,7 +2300,7 @@ split.StdAssay <- function(
     f <- factor(x = f, levels = c(unique(as.character(f)), 'na'))
     f[is.na(x = f)] <- 'na'
   } else {
-    f <- factor(x = f, levels = unique(as.character(f)))
+    f <- factor(x = f, levels = unique(x = as.character(x = f)))
   }
   splits <- split(x = cells, f = f, drop = drop)
   names(x = splits) <- .MakeNames(x = names(x = splits))
@@ -2713,8 +2718,8 @@ tail.Assay5 <- tail.StdAssay
   # Combine into a list
   vf.list <- lapply(unique(unlist(lapply(vf.methods.layers, `[[`, "method"))), function(method) {
     layers <- unique(unlist(lapply(vf.methods.layers, function(x) {
-      if (x["method"] == method)
-        return(x["layer"])
+      if (x['method'] == method)
+        return(x['layer'])
     })))
     return(setNames(list(layers), method))
   })
