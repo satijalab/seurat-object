@@ -59,24 +59,55 @@ this function. For more details about \pkg{progressr}, please read
 }
 
 \examples{
-if (requireNamespace("HDF5Array", quietly = TRUE) && requireNamespace("fs", quietly = TRUE)) {
-  pbmc_small[["disk"]] <- CreateAssay5Object(list(
-    mem = LayerData(pbmc_small, "counts"),
-    disk = as(LayerData(pbmc_small, "counts"), "HDF5Array")
-  ))
+if (requireNamespace("fs", quietly = TRUE)) {
+  # Write out with DelayedArray
+  if (requireNamespace("HDF5Array", quietly = TRUE)) {
+    pbmc <- pbmc_small
 
-  # Save `pbmc_small` to an Rds file
-  out <- tempfile(fileext = ".Rds")
-  SaveSeuratRds(pbmc_small, file = out)
+    pbmc[["disk"]] <- CreateAssay5Object(list(
+      mem = LayerData(pbmc, "counts"),
+      disk = as(LayerData(pbmc, "counts"), "HDF5Array")
+    ))
 
-  # Object cache
-  obj <- readRDS(out)
-  Tool(obj, "SaveSeuratRds")
+    # Save `pbmc` to an Rds file
+    out <- tempfile(fileext = ".Rds")
+    SaveSeuratRds(pbmc, file = out)
 
-  # Load the saved object with on-disk layers back into memory
-  pbmc2 <- LoadSeuratRds(out)
-  pbmc2
-  pbmc2[["disk"]]
+    # Object cache
+    obj <- readRDS(out)
+    Tool(obj, "SaveSeuratRds")
+
+    # Load the saved object with on-disk layers back into memory
+    pbmc2 <- LoadSeuratRds(out)
+    pbmc2
+    pbmc2[["disk"]]
+  }
+
+  # Write out with BPCells
+  if (requireNamespace("BPCells", quietly = TRUE)) {
+    pbmc <- pbmc_small
+
+    bpm <- BPCells::write_matrix_dir(LayerData(pbmc, "counts"), dir = tempfile())
+    bph <- BPCells::write_matrix_hdf5(
+      LayerData(pbmc, "counts"),
+      path = tempfile(fileext = ".h5"),
+      group = "counts"
+    )
+    pbmc[["disk"]] <- CreateAssay5Object(list(dir = bpm, h5 = bph))
+
+    # Save `pbmc` to an Rds file
+    out <- tempfile(fileext = ".Rds")
+    SaveSeuratRds(pbmc, file = out)
+
+    # Object cache
+    obj <- readRDS(out)
+    Tool(obj, "SaveSeuratRds")
+
+    # Load the saved object with on-disk layers back into memory
+    pbmc2 <- LoadSeuratRds(out)
+    pbmc2
+    pbmc2[["disk"]]
+  }
 }
 
 }

@@ -3,9 +3,14 @@
 \name{.DiskLoad}
 \alias{.DiskLoad}
 \alias{.DiskLoad.default}
+\alias{.DiskLoad.10xMatrixH5}
+\alias{.DiskLoad.AnnDataMatrixH5}
 \alias{.DiskLoad.DelayedMatrix}
 \alias{.DiskLoad.H5ADMatrix}
 \alias{.DiskLoad.HDF5Matrix}
+\alias{.DiskLoad.IterableMatrix}
+\alias{.DiskLoad.MatrixDir}
+\alias{.DiskLoad.MatrixH5}
 \alias{.DiskLoad.TileDBMatrix}
 \title{Disk Loading Function}
 \usage{
@@ -13,11 +18,21 @@
 
 \method{.DiskLoad}{default}(x)
 
+\method{.DiskLoad}{`10xMatrixH5`}(x)
+
+\method{.DiskLoad}{AnnDataMatrixH5}(x)
+
 \method{.DiskLoad}{DelayedMatrix}(x)
 
 \method{.DiskLoad}{H5ADMatrix}(x)
 
 \method{.DiskLoad}{HDF5Matrix}(x)
+
+\method{.DiskLoad}{IterableMatrix}(x)
+
+\method{.DiskLoad}{MatrixDir}(x)
+
+\method{.DiskLoad}{MatrixH5}(x)
 
 \method{.DiskLoad}{TileDBMatrix}(x)
 }

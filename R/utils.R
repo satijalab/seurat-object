@@ -1475,6 +1475,43 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 }
 
 #' @rdname dot-DiskLoad
+#' @method .DiskLoad 10xMatrixH5
+#' @export
+#'
+.DiskLoad.10xMatrixH5 <- function(x) {
+  abort(message = "Unable to determine the feature type of 10x-based BPCells matrices")
+  check_installed(
+    pkg = 'BPCells',
+    reason = 'for working with BPCells matrices'
+  )
+  f <- paste(
+    'function(x)',
+    'BPCells::open_matrix_10x_hdf5(path = x, feature_type =',
+    sQuote(x = '', q = FALSE),
+    ')'
+  )
+  return(f)
+}
+
+#' @rdname dot-DiskLoad
+#' @method .DiskLoad AnnDataMatrixH5
+#' @export
+#'
+.DiskLoad.AnnDataMatrixH5 <- function(x) {
+  check_installed(
+    pkg = 'BPCells',
+    reason = 'for working with BPCells matrices'
+  )
+  f <- paste(
+    'function(x)',
+    'BPCells::open_matrix_anndata_hdf5(path = x, group =',
+    sQuote(x = slot(object = x, name = 'group'), q = FALSE),
+    ')'
+  )
+  return(f)
+}
+
+#' @rdname dot-DiskLoad
 #' @method .DiskLoad DelayedMatrix
 #' @export
 #'
@@ -1541,6 +1578,79 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 }
 
 #' @rdname dot-DiskLoad
+#' @method .DiskLoad IterableMatrix
+#' @export
+#'
+.DiskLoad.IterableMatrix <- function(x) {
+  check_installed(
+    pkg = 'BPCells',
+    reason = 'for working with BPCells matrices'
+  )
+  fxns <- lapply(
+    X = BPCells::all_matrix_inputs(x = x),
+    FUN = .DiskLoad
+  )
+  fxns <- Filter(f = Negate(f = is.null), x = fxns)
+  if (!length(x = fxns)) {
+    return(NULL)
+  }
+  fn <- if (length(x = fxns) > 1L) {
+    # fxns <- paste('list(', paste(sQuote(x = fxns, q = FALSE), collapse = ', '), ')')
+    fn <- paste(
+      "function(x) {",
+      "paths <- unlist(x = strsplit(x = x, split = ','));",
+      "fxns <- list(", paste(sQuote(x = fxns, q = FALSE), collapse = ', '), ");",
+      "mats <- vector(mode = 'list', length = length(x = paths));",
+      "for (i in seq_along(paths)) {",
+      "fn <- eval(str2lang(fxns[[i]]));",
+      "mats[[i]] <- fn(paths[i]);",
+      "};",
+      "return(Reduce(cbind, mats));",
+      "}"
+    )
+    fn
+    # abort(message = "too many matrices")
+  } else {
+    fxns[[1L]]
+  }
+  return(fn)
+}
+
+#' @rdname dot-DiskLoad
+#' @method .DiskLoad MatrixDir
+#' @export
+#'
+.DiskLoad.MatrixDir <- function(x) {
+  check_installed(
+    pkg = 'BPCells',
+    reason = 'for working with BPCells matrices'
+  )
+  f <- paste(
+    'function(x)',
+    'BPCells::open_matrix_dir(dir = x)'
+  )
+  return(f)
+}
+
+#' @rdname dot-DiskLoad
+#' @method .DiskLoad MatrixH5
+#' @export
+#'
+.DiskLoad.MatrixH5 <- function(x) {
+  check_installed(
+    pkg = 'BPCells',
+    reason = 'for working with BPCells matrices'
+  )
+  f <- paste(
+    'function(x)',
+    'BPCells::open_matrix_hdf5(path = x, group =',
+    sQuote(x = slot(object = x, name = 'group'), q = FALSE),
+    ')'
+  )
+  return(f)
+}
+
+#' @rdname dot-DiskLoad
 #' @method .DiskLoad TileDBMatrix
 #' @export
 #'
@@ -1590,39 +1700,23 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
 #' @method .FilePath IterableMatrix
 #' @export
 #'
-.FilePath.IterableMatrix <- function(x){
-  check_installed(pkg = "BPCells", reason = "for working with BPCells")
-  matrix <- slot(x, "matrix")
-  matrices <- BPCells::all_matrix_inputs(matrix)
-  return_dir_path <- function(matrix){
-    if (inherits(matrix, "MatrixDir")) {
-      path <- normalizePath(path = matrix@dir)
-    } else if (inherits(matrix, "10xMatrixH5")) {
-      warning(
-        "The on-disk matrix is an h5 file and will not be moved ",
-        "to the destination directory. It will remain at: '",
-        matrix@path,
-        "'. If you would like to save the matrix in BPCells format, use ",
-        "'write_matrix_dir(mat = data, dir = '/path')'.",
-        call. = FALSE
-      )
-      path = NULL
-    } else if (inherits(matrix, "AnnDataMatrixH5")) {
-      warning(
-        "The on-disk matrix is an h5ad file and will not be moved ",
-        "to the destination directory. It will remain at: '",
-        matrix@path,
-        "'. If you would like to save the matrix in BPCells format, use ",
-        "'write_matrix_dir(mat = data, dir = '/path')'.",
-        call. = FALSE
-      )
-      path = NULL
-    } else {
-      path = NULL
-    }
-    return(path)
+.FilePath.IterableMatrix <- function(x) {
+  check_installed(pkg = "BPCells", reason = "for working with BPCells matrices")
+  matrices <- BPCells::all_matrix_inputs(x = x)
+  paths <- vector(mode = 'character', length = length(x = matrices))
+  for (i in seq_along(along.with = matrices)) {
+    mode <- .BPMatrixMode(object = matrices[[i]])
+    paths[i] <- switch(
+      EXPR = mode,
+      memory = '',
+      file = slot(object = matrices[[i]], name = "path"),
+      directory = slot(object = matrices[[i]], name = 'dir'),
+      abort(message = paste("Unknown BPCells matrix mode:", sQuote(x = mode)))
+    )
   }
-  paths <- unlist(lapply(matrices, return_dir_path))
+  if (length(paths) > 1){
+    paths <- paste(paths, collapse = ",")
+  }
   return(paths)
 }
 
@@ -1965,7 +2059,6 @@ SparseEmptyMatrix <- function(nrow, ncol, rownames = NULL, colnames = NULL) {
   ))
 }
 
-
 #' @method StitchMatrix default
 #' @export
 #'
@@ -2131,73 +2224,65 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
 #' @seealso \code{\link[fs:file_move]{fs::file_move}()}
 #'
 .FileMove <- function(path, new_path, overwrite = FALSE, n = 1L) {
-  check_installed(
-    pkg = 'fs',
-    reason = 'for moving on-disk files'
-  )
+  check_installed(pkg = "fs", reason = "for moving on-disk files")
   stopifnot(
     is_scalar_character(x = path),
     is_scalar_character(x = new_path),
     rlang::is_bare_logical(x = overwrite, n = 1L),
     is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0
   )
-  hndlr <- if (fs::is_dir(path = path)) {
-    function(...) {
-      path <- fs::path_expand(path = path)
-      new_path <- fs::path_expand(path = new_path)
-      dest <- fs::dir_create(path = file.path(new_path, basename(path = path)))
-      fs::dir_copy(path = path, new_path = dest, overwrite = overwrite)
-      return(dest)
-    }
-  } else {
-    function(err) {
-      abort(
-        message = err$message,
-        class = class(x = err),
-        call = caller_env(n = 4L + n)
-      )
-    }
+  eexist <- function(err) {
+    warn(
+      message = paste(
+        strwrap(x = paste(
+          "Trying to move",
+          sQuote(x = path),
+          "to itself, skipping"
+        )),
+        collapse = '\n'
+      ),
+      class = c('WEXIST', 'EEXIST')
+    )
+    return(fs::as_fs_path(x = path))
   }
-  return(invisible(x = tryCatch(
-    expr = fs::file_copy(
-      path = path,
-      new_path = new_path,
-      overwrite = overwrite
-    ),
-    EISDIR = hndlr
-  )))
+  hndlr <- function(err) {
+    abort(
+      message = err$message,
+      class = class(x = err),
+      call = caller_env(n = 4L + n)
+    )
+  }
+  if (fs::is_dir(path = path)) {
+    path <- fs::path_expand(path = path)
+    new_path <- fs::path_expand(path = new_path)
+    new_path <- fs::dir_create(path = new_path)
+    dest <- tryCatch(
+      expr = fs::dir_copy(path = path, new_path = new_path, overwrite = overwrite),
+      EEXIST = eexist,
+      error = hndlr
+    )
+  } else if (fs::is_file(path = path)) {
+    dest <- tryCatch(
+      expr = fs::file_copy(
+        path = path,
+        new_path = new_path,
+        overwrite = overwrite
+      ),
+      EEXIST = eexist,
+      error = hndlr
+    )
+  } else {
+    abort(
+      message = paste0(
+        "Can't find path: ",
+        sQuote(x = path),
+        "; if path is relative, change working directory."
+      ),
+      call = caller_env(n = 1L + n)
+    )
+  }
+  return(invisible(x = dest))
 }
-
-# .FileMove <- function(path, new_path, n = 1L) {
-#   check_installed(pkg = "fs", reason = "for moving on-disk files")
-#   stopifnot(is_scalar_character(x = path))
-#   stopifnot(is_scalar_character(x = new_path))
-#   stopifnot(is_bare_integerish(x = n, n = 1L, finite = TRUE) && n > 0)
-#   if (fs::is_dir(path = path)) {
-#     path <- fs::path_expand(path = path)
-#     new_path <- fs::path_expand(path = new_path)
-#     dest <- fs::dir_create(path = file.path(new_path))
-#     dest <- tryCatch(
-#       expr = fs::dir_copy(path = path, new_path = dest),
-#       error = function(e) {
-#         stop("Can't move this dir to new path: ", e, call. = FALSE)
-#       }
-#     )
-#   }
-#   else if (fs::is_file(path = path)) {
-#     dest <- fs::file_copy(path = path, new_path = new_path)
-#   }
-#   else {
-#     stop("Can't find path: ", path, ". If path is relative, change working directory.")
-#     error_call <- function(err) {
-#       abort(message = err$message,
-#             class = class(x = err),
-#             call = caller_env(n = 4L + n))
-#     }
-#   }
-#   return(invisible(x = tryCatch(expr = return(dest),
-#                                 error = function(e) return(error_call))))
-# }
 
 #' Get An Option
 #'
