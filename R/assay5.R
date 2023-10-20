@@ -990,7 +990,7 @@ HVFInfo.StdAssay <- function(
   if (is.null(x = method)) {
     return(method)
   }
-  vf.methods.layers <- unlist(unname(vf.methods.layers))
+  vf.methods.layers <- unlist(vf.methods.layers, use.names = FALSE)
   layer <- Layers(object = object, search = layer)
   layer <- vf.methods.layers[which.min(x = adist(x = layer, y = vf.methods.layers))]
   # Find the columns for the specified method and layer
@@ -1618,7 +1618,7 @@ VariableFeatures.StdAssay <- function(
   method <- method %||% names(x = methods)[length(x = methods)]
   method <- match.arg(arg = method, choices = names(x = methods))
   if (is_na(x = layer.orig) || is.null(x = layer.orig)) {
-    layer <- unlist(unname(methods[method]))
+    layer <- unlist(methods[method], use.names = FALSE)
   }
   vf <- sapply(
     X = layer,
