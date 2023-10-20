@@ -3,7 +3,7 @@
 #' @importFrom sp coordinates
 #' @importFrom methods as callNextMethod
 #' @importClassesFrom sp SpatialPolygons
-#'
+
 NULL
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -287,9 +287,11 @@ setMethod(
   f = 'over',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
+    check_installed(pkg = 'sf')
     return(over(
-      x = as(object = x, Class = 'SpatialPolygons'),
-      y = as(object = y, Class = 'SpatialPolygons'),
+      x = as(object = x, Class = 'sf'),
+      y = as(object = y, Class = 'sf'),
+      sparse = FALSE,
       returnList = returnList,
       fn = fn,
       ...
@@ -304,8 +306,13 @@ setMethod(
   f = 'Overlay',
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
-    idx <- over(x = x, y = y)
-    idx <- idx[!is.na(x = idx)]
+    if (!PackageCheck("sf", error = FALSE)) {
+      stop("'Overlay' requires sf to be installed", call. = FALSE)
+    }
+    idx <- sf::st_intersects(x = as(x,"sf"), y = as(y,"sf"), sparse=F)
+    idx <- which(idx)
+    names_in_sf_object1 <- if (!is.null(row.names(x))) row.names(x)[idx] else x$id[idx]
+    idx <- setNames(rep(TRUE, length(idx)), names_in_sf_object1)
     if (!length(idx)) {
       warning("The selected region does not contain any cell segmentations")
       return(NULL)

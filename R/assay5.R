@@ -974,10 +974,12 @@ HVFInfo.StdAssay <- function(
   #vf.layers <- .VFLayers(object = object, type = 'hvf')
   # Determine which method and layer to use
   method <- method[length(methods)] %||% names(vf.methods.layers[length(vf.methods.layers)])
-  disp.methods <- c('mean.var.plot', 'dispersion', 'disp')
-  if (tolower(x = method) %in% disp.methods) {
-    method <- 'mvp'
-  }
+  method <- switch(
+    EXPR = tolower(x = method),
+    mean.var.plot = 'mvp',
+    dispersion = 'disp',
+    method
+  )
   method <- tryCatch(
     expr = match.arg(arg = method, choices = names(vf.methods.layers)),
     error = function(...) {
@@ -1130,7 +1132,7 @@ JoinSingleLayers <- function(
   }
   # Remove the old layers
   for (lyr in layers) {
-    object[[lyr]] <- NULL
+    object[lyr] <- NULL
   }
   return(object)
 }
