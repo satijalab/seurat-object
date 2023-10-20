@@ -2251,6 +2251,8 @@ split.StdAssay <- function(
   ret = c('assay', 'multiassays', 'layers'),
   ...
 ) {
+  op <- options(Seurat.object.assay.brackets = 'v5')
+  on.exit(expr = options(op))
   ret <- ret[1L]
   ret <- match.arg(arg = ret)
   layers.to.split <- Layers(object = x, search = layers)
@@ -2269,17 +2271,19 @@ split.StdAssay <- function(
   layers <- Layers(object = x, search = layers)
   layers.split <- list()
   for (i in seq_along(along.with = layers)) {
-    if (length(colnames(x[layers[i]])) != length(colnames(x))) {
+    if (length(x = colnames(x = x[layers[i]])) != length(x = colnames(x = x))) {
       layers.split[[i]] <- layers[i]
     }
   }
   layers.split <- unlist(x = layers.split)
-  if (length(x = layers.split) > 0) {
-   stop(
-     'The selected layers are already split: ',
-     paste(layers.split, collapse = ' '),
-     '\n', 'Please join layers before splitting.'
-   )
+  if (length(x = layers.split)) {
+    abort(message = paste(
+      strwrap(x = paste(
+        "The following layers are already split:",
+        paste(sQuote(x = layers.split), collapse = ', '),
+        "\nPlease join before splitting"
+      ))
+    ))
   }
   default <- ifelse(
     test = DefaultLayer(object = x) %in% layers,
@@ -2287,7 +2291,7 @@ split.StdAssay <- function(
     no = layers[1L]
   )
   cells <- Cells(x = x, layer = layers)
-  if (rlang::is_named(x = f)) {
+  if (is_named(x = f)) {
     f <- f[cells]
   }
   if (length(x = f) != length(x = cells)) {
@@ -2297,7 +2301,7 @@ split.StdAssay <- function(
     f <- factor(x = f, levels = c(unique(as.character(f)), 'na'))
     f[is.na(x = f)] <- 'na'
   } else {
-    f <- factor(x = f, levels = unique(as.character(f)))
+    f <- factor(x = f, levels = unique(x = as.character(x = f)))
   }
   splits <- split(x = cells, f = f, drop = drop)
   names(x = splits) <- .MakeNames(x = names(x = splits))
@@ -2715,8 +2719,8 @@ tail.Assay5 <- tail.StdAssay
   # Combine into a list
   vf.list <- lapply(unique(unlist(lapply(vf.methods.layers, `[[`, "method"))), function(method) {
     layers <- unique(unlist(lapply(vf.methods.layers, function(x) {
-      if (x["method"] == method)
-        return(x["layer"])
+      if (x['method'] == method)
+        return(x['layer'])
     })))
     return(setNames(list(layers), method))
   })

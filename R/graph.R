@@ -160,6 +160,9 @@ DefaultAssay.Graph <- function(object, ...) {
 setValidity(
   Class = 'Graph',
   method = function(object) {
+    if (.GetSeuratCompat() < '5.0.0') {
+      return(TRUE)
+    }
     if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
       warn(
         message = paste("Not validating", class(x = object)[1L], "objects"),

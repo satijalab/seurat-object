@@ -202,10 +202,15 @@ CreateAssayObject <- function(
   data <- CheckFeaturesNames(data = data)
   # Initialize meta.features
   init.meta.features <- data.frame(row.names = rownames(x = data))
-  calcN_option <- getOption(
-    x = 'Seurat.object.assay.calcn',
-    default =  Seurat.options$Seurat.object.assay.calcn
-  )
+  misc <- if (.GetSeuratCompat() < '5.0.0') {
+    list()
+  } else {
+    calcN_option <- getOption(
+      x = 'Seurat.object.assay.calcn',
+      default =  Seurat.options$Seurat.object.assay.calcn
+    )
+    list(calcN = calcN_option %||% TRUE)
+  }
   assay <- new(
     Class = 'Assay',
     counts = counts,
@@ -213,7 +218,7 @@ CreateAssayObject <- function(
     scale.data = new(Class = 'matrix'),
     key = Key(object = key)[1L] %||% '',
     meta.features = init.meta.features,
-    misc = list(calcN = calcN_option %||% TRUE)
+    misc = misc
   )
   return(assay)
 }
@@ -1139,8 +1144,22 @@ WhichCells.Assay <- function(
 #' # Fetch layer data
 #' rna["data"][1:10, 1:4]
 #'
-"[.Assay" <- function(x, i = rlang::missing_arg(), ...) {
-  if (rlang::is_missing(x = i)) {
+"[.Assay" <- function(x, i = missing_arg(), j = missing_arg(), ...) {
+  if (getOption(x = 'Seurat.object.assay.brackets', default = 'v5') == 'v3') {
+    if (is_missing(x = i)) {
+      i <- seq_len(length.out = nrow(x = x))
+    }
+    if (is_missing(x = j)) {
+      j <- seq_len(length.out = ncol(x = x))
+    }
+    return(LayerData(
+      object = x,
+      layer = DefaultLayer(object = x)[1L],
+      cells = j,
+      features = i
+    ))
+  }
+  if (is_missing(x = i)) {
     return(Layers(object = x))
   }
   return(LayerData(object = x, layer = i, ...))
@@ -1377,16 +1396,20 @@ split.Assay <- function(
   layers = NA,
   ...
 ) {
- warning('Input is a v3 assay and split only works for v5 assay.',
-         '\n',
-         'It is converted to v5 assay')
+  warn(message = paste(
+    strwrap(x = paste(
+      "Input is a v3 assay and `split()` only works for v5 assays;",
+      "converting to a v5 assay"
+    ))
+  ))
   x <- as(object = x, Class = 'Assay5')
   split.x <- split(
     x = x,
     f = f,
     drop = drop,
     layers = layers,
-    ...)
+    ...
+  )
   return(split.x)
 }
 
@@ -1772,6 +1795,9 @@ setMethod(
 setValidity(
   Class = 'Assay',
   method = function(object) {
+    if (.GetSeuratCompat() < '5.0.0') {
+      return(TRUE)
+    }
     if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
       warn(
         message = paste("Not validating", class(x = object)[1L], "objects"),

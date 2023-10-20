@@ -5,7 +5,7 @@
 \alias{[<-,StdAssay,character,ANY,ANY-method}
 \title{Layer Data}
 \usage{
-\method{[}{StdAssay}(x, i = rlang::missing_arg(), ...)
+\method{[}{StdAssay}(x, i = missing_arg(), j = missing_arg(), ...)
 
 \S4method{[}{StdAssay,character,ANY,ANY}(x, i, j, ...) <- value
 }
@@ -14,9 +14,9 @@
 
 \item{i}{Name of layer data to get or set}
 
-\item{...}{Arguments passed to \code{\link{LayerData}}}
-
 \item{j}{Ignored}
+
+\item{...}{Arguments passed to \code{\link{LayerData}}}
 
 \item{value}{A matrix-like object to add as a new layer}
 }

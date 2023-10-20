@@ -253,7 +253,7 @@ setValidity(
     valid <- NULL
     key <- Key(object = object)
     # Ensure key has length of 1
-    if (!is.null(x = key)) {
+    if (!is.null(x = key) && .GetSeuratCompat() >= '5.0.0') {
       if (!is_scalar_character(x = key)) {
         valid <- c(valid, "Keys must be a one-length character vector")
       } else if (is_na(x = key)) {
@@ -269,7 +269,6 @@ setValidity(
     return(valid %||% TRUE)
   }
 )
-
 
 .CheckKey <- function(key, existing = NULL, name = NULL) {
   if (rlang::is_missing(x = key) || !length(x = key) || !nzchar(x = key)) {

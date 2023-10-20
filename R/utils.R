@@ -317,35 +317,10 @@ NULL
 ) {
   # Figure out current version, rounding up development versions
   caller <- caller_env()
-  current <- as.character(x = packageVersion(pkg = ns_env_name(x = caller)))
-  current <- unlist(x = strsplit(x = current, split = '\\.'))
-  if (length(x = current) > 4L) {
-    current[4L] <- paste(
-      current[seq.int(from = 4L, to = length(x = current))],
-      collapse = '.'
-    )
-    current <- current[1:4]
-  }
-  names(x = current) <- c('major', 'minor', 'patch', 'devel')[seq_along(along.with = current)]
-  if (!is_na(x = current['devel'])) {
-    if (all(current[c('minor', 'patch')] == '9')) {
-      current['major'] <- as.character(x = as.integer(x = current['major']) + 1L)
-      current[c('minor', 'patch')] <- '0'
-    } else if (current['patch'] == '0') {
-      current['minor'] <- as.character(x = as.integer(x = current['minor']) + 1L)
-      current['patch'] <- '0'
-    } else {
-      current['patch'] <- as.character(x = as.integer(x = current['patch']) + 1L)
-    }
-    current <- current[c('major', 'minor', 'patch')]
-  }
+  current <- .RoundVersion(current = packageVersion(
+    pkg = ns_env_name(x = caller)
+  ))
   cv <- paste(current, collapse = '.')
-  current <- vapply(
-    X = current,
-    FUN = as.integer,
-    FUN.VALUE = integer(length = 1L),
-    USE.NAMES = TRUE
-  )
   # Ensure our 'when' is a valid version
   wv <- when <- as.character(x = numeric_version(x = when, strict = TRUE))
   # If we haven't reached deprecation, exit out silently
