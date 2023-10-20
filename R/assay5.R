@@ -1658,7 +1658,7 @@ VariableFeatures.StdAssay <- function(
     vf <- .SelectFeatures(
       object = vf,
       all.features = intersect(
-        x = slot(object = object, name = 'features')
+        x = slot(object = object, name = 'features')[,layer]
       ),
       nfeatures = nfeatures
     )
