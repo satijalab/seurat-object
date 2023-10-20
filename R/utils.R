@@ -1713,6 +1713,9 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
       abort(message = paste("Unknown BPCells matrix mode:", sQuote(x = mode)))
     )
   }
+  if (length(paths) > 1){
+    paths <- paste(paths, collapse = ",")
+  }
   return(paths)
 }
 

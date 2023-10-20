@@ -990,8 +990,9 @@ HVFInfo.StdAssay <- function(
   if (is.null(x = method)) {
     return(method)
   }
+  vf.methods.layers <- unlist(unname(vf.methods.layers))
   layer <- Layers(object = object, search = layer)
-  layer <- vf.methods.layers[[method]][which.min(x = adist(x = layer, y = unname(vf.methods.layers[method])))]
+  layer <- vf.methods.layers[which.min(x = adist(x = layer, y = vf.methods.layers))]
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
@@ -1617,7 +1618,7 @@ VariableFeatures.StdAssay <- function(
   method <- method %||% names(x = methods)[length(x = methods)]
   method <- match.arg(arg = method, choices = names(x = methods))
   if (is_na(x = layer.orig) || is.null(x = layer.orig)) {
-    layer <- methods[method]
+    layer <- unlist(unname(methods[method]))
   }
   vf <- sapply(
     X = layer,
@@ -1654,12 +1655,10 @@ VariableFeatures.StdAssay <- function(
     abort(message = msg)
   }
   if (isTRUE(x = simplify)) {
-    # Pull layers that have values for VariableFeatures only
-    layers.vf <- names(vf)[sapply(vf, function(x) !is.na(x[1]))]
     vf <- .SelectFeatures(
       object = vf,
       all.features = intersect(
-        x = slot(object = object, name = 'features')[, layers.vf]
+        x = slot(object = object, name = 'features')
       ),
       nfeatures = nfeatures
     )
