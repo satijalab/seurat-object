@@ -1130,7 +1130,7 @@ JoinSingleLayers <- function(
   }
   # Remove the old layers
   for (lyr in layers) {
-    object[[lyr]] <- NULL
+    object[lyr] <- NULL
   }
   return(object)
 }
