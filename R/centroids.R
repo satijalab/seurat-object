@@ -354,9 +354,15 @@ setMethod(
   f = 'over',
   signature = c(x = 'Centroids', y = 'SpatialPolygons'),
   definition = function(x, y, returnList = FALSE, fn = NULL, ...) {
+    deprecate_stop(
+      when = '5.0.0',
+      what = 'over()',
+      details = "Future integration with `sf` is on the roadmap with no current ETA"
+    )
+    check_installed(pkg = 'sf')
     return(over(
-      x = as(object = x, Class = 'SpatialPoints'),
-      y = as(object = y, Class = 'SpatialPolygons'),
+      x = as(object = x, Class = 'sf'),
+      y = as(object = y, Class = 'sf'),
       returnList = returnList,
       fn = fn,
       ...
@@ -371,10 +377,24 @@ setMethod(
   f = 'Overlay',
   signature = c(x = 'Centroids', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
-    idx <- over(x = x, y = y)
-    idx <- idx[!is.na(x = idx)]
-    if (!length(idx)) {
-      warning("The selected region does not contain any cell centroids")
+    check_installed(pkg = 'sf', reason = 'to overlay spatial information')
+    idx <- sf::st_intersects(
+      x = as(object = x, Class = 'sf'),
+      y = as(object = y, Class = 'sf'),
+      sparse = FALSE
+    )
+    idx <- which(idx)
+    names_in_sf_object1 <- if (!is.null(x = row.names(x = x))) {
+      row.names(x = x)[idx]
+    } else {
+      x$id[idx]
+    }
+    idx <- setNames(
+      object = rep(x = TRUE, length(x = idx)),
+      nm = names_in_sf_object1
+    )
+    if (!length(x = idx)) {
+      warn(message = "The selected region does not contain any cell centroids")
       return(NULL)
     }
     idx <- sort(x = as.integer(x = names(x = idx)))

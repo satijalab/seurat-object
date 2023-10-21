@@ -44,3 +44,8 @@ Create an overlay of some query spatial object (\code{x}) against some
 target object (\code{y}). Basically, find all components of a query that
 fall within the bounds of a target spatial region
 }
+\note{
+This function requires the
+\href{https://cran.r-project.org/package=sf}{\pkg{sf}} package
+to be installed
+}
