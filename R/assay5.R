@@ -2749,7 +2749,6 @@ setAs(
   to = 'Assay5',
   def = function(from) {
     # Initialize the new object
-    browser()
     to <- new(
       Class = 'Assay5',
       cells = LogMap(y = colnames(x = from)),
@@ -2792,7 +2791,6 @@ setAs(
   to = 'Assay',
   def = function(from) {
     data.list <- c()
-    browser()
     original.layers <- Layers(object = from)
     layers.saved <- c()
     for (i in c('counts', 'data', 'scale.data')) {
