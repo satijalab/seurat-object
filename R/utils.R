@@ -2284,22 +2284,6 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
   return(invisible(x = dest))
 }
 
-#' Get An Option
-#'
-#' @inheritParams base::getOption
-#' @param choices A named list of default options; has higher priority
-#' than \code{default}
-#'
-#' @return ...
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.Opt <- function(x, choices = default.options, default = NULL) {
-  return(getOption(x = x, default = choices[[x]] %||% default))
-}
-
 #' @param pkg Name of package
 #' @param external Include packages imported, but not defined, by \code{pkg}
 #' @param old Includes S3 classes registered by
