@@ -165,6 +165,7 @@ setClass(
 #'
 #' @rdname dot-CreateStdAssay
 #' @method .CreateStdAssay default
+#' @export
 #'
 .CreateStdAssay.default <- function(
   counts,
@@ -174,11 +175,9 @@ setClass(
   features = NULL,
   transpose = FALSE,
   type = 'Assay5',
-  layers.type = c('counts','data'),
+  layer = 'counts',
   ...
 ) {
-  layers.type <- match.arg(arg = layers.type)
-  # .NotYetImplemented()
   if (!is_bare_integerish(x = dim(x = counts), n = 2L, finite = TRUE)) {
     abort(message = "'counts' must be a two-dimensional object")
   }
@@ -196,11 +195,11 @@ setClass(
     features <- features %||% dnames[[1L]]
   }
   counts <- list(counts)
-  names(x = counts) <- layers.type
+  names(x = counts) <- layer
   return(.CreateStdAssay(
     counts = counts,
     min.cells = min.cells,
-    layers.type = layers.type,
+    layer = layer,
     min.features = min.features,
     cells = cells,
     features = features,
@@ -364,12 +363,11 @@ setClass(
   features = NULL,
   transpose = FALSE,
   type = 'Assay5',
-  layers.type = c('counts','data'),
+  layer = 'counts',
   ...
 ) {
-  layers.type <- match.arg(arg = layers.type)
   counts <- list(counts)
-  names(x = counts) <- layers.type
+  names(x = counts) <- layer
   if (isTRUE(x = transpose)) {
     csum <- Matrix::rowSums
     fsum <- Matrix::colSums
@@ -379,7 +377,7 @@ setClass(
   }
   return(.CreateStdAssay(
     counts = counts,
-    layers.type = layers.type,
+    layer = layer,
     min.cells = min.cells,
     min.features = min.features,
     cells = cells,

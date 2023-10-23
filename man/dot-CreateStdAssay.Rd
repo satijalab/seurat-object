@@ -27,7 +27,7 @@
   features = NULL,
   transpose = FALSE,
   type = "Assay5",
-  layers.type = c("counts", "data"),
+  layer = "counts",
   ...
 )
 
@@ -52,7 +52,7 @@
   features = NULL,
   transpose = FALSE,
   type = "Assay5",
-  layers.type = c("counts", "data"),
+  layer = "counts",
   ...
 )
 
@@ -64,7 +64,7 @@
   features = NULL,
   transpose = FALSE,
   type = "Assay5",
-  layers.type = c("counts", "data"),
+  layer = "counts",
   ...
 )
 }
@@ -88,11 +88,11 @@ that's derived from \code{\link{StdAssay}}}
 \item{...}{Extra parameters passed to \code{\link[methods]{new}} for
 assay creation; used to set slots not defined by \code{\link{StdAssay}}}
 
+\item{layer}{Name of layer to store \code{counts} as}
+
 \item{csum}{Function for calculating cell sums}
 
 \item{fsum}{Function for calculating feature sums}
-
-\item{layer}{Name of layer to store \code{counts} as}
 }
 \value{
 An object of class \code{type} with a layer named \code{layer}
