@@ -66,10 +66,29 @@ setGeneric(
   return(dnames[didx])
 }
 
+#' Check Feature Margin
+#'
+#' @param fmargin Either \code{1} or \code{2}
+#'
+#' @return \code{fmargin}
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @examples
+#' .CheckFmargin(1L)
+#' .CheckFmargin(2.3)
+#'
+#' # Error if `fmargin` is outside of [1:2]
+#' if (FALSE) {
+#'   .CheckFmargin(3L)
+#' }
+#'
 .CheckFmargin <- function(fmargin) {
   fmargin <- fmargin %/% 1L
   if (!fmargin %in% seq.int(from = 1L, to = 2L)) {
-    stop("'fmargin' must be either 1 or 2", call. = FALSE)
+    abort(message = paste(sQuote(x = fmargin), "must be either 1 or 2"))
   }
   return(fmargin)
 }

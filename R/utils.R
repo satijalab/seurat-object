@@ -1217,14 +1217,16 @@ ListToS4 <- function(x) {
 #'
 #' @return Invisibly returns boolean denoting if the package is installed
 #'
-#' @templateVar fxn PackageCheck
-#' @templateVar ver 5.0.0
-#' @templateVar repl rlang::check_installed
-#' @template lifecycle-deprecated
-#'
 #' @export
 #'
 #' @concept utils
+#'
+#' @section Lifecycle:
+#'
+#' \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
+#'
+#' \code{PackageCheck} was deprecated in version 5.0.0; please use
+#' \code{\link[rlang:check_installed]{rlang::check_installed}()} instead
 #'
 #' @examples
 #' PackageCheck("SeuratObject", error = FALSE)
@@ -2282,22 +2284,6 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
     )
   }
   return(invisible(x = dest))
-}
-
-#' Get An Option
-#'
-#' @inheritParams base::getOption
-#' @param choices A named list of default options; has higher priority
-#' than \code{default}
-#'
-#' @return ...
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.Opt <- function(x, choices = default.options, default = NULL) {
-  return(getOption(x = x, default = choices[[x]] %||% default))
 }
 
 #' @param pkg Name of package

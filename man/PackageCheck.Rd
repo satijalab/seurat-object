@@ -22,7 +22,8 @@ Check the existence of a package
 
 \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 
-\code{PackageCheck} was deprecated in version 5.0.0; use \code{\link{rlang::check_installed}} instead
+\code{PackageCheck} was deprecated in version 5.0.0; please use
+\code{\link[rlang:check_installed]{rlang::check_installed}()} instead
 }
 
 \examples{

@@ -1596,10 +1596,10 @@ VariableFeatures.StdAssay <- function(
     method <- selection.method
   }
   nfeatures <- nfeatures %||% Inf
-  if ("var.features" %in% colnames(object[])) {
-    if ("var.features.rank" %in% colnames(object[])) {
-      var.features <- row.names(x = object[])[which(!is.na(object[]$var.features.rank))]
-      var.features <- var.features[order(object[][["var.features.rank"]][which(!is.na(object[]$var.features))])]
+  if ("var.features" %in% colnames(object[[]])) {
+    if ("var.features.rank" %in% colnames(object[[]])) {
+      var.features <- row.names(x = object[[]])[which(!is.na(object[[]]$var.features.rank))]
+      var.features <- var.features[order(object[[]][["var.features.rank"]][which(!is.na(object[[]]$var.features))])]
     }
     else {
       var.features <- as.vector(object["var.features", drop = TRUE])
@@ -2140,27 +2140,8 @@ merge.StdAssay <- function(
   } else {
     # Get default layer as default of first assay
     default <- DefaultLayer(assays[[1]])
-    names <- c("counts", "data", "scale.data")
-    keep <- suppressWarnings(
-      c(
-        names[
-          sapply(names, function(layer) all(sapply(assays, function(x) !is.null(Layers(x, search = layer)))))
-        ]
-      )
-    )
-
-    other <- Layers(assays[[1]])
-    other <- other[!grepl(paste0("^", paste(c("counts", "data", "scale.data"), collapse = "|")), other)]
-    for (i in other) {
-      if (all(sapply(assays, function(x) !is.null(Layers(x, search = i))))) {
-        keep <- c(keep, i)
-      }
-    }
-    if (length(keep) < 1){
-      stop("Error: There are no shared layers between the objects.")
-    }
     for (i in seq_along(along.with = assays)) {
-      for (lyr in keep) {
+      for (lyr in Layers(object = assays[[i]])) {
         LayerData(
           object = combined,
           layer = paste(lyr, labels[i], sep = '.'),
