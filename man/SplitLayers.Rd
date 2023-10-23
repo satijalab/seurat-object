@@ -20,6 +20,8 @@ JoinLayers(object, ...)
 \item{layers}{Names of layers to split or join}
 
 \item{new}{Name of new layers}
+
+\item{assay}{Name of assay to split layers}
 }
 \value{
 \code{object} with the layers specified joined

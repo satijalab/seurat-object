@@ -88,6 +88,72 @@ setClass(
 # Functions
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' Create a v5 Assay object
+#'
+#' Create an \code{\link{Assay5}} object from a feature expression matrix;
+#' the expected format of the matrix is features x cells
+#'
+#' @inheritParams .CreateStdAssay
+#' @param data Optional prenormalized data matrix
+#' @template param-dots-method
+# @param transpose Create a transposed assay
+# @param ... Extra parameters passed to \code{\link{.CreateStdAssay}}
+#'
+#' @return An \code{\link{Assay5}} object
+#'
+#' @export
+#'
+#' @concept assay
+#'
+CreateAssay5Object <- function(
+  counts = NULL,
+  data = NULL,
+  min.cells = 0,
+  min.features = 0,
+  csum = NULL,
+  fsum = NULL,
+  ...
+) {
+  transpose <- FALSE
+  colsums <- Matrix::colSums
+  rowsums <- Matrix::rowSums
+  type <- 'Assay5'
+  csum <- csum %||% colsums
+  fsum <- fsum %||% rowsums
+  counts <- CheckLayersName(matrix.list = counts, layers.type = 'counts')
+  data <- CheckLayersName(matrix.list = data, layers.type = 'data')
+  if (!is.null(x = counts) & !is.null(data)) {
+    counts.cells <- unlist(
+      x = lapply(
+        X = counts,
+        FUN = function(x) colnames(x = x)
+      )
+    )
+    data.cells <- unlist(
+      x = lapply(
+        X = data,
+        FUN = function(x) colnames(x)
+      )
+    )
+    if (!all(counts.cells == data.cells)) {
+      abort(message = 'counts and data input should have the same cells')
+    }
+  }
+  counts <- c(counts, data)
+  data <- NULL
+  CheckGC()
+  return(.CreateStdAssay(
+    counts = counts,
+    min.cells = min.cells,
+    min.features = min.features,
+    transpose = transpose,
+    type = type,
+    csum = csum,
+    fsum = fsum,
+    ...
+  ))
+}
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -543,72 +609,6 @@ Cells.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
 #'
 Cells.Assay5 <- Cells.StdAssay
 
-#' Create a v5 Assay object
-#'
-#' Create an \code{\link{Assay5}} object from a feature expression matrix;
-#' the expected format of the matrix is features x cells
-#'
-#' @inheritParams .CreateStdAssay
-#' @param data Optional prenormalized data matrix
-#' @template param-dots-method
-# @param transpose Create a transposed assay
-# @param ... Extra parameters passed to \code{\link{.CreateStdAssay}}
-#'
-#' @return An \code{\link{Assay5}} object
-#'
-#' @export
-#'
-#' @concept assay
-#'
-CreateAssay5Object <- function(
-  counts = NULL,
-  data = NULL,
-  min.cells = 0,
-  min.features = 0,
-  csum = NULL,
-  fsum = NULL,
-  ...
-) {
-  transpose <- FALSE
-  colsums <- Matrix::colSums
-  rowsums <- Matrix::rowSums
-  type <- 'Assay5'
-  csum <- csum %||% colsums
-  fsum <- fsum %||% rowsums
-  counts <- CheckLayersName(matrix.list = counts, layers.type = 'counts')
-  data <- CheckLayersName(matrix.list = data, layers.type = 'data')
-  if (!is.null(x = counts) & !is.null(data)) {
-    counts.cells <- unlist(
-      x = lapply(
-        X = counts,
-        FUN = function(x) colnames(x = x)
-        )
-      )
-    data.cells <- unlist(
-      x = lapply(
-        X = data,
-        FUN = function(x) colnames(x)
-        )
-      )
-    if (!all(counts.cells == data.cells)) {
-      abort(message = 'counts and data input should have the same cells')
-    }
-  }
-  counts <- c(counts, data)
-  data <- NULL
-  CheckGC()
-  return(.CreateStdAssay(
-    counts = counts,
-    min.cells = min.cells,
-    min.features = min.features,
-    transpose = transpose,
-    type = type,
-    csum = csum,
-    fsum = fsum,
-    ...
-  ))
-}
-
 #' @templateVar fxn DefaultAssay
 #' @template method-stdassay
 #'
@@ -713,7 +713,6 @@ Features.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
 Features.Assay5 <- Features.StdAssay
 
 #' @method FetchData StdAssay
-#' @export
 #' @export
 #'
 FetchData.StdAssay <- function(
@@ -890,6 +889,9 @@ FetchData.StdAssay <- function(
   # return(data.fetched)
 }
 
+#' @method FetchData Assay5
+#' @export
+#'
 FetchData.Assay5 <- FetchData.StdAssay
 
 #' @templateVar fxn AssayData

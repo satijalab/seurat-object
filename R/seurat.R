@@ -2089,6 +2089,8 @@ Idents.Seurat <- function(object, ...) {
   return(object)
 }
 
+#' @param assay Name of assay to split layers
+#'
 #' @rdname SplitLayers
 #' @method JoinLayers Seurat
 #' @export
