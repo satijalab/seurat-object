@@ -161,20 +161,20 @@ setClass(
    ))
 }
 
-# @param layer Name of layer to store \code{counts} as
-#
-# @rdname dot-CreateStdAssay
-# @method .CreateStdAssay default
+#' @param layer Name of layer to store \code{counts} as
+#'
+#' @rdname dot-CreateStdAssay
+#' @method .CreateStdAssay default
 #'
 .CreateStdAssay.default <- function(
   counts,
-  layers.type = c('counts','data'),
   min.cells = 0,
   min.features = 0,
   cells = NULL,
   features = NULL,
   transpose = FALSE,
   type = 'Assay5',
+  layers.type = c('counts','data'),
   ...
 ) {
   layers.type <- match.arg(arg = layers.type)

@@ -2,6 +2,7 @@
 % Please edit documentation in R/generics.R, R/assay5.R
 \name{.CreateStdAssay}
 \alias{.CreateStdAssay}
+\alias{.CreateStdAssay.default}
 \alias{.CreateStdAssay.list}
 \alias{.CreateStdAssay.Matrix}
 \alias{.CreateStdAssay.matrix}
@@ -15,6 +16,18 @@
   features = NULL,
   transpose = FALSE,
   type = "Assay5",
+  ...
+)
+
+\method{.CreateStdAssay}{default}(
+  counts,
+  min.cells = 0,
+  min.features = 0,
+  cells = NULL,
+  features = NULL,
+  transpose = FALSE,
+  type = "Assay5",
+  layers.type = c("counts", "data"),
   ...
 )
 
@@ -78,6 +91,8 @@ assay creation; used to set slots not defined by \code{\link{StdAssay}}}
 \item{csum}{Function for calculating cell sums}
 
 \item{fsum}{Function for calculating feature sums}
+
+\item{layer}{Name of layer to store \code{counts} as}
 }
 \value{
 An object of class \code{type} with a layer named \code{layer}
