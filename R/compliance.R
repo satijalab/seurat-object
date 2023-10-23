@@ -3,6 +3,12 @@
   function(...) {
     current <- .RoundVersion(current = packageVersion(pkg = 'Seurat'))
     seurat.version <<- paste(current, collapse = '.')
+    if (!is.null(x = seurat.version) && seurat.version < '5.0.0') {
+      options(
+        Seurat.object.assay.brackets = 'v3',
+        Seurat.object.assay.version = 'v3'
+      )
+    }
     return(invisible(x = NULL))
   }
 })
