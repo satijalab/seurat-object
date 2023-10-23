@@ -630,6 +630,7 @@ RenameAssays <- function(
 #' @order 1
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("fs", quietly = TRUE)) {
 #'   # Write out with DelayedArray
 #'   if (requireNamespace("HDF5Array", quietly = TRUE)) {
@@ -679,6 +680,7 @@ RenameAssays <- function(
 #'     pbmc2
 #'     pbmc2[["disk"]]
 #'   }
+#' }
 #' }
 #'
 SaveSeuratRds <- function(
@@ -1243,7 +1245,7 @@ CreateSeuratObject.default <- function(
   assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
   if (.GetSeuratCompat() < '5.0.0') {
     assay.version <- 'v3'
-  } else if (!inherits(counts, what = "AnyMatrix") && assay.version == 'v3') {
+  } else if (!inherits(counts, what = c('matrix', 'dgCMatrix')) && assay.version == 'v3') {
     message(
       "Counts matrix provided is not sparse; vreating v5 assay in Seurat object"
     )
@@ -2086,6 +2088,29 @@ Idents.Seurat <- function(object, ...) {
   if (isTRUE(x = drop)) {
     object <- droplevels(x = object)
   }
+  return(object)
+}
+
+#' @param assay Name of assay to split layers
+#'
+#' @rdname SplitLayers
+#' @method JoinLayers Seurat
+#' @export
+#'
+JoinLayers.Seurat <- function(
+  object,
+  assay = NULL,
+  layers = NULL,
+  new = NULL,
+  ...
+) {
+  assay <- assay %||% DefaultAssay(object)
+  object[[assay]] <- JoinLayers(
+    object = object[[assay]],
+    layers = layers,
+    new = new,
+    ...
+  )
   return(object)
 }
 

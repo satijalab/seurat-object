@@ -532,7 +532,15 @@ NameIndex <- function(x, names, MARGIN) {
     value = .SetSeuratCompat
   )
   setHook(
+    hookName = packageEvent(pkgname = 'Signac', event = 'onLoad'),
+    value = .SetSeuratCompat
+  )
+  setHook(
     hookName = packageEvent(pkgname = 'Seurat', event = 'attach'),
+    value = .SeuratCompatMessage
+  )
+  setHook(
+    hookName = packageEvent(pkgname = 'Signac', event = 'attach'),
     value = .SeuratCompatMessage
   )
   return(invisible(x = NULL))
