@@ -1,7 +1,17 @@
 .SetSeuratCompat <- local({
   seurat.version <- NULL
-  function(...) {
-    current <- .RoundVersion(current = packageVersion(pkg = 'Seurat'))
+  function(pkgname, pkgpath) {
+    current <- .RoundVersion(current = packageVersion(pkg = pkgname))
+    if (pkgname == 'Signac') {
+      if (is.null(x = seurat.version)) {
+        seurat.version <<- ifelse(
+          test = paste(current, collapse = '.') >= '1.12.9000',
+          yes = '5.0.0',
+          no = '4.4.0'
+        )
+      }
+      return(invisible(x = NULL))
+    }
     seurat.version <<- paste(current, collapse = '.')
     if (!is.null(x = seurat.version) && seurat.version < '5.0.0') {
       options(
@@ -25,7 +35,7 @@
 
 .SeuratCompatMessage <- local(
   envir = environment(fun = .SetSeuratCompat),
-  function(...) {
+  function(pkgname, pkgpath) {
     seurat <- .GetSeuratCompat()
     if (!is.null(x = seurat) && seurat < '5.0.0') {
       options(
@@ -35,8 +45,12 @@
       version <- paste0('v', substr(x = seurat, start = 1L, stop = 1L))
       packageStartupMessage(paste(
         strwrap(x = paste(
-          "Seurat",
-          version,
+          pkgname,
+          switch(
+            EXPR = pkgname,
+            Seurat = version,
+            "built for for SeuratObject v4"
+          ),
           "was just loaded with SeuratObject v5;",
           "disabling v5 assays and validation routines,",
           "and ensuring assays work in strict v3/v4 compatibility mode"
