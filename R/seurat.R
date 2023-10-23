@@ -1245,7 +1245,7 @@ CreateSeuratObject.default <- function(
   assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
   if (.GetSeuratCompat() < '5.0.0') {
     assay.version <- 'v3'
-  } else if (!inherits(counts, what = "AnyMatrix") && assay.version == 'v3') {
+  } else if (!inherits(counts, what = c('matrix', 'dgCMatrix')) && assay.version == 'v3') {
     message(
       "Counts matrix provided is not sparse; vreating v5 assay in Seurat object"
     )
