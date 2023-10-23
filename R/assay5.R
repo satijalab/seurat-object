@@ -416,6 +416,7 @@ setClass(
 #' @template method-stdassay
 #'
 #' @method AddMetaData StdAssay
+#' @export
 #'
 AddMetaData.StdAssay <- AddMetaData.Assay
 
@@ -432,6 +433,7 @@ AddMetaData.Assay5 <- AddMetaData.StdAssay
 #' @importFrom rlang quo_get_env quo_get_expr
 #'
 #' @method CastAssay StdAssay
+#' @export
 #'
 CastAssay.StdAssay <- function(object, to, layers = NA, verbose = TRUE, ...) {
   layers <- Layers(object = object, search = layers)
@@ -509,6 +511,7 @@ CastAssay.Assay5 <- CastAssay.StdAssay
 #' @template method-stdassay
 #'
 #' @method Cells StdAssay
+#' @export
 #'
 Cells.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
   if (any(is.na(x = layer)) || is.null(x = layer)) {
@@ -610,6 +613,7 @@ CreateAssay5Object <- function(
 #' @template method-stdassay
 #'
 #' @method DefaultAssay StdAssay
+#' @export
 #'
 DefaultAssay.StdAssay <- function(object, ...) {
   return(slot(object = object, name = 'assay.orig'))
@@ -640,6 +644,7 @@ DefaultAssay.Assay5 <- DefaultAssay.StdAssay
 #' @template method-stdassay
 #'
 #' @method DefaultLayer StdAssay
+#' @export
 #'
 DefaultLayer.StdAssay <- function(object, ...) {
   idx <- slot(object = object, name = 'default')
@@ -708,6 +713,7 @@ Features.StdAssay <- function(x, layer = NULL, simplify = TRUE, ...) {
 Features.Assay5 <- Features.StdAssay
 
 #' @method FetchData StdAssay
+#' @export
 #' @export
 #'
 FetchData.StdAssay <- function(
@@ -957,6 +963,7 @@ GetAssayData.StdAssay <- function(
 #' @importFrom utils adist
 #'
 #' @method HVFInfo StdAssay
+#' @export
 #'
 HVFInfo.StdAssay <- function(
   object,
@@ -1061,8 +1068,8 @@ JoinLayers.StdAssay <- function(
  return(object)
 }
 
-#' @param layers ...
-#' @param new ...
+#' @param layers Names of layers to split or join
+#' @param new Name of new layers
 #'
 #' @rdname SplitLayers
 #'
@@ -1070,71 +1077,6 @@ JoinLayers.StdAssay <- function(
 #' @export
 #'
 JoinLayers.Assay5 <- JoinLayers.StdAssay
-
-
-#' @method JoinLayers Seurat
-#' @export
-#'
-JoinLayers.Seurat <- function(
-    object,
-    assay = NULL,
-    layers = NULL,
-    new = NULL,
-    ...
-) {
-  assay <- assay %||% DefaultAssay(object)
-  object[[assay]] <- JoinLayers(
-    object = object[[assay]],
-    layers = layers,
-    new = new,
-    ...
-    )
-   return(object)
-}
-
-# Join single layers
-#
-JoinSingleLayers <- function(
-  object,
-  layers = NULL,
-  new = NULL,
-  default = TRUE,
-  nfeatures = Inf,
-  ...
-) {
-  if (is.null(x = layers)) {
-    stop('Layers cannot be NULL')
-  }
-  if (length(x = layers) > 1L) {
-    stop('The length of input layers should be 1')
-  }
-  layers <- Layers(object = object, search = layers)
-  new <- new %||% 'newlayer'
-  if (length(x = layers) == 1L) {
-    LayerData(object = object, layer = new) <- LayerData(object = object, layer = layers)
-    return(object)
-  }
-  if (length(x = layers) == 0L) {
-    return(object)
-  }
-  # Stitch the layers together
-  ldat <- StitchMatrix(
-    x = LayerData(object = object, layer = layers[1L]),
-    y = lapply(X = layers[2:length(x = layers)], FUN = LayerData, object = object),
-    rowmap = slot(object = object, name = 'features')[, layers],
-    colmap = slot(object = object, name = 'cells')[, layers]
-  )
-  LayerData(object = object, layer = new) <- ldat
-  # Set the new layer as default
-  if (isTRUE(x = default)) {
-    DefaultLayer(object = object) <- new
-  }
-  # Remove the old layers
-  for (lyr in layers) {
-    object[lyr] <- NULL
-  }
-  return(object)
-}
 
 #' @rdname Key
 #' @method Key Assay5
@@ -1152,6 +1094,7 @@ Key.Assay5 <- .Key
 #' @template method-stdassay
 #'
 #' @method LayerData StdAssay
+#' @export
 #'
 LayerData.StdAssay <- function(
   object,
@@ -1509,6 +1452,7 @@ Layers.Assay5 <- Layers.StdAssay
 #' @template method-stdassay
 #'
 #' @method Misc StdAssay
+#' @export
 #'
 Misc.StdAssay <- .Misc
 
@@ -1522,6 +1466,7 @@ Misc.Assay5 <- .Misc
 #' @template method-stdassay
 #'
 #' @method Misc<- StdAssay
+#' @export
 #'
 "Misc<-.StdAssay" <- `.Misc<-`
 
@@ -2717,6 +2662,50 @@ CalcN5 <- function(object) {
     nCount = colSums(x = object),
     nFeature = colSums(x = LayerData(object = object) > 0)
   ))
+}
+
+# Join single layers
+#
+JoinSingleLayers <- function(
+  object,
+  layers = NULL,
+  new = NULL,
+  default = TRUE,
+  nfeatures = Inf,
+  ...
+) {
+  if (is.null(x = layers)) {
+    stop('Layers cannot be NULL')
+  }
+  if (length(x = layers) > 1L) {
+    stop('The length of input layers should be 1')
+  }
+  layers <- Layers(object = object, search = layers)
+  new <- new %||% 'newlayer'
+  if (length(x = layers) == 1L) {
+    LayerData(object = object, layer = new) <- LayerData(object = object, layer = layers)
+    return(object)
+  }
+  if (length(x = layers) == 0L) {
+    return(object)
+  }
+  # Stitch the layers together
+  ldat <- StitchMatrix(
+    x = LayerData(object = object, layer = layers[1L]),
+    y = lapply(X = layers[2:length(x = layers)], FUN = LayerData, object = object),
+    rowmap = slot(object = object, name = 'features')[, layers],
+    colmap = slot(object = object, name = 'cells')[, layers]
+  )
+  LayerData(object = object, layer = new) <- ldat
+  # Set the new layer as default
+  if (isTRUE(x = default)) {
+    DefaultLayer(object = object) <- new
+  }
+  # Remove the old layers
+  for (lyr in layers) {
+    object[lyr] <- NULL
+  }
+  return(object)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

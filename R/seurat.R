@@ -2089,6 +2089,27 @@ Idents.Seurat <- function(object, ...) {
   return(object)
 }
 
+#' @rdname SplitLayers
+#' @method JoinLayers Seurat
+#' @export
+#'
+JoinLayers.Seurat <- function(
+  object,
+  assay = NULL,
+  layers = NULL,
+  new = NULL,
+  ...
+) {
+  assay <- assay %||% DefaultAssay(object)
+  object[[assay]] <- JoinLayers(
+    object = object[[assay]],
+    layers = layers,
+    new = new,
+    ...
+  )
+  return(object)
+}
+
 #' @rdname Key
 #' @export
 #' @method Key Seurat

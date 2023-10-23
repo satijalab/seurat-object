@@ -127,6 +127,14 @@ NULL
   UseMethod(generic = '.FilePath', object = x)
 }
 
+#' Get the Margin of an Object
+#'
+#' @param x An object
+#'
+#' @return The margin, eg. \code{1} for rows or \code{2} for columns
+#'
+#' @keywords internal
+#'
 #' @export .MARGIN
 #'
 .MARGIN <- function(x, ...) {
@@ -988,7 +996,7 @@ IsMatrixEmpty <- function(x) {
 #' @param object An object
 #' @template param-dots-method
 #'
-#' @return ...
+#' @return \code{object} with the layers specified joined
 #'
 #' @rdname SplitLayers
 #' @export JoinLayers
@@ -1411,11 +1419,11 @@ SpatiallyVariableFeatures <- function(object, method, ...) {
   UseMethod(generic = 'SpatiallyVariableFeatures', object = object)
 }
 
-#' @rdname SplitLayers
-#' @export SplitLayers
-#'
-#' @order 1
-#'
+# @rdname SplitLayers
+# @export SplitLayers
+#
+# @order 1
+#
 SplitLayers <- function(object, ...) {
   UseMethod(generic = 'SplitLayers', object = object)
 }
