@@ -347,6 +347,8 @@ Boundaries <- function(object, ...) {
 #'
 #' @export
 #'
+#' @concept assay5
+#'
 CastAssay <- function(object, to, ...) {
   UseMethod(generic = 'CastAssay', object = object)
 }
@@ -432,8 +434,27 @@ Command <- function(object, ...) {
 #'
 #' @export
 #'
+#' @concept spatial
+#'
 CreateCentroids <- function(coords, nsides, radius, theta) {
   UseMethod(generic = 'CreateCentroids', object = coords)
+}
+
+#' Create Spatial Coordinates
+#'
+#' @template param-dots-method
+#' @param coords Spatial coordinates
+#'
+#' @return A \code{\link{FOV}} object
+#'
+#' @export
+#'
+#' @concept spatial
+#'
+#' @seealso \code{\link{FOV-class}}
+#'
+CreateFOV <- function(coords, ...) {
+  UseMethod(generic = 'CreateFOV', object = coords)
 }
 
 #' Create a \code{\link{Molecules}} Object
@@ -451,6 +472,8 @@ CreateCentroids <- function(coords, nsides, radius, theta) {
 #'
 #' @export
 #'
+#' @concept spatial
+#'
 CreateMolecules <- function(coords, ...) {
   UseMethod(generic = 'CreateMolecules', object = coords)
 }
@@ -462,6 +485,8 @@ CreateMolecules <- function(coords, ...) {
 #' @return A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 #'
 #' @export
+#'
+#' @concept spatial
 #'
 CreateSegmentation <- function(coords) {
   UseMethod(generic = 'CreateSegmentation', object = coords)
@@ -527,22 +552,6 @@ CreateSeuratObject <- function(
   UseMethod(generic = 'CreateSeuratObject', object = counts)
 }
 
-
-#' Create Spatial Coordinates
-#'
-#' @template param-dots-method
-#' @param coords Spatial coordinates
-#'
-#' @return A \code{\link{FOV}} object
-#'
-#' @export
-#'
-#' @seealso \code{\link{FOV-class}}
-#'
-CreateFOV <- function(coords, ...) {
-  UseMethod(generic = 'CreateFOV', object = coords)
-}
-
 #' Crop Coordinates
 #'
 #' @template param-dots-method
@@ -560,6 +569,8 @@ CreateFOV <- function(coords, ...) {
 #' and \code{y}
 #'
 #' @export
+#'
+#' @concept spatial
 #'
 Crop <- function(object, x = NULL, y = NULL, coords = c('plot', 'tissue'), ...) {
   UseMethod(generic = 'Crop', object = object)
@@ -592,33 +603,6 @@ DefaultAssay <- function(object, ...) {
 #'
 "DefaultAssay<-" <- function(object, ..., value) {
   UseMethod(generic = 'DefaultAssay<-', object = object)
-}
-
-#' Default Layer
-#'
-#' Get and set the default layer
-#'
-#' @template param-dots-method
-#' @param object An object
-#'
-#' @return \code{DefaultLayer}: The name of the default layer
-#'
-#' @rdname DefaultLayer
-#' @export DefaultLayer
-#'
-DefaultLayer <- function(object, ...) {
-  UseMethod(generic = 'DefaultLayer', object = object)
-}
-
-#' @param value Name of layer to set as default
-#'
-#' @return \code{DefaultLayer<-}: An object with the default layer updated
-#'
-#' @rdname DefaultLayer
-#' @export DefaultLayer<-
-#'
-"DefaultLayer<-" <- function(object, ..., value) {
-  UseMethod(generic = 'DefaultLayer<-', object = object)
 }
 
 #' @return \code{DefaultBoundary}: The name of the default
@@ -657,6 +641,8 @@ DefaultBoundary <- function(object) {
 #'
 #' @export
 #'
+#' @concept spatial
+#'
 DefaultFOV <- function(object, ...) {
   UseMethod(generic = 'DefaultFOV', object = object)
 }
@@ -672,6 +658,35 @@ DefaultFOV <- function(object, ...) {
 #'
 "DefaultFOV<-" <- function(object, ..., value) {
   UseMethod(generic = 'DefaultFOV<-', object = object)
+}
+
+#' Default Layer
+#'
+#' Get and set the default layer
+#'
+#' @template param-dots-method
+#' @param object An object
+#'
+#' @return \code{DefaultLayer}: The name of the default layer
+#'
+#' @rdname DefaultLayer
+#' @export DefaultLayer
+#'
+#' @concept assay5
+#'
+DefaultLayer <- function(object, ...) {
+  UseMethod(generic = 'DefaultLayer', object = object)
+}
+
+#' @param value Name of layer to set as default
+#'
+#' @return \code{DefaultLayer<-}: An object with the default layer updated
+#'
+#' @rdname DefaultLayer
+#' @export DefaultLayer<-
+#'
+"DefaultLayer<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultLayer<-', object = object)
 }
 
 #' Get the Neighbor nearest neighbors distance matrix
@@ -1001,6 +1016,8 @@ IsMatrixEmpty <- function(x) {
 #' @rdname SplitLayers
 #' @export JoinLayers
 #'
+#' @concept assay5
+#'
 JoinLayers <- function(object, ...) {
   UseMethod(generic = 'JoinLayers', object = object)
 }
@@ -1216,6 +1233,8 @@ Molecules <- function(object, ...) {
 #'
 #' @export
 #'
+#' @concept spatial
+#'
 setGeneric(
   name = 'Overlay',
   def = function(x, y, invert = FALSE, ...) {
@@ -1403,6 +1422,8 @@ SetIdent <- function(object, ...) {
 #'
 #' @export
 #'
+#' @concept spatial
+#'
 Simplify <- function(coords, tol, topologyPreserve = TRUE) {
   UseMethod(generic = 'Simplify', object = coords)
 }
@@ -1501,6 +1522,8 @@ SVFInfo <- function(object, method, status, ...) {
 #'
 #' @rdname Theta
 #' @export
+#'
+#' @concept spatial
 #'
 Theta <- function(object) {
   UseMethod(generic = 'Theta', object = object)

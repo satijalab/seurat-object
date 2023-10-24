@@ -29,7 +29,10 @@ to adjust the shape when plotting the centroids}
 \code{Centroids} methods: \code{\link{Centroids-methods}}
 
 Segmentation layer classes:
+\code{\link{Centroids-methods}},
 \code{\link{Molecules-class}},
-\code{\link{Segmentation-class}}
+\code{\link{Molecules-methods}},
+\code{\link{Segmentation-class}},
+\code{\link{Segmentation-methods}}
 }
 \concept{segmentation}

@@ -119,4 +119,12 @@ certain cells
 }
 \seealso{
 \code{\link{Centroids-class}}
+
+Segmentation layer classes:
+\code{\link{Centroids-class}},
+\code{\link{Molecules-class}},
+\code{\link{Molecules-methods}},
+\code{\link{Segmentation-class}},
+\code{\link{Segmentation-methods}}
 }
+\concept{segmentation}

@@ -179,3 +179,4 @@ information to/from a \code{FOV} object
 \seealso{
 \code{\link{FOV-class}}
 }
+\concept{fov}

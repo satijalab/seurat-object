@@ -6,6 +6,7 @@ template:
 
 development:
   mode: auto
+
 reference:
   - title: The Seurat Class and Interaction Methods
     contents:
@@ -27,9 +28,11 @@ reference:
       - "JackStrawData-class"
       - "JackStrawData-methods"
       - has_concept("jackstraw")
-  - title: segmentations
+  - title: Imaging-Based Spatial Classes and Methods
   - contents:
+      - has_concept("fov")
       - has_concept("segmentation")
+      - has_concept("spatial")
   - title: The SeuratCommand Class and Interaction Methods
     contents:
       - "SeuratCommand-class"
@@ -59,31 +62,3 @@ reference:
   - title: Logical Maps
     contents:
       - has_concept("logmap")
-  - title: internal
-    contents:
-      - Boundaries
-      - CastAssay
-      - "Centroids-methods"
-      - CheckFeaturesNames
-      - CreateCentroids
-      - CreateFOV
-      - CreateMolecules
-      - CreateSegmentation
-      - Crop
-      - DefaultFOV
-      - DefaultLayer
-      - FOV-class
-      - FOV-methods
-      - FOV-validity
-      - JoinLayers
-      - Molecules-methods
-      - Overlay
-      - RenameCells.StdAssay
-      - SaveSeuratBP
-      - SaveSeuratRds
-      - Segmentation-methods
-      - Simplify
-      - SparseEmptyMatrix
-      - saveRDS.Seurat
-      - Theta
-      - as.Centroids

@@ -72,9 +72,10 @@ setClass(
 #' \href{https://future.futureverse.org/articles/future-1-overview.html}{\code{vignette("future-1-overview")}}
 #'
 #' @concept future
-
 #'
 #' @seealso \code{\link{Segmentation-class}}
+#'
+#' @family segmentation
 #'
 NULL
 

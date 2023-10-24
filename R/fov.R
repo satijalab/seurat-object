@@ -33,6 +33,8 @@ NULL
 #'
 #' @aliases FOV
 #'
+#' @concept fov
+#'
 #' @seealso \code{\link{FOV-methods}}
 #'
 setClass(
@@ -77,6 +79,8 @@ setClass(
 #'
 #' @name FOV-methods
 #' @rdname FOV-methods
+#'
+#' @concept fov
 #'
 #' @seealso \code{\link{FOV-class}}
 #'

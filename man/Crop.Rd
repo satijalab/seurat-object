@@ -31,3 +31,4 @@ and \code{y}
 \description{
 Crop Coordinates
 }
+\concept{spatial}

@@ -61,6 +61,8 @@ setClass(
 #'
 #' @seealso \code{\link{Centroids-class}}
 #'
+#' @family segmentation
+#'
 NULL
 
 #'

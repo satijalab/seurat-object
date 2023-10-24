@@ -848,6 +848,45 @@ CheckDots <- function(..., fxns = NULL) {
   return(invisible(x = NULL))
 }
 
+#' Check features names format
+#'
+#' @param data a matrix input, rownames(data) are feature names
+#'
+#' @return \code{data} with update feature names
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+CheckFeaturesNames <- function(data) {
+  if (any(grepl(pattern = "_", x = rownames(x = data)))) {
+    warning(
+      "Feature names cannot have underscores ('_'), replacing with dashes ('-')",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    rownames(x = data) <- gsub(
+      pattern = "_",
+      replacement = "-",
+      x = rownames(x = data)
+    )
+  }
+  if (any(grepl(pattern = "|", x = rownames(x = data), fixed = TRUE))) {
+    warning(
+      "Feature names cannot have pipe characters ('|'), replacing with dashes ('-')",
+      call. = FALSE,
+      immediate. = TRUE
+    )
+    rownames(x = data) <- gsub(
+      pattern = "|",
+      replacement = "-",
+      x = rownames(x = data),
+      fixed = TRUE
+    )
+  }
+  return(data)
+}
+
 #' Conditional Garbage Collection
 #'
 #' Call \code{gc} only when desired
@@ -1927,28 +1966,6 @@ CheckMatrix.lMatrix <- function(
 ) {
   warn(message = "Input matrix contains logical values")
   return(invisible(x = NULL))
-}
-
-#' Check features names format
-#' @param data a matrix input, rownames(data) are feature names
-#'
-#' @rdname CheckFeaturesNames
-#' @export
-#'
-CheckFeaturesNames <- function(data) {
-  if (any(grepl(pattern = "_", x = rownames(x = data)))) {
-    warning("Feature names cannot have underscores ('_'), replacing with dashes ('-')",
-            call. = FALSE, immediate. = TRUE)
-    rownames(x = data) <- gsub(pattern = "_", replacement = "-",
-                               x = rownames(x = data))
-  }
-  if (any(grepl(pattern = "|", x = rownames(x = data), fixed = TRUE))) {
-    warning("Feature names cannot have pipe characters ('|'), replacing with dashes ('-')",
-            call. = FALSE, immediate. = TRUE)
-    rownames(x = data) <- gsub(pattern = "|", replacement = "-",
-                               x = rownames(x = data), fixed = TRUE)
-  }
-  return(data)
 }
 
 #' @rdname IsMatrixEmpty

@@ -34,3 +34,4 @@ A \code{\link{Molecules}} object
 \description{
 Create a \code{\link{Molecules}} Object
 }
+\concept{spatial}

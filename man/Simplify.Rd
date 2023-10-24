@@ -26,3 +26,4 @@ Simplify Geometry
 
 Simplify segmentations by reducing the number of vertices
 }
+\concept{spatial}

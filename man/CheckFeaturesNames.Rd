@@ -9,6 +9,10 @@ CheckFeaturesNames(data)
 \arguments{
 \item{data}{a matrix input, rownames(data) are feature names}
 }
+\value{
+\code{data} with update feature names
+}
 \description{
 Check features names format
 }
+\keyword{internal}

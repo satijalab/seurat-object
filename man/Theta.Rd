@@ -12,3 +12,4 @@ Theta(object)
 \description{
 Get the offset angle
 }
+\concept{spatial}

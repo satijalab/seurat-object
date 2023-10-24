@@ -625,6 +625,8 @@ RenameAssays <- function(
 #' @templateVar pkg fs
 #' @template note-reqdpkg
 #'
+#' @concept utils
+#'
 #' @seealso \code{\link{saveRDS}()} \code{\link{readRDS}()}
 #'
 #' @order 1

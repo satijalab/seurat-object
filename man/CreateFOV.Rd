@@ -80,3 +80,4 @@ Create Spatial Coordinates
 \seealso{
 \code{\link{FOV-class}}
 }
+\concept{spatial}

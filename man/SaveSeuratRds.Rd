@@ -116,3 +116,4 @@ if (requireNamespace("fs", quietly = TRUE)) {
 \seealso{
 \code{\link{saveRDS}()} \code{\link{readRDS}()}
 }
+\concept{utils}

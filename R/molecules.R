@@ -45,6 +45,8 @@ setClass(
 #'
 #' @seealso \code{\link{Molecules-class}}
 #'
+#' @family segmentation
+#'
 NULL
 
 #' @param key A key to set for the molecules

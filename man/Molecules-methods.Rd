@@ -55,4 +55,12 @@ molecule coordinates
 }
 \seealso{
 \code{\link{Molecules-class}}
+
+Segmentation layer classes:
+\code{\link{Centroids-class}},
+\code{\link{Centroids-methods}},
+\code{\link{Molecules-class}},
+\code{\link{Segmentation-class}},
+\code{\link{Segmentation-methods}}
 }
+\concept{segmentation}

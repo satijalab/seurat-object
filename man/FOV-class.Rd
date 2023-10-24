@@ -35,3 +35,4 @@ be one or more alphanumeric characters followed by an underscore
 \seealso{
 \code{\link{FOV-methods}}
 }
+\concept{fov}

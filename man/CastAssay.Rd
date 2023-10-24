@@ -27,3 +27,4 @@ the same layer as a new class}
 \description{
 Cast layers in v5 assays to other classes
 }
+\concept{assay5}

@@ -49,3 +49,4 @@ This function requires the
 \href{https://cran.r-project.org/package=sf}{\pkg{sf}} package
 to be installed
 }
+\concept{spatial}
