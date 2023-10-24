@@ -1,4 +1,4 @@
-# SeuratObject v4.1.4
+# SeuratObject v5.0.0
 
 ## Test environments
 * local ubuntu 22.04 install, R 4.2.3
@@ -10,8 +10,14 @@ There were no ERRORs, WARNINGs, or NOTEs
 
 ## Downstream dependencies
 
-There is one package that depends on SeuratObject: tidyseurat; this update does not impact its functionality
+The following reverse dependencies are impacted by this release of SeuratObject:
 
-There are six packages that import SeuratObject: bbknnR, CAMML, scCustomize, scpoisson, Seurat, and Signac; this update does not impact their functionality
+- Seurat:
+  - new test failures and warnings: Seurat's tests expect errors that are now handled by SeuratObject. Warnings occur due to use of deprecated, but still accepted arguments. The authors of Seurat are aware of these changes, but the functionality of Seurat is not impacted
+  - S3 generic/method consistency: Seurat defines a method for a generic defined in SeuratObject. In the latest update, SeuratObject changes one of the parameters in the method signature, but still accepts the old arguments. The functionality of Seurat is not impacted by this update
 
-There are seven packages that suggest SeuratObject: cellpypes, RESET, scOntoMatch, SCpubr, singleCellHaystack, SPECK, and VAM; this update does not impact their functionality
+- Signac
+  - new test failures: SeuratObject changes the order of the results, but not the actual values. The authors of Signac are aware of this, but the functionality of Signac is not impacted
+
+- tidyseurat
+  - new test failures: SeuratObject changes the order of the results, but not the actual values. The authors of tidyseurat are aware of this, but the functionality of tidyseurat is not impacted
