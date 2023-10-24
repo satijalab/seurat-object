@@ -6,7 +6,20 @@
 
 ## R CMD check results
 
-There were no ERRORs, WARNINGs, or NOTEs
+There were no ERRORs or WARNINGs
+
+There were two NOTEs
+
+> * checking CRAN incoming feasibility ... NOTE
+> Suggests or Enhances not in mainstream repositories:
+>   BPCells
+> Availability using Additional_repositories specification:
+>   BPCells   yes  https://bnprks.r-universe.dev
+
+> * checking package dependencies ... NOTE
+> Package suggested but not available for checking: 'BPCells'
+
+BPCells is hosted on R-universe and used conditionally in SeuratObject
 
 ## Downstream dependencies
 
