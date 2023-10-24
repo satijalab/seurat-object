@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.git$
@@ -20,3 +22,4 @@
 ^inst$
 ^tests$
 ^LICENSE\.md$
+^vignettes/articles$

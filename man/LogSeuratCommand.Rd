@@ -9,11 +9,11 @@ LogSeuratCommand(object, return.command = FALSE)
 \arguments{
 \item{object}{Name of Seurat object}
 
-\item{return.command}{Return a \link{SeuratCommand} object instead}
+\item{return.command}{Return a \code{\link{SeuratCommand}} object instead}
 }
 \value{
-If \code{return.command}, returns a SeuratCommand object. Otherwise,
-returns the Seurat object with command stored
+If \code{return.command}, returns a \code{\link{SeuratCommand}}
+object; otherwise, returns the Seurat object with command stored
 }
 \description{
 Logs command run, storing the name, timestamp, and argument list. Stores in
@@ -21,5 +21,12 @@ the Seurat object
 }
 \seealso{
 \code{\link{Command}}
+
+Command log object and interaction methods
+\code{\link{$.SeuratCommand}()},
+\code{\link{.DollarNames.SeuratCommand}()},
+\code{\link{SeuratCommand-class}},
+\code{\link{[.SeuratCommand}()},
+\code{\link{as.list.SeuratCommand}()}
 }
 \concept{command}

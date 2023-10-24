@@ -4,10 +4,12 @@
 \alias{RandomName}
 \title{Generate a random name}
 \usage{
-RandomName(length = 5L, ...)
+RandomName(length = 5L, chars = letters, ...)
 }
 \arguments{
 \item{length}{How long should the name be}
+
+\item{chars}{A vector of 1-length characters to use to generate the name}
 
 \item{...}{Extra parameters passed to \code{\link[base]{sample}}}
 }
@@ -15,8 +17,7 @@ RandomName(length = 5L, ...)
 A character with \code{nchar == length} of randomly sampled letters
 }
 \description{
-Make a name from randomly sampled lowercase letters, pasted together with no
-spaces or other characters
+Make a name from randomly sampled characters, pasted together with no spaces
 }
 \examples{
 set.seed(42L)

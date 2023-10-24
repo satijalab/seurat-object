@@ -27,7 +27,8 @@
 \value{
 \code{Key.character}: \code{object} but as a syntactically-valid key
 
-\code{Key.KeyMixin}: The key from \code{object}
+\code{Key.KeyMixin}: The key from \code{object}; if no key set,
+returns \code{NULL}
 
 \code{Key<-}: \code{object} with the key set to \code{value}
 }
@@ -47,7 +48,15 @@ behavior for getting, setting, and validating keys
 \describe{
 \item{\code{key}}{A one-length character vector with the object's key; keys must
 be one or more alphanumeric characters followed by an underscore
-\dQuote{\code{_}} (regex pattern \dQuote{\code{^[[:alnum:]]+_$}})}
+\dQuote{\code{_}} (regex pattern
+\dQuote{\code{\Sexpr[stage=build]{SeuratObject:::.KeyPattern()}}})}
 }}
 
+\seealso{
+
+\code{\link{.KeyPattern}()},
+\code{\link{.RandomKey}()},
+\code{\link{Key-validity}}
+}
+\concept{key}
 \keyword{internal}

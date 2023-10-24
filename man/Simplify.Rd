@@ -17,7 +17,7 @@ Simplify(coords, tol, topologyPreserve = TRUE)
 \item{topologyPreserve}{Logical determining if the algorithm should attempt to preserve the topology of the original geometry}
 }
 \value{
-...
+A simplified version of \code{coords}
 
 A `Segmentation` object with simplified segmentation vertices
 }

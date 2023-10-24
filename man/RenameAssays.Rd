@@ -4,10 +4,22 @@
 \alias{RenameAssays}
 \title{Rename assays in a \code{Seurat} object}
 \usage{
-RenameAssays(object, ...)
+RenameAssays(
+  object,
+  assay.name = NULL,
+  new.assay.name = NULL,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{Seurat} object}
+
+\item{assay.name}{original name of assay}
+
+\item{new.assay.name}{new name of assay}
+
+\item{verbose}{Whether to print messages}
 
 \item{...}{Named arguments as \code{old.assay = new.assay}}
 }

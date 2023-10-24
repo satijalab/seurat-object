@@ -29,3 +29,5 @@ no match can be found, returns \code{NULL}
 \description{
 Match Cells
 }
+\concept{utils}
+\keyword{internal}

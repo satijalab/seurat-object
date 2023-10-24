@@ -3,12 +3,8 @@
 \docType{class}
 \name{seurat-class}
 \alias{seurat-class}
-\alias{seurat}
-\alias{show,seurat-method}
+\alias{oldseurat}
 \title{The Seurat Class}
-\usage{
-\S4method{show}{seurat}(object)
-}
 \description{
 The Seurat object is the center of each single cell analysis. It stores all
 information associated with the dataset, including data, annotations,
@@ -75,4 +71,5 @@ single cells}
 }}
 
 \concept{unsorted}
+\concept{v2}
 \keyword{internal}

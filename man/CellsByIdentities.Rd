@@ -14,7 +14,7 @@ defaults to all identity class levels}
 
 \item{cells}{A vector of cells to grouping to}
 
-\item{return.null}{If no cells are request, return a \code{NULL};
+\item{return.null}{If no cells are requested, return a \code{NULL};
 by default, throws an error}
 }
 \value{

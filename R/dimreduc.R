@@ -1,6 +1,7 @@
 #' @include zzz.R
 #' @include generics.R
 #' @include jackstraw.R
+#' @include keymixin.R
 #' @importFrom methods new slot slot<- slotNames
 #'
 NULL
@@ -22,19 +23,20 @@ NULL
 #' @slot global Is this \code{DimReduc} global/persistent? If so, it will not be
 #' removed when removing its associated assay
 #' @slot stdev A vector of standard deviations
-#' @slot key Key for the \code{DimReduc}, must be alphanumeric characters
-#' followed by an underscore
 #' @slot jackstraw A \code{\link{JackStrawData-class}} object associated with
 #' this \code{DimReduc}
-#' @slot misc Utility slot for storing additional data associated with the
-#' \code{DimReduc} (e.g. the total variance of the PCA)
+#' @template slot-misc
+#' @template slot-key
 #'
-#' @name DimReduc-class
-#' @rdname DimReduc-class
 #' @exportClass DimReduc
 #'
-DimReduc <- setClass(
+#' @aliases DimReduc
+#'
+#' @family dimreduc
+#'
+setClass(
   Class = 'DimReduc',
+  contains = 'KeyMixin',
   slots = c(
     cell.embeddings = 'matrix',
     feature.loadings = 'matrix',
@@ -42,7 +44,7 @@ DimReduc <- setClass(
     assay.used = 'character',
     global = 'logical',
     stdev = 'numeric',
-    key = 'character',
+    # key = 'character',
     jackstraw = 'JackStrawData',
     misc = 'list'
   )
@@ -72,7 +74,7 @@ DimReduc <- setClass(
 #'
 #' @export
 #'
-#' @concept dimreduc
+#' @family dimreduc
 #'
 #' @examples
 #' data <- GetAssayData(pbmc_small[["RNA"]], slot = "scale.data")
@@ -97,16 +99,12 @@ CreateDimReducObject <- function(
   misc = list()
 ) {
   if (is.null(x = assay)) {
-    warning(
-      "No assay specified, setting assay as RNA by default.",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    assay <- "RNA"
+    warn(message = "No assay specified, setting assay as RNA by default.")
+    assay <- 'RNA'
   }
   # Try to infer key from column names
   if (is.null(x = key) && is.null(x = colnames(x = embeddings))) {
-    stop("Please specify a key for the DimReduc object")
+    abort(message = "Please specify a key for the DimReduc object")
   } else if (is.null(x = key)) {
     key <- regmatches(
       x = colnames(x = embeddings),
@@ -115,33 +113,25 @@ CreateDimReducObject <- function(
     key <- unique(x = unlist(x = key, use.names = FALSE))
   }
   if (length(x = key) != 1) {
-    stop("Please specify a key for the DimReduc object")
-  } else if (!grepl(pattern = '^[[:alnum:]]+_$', x = key)) {
+    abort(message = "Please specify a key for the DimReduc object")
+  } else if (!grepl(pattern = .KeyPattern(), x = key)) {
     old.key  <- key
-    key <- UpdateKey(key = old.key)
+    key <- Key(object = key)
     colnames(x = embeddings) <- gsub(
       x = colnames(x = embeddings),
       pattern = old.key,
       replacement = key
     )
-    warning(
-      "All keys should be one or more alphanumeric characters followed by an underscore '_', setting key to ",
-      key,
-      call. = FALSE,
-      immediate. = TRUE
-    )
   }
   # ensure colnames of the embeddings are the key followed by a numeric
   if (is.null(x = colnames(x = embeddings))) {
-    warning(
+    warn(message = paste0(
       "No columnames present in cell embeddings, setting to '",
       key,
       "1:",
       ncol(x = embeddings),
-      "'",
-      call. = FALSE,
-      immediate. = TRUE
-    )
+      "'"
+    ))
     colnames(x = embeddings) <- paste0(key, 1:ncol(x = embeddings))
   } else if (!all(grepl(pattern = paste0('^', key, "[[:digit:]]+$"), x = colnames(x = embeddings)))) {
     digits <- unlist(x = regmatches(
@@ -155,13 +145,13 @@ CreateDimReducObject <- function(
   }
   if (!IsMatrixEmpty(x = loadings)) {
     if (any(rownames(x = loadings) == '')) {
-      stop("Feature names of loadings matrix cannot be empty", call. = FALSE)
+      abort(message = "Feature names of loadings matrix cannot be empty")
     }
     colnames(x = loadings) <- colnames(x = embeddings)
   }
   if (!IsMatrixEmpty(x = projected)) {
     if (any(rownames(x = loadings) == '')) {
-      stop("Feature names of projected loadings matrix cannot be empty", call. = FALSE)
+      abort(message = "Feature names of projected loadings matrix cannot be empty")
     }
     colnames(x = projected) <- colnames(x = embeddings)
   }
@@ -210,6 +200,18 @@ DefaultAssay.DimReduc <- function(object, ...) {
   CheckDots(...)
   slot(object = object, name = 'assay.used') <- value
   return(object)
+}
+
+#' @method Features DimReduc
+#' @export
+#'
+Features.DimReduc <- function(x, projected = NULL, ...) {
+  projected <- isTRUE(x = projected %||% Projected(object = x))
+  features <- rownames(x = Loadings(object = x, projected = projected))
+  if (!length(x = features)) {
+    features <- NULL
+  }
+  return(features)
 }
 
 #' @rdname FetchData
@@ -269,6 +271,64 @@ Embeddings.DimReduc <- function(object, ...) {
   return(slot(object = object, name = 'cell.embeddings'))
 }
 
+#' @method FetchData DimReduc
+#' @export
+#'
+FetchData.DimReduc <- function(
+  object,
+  vars,
+  cells = NULL,
+  # layer = c('embeddings', 'loadings', 'projected'),
+  # layer = 'embeddings',
+  ...
+) {
+  layer <- 'embeddings'
+  layer <- arg_match0(arg = layer, values = 'embeddings')
+  cells <- cells %||% Cells(x = object)
+  if (is.numeric(x = cells)) {
+    cells <- Cells(x = object)[cells]
+  }
+  cells <- intersect(x = cells, y = Cells(x = object))
+  if (!length(x = cells)) {
+    abort(message = "None of the cells requested found in this dimensional reduction")
+  }
+  key <- Key(object = object)
+  ovars <- vars
+  vars <- grep(
+    pattern = paste0('^(', key, ')?[[:digit:]]+$'),
+    x = vars,
+    value = TRUE
+  )
+  if (!length(x = vars)) {
+    abort(message = "None of the vars provided are valid for reduced dimensions")
+  } else if (length(x = vars) != length(x = ovars)) {
+    warn(message = paste(
+      "The following requested vars are not valid:",
+      paste(setdiff(x = ovars, y = vars), collapse = ', '),
+    ))
+  }
+  vars <- paste0(
+    key,
+    as.integer(x = gsub(pattern = key, replacement = '', x = vars))
+  )
+  data <- switch(
+    EXPR = layer,
+    'embeddings' = Embeddings(object = object),
+    Loadings(object = object, projected = layer == 'projected')
+  )
+  missing <- setdiff(x = vars, y = colnames(x = data))
+  if (length(x = missing) == length(x = vars)) {
+    abort(message = "Cannot find any of the requested dimensions")
+  } else if (length(x = missing)) {
+    warn(message = paste(
+      "Cannot find the following dimensions:",
+      paste0(missing, collapse = ', ')
+    ))
+    vars <- setdiff(x = vars, y = missing)
+  }
+  return(as.data.frame(x = data)[cells, vars, drop = FALSE])
+}
+
 #' @rdname IsGlobal
 #' @export
 #' @method IsGlobal DimReduc
@@ -318,10 +378,7 @@ JS.DimReduc <- function(object, slot = NULL, ...) {
 #' # Get a DimReduc key
 #' Key(object = pbmc_small[["pca"]])
 #'
-Key.DimReduc <- function(object, ...) {
-  CheckDots(...)
-  return(slot(object = object, name = 'key'))
-}
+Key.DimReduc <- .Key
 
 #' @rdname Key
 #' @export
@@ -333,27 +390,24 @@ Key.DimReduc <- function(object, ...) {
 #' Key(object = pbmc_small[["pca"]])
 #'
 "Key<-.DimReduc" <- function(object, ..., value) {
-  CheckDots(...)
-  object <- UpdateSlots(object = object)
-  old.key <- Key(object = object)
-  slots <- Filter(
-    f = function(x) {
-      return(class(x = slot(object = object, name = x)) == 'matrix')
-    },
-    x = slotNames(x = object)
-  )
-  for (s in slots) {
-    mat <- slot(object = object, name = s)
-    if (!IsMatrixEmpty(x = mat)) {
-      colnames(x = mat) <- sub(
-        pattern = paste0('^', old.key),
-        replacement = value,
-        x = colnames(x = mat)
-      )
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op), add = TRUE)
+  old <- Key(object = object)
+  suppressWarnings(expr = object <- NextMethod(), classes = 'validationWarning')
+  for (i in c("cell.embeddings", "feature.loadings", "feature.loadings.projected")) {
+    mat <- slot(object = object, name = i)
+    if (IsMatrixEmpty(x = mat)) {
+      next
     }
-    slot(object = object, name = s) <- mat
+    colnames(x = mat) <- gsub(
+      pattern = paste0('^', old),
+      replacement = Key(object = object),
+      x = colnames(x = mat)
+    )
+    slot(object = object, name = i) <- mat
   }
-  slot(object = object, name = 'key') <- value
+  options(op)
+  validObject(object = object)
   return(object)
 }
 
@@ -432,6 +486,7 @@ RenameCells.DimReduc <- function(object, new.names = NULL, ...) {
   old.data <- Embeddings(object = object)
   rownames(x = old.data) <- new.names
   slot(object = object, name = "cell.embeddings") <- old.data
+  validObject(object = object)
   return(object)
 }
 
@@ -452,32 +507,33 @@ Stdev.DimReduc <- function(object, ...) {
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' \code{DimReduc} Methods
+#' Get Feature Loadings
 #'
-#' Methods for \code{\link{DimReduc}} objects for generics defined in
-#' other packages
+#' Pull feature loadings from a \link[=DimReduc]{dimensional reduction}
 #'
-#' @inheritParams Assay-methods
-#' @param x,object A \code{\link{DimReduc}} object
-#' @param i For \code{[}: feature names or indices; for \code{[[}: cell names
-#' or indices
-#' @param j Dimensions to pull for
-#' @param ... Arguments passed to other methods
+#' \code{[} does not distinguish between projected and unprojected feature
+#' loadings; to select whether projected or unprojected loadings should be
+#' pulled, please use \code{\link{Loadings}}
 #'
-#' @name DimReduc-methods
-#' @rdname DimReduc-methods
+#' @param x A \code{\link{DimReduc}} object
+#' @param i Feature identifiers or indices
+#' @param j Dimension identifiers or indices
+#' @param drop Coerce the result to the lowest possible dimension; see
+#' \code{\link{drop}} for further details
+#' @template param-dots-method
 #'
-#' @concept dimreduc
+#' @return Feature loadings for features \code{i} and dimensions \code{j}
 #'
-NULL
-
-#' @describeIn DimReduc-methods Pull feature loadings
-#'
-#' @return \code{[}: Feature loadings for features \code{i} and dimensions
-#' \code{j}
-#'
-#' @export
 #' @method [ DimReduc
+#' @export
+#'
+#' @family dimreduc
+#'
+#' @seealso \code{\link{Loadings}}
+#'
+#' @examples
+#' pca <- pbmc_small[["pca"]]
+#' pca[1:10, 1:5]
 #'
 "[.DimReduc" <- function(x, i, j, drop = FALSE, ...) {
   loadings <- Loadings(object = x)
@@ -503,12 +559,25 @@ NULL
   return(Loadings(object = x)[i, j, drop = drop, ...])
 }
 
-#' @describeIn DimReduc-methods Pull cell embeddings
+#' Get Cell Embeddings
 #'
-#' @return \code{[[}: Cell embeddings for cells \code{i} and dimensions \code{j}
+#' Pull cell embeddings from a \link[=DimReduc]{dimensional reduction}
 #'
-#' @export
+#' @inheritParams [.DimReduc
+#' @param i Cell names or indices
+#'
+#' @return Cell embeddings for cells \code{i} and dimensions \code{j}
+#'
 #' @method [[ DimReduc
+#' @export
+#'
+#' @family dimreduc
+#'
+#' @seealso \code{\link{Embeddings}}
+#'
+#' @examples
+#' pca <- pbmc_small[["pca"]]
+#' pca[[1:10, 1:5]]
 #'
 "[[.DimReduc" <- function(x, i, j, drop = FALSE, ...) {
   if (missing(x = i)) {
@@ -534,48 +603,86 @@ NULL
   return(embeddings[i, j, drop = drop, ...])
 }
 
-#' @describeIn DimReduc-methods The number of cells and dimensions for a
-#' \code{DimReduc}
+#' Dimensional Reduction Meta-Information
+#'
+#' Pull meta-information about cells and dimensions for a given
+#' \link[=DimReduc]{dimensional reduction}; cell meta-information is stored
+#' as row meta-information (eg. \code{nrow}, \code{rownames}) and dimension
+#' meta-information is stored as column meta-information (eg. \code{ncol},
+#' \code{colnames})
+#'
+#' @inheritParams [.DimReduc
 #'
 #' @return \code{dim}: The number of cells (\code{nrow}) and dimensions
 #' (\code{ncol})
 #'
-#' @export
 #' @method dim DimReduc
+#' @export
+#'
+#' @family dimreduc
+#'
+#' @examples
+#' pca <- pbmc_small[["pca"]]
+#' pca
+#' dim(pca)
+#'
+#' # nrow is number of cells
+#' nrow(pca)
+#'
+#' # rownames pulls cell names
+#' head(rownames(pca))
+#'
+#' # ncol and length are number of dimensions
+#' ncol(pca)
+#' length(pca)
+#'
+#' # colnames and names pull dimension identifiers
+#' head(colnames(pca))
+#' head(names(pca))
 #'
 dim.DimReduc <- function(x) {
   return(dim(x = Embeddings(object = x)))
 }
 
-#' @describeIn DimReduc-methods The cell and dimension names for a
-#' \code{DimReduc} object
-#'
 #' @return \code{dimnames}: The cell (row) and dimension (column) names
 #'
-#' @export
+#' @rdname dim.DimReduc
+#'
 #' @method dimnames DimReduc
+#' @export
+#'
+#' @seealso \code{Cells}
 #'
 dimnames.DimReduc <- function(x) {
   return(dimnames(x = Embeddings(object = x)))
 }
 
-#' @describeIn DimReduc-methods The number of dimensions for a \code{DimReduc}
-#' object
-#'
 #' @return \code{length}: The number of dimensions
+#'
+#' @rdname dim.DimReduc
 #'
 #' @export
 #' @method length DimReduc
 #'
 length.DimReduc <- function(x) {
-  return(ncol(x = Embeddings(object = x)))
+  return(ncol(x = x))
 }
 
-#' @describeIn DimReduc-methods Merge two or more \code{DimReduc} objects
-#' together
+#' Merge Dimensional Reductions
 #'
-#' @export
+#' Merge two or more \link[=DimReduc]{dimensional reduction} together
+#'
+#' @inheritParams [.DimReduc
+#' @inheritParams merge.Assay5
+#' @param y One or more \code{\link{DimReduc}} objects
+#' @template param-dots-ignored
+#'
+#' @return A new \code{DimReduc} object with data merged from \code{c(x, y)}
+#'
 #' @method merge DimReduc
+#' @export
+#'
+#' @family dimreduc
 #'
 merge.DimReduc <- function(
   x = NULL,
@@ -586,24 +693,45 @@ merge.DimReduc <- function(
   CheckDots(...)
   drs <- c(x, y)
   if (!is.null(x = add.cell.ids)) {
-    for (i in 1:length(x = drs)) {
+    add.cell.ids <- unique(x = add.cell.ids)
+    if (!is_bare_character(x = add.cell.ids, n = length(x = drs))) {
+      abort(
+        message = "'add.cell.ids' must be unique for every dimensional reduction"
+      )
+    }
+    for (i in seq_along(along.with = drs)) {
       drs[[i]] <- RenameCells(object = drs[[i]], new.names = add.cell.ids[i])
     }
   }
-  embeddings.mat <- list()
-  min.dim <- c()
-  for (i in 1:length(x = drs)) {
-    embeddings.mat[[i]] <- Embeddings(object = drs[[i]])
-    min.dim <- c(min.dim, ncol(x = embeddings.mat[[i]]))
+  all.cells <- unlist(x = lapply(X = drs, FUN = Cells))
+  if (anyDuplicated(x = all.cells)) {
+    abort(message = "Duplicate cells in provided dimensional reductions")
   }
+  embeddings.mat <- lapply(X = drs, FUN = Embeddings)
+  min.dim <- vapply(
+    X = embeddings.mat,
+    FUN = ncol,
+    FUN.VALUE = integer(length = 1L),
+    USE.NAMES = FALSE
+  )
+  # embeddings.mat <- list()
+  # min.dim <- c()
+  # for (i in 1:length(x = drs)) {
+  #   embeddings.mat[[i]] <- Embeddings(object = drs[[i]])
+  #   min.dim <- c(min.dim, ncol(x = embeddings.mat[[i]]))
+  # }
   if (length(x = unique(x = min.dim)) > 1) {
     min.dim <- min(min.dim)
-    warning(
-      "Reductions contain differing numbers of dimensions, merging first ",
-      min.dim,
-      call. = FALSE,
-      immediate. = TRUE
-    )
+    warn(message = paste(
+      "Reductions contain differing numbers of dimensions, merging first",
+      min.dim
+    ))
+    # warning(
+    #   "Reductions contain differing numbers of dimensions, merging first ",
+    #   min.dim,
+    #   call. = FALSE,
+    #   immediate. = TRUE
+    # )
     embeddings.mat <- lapply(
       X = embeddings.mat,
       FUN = function(x) {
@@ -623,34 +751,44 @@ merge.DimReduc <- function(
   return(merged.dr)
 }
 
-#' @describeIn DimReduc-methods The dimension names for a \code{DimReduc} object
+#' @return \code{names}: The dimension identifiers
 #'
-#' @return \code{names}: The names for the dimensions (eg. \dQuote{PC_1})
+#' @rdname dim.DimReduc
 #'
-#' @export
 #' @method names DimReduc
+#' @export
 #'
 names.DimReduc <- function(x) {
-  return(colnames(x = Embeddings(object = x)))
+  # return(colnames(x = Embeddings(object = x)))
+  return(colnames(x = x))
 }
 
-#' @describeIn DimReduc-methods Prints a set of features that most strongly
-#' define a set of components; \strong{note}: requires feature loadings to be
-#' present in order to work
+#' Print Top Feature Loadings
 #'
+#' Prints a set of features that most strongly define a set of components;
+#' \strong{note}: requires feature loadings to be present in order to work
+#'
+#' @inheritParams [.DimReduc
 #' @param dims Number of dimensions to display
 #' @param nfeatures Number of genes to display
 #' @param projected Use projected slot
-#' @param ... Arguments passed to other methods
+#' @template param-dots-ignored
 #'
-#' @return \code{print}: Displays set of features defining the components and
+#' @return Displays set of features defining the components and
 #' invisibly returns \code{x}
 #'
+#' @method print DimReduc
+#' @export
+#'
 #' @aliases print
+#'
+#' @family dimreduc
+#'
 #' @seealso \code{\link[base]{cat}}
 #'
-#' @export
-#' @method print DimReduc
+#' @examples
+#' pca <- pbmc_small[["pca"]]
+#' print(pca)
 #'
 print.DimReduc <- function(
   x,
@@ -676,13 +814,6 @@ print.DimReduc <- function(
       dims <- intersect(x = dims, y = seq_len(length.out = ncol(x = loadings)))
     }
     for (dim in dims) {
-      # features <- TopFeatures(
-      #   object = x,
-      #   dim = dim,
-      #   nfeatures = nfeatures * 2,
-      #   projected = projected,
-      #   balanced = TRUE
-      # )
       features <- Top(
         data = loadings[, dim, drop = FALSE],
         num = nfeatures * 2,
@@ -716,15 +847,20 @@ print.DimReduc <- function(
   return(invisible(x = x))
 }
 
-#' @describeIn DimReduc-methods Subset a \code{DimReduc} object
+#' Subset a Dimensional Reduction
 #'
+#' Subset a \code{\link{DimReduc}} object
+#'
+#' @inheritParams [.DimReduc
 #' @param cells,features Cells and features to keep during the subset
+#' @template param-dots-ignored
 #'
-#' @return \code{subset}: \code{x} for cells \code{cells} and features
-#' \code{features}
+#' @return \code{x} for cells \code{cells} and features \code{features}
 #'
-#' @export
 #' @method subset DimReduc
+#' @export
+#'
+#' @family dimreduc
 #'
 subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
   CheckDots(...)
@@ -732,7 +868,7 @@ subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
   if (all(is.na(x = cells))) {
     cells <- Cells(x = x)
   } else if (any(is.na(x = cells))) {
-    warning("NAs passed in cells vector, removing NAs")
+    warn(message = "NAs passed in cells vector, removing NAs")
     cells <- na.omit(object = cells)
   }
   # features <- rownames(x = x) %iff% features %||% rownames(x = x)
@@ -746,7 +882,7 @@ subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
     if (is.numeric(x = cells)) {
       cells <- Cells(x = x)[cells]
     }
-    cells <- intersect(x = cells, y = Cells(x = x))
+    cells <- intersect(x = Cells(x = x), y = cells)
     if (length(x = cells) == 0) {
       stop("Cannot find cell provided", call. = FALSE)
     }
@@ -784,36 +920,39 @@ subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# S4 methods
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#' @describeIn DimReduc-methods Show basic summary of a \code{DimReduc} object
-#'
-#' @return \code{show}: Prints summary to \code{\link[base]{stdout}} and
-#' invisibly returns \code{NULL}
-#'
-#' @importFrom methods show
-#'
-#' @export
-#'
-setMethod(
-  f = 'show',
-  signature = 'DimReduc',
-  definition = function(object) {
-    cat(
-      "A dimensional reduction object with key", Key(object = object), '\n',
-      'Number of dimensions:', length(x = object), '\n',
-      'Projected dimensional reduction calculated: ', Projected(object = object), '\n',
-      'Jackstraw run:', as.logical(x = JS(object = object)), '\n',
-      'Computed using assay:', DefaultAssay(object = object), '\n'
-    )
-    return(invisible(x = NULL))
-  }
-)
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+.RenameFeatures <- function(object, old.names = NULL, new.names = NULL) {
+  if (is.null(x = old.names) && is.null(x = new.names)) {
+    return(object)
+  }
+  # Checks
+  op <- options(Seurat.object.validate = FALSE)
+  on.exit(expr = options(op))
+  stopifnot(length(x = old.names) == length(x = new.names))
+  stopifnot(all(nzchar(x = old.names)))
+  stopifnot(all(nzchar(x = new.names)))
+  if (is.null(x = Features(x = object)) && length(x = new.names)) {
+    warning("No features present in this DimReduc", call. = FALSE, immediate. = TRUE)
+  }
+  # Rename features
+  names(x = new.names) <- old.names
+  features <- Features(x = object, projected = FALSE)
+  ldat <- Loadings(object = object, projected = FALSE)
+  rownames(x = ldat) <- unname(obj = new.names[features])
+  Loadings(object = object, projected = FALSE) <- ldat
+  if (isTRUE(x = Projected(object = object))) {
+    pdat <- Loadings(object = object, projected = TRUE)
+    pfeatures <- Features(x = object, projected = TRUE)
+    rownames(x = pdat) <- unname(obj = new.names[pfeatures])
+    Loadings(object = object, projected = TRUE) <- pdat
+  }
+  # Validate and return
+  options(op)
+  validObject(object = object)
+  return(object)
+}
 
 #' Check to see if projected loadings have been set
 #'
@@ -828,3 +967,198 @@ setMethod(
 Projected <- function(object) {
   return(!IsMatrixEmpty(x = Loadings(object = object, projected = TRUE)))
 }
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# S4 methods
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Dimensional Reduction Overview
+#'
+#' Overview of a \code{\link{DimReduc}} object
+#'
+#' @param object A dimensional reduction
+#'
+#' @template return-show
+#'
+#' @keywords internal
+#'
+#' @seealso \code{\link{DimReduc}}
+#'
+#' @examples
+#' pca <- pbmc_small[["pca"]]
+#' pca
+#'
+setMethod(
+  f = 'show',
+  signature = 'DimReduc',
+  definition = function(object) {
+    cat(
+      "A dimensional reduction object with key", Key(object = object), '\n',
+      'Number of dimensions:', length(x = object), '\n',
+      'Number of cells:', length(x = Cells(x = object)), '\n',
+      'Projected dimensional reduction calculated: ', Projected(object = object), '\n',
+      'Jackstraw run:', as.logical(x = JS(object = object)), '\n',
+      'Computed using assay:', DefaultAssay(object = object), '\n'
+    )
+    return(invisible(x = NULL))
+  }
+)
+
+#' Dimensional Reduction Validity
+#'
+#' @templateVar cls DimReduc
+#' @template desc-validity
+#'
+#' @section Cell Embeddings Validation:
+#' The cell embeddings matrix must be a numeric matrix of dimensions
+#' \eqn{n_{cells}} by \eqn{d_{dimensions}}; row names must be the cell names
+#' and column names must be the dimension identifier. The dimension identifier
+#' must be \dQuote{\code{key_dimension}} (eg. \dQuote{\code{PC_1}}). Dimension
+#' identifiers must be in order and cannot be skipped
+#'
+#' @section Feature and Projected Feature Loadings Validation:
+#' blah
+#'
+#' @inheritSection Key-validity Key Validation
+#'
+#' @section Standard Deviations Validation:
+#' blah
+#'
+#' @name DimReduc-validity
+#'
+#' @family dimreduc
+#'
+setValidity(
+  Class = 'DimReduc',
+  method = function(object) {
+    if (.GetSeuratCompat() < '5.0.0') {
+      return(TRUE)
+    }
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
+      return(TRUE)
+    }
+    valid <- NULL
+    ValidColnames <- function(
+      mat,
+      ref = NULL,
+      type = c('embeddings', 'loadings', 'projected')
+    ) {
+      ret <- NULL
+      if (IsMatrixEmpty(x = mat)) {
+        return(ret)
+      }
+      type <- match.arg(arg = type)
+      type <- switch(
+        EXPR = type,
+        embeddings = 'cell.embeddings',
+        loadings = 'feature.loadings',
+        projected = 'feature.loadings.projected'
+      )
+      mat.names <- colnames(x = mat)
+      key <- paste0('^', Key(object = object))
+      if (is.null(x = mat.names)) {
+        ret <- c(ret, paste("colnames must be present in", sQuote(x = type)))
+      } else if (!all(grepl(pattern = key, x = mat.names))) {
+        ret <- c(
+          ret,
+          paste(
+            "colnames for",
+            sQuote(x = type),
+            "must start with reduction key",
+            paste0("(", Key(object = object), ")")
+          )
+        )
+      } else {
+        dims <- as.numeric(x = gsub(pattern = key, replacement = '', x = mat.names))
+        if (!is_bare_integerish(x = dims, n = ncol(x = mat), finite = TRUE) || any(dims < 1L)) {
+          ret <- c(
+            ret,
+            paste(
+              "dimension names for",
+              sQuote(x = type),
+              "must be positive integers"
+            )
+          )
+        } else if (is.unsorted(x = dims)) {
+          ret <- c(
+            ret,
+            paste("dimensions for", sQuote(x = type), "must be in order")
+          )
+        }
+      }
+      if (!is.null(x = ref)) {
+        if (length(x = mat.names) != length(x = ref)) {
+          ret <- c(
+            ret,
+            paste(sQuote(x = type), "must have", length(x = ref), "dimensions")
+          )
+        } else if (!all(mat.names == ref)) {
+          ret <- c(
+            ret,
+            paste(
+              "dimensions in",
+              sQuote(x = type),
+              "do not match dimensions in reduction"
+            )
+          )
+        }
+      }
+      return(ret)
+    }
+    # Validate cell embeddings
+    emb <- Embeddings(object = object)
+    if (!is.numeric(x = emb)) {
+      valid <- c(valid, "'cell.embeddings' must be a numeric matrix")
+    }
+    if (is.null(x = rownames(x = emb)) || !all(nzchar(x = rownames(x = emb)))) {
+      valid <- c(valid, "rownames must be present in 'cell.embeddings'")
+    }
+    valid <- c(valid, ValidColnames(mat = emb, type = 'embeddings'))
+    if (!is.null(x = valid)) {
+      return(valid)
+    }
+    dims <- colnames(x = emb)
+    # if (is.null(x = colnames(x = emb))) {
+    #   valid <- c(valid, "colnames must be present in 'cell.embeddings'")
+    # } else {
+    #   emb.names <- colnames(x = emb)
+    #   if (!all(grepl(pattern = paste0('^', Key(object = object)), x = emb.names))) {
+    #     valid <- c(
+    #       valid,
+    #       paste0(
+    #         "colnames for 'cell.embeddings' must start with reduction key (",
+    #         Key(object = object),
+    #         ")"
+    #       )
+    #     )
+    #   }
+    # }
+    # if (!is.null(x = valid)) {
+    #   return(valid)
+    # }
+    # TODO: Validate feature loadings
+    lds <- Loadings(object = object, projected = FALSE)
+    valid <- c(valid, ValidColnames(mat = lds, type = 'loadings'))
+    # TODO: Validate projected loadings
+    prj <- Loadings(object = object, projected = TRUE)
+    valid <- c(valid, ValidColnames(mat = prj, type = 'projected'))
+    # TODO: Validate assay used
+    if (!rlang::is_scalar_character(x = DefaultAssay(object = object))) {
+      valid <- c(valid, "'assay.orig' must be a 1-length character")
+    }
+    # Validate globalness
+    if (!rlang::is_scalar_logical(x = IsGlobal(object = object))) {
+      valid <- c(valid, "'global' must be a 1-length logical")
+    } else if (is_na(x = IsGlobal(object = object))) {
+      valid <- c(valid, "'global' must be TRUE or FALSE")
+    }
+    # TODO: Validate standard deviations
+    # TODO: Validate JackStraw data
+    # TODO: Validate misc
+    return(valid %||% TRUE)
+  }
+)

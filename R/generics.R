@@ -2,6 +2,160 @@
 #'
 NULL
 
+#' Assay Class Label
+#'
+#' @param object A \code{\link{StdAssay}} object
+#'
+#' @return The assay class label for \code{object}
+#'
+#' @keywords internal
+#'
+#' @export .AssayClass
+#'
+.AssayClass <- function(object) {
+  UseMethod(generic = '.AssayClass', object = object)
+}
+
+#' Calculate nCount and nFeature
+#'
+#' @template param-dots-method
+#' @param object An assay-like object
+#'
+#' @return A named list with ...
+#'
+#' @keywords internal
+#'
+#' @export .CalcN
+#'
+#' @examples
+#' calcn <- .CalcN(pbmc_small[["RNA"]])
+#' head(as.data.frame(calcn))
+#'
+.CalcN <- function(object, ...) {
+  UseMethod(generic = '.CalcN', object = object)
+}
+
+#' Get the Package that Defines a Class
+#'
+#' @param object An object
+#'
+#' @return The package that defines the class of \code{object}
+#'
+#' @keywords internal
+#'
+#' @export .ClassPkg
+#'
+#' @examples
+#' .ClassPkg(pbmc_small)
+#'
+.ClassPkg <- function(object) {
+  UseMethod(generic = '.ClassPkg', object = object)
+}
+
+#' Generic Assay Creation
+#'
+#' Create an assay object; runs a standardized filtering scheme that
+#' works regardless of the direction of the data (eg. cells as columns
+#' and features as rows or vice versa) and creates an assay object based
+#' on the  initialization scheme defined for \code{\link{StdAssay}}-derived
+#' class \code{type}
+#'
+#' @param counts A two-dimensional expression matrix
+#' @param min.cells Include features detected in at least this many cells;
+#' will subset the counts matrix as well. To reintroduce excluded features,
+#' create a new object with a lower cutoff
+#' @param min.features Include cells where at least this many features
+#' are detected
+#' @param cells Vector of cell names
+#' @param features Vector of feature names
+#' @param type Type of assay object to create; must be the name of a class
+#' that's derived from \code{\link{StdAssay}}
+#' @param ... Extra parameters passed to \code{\link[methods]{new}} for
+#' assay creation; used to set slots not defined by \code{\link{StdAssay}}
+#'
+#' @return An object of class \code{type} with a layer named \code{layer}
+#' containing the data found in \code{counts}
+#'
+#' @keywords internal
+#'
+#' @export .CreateStdAssay
+#'
+#' @concept assay
+#'
+.CreateStdAssay <- function(
+  counts,
+  min.cells = 0,
+  min.features = 0,
+  cells = NULL,
+  features = NULL,
+  transpose = FALSE,
+  type = 'Assay5',
+  ...
+) {
+  UseMethod(generic = '.CreateStdAssay', object = counts)
+}
+
+#' Disk Loading Function
+#'
+#' Generate a function to load a matrix from an on-disk file
+#'
+#' @inheritParams .FilePath
+#'
+#' @return A one-length character that defines a function to load a matrix from
+#' a file
+#'
+#' @keywords internal
+#'
+#' @export .DiskLoad
+#'
+.DiskLoad <- function(x) {
+  UseMethod(generic = '.DiskLoad', object = x)
+}
+
+#' Find a File Path
+#'
+#' @param x A file-backed object
+#'
+#' @return The path to the file that backs \code{x}; if \code{x} is not a
+#' file-backed object, returns \code{NULL}
+#'
+#' @keywords internal
+#'
+#' @export .FilePath
+#'
+.FilePath <- function(x) {
+  UseMethod(generic = '.FilePath', object = x)
+}
+
+#' Get the Margin of an Object
+#'
+#' @param x An object
+#'
+#' @return The margin, eg. \code{1} for rows or \code{2} for columns
+#'
+#' @keywords internal
+#'
+#' @export .MARGIN
+#'
+.MARGIN <- function(x, ...) {
+  UseMethod(generic = '.MARGIN', object = x)
+}
+
+#' Combine and Select Features
+#'
+#' @template param-dots-method
+#' @param object An object
+#'
+#' @return A vector of features selected
+#'
+#' @keywords internal
+#'
+#' @export .SelectFeatures
+#'
+.SelectFeatures <- function(object, ...) {
+  UseMethod(generic = '.SelectFeatures', object = object)
+}
+
 #' Add in metadata associated with either cells or features.
 #'
 #' Adds additional data to the object. Can be any piece of information
@@ -42,15 +196,15 @@ AddMetaData <- function(object, metadata, col.name = NULL) {
 #' Convert a \code{\link[base]{matrix}} (or \code{\link[Matrix]{Matrix}}) to
 #' a \code{\link{Graph}} object
 #'
+#' @template param-dots-ignored
 #' @param x The matrix to convert
-#' @param ... Arguments passed to other methods (ignored for now)
 #'
 #' @return A \code{\link{Graph}} object
 #'
 #' @rdname as.Graph
 #' @export as.Graph
 #'
-#' @concept graph
+#' @family graph
 #'
 as.Graph <- function(x, ...) {
   UseMethod(generic = "as.Graph", object = x)
@@ -59,13 +213,15 @@ as.Graph <- function(x, ...) {
 #' Convert Segmentation Layers
 #'
 #' @inheritParams CreateCentroids
+#' @template param-dots-method
 #' @param x An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return \code{as.Centroids}: A
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}} object
 #'
 #' @export
+#'
+#' @concept spatial
 #'
 as.Centroids <- function(x, nsides = NULL, radius = NULL, theta = NULL, ...) {
   UseMethod(generic = "as.Centroids", object = x)
@@ -75,8 +231,8 @@ as.Centroids <- function(x, nsides = NULL, radius = NULL, theta = NULL, ...) {
 #'
 #' Convert objects to \code{\link{Neighbor}} objects
 #'
+#' @template param-dots-method
 #' @param x An object to convert to \code{\link{Neighbor}}
-#' @param ... Arguments passed to other methods
 #'
 #' @return A \code{\link{Neighbor}} object
 #'
@@ -103,8 +259,8 @@ as.Segmentation <- function(x, ...) {
 #'
 #' Convert objects to Seurat objects
 #'
+#' @template param-dots-method
 #' @param x An object to convert to class \code{Seurat}
-#' @param ... Arguments passed to other methods
 #'
 #' @return A \code{\link{Seurat}} object generated from \code{x}
 #'
@@ -121,8 +277,8 @@ as.Seurat <- function(x, ...) {
 #'
 #' Convert dense objects to sparse representations
 #'
+#' @template param-dots-method
 #' @param x An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return A sparse representation of the input data
 #'
@@ -135,10 +291,35 @@ as.sparse <- function(x, ...) {
   UseMethod(generic = 'as.sparse', object = x)
 }
 
+#' Query Specific Object Types
+#'
+#' List the names of \code{\link{Assay}}, \code{\link{DimReduc}},
+#' \code{\link{Graph}}, \code{\link{Neighbor}} objects
+#'
+#' @template param-dots-ignored
+#' @param object A \code{\link{Seurat}} object
+#' @param slot Name of component object to return
+#'
+#' @return If \code{slot} is \code{NULL}, the names of all component objects
+#' in this \code{Seurat} object. Otherwise, the specific object specified
+#'
+#' @rdname ObjectAccess
+#'
+#' @export
+#'
+#' @concept data-access
+#'
+#' @examples
+#' Assays(pbmc_small)
+#'
+Assays <- function(object, ...) {
+  UseMethod(generic = "Assays", object = object)
+}
+
 #' Get, Set, and Query Segmentation Boundaries
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @name Boundaries
 #' @return \code{Boundaries}: The names of all segmentation boundaries present
@@ -147,16 +328,35 @@ as.sparse <- function(x, ...) {
 #' @rdname Boundaries
 #' @export
 #'
+#' @concept spatial
+#'
 Boundaries <- function(object, ...) {
   UseMethod(generic = 'Boundaries', object = object)
+}
+
+#' Cast Assay Layers
+#'
+#' Cast layers in v5 assays to other classes
+#'
+#' @param object An object
+#' @param to Either a class name or a function that takes a layer and returns
+#' the same layer as a new class
+#' @param ... If \code{to} is a function, arguments passed to \code{to}
+#'
+#' @return \code{object} with the layers cast to class specified by \code{to}
+#'
+#' @export
+#'
+CastAssay <- function(object, to, ...) {
+  UseMethod(generic = 'CastAssay', object = object)
 }
 
 #' Cell and Feature Names
 #'
 #' Get the cell and feature names of an object
 #'
+#' @template param-dots-method
 #' @param x An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return \code{Cell}: A vector of cell names
 #'
@@ -164,6 +364,7 @@ Boundaries <- function(object, ...) {
 #' @export Cells
 #'
 #' @concept data-access
+#' @family dimnames
 #'
 #' @examples
 #' Cells(x = pbmc_small)
@@ -174,6 +375,7 @@ Cells <- function(x, ...) {
 
 #' Check Matrix Validity
 #'
+#' @template param-dots-method
 #' @param object A matrix
 #' @param checks Type of checks to perform, choose one or more from:
 #' \itemize{
@@ -184,7 +386,6 @@ Cells <- function(x, ...) {
 #'  \item \dQuote{\code{na}}: Emit a warning if any value is an \code{NA}
 #'   or \code{NaN}
 #' }
-#' @param ... Arguments passed to other methods
 #'
 #' @return Emits warnings for each test and invisibly returns \code{NULL}
 #'
@@ -195,6 +396,8 @@ Cells <- function(x, ...) {
 #'
 #' @export
 #'
+#' @concept utils
+#'
 CheckMatrix <- function(object, checks, ...) {
   UseMethod(generic = 'CheckMatrix', object = object)
 }
@@ -203,8 +406,8 @@ CheckMatrix <- function(object, checks, ...) {
 #'
 #' Pull information on previously run commands in the Seurat object.
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return Either a SeuratCommand object or the requested parameter value
 #'
@@ -235,6 +438,7 @@ CreateCentroids <- function(coords, nsides, radius, theta) {
 
 #' Create a \code{\link{Molecules}} Object
 #'
+#' @template param-dots-method
 #' @param coords Spatial coordinates for molecules; should be a data frame
 #' with three columns:
 #' \itemize{
@@ -242,7 +446,6 @@ CreateCentroids <- function(coords, nsides, radius, theta) {
 #'  \item \dQuote{\code{y}}: y-coordinates for each molecule
 #'  \item \dQuote{\code{gene}}: gene name for each molecule
 #' }
-#' @param ... Arguments passed to other methods
 #'
 #' @return A \code{\link{Molecules}} object
 #'
@@ -269,6 +472,7 @@ CreateSegmentation <- function(coords) {
 #' Create a \code{Seurat} object from raw data
 #'
 #' @inheritParams CreateAssayObject
+#' @template param-dots-method
 #' @param counts Either a \code{\link[base]{matrix}}-like object with
 #' unnormalized data with cells as columns and features as rows or an
 #' \code{\link{Assay}}-derived object
@@ -286,7 +490,6 @@ CreateSegmentation <- function(coords) {
 #' Should be a \code{\link[base]{data.frame}} where the rows are cell names and
 #' the columns are additional metadata fields. Row names in the metadata need
 #' to match the column names of the counts matrix.
-#' @param ... Arguments passed to other methods
 #'
 #' @note In previous versions (<3.0), this function also accepted a parameter to
 #' set the expression threshold for a \sQuote{detected} feature (gene). This
@@ -314,20 +517,21 @@ CreateSegmentation <- function(coords) {
 #'
 CreateSeuratObject <- function(
   counts,
-  project = 'CreateSeuratObject',
   assay = 'RNA',
   names.field = 1,
   names.delim = '_',
   meta.data = NULL,
+  project = 'CreateSeuratObject',
   ...
 ) {
   UseMethod(generic = 'CreateSeuratObject', object = counts)
 }
 
+
 #' Create Spatial Coordinates
 #'
+#' @template param-dots-method
 #' @param coords Spatial coordinates
-#' @param ... Arguments passed to other methods
 #'
 #' @return A \code{\link{FOV}} object
 #'
@@ -341,6 +545,7 @@ CreateFOV <- function(coords, ...) {
 
 #' Crop Coordinates
 #'
+#' @template param-dots-method
 #' @param object An object
 #' @param x,y Range to crop x/y limits to; if \code{NULL}, uses full range of
 #' \code{x}/\code{y}
@@ -350,7 +555,6 @@ CreateFOV <- function(coords, ...) {
 #'  \item \dQuote{\code{tissue}}: Coordinates from
 #'   \code{\link{GetTissueCoordinates}}
 #' }
-#' @param ... ...
 #'
 #' @return \code{object} cropped to the region specified by \code{x}
 #' and \code{y}
@@ -365,8 +569,8 @@ Crop <- function(object, x = NULL, y = NULL, coords = c('plot', 'tissue'), ...) 
 #'
 #' Get and set the default assay
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return \code{DefaultAssay}: The name of the default assay
 #'
@@ -388,6 +592,33 @@ DefaultAssay <- function(object, ...) {
 #'
 "DefaultAssay<-" <- function(object, ..., value) {
   UseMethod(generic = 'DefaultAssay<-', object = object)
+}
+
+#' Default Layer
+#'
+#' Get and set the default layer
+#'
+#' @template param-dots-method
+#' @param object An object
+#'
+#' @return \code{DefaultLayer}: The name of the default layer
+#'
+#' @rdname DefaultLayer
+#' @export DefaultLayer
+#'
+DefaultLayer <- function(object, ...) {
+  UseMethod(generic = 'DefaultLayer', object = object)
+}
+
+#' @param value Name of layer to set as default
+#'
+#' @return \code{DefaultLayer<-}: An object with the default layer updated
+#'
+#' @rdname DefaultLayer
+#' @export DefaultLayer<-
+#'
+"DefaultLayer<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultLayer<-', object = object)
 }
 
 #' @return \code{DefaultBoundary}: The name of the default
@@ -416,8 +647,8 @@ DefaultBoundary <- function(object) {
 
 #' Get and Set the Default FOV
 #'
+#' @template param-dots-method
 #' @param object A \code{\link{Seurat}} Object
-#' @param ... Arguments passed to other methods
 #'
 #' @return \code{DefaultFOV}: The name of the default \code{\link{FOV}}
 #'
@@ -445,8 +676,8 @@ DefaultFOV <- function(object, ...) {
 
 #' Get the Neighbor nearest neighbors distance matrix
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return The distance matrix
 #'
@@ -461,8 +692,8 @@ Distances <- function(object, ...) {
 
 #' Get Cell Embeddings
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return The embeddings matrix
 #'
@@ -480,13 +711,12 @@ Embeddings <- function(object, ...) {
 #' Retrieves data (feature expression, PCA scores, metrics, etc.) for a set
 #' of cells in a Seurat object
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @export FetchData
 #'
 #' @concept data-access
-#'
 #'
 FetchData <- function(object, ...) {
   UseMethod(generic = 'FetchData', object = object)
@@ -509,11 +739,20 @@ Features <- function(x, ...) {
 #' \dQuote{scale.data}). \code{SetAssayData} can be used to replace one of these
 #' expression matrices
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param slot Specific assay data to get or set
-#' @param ... Arguments passed to other methods
+#' @param layer Name of layer to get or set
+#' @param slot \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")} Specific assay data to get or set
 #'
 #' @return \code{GetAssayData}: returns the specified assay data
+#'
+#' @template lifecycle-superseded
+#'
+#' @section Lifecycle:
+#'
+#' \code{GetAssayData} and \code{SetAssayData} have been superseded. To fetch
+#' expression matrices, use \code{\link{LayerData}}; to set expression data,
+#' use \code{\link{LayerData<-}}
 #'
 #' @name AssayData
 #' @rdname AssayData
@@ -523,16 +762,16 @@ Features <- function(x, ...) {
 #'
 #' @concept data-access
 #'
-GetAssayData <- function(object, slot, ...) {
+GetAssayData <- function(object, ...) {
   UseMethod(generic = 'GetAssayData', object = object)
 }
 
 #' Get image data
 #'
+#' @template param-dots-method
 #' @param object An object
 #' @param mode How to return the image; should accept one of \dQuote{grob},
 #' \dQuote{raster}, \dQuote{plotly}, or \dQuote{raw}
-#' @param ... Arguments passed to other methods
 #'
 #' @return Image data, varying depending on the value of \code{mode}:
 #' \describe{
@@ -563,8 +802,8 @@ GetImage <- function(object, mode = c('grob', 'raster', 'plotly', 'raw'), ...) {
 
 #' Get tissue coordinates
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return A data frame with tissue coordinates
 #'
@@ -584,8 +823,9 @@ GetTissueCoordinates <- function(object, ...) {
 #' features, while \code{SVFInfo} and \code{SpatiallyVariableFeatures} are
 #' restricted to spatially variable features
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param selection.method Which method to pull. For \code{HVFInfo} and
+#' @param method Which method to pull. For \code{HVFInfo} and
 #' \code{VariableFeatures}, choose one from one of the
 #' following:
 #' \itemize{
@@ -600,8 +840,7 @@ GetTissueCoordinates <- function(object, ...) {
 #'  \item \dQuote{moransi}
 #' }
 #' @param status Add variable status to the resulting data frame
-#'
-#' @param ... Arguments passed to other methods
+#' @param selection.method \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 #'
 #' @return \code{HVFInfo}: A data frame with feature means, dispersion, and
 #' scaled dispersion
@@ -613,7 +852,7 @@ GetTissueCoordinates <- function(object, ...) {
 #'
 #' @concept data-access
 #'
-HVFInfo <- function(object, selection.method, status = FALSE, ...) {
+HVFInfo <- function(object, method, status = FALSE, ...) {
   UseMethod(generic = 'HVFInfo', object = object)
 }
 
@@ -664,8 +903,8 @@ Idents <- function(object, ... ) {
 
 #' Get Neighbor algorithm index
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods;
 #'
 #' @return Returns the value in the alg.idx slot of the Neighbor object
 #'
@@ -691,8 +930,8 @@ Index <- function(object, ...) {
 
 #' Get Neighbor nearest neighbor index matrices
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods;
 #'
 #' @return A matrix with the nearest neighbor indices
 #'
@@ -713,8 +952,8 @@ Indices <- function(object, ...) {
 #' are removed as well. If an associated object is marked as global/persistent,
 #' the associated object will remain even if its original assay was deleted
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return \code{TRUE} if the object is global/persistent otherwise \code{FALSE}
 #'
@@ -730,10 +969,46 @@ IsGlobal <- function(object, ...) {
   UseMethod(generic = 'IsGlobal', object = object)
 }
 
-#' Get and set JackStraw information
+#' Check if a matrix is empty
+#'
+#' Takes a matrix and asks if it's empty (either 0x0 or 1x1 with a value of NA)
+#'
+#' @param x A matrix
+#'
+#' @return Whether or not \code{x} is empty
+#'
+#' @rdname IsMatrixEmpty
+#' @export IsMatrixEmpty
+#'
+#' @concept utils
+#'
+#' @examples
+#' IsMatrixEmpty(new("matrix"))
+#' IsMatrixEmpty(matrix())
+#' IsMatrixEmpty(matrix(1:3))
+#'
+IsMatrixEmpty <- function(x) {
+  UseMethod(generic = 'IsMatrixEmpty', object = x)
+}
+
+#' Split and Join Layers Together
 #'
 #' @param object An object
-#' @param ... Arguments passed to other methods
+#' @template param-dots-method
+#'
+#' @return \code{object} with the layers specified joined
+#'
+#' @rdname SplitLayers
+#' @export JoinLayers
+#'
+JoinLayers <- function(object, ...) {
+  UseMethod(generic = 'JoinLayers', object = object)
+}
+
+#' Get and set JackStraw information
+#'
+#' @template param-dots-method
+#' @param object An object
 #'
 #' @return \code{JS}: either a \code{\link{JackStrawData}} object or the
 #' specified jackstraw data
@@ -760,8 +1035,8 @@ JS <- function(object, ...) {
 
 #' Get and set object keys
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return \code{Key}: the object key
 #'
@@ -772,6 +1047,15 @@ JS <- function(object, ...) {
 #'
 Key <- function(object, ...) {
   UseMethod(generic = 'Key', object = object)
+}
+
+#' @return \code{Keys}: a named vector of keys of sub-objects
+#'
+#' @rdname Key
+#' @export
+#'
+Keys <- function(object, ...) {
+  UseMethod(generic = 'Keys', object = object)
 }
 
 #' @param value Key value
@@ -787,19 +1071,49 @@ Key <- function(object, ...) {
   UseMethod(generic = 'Key<-', object = object)
 }
 
-#' @return \code{Keys}: a named vector of keys of sub-objects
+#' Query and Manipulate Assay Layers
 #'
-#' @rdname Key
-#' @export
+#' @template param-dots-method
+#' @param object An object
+#' @param layer Name of layer to fetch or set
+#' @param slot \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 #'
-Keys <- function(object, ...) {
-  UseMethod(generic = 'Keys', object = object)
+#' @return \code{LayerData}: the layer data for \code{layer} from \code{object}
+#'
+#' @rdname Layers
+#' @export LayerData
+#'
+LayerData <- function(object, layer, ...) {
+  UseMethod(generic = 'LayerData', object = object)
+}
+
+#' @param value New two-dimensional data to be added as a layer
+#'
+#' @return \code{Layer<-}: \code{object} with \code{value} added as a layer
+#' named \code{layer}
+#'
+#' @rdname Layers
+#' @export LayerData<-
+#'
+"LayerData<-" <- function(object, layer, ..., value) {
+  UseMethod(generic = 'LayerData<-', object = object)
+}
+
+#' @return \code{Layers}: the names of the layers present in \code{object}
+#'
+#' @rdname Layers
+#' @export Layers
+#'
+#' @concept data-access
+#'
+Layers <- function(object, ...) {
+  UseMethod(generic = 'Layers', object = object)
 }
 
 #' Get and set feature loadings
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return \code{Loadings}: the feature loadings for \code{object}
 #'
@@ -832,7 +1146,11 @@ Loadings <- function(object, ...) {
 #' @return A numeric vector with new cells in order of the original cells; if
 #' no match can be found, returns \code{NULL}
 #'
+#' @keywords internal
+#'
 #' @export
+#'
+#' @concept utils
 #'
 MatchCells <- function(new, orig, ordered = FALSE) {
   if (!is.character(x = orig)) {
@@ -884,14 +1202,17 @@ Molecules <- function(object, ...) {
 #' target object (\code{y}). Basically, find all components of a query that
 #' fall within the bounds of a target spatial region
 #'
+#' @template param-dots-ignored
 #' @param x Query \code{Spatial} object
 #' @param y Target \code{Spatial} object
 #' @param invert Invert the overlay and return only the components of \code{x}
 #' that fall \emph{outside} the bounds of \code{y}
-#' @param ... Ignored
 #'
 #' @return \code{x} with only the components that fall within the
 #' bounds of \code{y}
+#'
+#' @templateVar pkg sf
+#' @template note-reqdpkg
 #'
 #' @export
 #'
@@ -905,8 +1226,8 @@ setGeneric(
 
 #' Get and set project information
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return Project information
 #'
@@ -950,8 +1271,8 @@ Radius <- function(object) {
 #' Change the cell names in all the different parts of an object. Can be useful
 #' before combining multiple objects.
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return An object with new cell names
 #'
@@ -1005,11 +1326,12 @@ ReorderIdent <- function(object, var, ...) {
 #' Convert S4 objects to lists and vice versa. Useful for declassing an S4
 #' object while keeping track of it's class using attributes (see section
 #' \strong{S4 Class Definition Attributes} below for more details). Both
-#' \code{ListToS4} and \code{S4ToList} are recursive functions, affecting all
-#' lists/S4 objects contained as sub-lists/sub-objects.
+#' \code{ListToS4} and \code{S4ToList} are recursive functions, affecting
+#' all lists/S4 objects contained as sub-lists/sub-objects
 #'
-#' @param x A list with an S4 class definition attribute
 #' @param object An S4 object
+#' @param x A list with an S4 class definition
+#' (\dQuote{\code{classDef}}) attribute
 #'
 #' @return \code{S4ToList}: A list with an S4 class definition attribute
 #'
@@ -1017,18 +1339,30 @@ ReorderIdent <- function(object, var, ...) {
 #' S4 classes are scoped to the package and class name. In order to properly
 #' track which class a list is generated from in order to build a new one,
 #' these function use an \code{\link[base:attr]{attribute}} to denote the
-#' class name and package of origin. This attribute is stored as
-#' \dQuote{classDef} and takes the form of \dQuote{\code{package:class}}.
+#' class name and package of origin. This attribute is stored as 1-length
+#' character vector named \dQuote{\code{classDef}} and takes the form
+#' of \dQuote{\code{package:class}}
 #'
 #' @name s4list
 #' @rdname s4list
 #'
-#' @concept utils
+#' @keywords internal
 #'
 #' @export
 #'
+#' @concept utils
+#' @family s4list
+#'
+#' @examples
+#' # Turn an S4 object into a list
+#' pbmc.list <- S4ToList(pbmc_small)
+#' class(pbmc.list)
+#' attributes(pbmc.list)
+#'
+#' str(pbmc.list$reductions)
+#'
 S4ToList <- function(object) {
-  if (!(isS4(object) || inherits(x = object, what = 'list'))) {
+  if (!(isS4(object) || is_bare_list(x = object))) {
     return(object)
   }
   UseMethod(generic = 'S4ToList', object = object)
@@ -1043,8 +1377,7 @@ S4ToList <- function(object) {
 #'
 #' @order 2
 #'
-#'
-SetAssayData <- function(object, slot, new.data, ...) {
+SetAssayData <- function(object, layer, new.data, slot = deprecated(), ...) {
   UseMethod(generic = 'SetAssayData', object = object)
 }
 
@@ -1066,7 +1399,7 @@ SetIdent <- function(object, ...) {
 #'
 #' @param coords ...
 #'
-#' @return ...
+#' @return A simplified version of \code{coords}
 #'
 #' @export
 #'
@@ -1082,8 +1415,17 @@ Simplify <- function(coords, tol, topologyPreserve = TRUE) {
 #'
 #' @order 5
 #'
-SpatiallyVariableFeatures <- function(object, selection.method, ...) {
+SpatiallyVariableFeatures <- function(object, method, ...) {
   UseMethod(generic = 'SpatiallyVariableFeatures', object = object)
+}
+
+# @rdname SplitLayers
+# @export SplitLayers
+#
+# @order 1
+#
+SplitLayers <- function(object, ...) {
+  UseMethod(generic = 'SplitLayers', object = object)
 }
 
 #' @return \code{StashIdent}: An object with the identities stashed
@@ -1102,8 +1444,8 @@ StashIdent <- function(object, save.name, ...) {
 
 #' Get the standard deviations for an object
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return The standard deviations
 #'
@@ -1116,6 +1458,32 @@ Stdev <- function(object, ...) {
   UseMethod(generic = 'Stdev', object = object)
 }
 
+#' Stitch Matrices Together
+#'
+#' @template param-dots-method
+#' @param x A matrix
+#' @param y One or more matrices of the same class or coercible to the
+#' same class as \code{x}
+#' @param rowmap,colmap \code{\link{LogMap}s} describing the row and cell
+#' membership of each matrix; the \code{LogMap} entries are assumed to be in
+#' the order of \code{c(x, y)}
+#'
+#' @return A single matrix of type \code{class(x)} consisting of all values
+#' in component matrices
+#'
+#' @export
+#'
+#' @concept utils
+#'
+StitchMatrix <- function(x, y, rowmap, colmap, ...) {
+  if (!inherits(x = rowmap, what = 'LogMap')) {
+    abort(message = "'rowmap' must be a 'LogMap'")
+  } else if (!inherits(x = colmap, what = 'LogMap')) {
+    abort(message = "'colmap' must be a 'LogMap'")
+  }
+  UseMethod(generic = 'StitchMatrix', object = x)
+}
+
 #' @return \code{SVFInfo}: a data frame with the spatially variable features
 #'
 #' @rdname VariableFeatures
@@ -1123,7 +1491,7 @@ Stdev <- function(object, ...) {
 #'
 #' @order 4
 #'
-SVFInfo <- function(object, selection.method, status, ...) {
+SVFInfo <- function(object, method, status, ...) {
   UseMethod(generic = 'SVFInfo', object = object)
 }
 
@@ -1138,23 +1506,23 @@ Theta <- function(object) {
   UseMethod(generic = 'Theta', object = object)
 }
 
-#' Get and set additional tool data
+#' Get and Set Additional Tool Data
 #'
 #' Use \code{Tool} to get tool data. If no additional arguments are provided,
 #' will return a vector with the names of tools in the object.
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return If no additional arguments, returns the names of the tools in the
 #' object; otherwise returns the data placed by the tool requested
 #'
 #'@note For developers: set tool data using \code{Tool<-}. \code{Tool<-} will
 #'automatically set the name of the tool to the function that called
-#'\code{Tool<-},so each function gets one entry in the tools list and cannot
+#'\code{Tool<-}, so each function gets one entry in the tools list and cannot
 #'overwrite another function's entry. The automatic naming will also remove any
-#'method identifiers (eg. RunPCA.Seurat will become RunPCA); please
-#'plan accordingly.
+#'method identifiers (eg. \code{RunPCA.Seurat} will become \code{RunPCA});
+#'please plan accordingly
 #'
 #' @rdname Tool
 #' @export Tool
@@ -1162,6 +1530,26 @@ Theta <- function(object) {
 #' @aliases Tools
 #'
 #' @concept data-access
+#'
+#' @examples
+#' # Example function that adds unstructured data to tools
+#' MyTool <- function(object) {
+#'   sample.tool.output <- matrix(rnorm(n = 16), nrow = 4)
+#'   # Note: `Tool<-` must be called from within a function
+#'   # and the name of the tool will be generated from the function name
+#'   Tool(object) <- sample.tool.output
+#'   return(object)
+#' }
+#'
+#' # Run our tool
+#' set.seed(42L)
+#' pbmc_small <- MyTool(pbmc_small)
+#'
+#' # Get a list of tools run
+#' Tool(pbmc_small)
+#'
+#' # Access specific tool data
+#' Tool(pbmc_small, slot = "MyTool")
 #'
 Tool <- function(object, ...) {
   UseMethod(generic = 'Tool', object = object)
@@ -1183,7 +1571,7 @@ Tool <- function(object, ...) {
 #'
 #' @order 2
 #'
-VariableFeatures <- function(object, selection.method = NULL, ...) {
+VariableFeatures <- function(object, method = NULL, ...) {
   UseMethod(generic = 'VariableFeatures', object = object)
 }
 
@@ -1200,8 +1588,8 @@ VariableFeatures <- function(object, selection.method = NULL, ...) {
 
 #' Get Version Information
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @rdname Version
 #' @export Version
@@ -1220,8 +1608,8 @@ Version <- function(object, ...) {
 #' Returns a list of cells that match a particular set of criteria such as
 #' identity class, high/low values for particular PCs, etc.
 #'
+#' @template param-dots-method
 #' @param object An object
-#' @param ... Arguments passed to other methods
 #'
 #' @return A vector of cell names
 #'

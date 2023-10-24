@@ -2,78 +2,88 @@ url: https://mojaveazure.github.io/seurat-object/
 destination: docs
 template:
   params:
-    bootswatch: united
+    bootswatch: flatly
+
 development:
   mode: auto
 reference:
-- title: The Seurat Class and Interaction Methods
-  contents:
-  - Seurat-class
-  - Seurat-methods
-  - has_concept("seurat")
-- title: The Assay Class and Interaction Methods
-  contents:
-  - Assay-class
-  - Assay-methods
-  - has_concept("assay")
-- title: The DimReduc and JackStrawData Classes and Interaction Methods
-  contents:
-  - DimReduc-class
-  - DimReduc-methods
-  - has_concept("dimreduc")
-  - JackStrawData-class
-  - JackStrawData-methods
-  - has_concept("jackstraw")
-- title: The SeuratCommand Class and Interaction Methods
-  contents:
-  - SeuratCommand-class
-  - SeuratCommand-methods
-  - has_concept("command")
-- title: The SpatialImage Class and Interaction Methods
-  contents:
-  - SpatialImage-class
-  - SpatialImage-methods
-  - has_concept("spatialimage")
-- title: The Graph and Neighbor Classes and Interaction Methods
-  contents:
-  - Graph-class
-  - has_concept("graph")
-  - Neighbor-class
-  - has_concept("neighbor")
-- title: Accessing and Setting Object Data
-  contents: has_concept("data-access")
-- title: Utility Functions
-  contents:
-  - set-if-null
-  - has_concept("utils")
-- title: Package Information
-  contents:
-  - SeuratObject-package
-  - pbmc_small
-  - reexports
-- title: internal
-  contents:
-    - aggregate
-    - as.Centroids
-    - Boundaries
-    - Centroids-class
-    - Centroids-methods
-    - CreateCentroids
-    - CreateFOV
-    - CreateMolecules
-    - CreateSegmentation
-    - Crop
-    - DefaultFOV
-    - FOV-class
-    - FOV-methods
-    - IsNamedList
-    - LogMap-class
-    - MatchCells
-    - Molecules-class
-    - Molecules-methods
-    - Overlay
-    - Segmentation-class
-    - Segmentation-methods
-    - Simplify
-    - Theta
-
+  - title: The Seurat Class and Interaction Methods
+    contents:
+      - "Seurat-class"
+      - "Seurat-validity"
+      - has_concept("seurat")
+  - title: The v5 Assay Class and Interaction Methods
+    contents:
+      - has_concept("assay5")
+  - title: The v3 Assay Class and Interaction Methods
+    contents:
+      - "Assay-class"
+      - has_concept("assay")
+  - title: The DimReduc and JackStrawData Classes and Interaction Methods
+    contents:
+      - "DimReduc-class"
+      - "DimReduc-validity"
+      - has_concept("dimreduc")
+      - "JackStrawData-class"
+      - "JackStrawData-methods"
+      - has_concept("jackstraw")
+  - title: segmentations
+  - contents:
+      - has_concept("segmentation")
+  - title: The SeuratCommand Class and Interaction Methods
+    contents:
+      - "SeuratCommand-class"
+      - has_concept("command")
+  - title: The SpatialImage Class and Interaction Methods
+    contents:
+      - "SpatialImage-class"
+      - "SpatialImage-methods"
+      - has_concept("spatialimage")
+  - title: The Graph and Neighbor Classes and Interaction Methods
+    contents:
+      - "Graph-class"
+      - has_concept("graph")
+      - "Neighbor-class"
+      - has_concept("neighbor")
+  - title: Accessing and Setting Object Data
+    contents:
+      - has_concept("data-access")
+  - title: Utility Functions
+    contents:
+      - "set-if-null"
+      - has_concept("utils")
+  - title: Package Information
+    contents:
+      - "SeuratObject-package"
+      - pbmc_small
+  - title: Logical Maps
+    contents:
+      - has_concept("logmap")
+  - title: internal
+    contents:
+      - Boundaries
+      - CastAssay
+      - "Centroids-methods"
+      - CheckFeaturesNames
+      - CreateCentroids
+      - CreateFOV
+      - CreateMolecules
+      - CreateSegmentation
+      - Crop
+      - DefaultFOV
+      - DefaultLayer
+      - FOV-class
+      - FOV-methods
+      - FOV-validity
+      - JoinLayers
+      - Molecules-methods
+      - Overlay
+      - RenameCells.StdAssay
+      - SaveSeuratBP
+      - SaveSeuratRds
+      - Segmentation-methods
+      - Simplify
+      - SparseEmptyMatrix
+      - saveRDS.Seurat
+      - Theta
+      - as.Centroids
