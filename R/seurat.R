@@ -1151,13 +1151,14 @@ AddMetaData.Seurat <- .AddMetaData
 #'
 Assays.Seurat <- function(object, slot = deprecated(), ...) {
   if (is_present(arg = slot)) {
-    deprecate_stop(
+    .Deprecate(
       when = '5.0.0',
       what = 'Assays(slot = )',
       with = 'LayerData()'
     )
+    return(slot(object = object, name = 'assays')[[slot]])
   }
-  return(names(x = methods::slot(object = object, name = 'assays')))
+  return(names(x = slot(object = object, name = 'assays')))
 }
 
 #' @method CastAssay Seurat
@@ -1954,14 +1955,7 @@ HVFInfo.Seurat <- function(
 ) {
   CheckDots(...)
   if (is_present(arg = selection.method)) {
-    f <- if (.IsFutureSeurat(version = '5.1.0')) {
-      deprecate_stop
-    } else if (.IsFutureSeurat(version = '5.0.0')) {
-      deprecate_warn
-    } else {
-      deprecate_soft
-    }
-    f(
+    .Deprecate(
       when = '5.0.0',
       what = 'HVFInfo(selection.method = )',
       with = 'HVFInfo(method = )'
@@ -1982,10 +1976,7 @@ HVFInfo.Seurat <- function(
     )
     find.command <- Command(object = object)[Command(object = object) %in% cmds]
     if (length(x = find.command) < 1) {
-      stop(
-        "Please run either 'FindVariableFeatures' or 'SCTransform'",
-        call. = FALSE
-      )
+      abort(message = "Please run either 'FindVariableFeatures' or 'SCTransform'")
     }
     find.command <- find.command[length(x = find.command)]
     test.command <- paste(file_path_sans_ext(x = find.command), assay, sep = '.')
@@ -3665,7 +3656,7 @@ subset.Seurat <- function(
   return.null = FALSE,
   ...
 ) {
-  var.features <- VariableFeatures(object = x)
+  # var.features <- VariableFeatures(object = x)
   if (!missing(x = subset)) {
     subset <- enquo(arg = subset)
   }
@@ -3774,13 +3765,13 @@ subset.Seurat <- function(
       }
     }
   }
- # set variable features
-  if (!is.null(var.features)) {
-    suppressWarnings(
-      expr = VariableFeatures(object = x) <- var.features,
-      classes = 'validationWarning'
-    )
-  }
+ # # set variable features
+ #  if (!is.null(var.features)) {
+ #    suppressWarnings(
+ #      expr = VariableFeatures(object = x) <- var.features,
+ #      classes = 'validationWarning'
+ #    )
+ #  }
   # subset images
   for (image in Images(object = x)) {
     x[[image]] <- base::subset(x = x[[image]], cells = cells)
