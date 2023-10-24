@@ -1156,9 +1156,9 @@ Assays.Seurat <- function(object, slot = deprecated(), ...) {
       what = 'Assays(slot = )',
       with = 'LayerData()'
     )
-    return(slot(object = object, name = 'assays')[[slot]])
+    return(methods::slot(object = object, name = 'assays')[[slot]])
   }
-  return(names(x = slot(object = object, name = 'assays')))
+  return(names(x = methods::slot(object = object, name = 'assays')))
 }
 
 #' @method CastAssay Seurat
