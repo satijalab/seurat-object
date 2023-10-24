@@ -967,7 +967,7 @@ VariableFeatures.Assay <- function(
 #'
 "VariableFeatures<-.Assay" <- function(object, ..., value) {
   CheckDots(...)
-  if (length(x = value) == 0) {
+  if (!length(x = value)) {
     slot(object = object, name = 'var.features') <- character(length = 0)
     return(object)
   }

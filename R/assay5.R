@@ -1108,9 +1108,11 @@ LayerData.StdAssay <- function(
   ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop(when = "5.0.0",
-                   what = "LayerData(slot = )",
-                   with = "LayerData(layer = )")
+    deprecate_stop(
+      when = '5.0.0',
+      what = 'LayerData(slot = )',
+      with = 'LayerData(layer = )"'
+    )
   }
   layer_name <- layer[1L] %||% DefaultLayer(object = object)[1L]
   # Identify layer(s) to use
