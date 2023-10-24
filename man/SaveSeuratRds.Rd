@@ -59,7 +59,6 @@ this function. For more details about \pkg{progressr}, please read
 }
 
 \examples{
-\dontrun{
 if (requireNamespace("fs", quietly = TRUE)) {
   # Write out with DelayedArray
   if (requireNamespace("HDF5Array", quietly = TRUE)) {
@@ -109,7 +108,6 @@ if (requireNamespace("fs", quietly = TRUE)) {
     pbmc2
     pbmc2[["disk"]]
   }
-}
 }
 
 }
