@@ -247,8 +247,9 @@ CreateAssay5Object <- function(
   if (!is_bare_integerish(x = dim(x = counts), n = 2L, finite = TRUE)) {
     abort(message = "'counts' must be a two-dimensional object")
   }
+  dnames <- dimnames(x = counts)
   cls <- class(x = counts)
-  dnames <- dimnames(x = cls)
+
   if (isTRUE(x = transpose)) {
     csum <- .GetMethod(fxn = 'rowSums', cls = cls)
     cells <- cells %||% dnames[[1L]]
@@ -318,14 +319,14 @@ CreateAssay5Object <- function(
     return(x)
   })
   # Check cell/feature names for all layers
-  if (is.atomic(x = cells)) {
+  if (is.atomic(x = cells) || is.null(x = cells)) {
     cells <- rep_len(x = list(cells), length.out = length(x = counts))
   }
   if (!is_bare_list(x = cells) || length(x = cells) != length(x = counts)) {
     stop("Not enough cells for the counts matrices provided", call. = FALSE)
   }
   cells <- .CheckNames(x = cells, n = names(x = counts))
-  if (is.atomic(x = features)) {
+  if (is.atomic(x = features) || is.null(x = features)) {
     features <- rep_len(x = list(features), length.out = length(x = counts))
   }
   if (!is_bare_list(x = features) || length(x = features) != length(x = counts)) {
