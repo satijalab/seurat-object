@@ -19,16 +19,28 @@
     <loc>https://mojaveazure.github.io/seurat-object/news/index.html</loc>
   </url>
   <url>
-    <loc>https://mojaveazure.github.io/seurat-object/reference/AddMetaData.html</loc>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/AddMetaData-StdAssay.html</loc>
   </url>
   <url>
-    <loc>https://mojaveazure.github.io/seurat-object/reference/Angles.html</loc>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/AddMetaData.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Assay-class.html</loc>
   </url>
   <url>
-    <loc>https://mojaveazure.github.io/seurat-object/reference/Assay-methods.html</loc>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Assay-validity.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Assay5-class.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Assay5-validity.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Assay5T-class.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/AssayData-StdAssay.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/AssayData.html</loc>
@@ -38,6 +50,15 @@
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Boundaries.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/CastAssay-StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/CastAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Cells-StdAssay.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Cells.html</loc>
@@ -58,13 +79,25 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/CheckDots.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/CheckFeaturesNames.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/CheckGC.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/CheckLayersName.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/CheckMatrix.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/ClassKey.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Command.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/CreateAssay5Object.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/CreateAssayObject.html</loc>
@@ -91,6 +124,9 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/Crop.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/DefaultAssay-StdAssay.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/DefaultAssay.html</loc>
   </url>
   <url>
@@ -100,10 +136,16 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/DefaultFOV.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/DefaultLayer-StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/DefaultLayer.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/DimReduc-class.html</loc>
   </url>
   <url>
-    <loc>https://mojaveazure.github.io/seurat-object/reference/DimReduc-methods.html</loc>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/DimReduc-validity.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Distances.html</loc>
@@ -115,10 +157,16 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/EmptyDF.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/ExtractField.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/FOV-class.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/FOV-methods.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/FOV-validity.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/FetchData.html</loc>
@@ -154,6 +202,9 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/IsNamedList.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/IsSparse.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/JS.html</loc>
   </url>
   <url>
@@ -163,10 +214,19 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/JackStrawData-methods.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Key-validity.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Key.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/KeyMixin-class.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Layers-StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Layers.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Loadings.html</loc>
@@ -175,10 +235,16 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/LogMap-class.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/LogMap-validity.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/LogSeuratCommand.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/MatchCells.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Misc-StdAssay.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Misc.html</loc>
@@ -220,13 +286,22 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/RandomName.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/RegisterSparseMatrix.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/RenameAssays.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/RenameCells-StdAssay.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/RenameCells.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/RowMergeSparseMatrices.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/SaveSeuratRds.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Segmentation-class.html</loc>
@@ -238,13 +313,13 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/Seurat-class.html</loc>
   </url>
   <url>
-    <loc>https://mojaveazure.github.io/seurat-object/reference/Seurat-methods.html</loc>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/Seurat-validity.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/SeuratCommand-class.html</loc>
   </url>
   <url>
-    <loc>https://mojaveazure.github.io/seurat-object/reference/SeuratCommand-methods.html</loc>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/SeuratObject-options.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/SeuratObject-package.html</loc>
@@ -253,13 +328,28 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/Simplify.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/SparseEmptyMatrix.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/SpatialImage-class.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/SpatialImage-methods.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/SplitLayers.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/StdAssay-class.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/StdAssay-validity.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Stdev.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/StitchMatrix.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/Theta.html</loc>
@@ -274,6 +364,9 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/UpdateSlots.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/VariableFeatures-StdAssay.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/VariableFeatures.html</loc>
   </url>
   <url>
@@ -284,6 +377,9 @@
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/aggregate.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/angles.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/as.Centroids.html</loc>
@@ -298,22 +394,190 @@
     <loc>https://mojaveazure.github.io/seurat-object/reference/as.Seurat.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/as.list.SeuratCommand.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/as.matrix.LogMap.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/as.sparse.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/cash-.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/cash-.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/cash-.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/cash-.SeuratCommand.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/cash-.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/colMeans-Assay-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/colMeans-Seurat-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dim.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dim.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dim.DimReduc.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dim.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dim.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dimnames.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dimnames.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dimnames.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dimnames.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-AssayClass.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-BPMatrixMode.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-CalcN.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-CheckFmargin.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-ClassPkg.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-Collections.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/dot-Contains.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-CreateStdAssay.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/dot-DefaultFOV.html</loc>
   </url>
   <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-Deprecate.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-DiskLoad.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-DollarNames.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-DollarNames.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-DollarNames.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-DollarNames.SeuratCommand.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-DollarNames.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-FileMove.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-FilePath.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-FilterObjects.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-FindObject.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-GetMethod.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-IsFutureSeurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-KeyPattern.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-MARGIN.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-PropagateList.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-RandomKey.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-SelectFeatures.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-SparseSlots.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/dot-Subobjects.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/droplevels.LogMap.html</loc>
+  </url>
+  <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/intersect.LogMap.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/labels.LogMap.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/merge.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/merge.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/merge.DimReduc.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/merge.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/merge.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/names.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/old-assign.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/oldseurat-class.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/pbmc_small.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/print.DimReduc.html</loc>
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/reexports.html</loc>
@@ -326,5 +590,104 @@
   </url>
   <url>
     <loc>https://mojaveazure.github.io/seurat-object/reference/set-if-null.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/show-Assay-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/show-DimReduc-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/show-Graph-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/show-LogMap-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/show-Seurat-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/show-SeuratCommand-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/show-StdAssay-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/show-oldseurat-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/split.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/split.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/split.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/split.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-.DimReduc.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-.SeuratCommand.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-LogMap-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-sub-.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-sub-.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-sub-.DimReduc.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-sub-.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-sub-.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-sub-LogMap-internal-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-subset-Seurat-NULL.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-subset-Seurat-character-missing-StdAssay-method.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/sub-subset-Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/subset.Assay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/subset.Assay5.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/subset.DimReduc.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/subset.Seurat.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/subset.StdAssay.html</loc>
+  </url>
+  <url>
+    <loc>https://mojaveazure.github.io/seurat-object/reference/v5-assay-summaries.html</loc>
   </url>
 </urlset>
