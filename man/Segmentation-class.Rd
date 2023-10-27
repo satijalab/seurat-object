@@ -12,6 +12,9 @@ The \code{Segmentation} Class
 
 Segmentation layer classes:
 \code{\link{Centroids-class}},
-\code{\link{Molecules-class}}
+\code{\link{Centroids-methods}},
+\code{\link{Molecules-class}},
+\code{\link{Molecules-methods}},
+\code{\link{Segmentation-methods}}
 }
 \concept{segmentation}

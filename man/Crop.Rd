@@ -22,7 +22,7 @@ Crop(object, x = NULL, y = NULL, coords = c("plot", "tissue"), ...)
   \code{\link{GetTissueCoordinates}}
 }}
 
-\item{...}{...}
+\item{...}{Arguments passed to other methods}
 }
 \value{
 \code{object} cropped to the region specified by \code{x}
@@ -31,3 +31,4 @@ and \code{y}
 \description{
 Crop Coordinates
 }
+\concept{spatial}

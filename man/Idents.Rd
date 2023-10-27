@@ -33,7 +33,7 @@ StashIdent(object, save.name, ...)
 
 \method{Idents}{Seurat}(object, ...)
 
-\method{Idents}{Seurat}(object, cells = NULL, drop = FALSE, ...) <- value
+\method{Idents}{Seurat}(object, cells = NULL, drop = FALSE, replace = FALSE, ...) <- value
 
 \method{ReorderIdent}{Seurat}(
   object,
@@ -71,6 +71,8 @@ identities themselves}
 \item{cells}{Set cell identities for specific cells}
 
 \item{drop}{Drop unused levels}
+
+\item{replace}{Replace identities for unset cells with \code{NA}}
 
 \item{reverse}{Reverse ordering}
 

@@ -38,4 +38,10 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 \references{
 \url{https://stackoverflow.com/questions/3436453/calculate-coordinates-of-a-regular-polygons-vertices}
 }
+\seealso{
+
+\code{\link{Angles}}
+}
+\concept{angles}
+\concept{utils}
 \keyword{internal}

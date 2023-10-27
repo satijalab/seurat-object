@@ -18,7 +18,9 @@ data access methods and R-native hooks to ensure the Seurat object is
 familiar to other R users. See Satija R, Farrell J, Gennert D, et al
 (2015) <doi:10.1038/nbt.3192>, Macosko E, Basu A, Satija R, et al (2015)
 <doi:10.1016/j.cell.2015.05.002>, and Stuart T, Butler A, et al (2019)
-<doi:10.1016/j.cell.2019.05.031> for more details.
+<doi:10.1016/j.cell.2019.05.031>, Hao Y, Hao S, et al (2021)
+<doi:10.1016/j.cell.2021.04.048> and Hao Y, et al (2023)
+<doi:10.1101/2022.02.24.481684> for more details.
 
 ## Installation
 

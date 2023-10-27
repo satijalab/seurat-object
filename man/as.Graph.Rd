@@ -18,7 +18,7 @@ as.Graph(x, ...)
 \arguments{
 \item{x}{The matrix to convert}
 
-\item{...}{Arguments passed to other methods (ignored for now)}
+\item{...}{Ignored}
 
 \item{weighted}{If TRUE, fill entries in Graph matrix with value from the
 nn.dist slot of the Neighbor object}
@@ -43,5 +43,9 @@ rownames(x = mat) <- paste0("feature_", 1:4)
 colnames(x = mat) <- paste0("cell_", 1:4)
 g <- as.Graph(x = mat)
 
+}
+\seealso{
+Other graph: 
+\code{\link{Graph-class}}
 }
 \concept{graph}

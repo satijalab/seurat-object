@@ -28,7 +28,7 @@ WhichCells(object, ...)
 \item{...}{
   Arguments passed on to \code{\link[=CellsByIdentities]{CellsByIdentities}}
   \describe{
-    \item{\code{return.null}}{If no cells are request, return a \code{NULL};
+    \item{\code{return.null}}{If no cells are requested, return a \code{NULL};
 by default, throws an error}
   }}
 

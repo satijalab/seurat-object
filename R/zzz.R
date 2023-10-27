@@ -1,8 +1,15 @@
 #' @importFrom sp bbox over
 #' @importFrom Rcpp evalCpp
-#' @importFrom utils head tail packageVersion
-#' @importFrom methods new setClass setClassUnion setMethod setOldClass
-#' setValidity slot slot<- validObject
+#' @importFrom Matrix nnzero
+#' @importFrom progressr progressor
+#' @importFrom lifecycle deprecated is_present
+#' @importFrom utils head packageVersion tail upgrade
+#' @importFrom methods new setClass setClassUnion setGeneric setMethod
+#' setOldClass setValidity show slot slot<- validObject
+#' @importFrom rlang abort arg_match arg_match0 caller_env check_installed
+#' enquo eval_tidy have_name inform is_bare_character is_bare_integerish
+#' is_bare_list is_bare_numeric is_missing is_na is_named is_quosure
+#' missing_arg warn
 #' @importClassesFrom Matrix dgCMatrix
 #' @useDynLib SeuratObject
 #'
@@ -18,9 +25,64 @@ NULL
 # Options
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' \pkg{Seurat} Options
+#'
+#' Various options used in \pkg{Seurat}
+#'
+#' @section Package Options:
+#' \subsection{Seurat.coords.short_range}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.coords.short_range}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.coords.short_range")}}
+#' }
+#' \subsection{Seurat.input.sparse_ratio}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.input.sparse_ratio}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.input.sparse_ratio")}}
+#' }
+#' \subsection{Seurat.io.rds.strict}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.io.rds.strict}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.io.rds.strict")}}
+#' }
+#' \subsection{Seurat.object.assay.calcn}{
+#' Run \code{CalcN} when adding assay data to a \code{Seurat} object\cr
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.assay.calcn}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.object.assay.calcn")}}
+#' }
+#' \subsection{Seurat.object.assay.version}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.assay.version}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.object.assay.version")}}
+#' }
+#' \subsection{Seurat.object.assay.v3.missing_layer}{
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.assay.v3.missing_layer}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.object.assay.v3.missing_layer")}}
+#' }
+#' \subsection{Seurat.object.project}{
+#' Default project for new \code{\link{Seurat}} objects\cr
+#' Defaults to
+#' \dQuote{\Sexpr[stage=build]{SeuratObject:::Seurat.options$Seurat.object.project}}\cr
+#' Currently set to \dQuote{\Sexpr[stage=render]{getOption("Seurat.object.project")}}
+#' }
+#'
+#' @name SeuratObject-options
+#'
+#' @keywords internal
+#'
+NULL
+
 Seurat.options <- list(
-  Seurat.input.sparse_ratio = 0.4,
   Seurat.coords.short_range = 'max',
+  Seurat.input.sparse_ratio = 0.4,
+  Seurat.io.rds.strict = FALSE,
+  Seurat.object.assay.brackets = 'v5',
+  Seurat.object.assay.calcn = NULL,
+  Seurat.object.assay.version = 'v5',
+  Seurat.object.assay.v3.missing_layer = 'matrix',
+  Seurat.object.project = 'SeuratProject',
   progressr.clear = FALSE
 )
 
@@ -42,25 +104,15 @@ Seurat.options <- list(
 #'
 future::plan
 
-#' @importFrom Matrix colMeans
+#' @importFrom generics intersect
 #' @export
 #'
-Matrix::colMeans
+generics::intersect
 
-#' @importFrom Matrix colSums
-#' @export
-#'
-Matrix::colSums
-
-#' @importFrom Matrix rowMeans
-#' @export
-#'
-Matrix::rowMeans
-
-#' @importFrom Matrix rowSums
-#' @export
-#'
-Matrix::rowSums
+# #' @importFrom Matrix colMeans
+# #' @export
+# #'
+# Matrix::colMeans
 
 #' @importFrom progressr handlers
 #' @export
@@ -71,6 +123,12 @@ progressr::handlers
 #' @export
 #'
 progressr::with_progress
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Environments
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+sparse.classes <- new.env()
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Class definitions
@@ -84,35 +142,6 @@ setOldClass(Classes = 'package_version')
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#' Add Object Metadata
-#'
-#' Internal \code{\link{AddMetaData}} definition
-#'
-#' @param object An object
-#' @param metadata A vector, list, or data.frame with metadata to add
-#' @param col.name A name for meta data if not a named list or data.frame
-#'
-#' @return object with metadata added
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.AddMetaData <- function(object, metadata, col.name = NULL) {
-  if (is.null(x = col.name) && is.atomic(x = metadata)) {
-    stop("'col.name' must be provided for atomic metadata types (eg. vectors)")
-  }
-  if (inherits(x = metadata, what = c('matrix', 'Matrix'))) {
-    metadata <- as.data.frame(x = metadata)
-  }
-  col.name <- col.name %||% names(x = metadata) %||% colnames(x = metadata)
-  if (is.null(x = col.name)) {
-    stop("No metadata name provided and could not infer it from metadata object")
-  }
-  object[[col.name]] <- metadata
-  return(object)
-}
 
 #' @keywords internal
 #'
@@ -138,7 +167,7 @@ setOldClass(Classes = 'package_version')
 
 #' Test Intersections of Bounding Boxes
 #'
-#' @param i,j \link[sp::bbox]{Bounding boxes}
+#' @param i,j \link[sp:bbox]{Bounding boxes}
 #' @param constraint Type of intersection to perform; choose from:
 #' \itemize{
 #'  \item \dQuote{\code{intersect}}: \code{i} must fall at least
@@ -200,185 +229,127 @@ setOldClass(Classes = 'package_version')
   return(all(check))
 }
 
-#' Internal Cropping Function
+.IsDataFrame <- function(x) {
+  return(length(x = class(x = x)) == 1L && inherits(x = x, what = 'data.frame'))
+}
+
+#' Test Future Compatibility with \pkg{Seurat}
 #'
-#' @inheritParams Crop
+#' Check to see if \pkg{SeuratObject} and/or \pkg{Seurat} are at least a
+#' specific version or if they're configured to act as if they're a
+#' specific version (see details below). This allows testing compatibility with
+#' future requirements for both \pkg{SeuratObject} and \pkg{Seurat}
 #'
-#' @return ...
+#' Blah blah blah
+#'
+#' @inheritParams utils::packageVersion
+#' @param version A version string or object of class
+#' \code{\link{package_version}}
+#'
+#' @return \code{TRUE} if \pkg{SeuratObject} and/or \pkg{Seurat}
 #'
 #' @keywords internal
 #'
-#' @noRd
+#' @export
 #'
-.Crop <- function(object, x = NULL, y = NULL, coords = c('plot','tissue'), ...) {
-  if (is.null(x = x) && is.null(x = y)) {
-    return(object)
+#' @aliases IsFutureSeurat
+#'
+.IsFutureSeurat <- function(version, lib.loc = NULL) {
+  version <- package_version(x = version)
+  opt <- paste0(
+    'Seurat.future.v',
+    gsub(pattern = '\\.', replacement = '_', x = as.character(x = version))
+  )
+  future <- isTRUE(x = getOption(x = opt, default = FALSE)) ||
+    packageVersion(pkg = 'SeuratObject', lib.loc = lib.loc) >= version
+  if (requireNamespace('Seurat', quietly = TRUE)) {
+    future <- future ||
+      packageVersion(pkg = 'Seurat', lib.loc = lib.loc) >= version
   }
-  coords <- coords[1L]
-  coords <- match.arg(arg = coords)
-  switch(
-    EXPR = coords,
-    'plot' = {
-      cx <- 'y'
-      cy <- 'x'
-    },
-    'tissue' = {
-      cx <- 'x'
-      cy <- 'y'
+  return(future)
+}
+
+.IsNull <- function(x) {
+  return(vapply(X = x, FUN = is.null, FUN.VALUE = logical(length = 1L)))
+}
+
+.MakeNames <- function(x, strict = FALSE, type = c('layers')) {
+  if (isTRUE(x = strict)) {
+    return(make.names(names = x, unique = TRUE))
+  }
+  type <- type[[1L]]
+  type <- match.arg(arg = type)
+  x <- switch(
+    EXPR = type,
+    layers = {
+      # Remove white spaces
+      x <- gsub(pattern = '[[:space:]]+', replacement = '_', x = x)
+      # Remove illegal characters
+      x <- gsub(
+        pattern = '[\\;\\:\\!\\@\\#\\$\\%\\^\\&\\*\\(\\)\\{\\}\\[]',
+        replacement = '',
+        x = x
+      )
+      x <- gsub(pattern = '\\]', replacement = '', x = x)
+      x
     }
   )
-  x <- range(x %||% bbox(obj = object)[cx, , drop = TRUE])
-  y <- range(y %||% bbox(obj = object)[cy, , drop = TRUE])
-  idx <- c(max = 1L, min = 2L)[[getOption(
-    x = 'Seurat.coords.short_range',
-    default = Seurat.options$Seurat.coords.short_range
-  )]]
-  if (x[1L] == x[2L]) {
-    x[idx] <- bbox(obj = object)[cx, idx]
-  }
-  if (y[1L] == y[2L]) {
-    y[idx] <- bbox(obj = object)[cy, idx]
-  }
-  args <- list(x, y)
-  names(x = args) <- switch(
-    EXPR = coords,
-    'plot' = c('y', 'x'),
-    'tissue' = c('x', 'y')
-  )
-  args <- args[c('x', 'y')]
-  df <- do.call(what = expand.grid, args = args)
-  df <- df[c(1, 3, 4, 2), ]
-  df$cell <- 'cell'
-  return(Overlay(x = object, y = CreateSegmentation(coords = df)))
-}
-
-#' Test Finiteness of Centroids
-#'
-#' Determines if a \code{\link{Centroids}} object should be finite; for
-#' \code{Centroids}, this means if their \code{nsides} slot is an integer >= 3
-#'
-#' @param x A \code{\link{Centroids}} object
-#'
-#' @return \code{TRUE} if the \code{Centroids} are finite; otherwise
-#' \code{FALSE}
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.FiniteCentroids <- function(x) {
-  return(as.logical(x = length(x = x)))
-}
-
-#' Head and Tail Object Metadata
-#'
-#' Internal \code{\link[utils]{head}} and \code{\link[utils]{tail}} definitions
-#'
-#' @param x An object
-#' @param n Number of rows to return
-#' @inheritDotParams utils::head
-#'
-#' @return The first or last \code{n} rows of object metadata
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.head <- function(x, n = 10L, ...) {
-  return(head(x = x[[]], n = n, ...))
-}
-
-.tail <- function(x, n = 10L, ...) {
-  return(tail(x = x[[]], n = n, ...))
-}
-
-#' Miscellaneous Data
-#'
-#' Internal functions for getting and setting miscellaneous data
-#'
-#' @param object An object
-#' @param slot Name of miscellaneous data to get or set
-#' @param ... Arguments passed to other methods
-#'
-#' @return \code{.Misc}: If \code{slot} is \code{NULL}, all miscellaneous
-#' data, otherwise the miscellaneous data for \code{slot}
-#'
-#' @keywords internal
-#'
-#' @noRd
-#'
-.Misc <- function(object, slot = NULL, ...) {
-  CheckDots(...)
-  if (is.null(x = slot)) {
-    return(slot(object = object, name = 'misc'))
-  }
-  return(slot(object = object, name = 'misc')[[slot]])
-}
-
-#' @param value Data to add
-#'
-#' @return \code{.Misc<-}: \code{object} with \code{value} added to the
-#' miscellaneous data slot \code{slot}
-#'
-#' @rdname dot-Misc
-#'
-#' @noRd
-#'
-".Misc<-" <- function(object, slot, ..., value) {
-  CheckDots(...)
-  if (slot %in% names(x = Misc(object = object))) {
-    warning(
-      "Overwriting miscellanous data for ",
-      slot,
-      call. = FALSE,
-      immediate. = TRUE
-    )
-  }
-  if (is.list(x = value)) {
-    slot(object = object, name = 'misc')[[slot]] <- c(value)
-  } else {
-    slot(object = object, name = 'misc')[[slot]] <- value
-  }
-  return(object)
-}
-
-.OverBbox <- function(x, y, invert = FALSE, ...) {
-  df <- .BboxDF(x = bbox(obj = y))
-  df$cell <- 'cell'
-  return(Overlay(
-    x = x,
-    y = CreateSegmentation(coords = df),
-    invert = invert,
-    ...
-  ))
-}
-
-.Overlay <- function(x, y, ...) {
-  idx <- over(x = x, y = y)
-  idx <- idx[!is.na(x = idx)]
-  names(x = idx) <- vapply(
-    X = strsplit(x = names(x = idx), split = '\\.'),
-    FUN = '[[',
-    FUN.VALUE = character(length = 1L),
-    1L,
-    USE.NAMES = FALSE
-  )
-  return(x[names(x = idx)])
-}
-
-.PruneLogMap <- function(x) {
-  fidx <- which(x = apply(
-    X = x,
-    MARGIN = 1L,
-    FUN = function(row) {
-      return(all(vapply(X = row, FUN = isFALSE, FUN.VALUE = logical(length = 1L))))
-    }
-  ))
-  if (length(x = fidx)) {
-    x <- as(object = x[-fidx, , drop = FALSE], Class = 'LogMap')
-  }
-  validObject(object = x)
   return(x)
+}
+
+#' Create a List with a Serial Comma
+#'
+#' @param ... A character vector to join
+#' @param cnj Conjunction to use for final entry
+#' @param quote Quote the entries of \code{...}; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{single}}: regular single quotes
+#'  \item \dQuote{\code{fancysingle}}: fancy single quotes
+#'  \item \dQuote{\code{double}}: regular double quotes
+#'  \item \dQuote{\code{fancydouble}}: fancy double quotes
+#'  \item \dQuote{\code{none}}: no extra quoting
+#' }
+#'
+#' @return \code{...} arranged into an English list with a serial comma
+#' when needed
+#'
+#' @keywords internal
+#'
+#' @seealso \code{\link[base]{sQuote}}
+#'
+#' @examples
+#' .Oxford('cell')
+#' .Oxford('cell', 'ident')
+#' .Oxford('cell', 'ident', 'gene')
+#'
+#' @noRd
+#'
+.Oxford <- function(
+  ...,
+  cnj = c('or', 'and'),
+  quote = c('single', 'fancysingle', 'double', 'fancydouble', 'none')
+) {
+  x <- as.character(x = c(...))
+  cnj <- arg_match(arg = cnj)
+  quote <- arg_match(arg = quote)
+  x <- switch(
+    EXPR = quote,
+    single = sQuote(x = x, q = FALSE),
+    fancysingle = sQuote(x = x, q = TRUE),
+    double = dQuote(x = x, q = FALSE),
+    fancydouble = dQuote(x = x, q = TRUE),
+    x
+  )
+  if (length(x = x) <= 1L) {
+    return(x)
+  } else if (length(x = x) == 2L) {
+    return(paste(x, collapse = paste0(' ', cnj, ' ')))
+  }
+  return(paste(
+    paste0(paste(x[1:(length(x = x) - 1L)], collapse = ', '), ','),
+    cnj,
+    x[length(x = x)]
+  ))
 }
 
 #' Indexes from Run Length Encodings
@@ -406,6 +377,62 @@ setOldClass(Classes = 'package_version')
     names(x = idx) <- x$values
   }
   return(idx)
+}
+
+#' Round Version Information
+#'
+#' @param current A package version
+#'
+#' @return ...
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.RoundVersion <- function(current) {
+  current <- as.character(x = numeric_version(x = current, strict = TRUE))
+  current <- unlist(x = strsplit(x = current, split = '\\.'))
+  if (length(x = current) > 4L) {
+    if (length(x = current) > 4L) {
+      current[4L] <- paste(
+        current[seq.int(from = 4L, to = length(x = current))],
+        collapse = '.'
+      )
+      current <- current[1:4]
+    }
+  }
+  names(x = current) <- c('major', 'minor', 'patch', 'devel')[seq_along(along.with = current)]
+  if (!is_na(x = current['devel'])) {
+    if (all(current[c('minor', 'patch')] == '9')) {
+      current['major'] <- as.character(x = as.integer(x = current['major']) + 1L)
+      current[c('minor', 'patch')] <- '0'
+    } else if (current['patch'] == '0') {
+      current['minor'] <- as.character(x = as.integer(x = current['minor']) + 1L)
+      current['patch'] <- '0'
+    } else {
+      current['patch'] <- as.character(x = as.integer(x = current['patch']) + 1L)
+    }
+    current <- current[c('major', 'minor', 'patch')]
+  }
+  current <- vapply(
+    X = current,
+    FUN = as.integer,
+    FUN.VALUE = integer(length = 1L),
+    USE.NAMES = TRUE
+  )
+  if (!is_na(x = current['devel'])) {
+    if (all(current[c('minor', 'patch')] == '9')) {
+      current['major'] <- as.character(x = as.integer(x = current['major']) + 1L)
+      current[c('minor', 'patch')] <- '0'
+    } else if (current['patch'] == '0') {
+      current['minor'] <- as.character(x = as.integer(x = current['minor']) + 1L)
+      current['patch'] <- '0'
+    } else {
+      current['patch'] <- as.character(x = as.integer(x = current['patch']) + 1L)
+    }
+    current <- current[c('major', 'minor', 'patch')]
+  }
+  return(current)
 }
 
 #' Index of Names
@@ -500,5 +527,21 @@ NameIndex <- function(x, names, MARGIN) {
   if (length(x = toset)) {
     options(Seurat.options[toset])
   }
+  setHook(
+    hookName = packageEvent(pkgname = 'Seurat', event = 'onLoad'),
+    value = .SetSeuratCompat
+  )
+  setHook(
+    hookName = packageEvent(pkgname = 'Signac', event = 'onLoad'),
+    value = .SetSeuratCompat
+  )
+  setHook(
+    hookName = packageEvent(pkgname = 'Seurat', event = 'attach'),
+    value = .SeuratCompatMessage
+  )
+  setHook(
+    hookName = packageEvent(pkgname = 'Signac', event = 'attach'),
+    value = .SeuratCompatMessage
+  )
   return(invisible(x = NULL))
 }

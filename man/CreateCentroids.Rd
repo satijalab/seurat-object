@@ -22,3 +22,4 @@ A \code{\link[SeuratObject:Centroids-class]{Centroids}} object
 \description{
 Create a \code{\link[SeuratObject:Centroids-class]{Centroids}} Objects
 }
+\concept{spatial}

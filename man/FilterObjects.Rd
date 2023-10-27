@@ -4,7 +4,7 @@
 \alias{FilterObjects}
 \title{Find Sub-objects of a Certain Class}
 \usage{
-FilterObjects(object, classes.keep = c("Assay", "DimReduc"))
+FilterObjects(object, classes.keep = c("Assay", "StdAssay", "DimReduc"))
 }
 \arguments{
 \item{object}{A \code{\link{Seurat}} object}
@@ -19,6 +19,14 @@ that are of class \code{classes.keep}
 Get the names of objects within a \code{Seurat} object that are of a
 certain class
 }
+\section{Lifecycle}{
+
+
+\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
+
+\code{FilterObjects} was deprecated in version 5.0.0; use \code{\link{.FilterObjects}} instead
+}
+
 \examples{
 FilterObjects(pbmc_small)
 

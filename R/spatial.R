@@ -17,7 +17,7 @@ NULL
 #' @slot assay Name of assay to associate image data with; will give this image
 #' priority for visualization when the assay is set as the active/default assay
 #' in a \code{Seurat} object
-#' @slot key Key for the image
+#' @template slot-key
 #'
 #' @name SpatialImage-class
 #' @rdname SpatialImage-class
@@ -26,7 +26,9 @@ NULL
 #' @seealso \code{\link{SpatialImage-methods}} for a list of required and
 #' provided methods
 #'
-SpatialImage <- setClass(
+#' @aliases SpatialImage
+#'
+setClass(
   Class = 'SpatialImage',
   contains = 'VIRTUAL',
   slots = list(

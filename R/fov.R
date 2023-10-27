@@ -18,23 +18,22 @@ NULL
 #' Supports coordinates for spatially-resolved molecule (FISH) data.
 #' Compatible with \code{\link{SpatialImage}}
 #'
-#' @slot molecules (\code{\link[base]{list}}) A named list of
+#' @slot molecules A named list of
 #' \code{\link[SeuratObject:Molecules-class]{Molecules}} objects defining
 #' spatially-resolved molecular coordinates
-#' @slot boundaries (\code{[named]\link[base]{list}}
-#' \{\code{\link[SeuratObject:Segmentation-class]{Segmentation}},
-#' \code{\link[SeuratObject:Centroids-class]{Centroids}}\}) A named list of
+#' @slot boundaries  A named list of
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 #' spatially-resolved boundaries
-#' @slot assay (\code{\link[base:character]{character [1L]}}) A character
-#' naming the associated assay of the spatial coordinates
-#' @slot key (\code{\link[base:character]{character [1L]}}) The key
-#' for the spatial coordinates
+#' @slot assay A character naming the associated assay
+#' of the spatial coordinates
+#' @template slot-key
 #'
 #' @exportClass FOV
 #'
 #' @aliases FOV
+#'
+#' @concept fov
 #'
 #' @seealso \code{\link{FOV-methods}}
 #'
@@ -80,6 +79,8 @@ setClass(
 #'
 #' @name FOV-methods
 #' @rdname FOV-methods
+#'
+#' @concept fov
 #'
 #' @seealso \code{\link{FOV-class}}
 #'
@@ -320,6 +321,8 @@ FetchData.FOV <- function(
   vars.orig <- vars
   if (is.numeric(x = cells)) {
     cells <- Cells(x = object)[cells]
+  } else if (is.null(cells)) {
+    cells <- Cells(x = object)
   }
   # Find keyed molecules
   object.keys <- Keys(object = object)
@@ -573,6 +576,8 @@ RenameCells.FOV <- function(object, new.names = NULL, ...) {
 #'
 #' @name aggregate
 #' @rdname aggregate
+#'
+#' @keywords internal
 #'
 #' @method aggregate FOV
 #' @export
@@ -995,9 +1000,33 @@ setMethod(
   }
 )
 
+#' FOV Validity
+#'
+#' @templateVar cls FOV
+#' @template desc-validity
+#'
+#' @section Boundary Validation:
+#' blah
+#'
+#' @section Molecule Validation:
+#' blah
+#'
+#' @name FOV-validity
+#'
+#' @family fov
+#'
+#' @seealso \code{\link[methods]{validObject}}
+#'
 setValidity(
   Class = 'FOV',
   method = function(object) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
+      return(TRUE)
+    }
     valid <- NULL
     # Check boundaries
     nlist <- IsNamedList(
@@ -1027,12 +1056,6 @@ setValidity(
               valid <- c(
                 valid,
                 "All segmentation boundaries must have cells"
-              )
-              break
-            } else if (is.unsorted(x = matched.cells)) {
-              valid <- c(
-                valid,
-                "All segmentation boundaries must be ordered"
               )
               break
             }

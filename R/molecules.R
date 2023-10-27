@@ -1,10 +1,8 @@
 #' @include zzz.R
 #' @include generics.R
 #' @include keymixin.R
-#' @importFrom progressr progressor
 #' @importFrom future.apply future_lapply
 #' @importClassesFrom sp CRS SpatialPoints
-#'
 NULL
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,6 +44,8 @@ setClass(
 #' @rdname Molecules-methods
 #'
 #' @seealso \code{\link{Molecules-class}}
+#'
+#' @family segmentation
 #'
 NULL
 
@@ -393,7 +393,13 @@ setMethod(
 setValidity(
   Class = 'Molecules',
   method = function(object) {
-    if (!length(x = object)) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
+      return(TRUE)
+    } else if (!length(x = object)) {
       return(TRUE)
     }
     valid <- NULL

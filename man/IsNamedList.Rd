@@ -22,3 +22,15 @@ IsNamedList(x, all.unique = TRUE, allow.empty = FALSE, pass.zero = FALSE)
 Check to see if a list has names; also check to enforce that all names are
 present and unique
 }
+\examples{
+IsNamedList(list())
+IsNamedList(list(), pass.zero = TRUE)
+IsNamedList(list(1, 2, 3))
+IsNamedList(list(a = 1, b = 2, c = 3))
+IsNamedList(list(a = 1, 2, c = 3))
+IsNamedList(list(a = 1, 2, c = 3), allow.empty = TRUE)
+IsNamedList(list(a = 1, a = 2, a = 3))
+IsNamedList(list(a = 1, a = 2, a = 3), all.unique = FALSE)
+
+}
+\concept{utils}

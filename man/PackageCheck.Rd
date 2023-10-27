@@ -17,6 +17,15 @@ Invisibly returns boolean denoting if the package is installed
 \description{
 Check the existence of a package
 }
+\section{Lifecycle}{
+
+
+\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
+
+\code{PackageCheck} was deprecated in version 5.0.0; please use
+\code{\link[rlang:check_installed]{rlang::check_installed}()} instead
+}
+
 \examples{
 PackageCheck("SeuratObject", error = FALSE)
 

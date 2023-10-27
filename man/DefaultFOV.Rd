@@ -34,3 +34,4 @@ to \code{value}
 \description{
 Get and Set the Default FOV
 }
+\concept{spatial}

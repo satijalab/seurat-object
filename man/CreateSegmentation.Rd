@@ -21,3 +21,4 @@ A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 \description{
 Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects
 }
+\concept{spatial}

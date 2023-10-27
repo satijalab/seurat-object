@@ -1,3 +1,30 @@
+# SeuratObject 5.0.0
+## Added
+- New `Assay5` class with support for layers; layers provide support for:
+  - arbitrary expression matrix names and number
+  - arbitrary expression matrix shape
+  - disk-backed expression matrices
+- New `$` method for `Assay` and `Assay5` objects to pull expression matrices, replacing informal usage of `@`
+- New `LayerData()` and `LayerData()<-` functions to replace `GetAssayData()` and `SetAssayData()`, respectively
+- Support for renaming cells and features with `dimnames()<-` (changing feature names does not apply to v3 `Assay` objects)
+- New `SaveSeuratRds()` and `LoadSeuratRds()` to save and load `Seurat` objects with disk-backed layers
+- New `droplevels.LogMap()` to drop unused entries from a `LogMap`
+- New ability to split (`split()`) and rejoin layers (`JoinLayers()`) within `Assay` and `Assay5` objects based on grouping factor
+
+## Changes
+- `slot` argument deprecated in all contexts; where applicable, replaced with `layer` argument
+- `[` for `Assay` and `Assay5` objects take a layer name to pull an expression matrix
+  - option `Seurat.object.assay.brackets` allows restoring v3/v4 behavior of subsetting the main expression matrix (eg. `data`)
+- Stricter object validation routines at all levels
+- `PackageCheck()` deprecated in favor of `rlang::check_installed()`
+- `AttachDeps()` deprecated in favor of using the `Depends` field of `DESCRIPTION`
+- Subobjects within a `Seurat` object may have subsets of cells present at the object level
+- Begun replacement of `stop()` and `warning()` with `rlang::abort()` and `rlang::warn()` for easier debugging
+- Expanded validation and utility of `KeyMixin` objects
+
+## Removed
+- Unused object constructors (eg. `Assay()`, `Seurat()`)
+
 # SeuratObject 4.1.4
 ## Changes
 - Fixes for `CellsByIdentities` (#80)
