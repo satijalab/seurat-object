@@ -2733,7 +2733,7 @@ setAs(
     # browser()
     # Add the expression matrices
     for (i in c('counts', 'data', 'scale.data')) {
-      adata <- GetAssayData(object = from, slot = i)
+      adata <- GetAssayData(object = from, layer = i)
       if (IsMatrixEmpty(x = adata)) {
         next
       }

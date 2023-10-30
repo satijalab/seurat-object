@@ -1871,7 +1871,7 @@ FetchData.Seurat <- function(
 #'
 #' @examples
 #' # Get assay data from the default assay in a Seurat object
-#' GetAssayData(object = pbmc_small, slot = "data")[1:5,1:5]
+#' GetAssayData(object = pbmc_small, layer = "data")[1:5,1:5]
 #'
 GetAssayData.Seurat <- function(
   object,
@@ -2153,9 +2153,11 @@ LayerData.Seurat <- function(
     ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop(when = "5.0.0",
-                   what = "LayerData(slot = )",
-                   with = "LayerData(layer = )")
+    deprecate_stop(
+      when = "5.0.0",
+      what = "LayerData(slot = )",
+      with = "LayerData(layer = )"
+    )
   }
   assay <- assay %||% DefaultAssay(object = object)
   assay <- arg_match(arg = assay, values = Assays(object = object))
@@ -2465,13 +2467,20 @@ SetAssayData.Seurat <- function(
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = slot)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'GetAssayData(slot = )',
+      with = 'GetAssayData(layer = )'
+    )
+    layer <- slot
+  }
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
   object[[assay]] <- SetAssayData(
     object = object[[assay]],
     layer = layer,
     new.data = new.data,
-    slot = slot,
     ...
   )
   return(object)
@@ -2795,7 +2804,7 @@ WhichCells.Seurat <- function(
       object = object,
       vars = unique(x = expr.char[vars.use]),
       cells = cells,
-      slot = slot
+      layer = slot
     )
     cells <- rownames(x = data.subset)[eval_tidy(expr = expr, data = data.subset)]
   }
@@ -3644,7 +3653,7 @@ split.Seurat <- function(
 #' subset(pbmc_small, subset = MS4A1 > 4)
 #' subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
 #' subset(pbmc_small, idents = '0', invert = TRUE)
-#' subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
+#' subset(pbmc_small, subset = MS4A1 > 3, layer = 'counts')
 #' subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
 #'
 subset.Seurat <- function(
@@ -3911,7 +3920,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       # Ensure cell order stays the same
       if (all(Cells(x = value) %in% Cells(x = x)) && !all(Cells(x = value) == Cells(x = x))) {
         for (slot in c('counts', 'data', 'scale.data')) {
-          assay.data <- GetAssayData(object = value, slot = slot)
+          assay.data <- GetAssayData(object = value, layer = slot)
           if (!IsMatrixEmpty(x = assay.data)) {
             assay.data <- assay.data[, Cells(x = x), drop = FALSE]
           }
@@ -4113,8 +4122,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       if (inherits(x = value, what = 'Assay')) {
         if ((!i %in% Assays(object = x)) |
             (i %in% Assays(object = x) && !identical(
-              x = GetAssayData(object = x, assay = i, slot = "counts"),
-              y = GetAssayData(object = value, slot = "counts"))
+              x = GetAssayData(object = x, assay = i, layer = "counts"),
+              y = GetAssayData(object = value, layer = "counts"))
             )) {
           n.calc <- CalcN(object = value)
           if (!is.null(x = n.calc)) {
