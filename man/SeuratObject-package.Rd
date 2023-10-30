@@ -33,6 +33,7 @@ Authors:
 Other contributors:
 \itemize{
   \item Madeline Kowalski \email{mkowalski@nygenome.org} (\href{https://orcid.org/0000-0002-5655-7620}{ORCID}) [contributor]
+  \item Saket Choudhary \email{schoudhary@nygenome.org} (\href{https://orcid.org/0000-0001-5202-7633}{ORCID}) [contributor]
   \item Skylar Li \email{sli@nygenome.org} [contributor]
   \item Longda Jiang \email{ljiang@nygenome.org} (\href{https://orcid.org/0000-0003-4964-6497}{ORCID}) [contributor]
   \item Jeff Farrell \email{jfarrell@g.harvard.edu} [contributor]
