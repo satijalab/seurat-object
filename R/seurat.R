@@ -3653,7 +3653,7 @@ split.Seurat <- function(
 #' subset(pbmc_small, subset = MS4A1 > 4)
 #' subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
 #' subset(pbmc_small, idents = '0', invert = TRUE)
-#' subset(pbmc_small, subset = MS4A1 > 3, layer = 'counts')
+#' subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
 #' subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
 #'
 subset.Seurat <- function(
