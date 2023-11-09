@@ -6,7 +6,6 @@
 #' @include graph.R
 #' @include spatial.R
 #' @importFrom methods setClass
-#' @importClassesFrom Matrix dgCMatrix
 #'
 NULL
 

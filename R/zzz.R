@@ -10,7 +10,8 @@
 #' enquo eval_tidy have_name inform is_bare_character is_bare_integerish
 #' is_bare_list is_bare_numeric is_missing is_na is_named is_quosure
 #' missing_arg warn
-#' @importClassesFrom Matrix dgCMatrix
+#' @importClassesFrom Matrix dgCMatrix CsparseMatrix dsparseMatrix generalMatrix
+#' dMatrix sparseMatrix compMatrix Matrix
 #' @useDynLib SeuratObject
 #'
 NULL
