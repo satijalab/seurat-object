@@ -1,3 +1,8 @@
+# Unreleased
+
+## Changes:
+- Update internal calls to `GetAssayData()` to use `layer` instead of `slot` (#160)
+
 # SeuratObject 5.0.0
 ## Added
 - New `Assay5` class with support for layers; layers provide support for:

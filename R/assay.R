@@ -319,7 +319,7 @@ Features.Assay <- function(
   }
   layer <- layer[1L] %||% 'data'
   layer <- match.arg(arg = layer)
-  features <- rownames(x = GetAssayData(object = x, slot = layer))
+  features <- rownames(x = GetAssayData(object = x, layer = layer))
   if (!length(x = features)) {
     features <- NULL
   }
@@ -370,7 +370,7 @@ FetchData.Assay <- function(
     x = vars
   )
   # Pull expression information
-  mat <- GetAssayData(object = object, slot = layer)
+  mat <- GetAssayData(object = object, layer = layer)
   if (IsMatrixEmpty(x = mat)) {
     abort(message = paste("Layer", sQuote(x = layer), "is empty in this assay"))
   }
@@ -736,7 +736,7 @@ RenameCells.Assay <- function(object, new.names = NULL, ...) {
   CheckDots(...)
   names(new.names) <- NULL
   for (data.slot in c("counts", "data", "scale.data")) {
-    old.data <- GetAssayData(object = object, slot = data.slot)
+    old.data <- GetAssayData(object = object, layer = data.slot)
     if (ncol(x = old.data) <= 1) {
       next
     }
@@ -1370,7 +1370,7 @@ merge.Assay <- function(
     }
     combined.assay <- SetAssayData(
       object = combined.assay,
-      slot = "data",
+      layer = "data",
       new.data = merged.data
     )
   }
@@ -1465,17 +1465,17 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
   if (length(x = features) == 0) {
     abort(message = "Cannot find features provided")
   }
-  if (ncol(x = GetAssayData(object = x, slot = 'counts')) == ncol(x = x)) {
-    slot(object = x, name = "counts") <- GetAssayData(object = x, slot = "counts")[features, cells, drop = FALSE]
+  if (ncol(x = GetAssayData(object = x, layer = 'counts')) == ncol(x = x)) {
+    slot(object = x, name = "counts") <- GetAssayData(object = x, layer = "counts")[features, cells, drop = FALSE]
   }
-  slot(object = x, name = "data") <- GetAssayData(object = x, slot = "data")[features, cells, drop = FALSE]
-  cells.scaled <- colnames(x = GetAssayData(object = x, slot = "scale.data"))
+  slot(object = x, name = "data") <- GetAssayData(object = x, layer = "data")[features, cells, drop = FALSE]
+  cells.scaled <- colnames(x = GetAssayData(object = x, layer = "scale.data"))
   cells.scaled <- cells.scaled[cells.scaled %in% cells]
   cells.scaled <- cells.scaled[na.omit(object = match(x = colnames(x = x), table = cells.scaled))]
-  features.scaled <- rownames(x = GetAssayData(object = x, slot = 'scale.data'))
+  features.scaled <- rownames(x = GetAssayData(object = x, layer = 'scale.data'))
   features.scaled <- intersect(x = features, y = features.scaled)
   slot(object = x, name = "scale.data") <- if (length(x = cells.scaled) > 0 && length(x = features.scaled) > 0) {
-    GetAssayData(object = x, slot = "scale.data")[features.scaled, cells.scaled, drop = FALSE]
+    GetAssayData(object = x, layer = "scale.data")[features.scaled, cells.scaled, drop = FALSE]
   } else {
     new(Class = 'matrix')
   }
@@ -1625,7 +1625,7 @@ setMethod(
   signature = c(x = 'Assay'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::colMeans(
-      x = GetAssayData(object = x, slot = slot),
+      x = GetAssayData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -1649,7 +1649,7 @@ setMethod(
   signature = c(x = 'Assay'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::colSums(
-      x = GetAssayData(object = x, slot = slot),
+      x = GetAssayData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -1673,7 +1673,7 @@ setMethod(
   signature = c(x = 'Assay'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowMeans(
-      x = GetAssayData(object = x, slot = slot),
+      x = GetAssayData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -1697,7 +1697,7 @@ setMethod(
   signature = c(x = 'Assay'),
   definition = function(x, na.rm = FALSE, dims = 1, ..., slot = 'data') {
     return(Matrix::rowSums(
-      x = GetAssayData(object = x, slot = slot),
+      x = GetAssayData(object = x, layer = slot),
       na.rm = na.rm,
       dims = dims,
       ...
@@ -1927,11 +1927,11 @@ SubsetVST <- function(sct.info, cells, features) {
 #' @noRd
 #'
 ValidateDataForMerge <- function(assay, slot) {
-  mat <- GetAssayData(object = assay, slot = slot)
+  mat <- GetAssayData(object = assay, layer = slot)
   if (any(dim(x = mat) == c(0, 0))) {
     slots.to.check <- setdiff(x = c("counts", "data", "scale.data"), y = slot)
     for (ss in slots.to.check) {
-      data.dims <- dim(x = GetAssayData(object = assay, slot = ss))
+      data.dims <- dim(x = GetAssayData(object = assay, layer = ss))
       data.slot <- ss
       if (!any(data.dims == c(0, 0))) {
         break
@@ -1944,7 +1944,7 @@ ValidateDataForMerge <- function(assay, slot) {
       data = 0,
       nrow = data.dims[1],
       ncol = data.dims[2],
-      dimnames = dimnames(x = GetAssayData(object = assay, slot = data.slot))
+      dimnames = dimnames(x = GetAssayData(object = assay, layer = data.slot))
     )
     mat <- as.sparse(x = mat)
   }

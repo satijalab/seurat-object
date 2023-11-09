@@ -80,7 +80,7 @@ use \code{\link{LayerData<-}}
 
 \examples{
 # Get assay data from the default assay in a Seurat object
-GetAssayData(object = pbmc_small, slot = "data")[1:5,1:5]
+GetAssayData(object = pbmc_small, layer = "data")[1:5,1:5]
 
 # Set an Assay layer through the Seurat object
 count.data <- GetAssayData(object = pbmc_small[["RNA"]], layer = "counts")
