@@ -1,7 +1,8 @@
-# Unreleased
+# SeuratObject 5.0.1
 
 ## Changes:
 - Update internal calls to `GetAssayData()` to use `layer` instead of `slot` (#160)
+- Update Matrix version to 1.6-2 (#164)
 - Change layer-saving in `SaveSeuratRds()` to move all layers instead of just those in `tempdir()` (#169)
 
 # SeuratObject 5.0.0
