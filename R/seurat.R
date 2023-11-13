@@ -610,7 +610,7 @@ RenameAssays <- function(
 #' @param object A \code{\link{Seurat}} object
 #' @param file Path to save \code{object} to; defaults to
 #' \code{file.path(getwd(), paste0(Project(object), ".Rds"))}
-#' @param move Move on-disk layers into \code(dirname(file))
+#' @param move Move on-disk layers into \code{dirname(file)}
 #' @param destdir \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 #' @param relative Save relative paths instead of absolute ones
 #' @inheritDotParams base::saveRDS

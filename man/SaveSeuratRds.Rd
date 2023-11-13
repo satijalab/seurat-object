@@ -22,7 +22,7 @@ LoadSeuratRds(file, ...)
 \item{file}{Path to save \code{object} to; defaults to
 \code{file.path(getwd(), paste0(Project(object), ".Rds"))}}
 
-\item{move}{Move on-disk layers into \code(dirname(file))}
+\item{move}{Move on-disk layers into \code{dirname(file)}}
 
 \item{destdir}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
 
