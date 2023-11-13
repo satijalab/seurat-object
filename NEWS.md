@@ -2,6 +2,7 @@
 
 ## Changes:
 - Update internal calls to `GetAssayData()` to use `layer` instead of `slot` (#160)
+- Change layer-saving in `SaveSeuratRds()` to move all layers instead of just those in `tempdir()` (#169)
 
 # SeuratObject 5.0.0
 ## Added
