@@ -610,8 +610,8 @@ RenameAssays <- function(
 #' @param object A \code{\link{Seurat}} object
 #' @param file Path to save \code{object} to; defaults to
 #' \code{file.path(getwd(), paste0(Project(object), ".Rds"))}
-#' @param destdir Destination directory for on-disk layers saved in
-#' \dQuote{\code{\Sexpr[stage=render]{tempdir()}}}
+#' @param move Move on-disk layers into \code(dirname(file))
+#' @param destdir \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 #' @param relative Save relative paths instead of absolute ones
 #' @inheritDotParams base::saveRDS
 #'
@@ -685,12 +685,28 @@ RenameAssays <- function(
 SaveSeuratRds <- function(
   object,
   file = NULL,
-  destdir = NULL,
+  move = TRUE,
+  destdir = deprecated(),
   relative = FALSE,
   ...
 ) {
   file <- file %||% file.path(getwd(), paste0(Project(object = object), '.Rds'))
   file <- normalizePath(path = file, winslash = '/', mustWork = FALSE)
+  if (is_present(arg = destdir)) {
+    .Deprecate(
+      when = '5.0.1',
+      what = 'SaveSeuratRds(destdir = )',
+      with = 'SaveSeuratRds(move = )',
+      details = paste(
+        "Specifying a directory to move on-disk layers stored in",
+        sQuote(x = normalizePath(path = tempdir(), winslash = '/', mustWork = FALSE)),
+        "is deprecated; now, specify `move = TRUE` either move all on-disk layers to",
+        sQuote(x = dirname(path = file)),
+        "or `move = FALSE` leave them as-is"
+      )
+    )
+    move <- is_bare_character(x = destdir, n = 1L) || is.null(x = destdir)
+  }
   # Cache v5 assays
   assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
   p <- progressor(along = assays, auto_finish = TRUE)
@@ -706,13 +722,9 @@ SaveSeuratRds <- function(
   )
   cache <- vector(mode = 'list', length = length(x = assays))
   names(x = cache) <- assays
-  tdir <- normalizePath(path = tempdir(), winslash = '/') # because macOS is weird
-  destdir <- destdir %||% dirname(path = file)
-  if (!is_na(x = destdir) || isTRUE(x = relative)) {
-    check_installed(
-      pkg = 'fs',
-      reason = 'for moving on-disk matrices'
-    )
+  destdir <- dirname(path = file)
+  if (isTRUE(x = move)) {
+    check_installed(pkg = 'fs', reason = 'for moving on-disk matrices')
   }
   for (assay in assays) {
     p(
@@ -746,27 +758,23 @@ SaveSeuratRds <- function(
       p(message = "No on-disk layers found", class = 'sticky', amount = 0)
       next
     }
-    if (!is_na(x = destdir)) {
+    if (isTRUE(x = move)) {
       for (i in seq_len(length.out = nrow(x = df))) {
         pth <- df$path[i]
-        mv <- substr(x = pth, start = 1L, stop = nchar(x = tdir)) == tdir ||
-          isTRUE(x = relative)
-        if (isTRUE(x = mv)) {
-          p(
-            message = paste(
-              "Moving layer",
-              sQuote(x = df$layer[i]),
-              "to",
-              sQuote(x = destdir)
-            ),
-            class = 'sticky',
-            amount = 0
-          )
-          df[i, 'path'] <- as.character(x = .FileMove(
-            path = pth,
-            new_path = destdir
-          ))
-        }
+        p(
+          message = paste(
+            "Moving layer",
+            sQuote(x = df$layer[i]),
+            "to",
+            sQuote(x = destdir)
+          ),
+          class = 'sticky',
+          amount = 0
+        )
+        df[i, 'path'] <- as.character(x = .FileMove(
+          path = pth,
+          new_path = destdir
+        ))
       }
     }
     if (isTRUE(x = relative)) {

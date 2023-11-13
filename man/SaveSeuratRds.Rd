@@ -5,7 +5,14 @@
 \alias{LoadSeuratRds}
 \title{Save and Load \code{Seurat} Objects from Rds files}
 \usage{
-SaveSeuratRds(object, file = NULL, destdir = NULL, relative = FALSE, ...)
+SaveSeuratRds(
+  object,
+  file = NULL,
+  move = TRUE,
+  destdir = deprecated(),
+  relative = FALSE,
+  ...
+)
 
 LoadSeuratRds(file, ...)
 }
@@ -15,8 +22,9 @@ LoadSeuratRds(file, ...)
 \item{file}{Path to save \code{object} to; defaults to
 \code{file.path(getwd(), paste0(Project(object), ".Rds"))}}
 
-\item{destdir}{Destination directory for on-disk layers saved in
-\dQuote{\code{\Sexpr[stage=render]{tempdir()}}}}
+\item{move}{Move on-disk layers into \code(dirname(file))}
+
+\item{destdir}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
 
 \item{relative}{Save relative paths instead of absolute ones}
 
