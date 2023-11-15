@@ -267,7 +267,7 @@ NULL
 #' @concept utils
 #'
 .DefaultFOV <- function(object, assay = NULL) {
-  images <- FilterObjects(object = object, classes.keep = 'FOV')
+  images <- .FilterObjects(object = object, classes.keep = 'FOV')
   if (!is.null(x = assay)) {
     assays <- c(assay, DefaultAssay(object = object[[assay]]))
     images <- Filter(
@@ -1011,7 +1011,7 @@ DefaultDimReduc <- function(object, assay = NULL) {
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
   drs.use <- c('umap', 'tsne', 'pca')
-  dim.reducs <- FilterObjects(object = object, classes.keep = 'DimReduc')
+  dim.reducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
   drs.assay <- Filter(
     f = function(x) {
       return(DefaultAssay(object = object[[x]]) == assay)
