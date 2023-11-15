@@ -1518,7 +1518,7 @@ SetAssayData.StdAssay <- function(
     )
     layer <- slot
   }
-  LayerData(object = object, layer = slot) <- new.data
+  LayerData(object = object, layer = layer) <- new.data
   return(object)
 }
 
