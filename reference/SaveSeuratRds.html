@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.1</span>
       </span>
     </div>
 
@@ -53,7 +53,14 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">SaveSeuratRds</span><span class="op">(</span><span class="va">object</span>, file <span class="op">=</span> <span class="cn">NULL</span>, destdir <span class="op">=</span> <span class="cn">NULL</span>, relative <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">SaveSeuratRds</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  move <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  destdir <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  relative <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">LoadSeuratRds</span><span class="op">(</span><span class="va">file</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -69,10 +76,12 @@
 <code>file.path(getwd(), paste0(Project(object), ".Rds"))</code></p></dd>
 
 
+<dt>move</dt>
+<dd><p>Move on-disk layers into <code>dirname(file)</code></p></dd>
+
+
 <dt>destdir</dt>
-<dd><p>Destination directory for on-disk layers saved in
-“<code>/tmp/RtmpSisgVu
-</code>”</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a></p></dd>
 
 
 <dt>relative</dt>
@@ -189,8 +198,8 @@ this function. For more details about <span class="pkg">progressr</span>, please
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Warning: Matrix compression performs poorly with non-integers.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Consider calling convert_matrix_type if a compressed integer matrix is intended.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">This message is displayed once every 8 hours.</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Trying to move ‘/tmp/RtmpSisgVu/file69fe1042af’ to itself, skipping</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Trying to move ‘/tmp/RtmpSisgVu/file69fe2531d268.h5’ to itself,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Trying to move ‘/tmp/RtmpZxTHvg/file6b0d450e9e1b’ to itself, skipping</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Trying to move ‘/tmp/RtmpZxTHvg/file6b0d37fccdbc.h5’ to itself,</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> skipping</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Assay (v5) data with 230 features for 80 cells</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First 10 features:</span>

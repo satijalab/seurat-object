@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.1</span>
       </span>
     </div>
 
@@ -47,6 +47,17 @@
       <small>Source: <a href="https://github.com/mojaveazure/seurat-object/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="5.0.1" id="seuratobject-501">SeuratObject 5.0.1<small>2023-11-17</small><a class="anchor" aria-label="anchor" href="#seuratobject-501"></a></h2>
+<div class="section level3">
+<h3 id="changes-5-0-1">Changes:<a class="anchor" aria-label="anchor" href="#changes-5-0-1"></a></h3>
+<ul><li>Update internal calls to <code><a href="../reference/AssayData.html">GetAssayData()</a></code> to use <code>layer</code> instead of <code>slot</code> (<a href="https://github.com/mojaveazure/seurat-object/issues/160" class="external-link">#160</a>)</li>
+<li>Update Matrix version to 1.6-2 (<a href="https://github.com/mojaveazure/seurat-object/issues/164" class="external-link">#164</a>)</li>
+<li>Change layer-saving in <code><a href="../reference/SaveSeuratRds.html">SaveSeuratRds()</a></code> to move all layers instead of just those in <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code> (<a href="https://github.com/mojaveazure/seurat-object/issues/169" class="external-link">#169</a>)</li>
+<li>Update internal calls to <code><a href="../reference/AssayData.html">SetAssayData()</a></code> to use <code>layer</code> instead of <code>slot</code> (<a href="https://github.com/mojaveazure/seurat-object/issues/171" class="external-link">#171</a>)</li>
+<li>Replace internal calls of <code><a href="../reference/FilterObjects.html">FilterObjects()</a></code> to <code><a href="../reference/dot-FilterObjects.html">.FilterObjects()</a></code> (<a href="https://github.com/mojaveazure/seurat-object/issues/171" class="external-link">#171</a>)</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="5.0.0" id="seuratobject-500">SeuratObject 5.0.0<small>2023-10-26</small><a class="anchor" aria-label="anchor" href="#seuratobject-500"></a></h2>
 <div class="section level3">

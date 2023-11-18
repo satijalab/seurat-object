@@ -21,7 +21,7 @@ expression matrices"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/a
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.1</span>
       </span>
     </div>
 
@@ -149,9 +149,7 @@ use <code>LayerData&lt;-</code></p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Get assay data from the default assay in a Seurat object</span></span></span>
-<span class="r-in"><span><span class="fu">GetAssayData</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, slot <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The `slot` argument of `GetAssayData()` is deprecated as of SeuratObject 5.0.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use the `layer` argument instead.</span>
+<span class="r-in"><span><span class="fu">GetAssayData</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_small</span>, layer <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 x 5 sparse Matrix of class "dgCMatrix"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         ATGCCAGAACGACT CATGGCCTGTGCAT GAACCTGATGAACC TGACTGGATTCTCA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MS4A1         .              .                     .              .</span>

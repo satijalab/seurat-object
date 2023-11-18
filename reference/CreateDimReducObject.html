@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SeuratObject</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">5.0.1</span>
       </span>
     </div>
 
@@ -128,6 +128,8 @@ with the dimensional reduction</p></dd>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="AssayData.html">GetAssayData</a></span><span class="op">(</span><span class="va">pbmc_small</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">"scale.data"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The `slot` argument of `GetAssayData()` is deprecated as of SeuratObject 5.0.0.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use the `layer` argument instead.</span>
 <span class="r-in"><span><span class="va">pcs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pca.dr</span> <span class="op">&lt;-</span> <span class="fu">CreateDimReducObject</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  embeddings <span class="op">=</span> <span class="va">pcs</span><span class="op">$</span><span class="va">rotation</span>,</span></span>
