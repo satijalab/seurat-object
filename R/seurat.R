@@ -6,7 +6,6 @@
 #' @include graph.R
 #' @include spatial.R
 #' @importFrom methods setClass
-#' @importClassesFrom Matrix dgCMatrix
 #'
 NULL
 
@@ -475,7 +474,6 @@ Neighbors <- function(object, slot = NULL) {
 #' Reductions(object = pbmc_small)
 #'
 Reductions <- function(object, slot = NULL) {
-  # reductions <- FilterObjects(object = object, classes.keep = 'DimReduc')
   reductions <- .FilterObjects(object = object, classes.keep = 'DimReduc')
   if (is.null(x = slot)) {
     return(reductions)
@@ -611,8 +609,8 @@ RenameAssays <- function(
 #' @param object A \code{\link{Seurat}} object
 #' @param file Path to save \code{object} to; defaults to
 #' \code{file.path(getwd(), paste0(Project(object), ".Rds"))}
-#' @param destdir Destination directory for on-disk layers saved in
-#' \dQuote{\code{\Sexpr[stage=render]{tempdir()}}}
+#' @param move Move on-disk layers into \code{dirname(file)}
+#' @param destdir \Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}
 #' @param relative Save relative paths instead of absolute ones
 #' @inheritDotParams base::saveRDS
 #'
@@ -686,12 +684,28 @@ RenameAssays <- function(
 SaveSeuratRds <- function(
   object,
   file = NULL,
-  destdir = NULL,
+  move = TRUE,
+  destdir = deprecated(),
   relative = FALSE,
   ...
 ) {
   file <- file %||% file.path(getwd(), paste0(Project(object = object), '.Rds'))
   file <- normalizePath(path = file, winslash = '/', mustWork = FALSE)
+  if (is_present(arg = destdir)) {
+    .Deprecate(
+      when = '5.0.1',
+      what = 'SaveSeuratRds(destdir = )',
+      with = 'SaveSeuratRds(move = )',
+      details = paste(
+        "Specifying a directory to move on-disk layers stored in",
+        sQuote(x = normalizePath(path = tempdir(), winslash = '/', mustWork = FALSE)),
+        "is deprecated; now, specify `move = TRUE` either move all on-disk layers to",
+        sQuote(x = dirname(path = file)),
+        "or `move = FALSE` leave them as-is"
+      )
+    )
+    move <- is_bare_character(x = destdir, n = 1L) || is.null(x = destdir)
+  }
   # Cache v5 assays
   assays <- .FilterObjects(object = object, classes.keep = 'StdAssay')
   p <- progressor(along = assays, auto_finish = TRUE)
@@ -707,13 +721,9 @@ SaveSeuratRds <- function(
   )
   cache <- vector(mode = 'list', length = length(x = assays))
   names(x = cache) <- assays
-  tdir <- normalizePath(path = tempdir(), winslash = '/') # because macOS is weird
-  destdir <- destdir %||% dirname(path = file)
-  if (!is_na(x = destdir) || isTRUE(x = relative)) {
-    check_installed(
-      pkg = 'fs',
-      reason = 'for moving on-disk matrices'
-    )
+  destdir <- dirname(path = file)
+  if (isTRUE(x = move)) {
+    check_installed(pkg = 'fs', reason = 'for moving on-disk matrices')
   }
   for (assay in assays) {
     p(
@@ -747,27 +757,23 @@ SaveSeuratRds <- function(
       p(message = "No on-disk layers found", class = 'sticky', amount = 0)
       next
     }
-    if (!is_na(x = destdir)) {
+    if (isTRUE(x = move)) {
       for (i in seq_len(length.out = nrow(x = df))) {
         pth <- df$path[i]
-        mv <- substr(x = pth, start = 1L, stop = nchar(x = tdir)) == tdir ||
-          isTRUE(x = relative)
-        if (isTRUE(x = mv)) {
-          p(
-            message = paste(
-              "Moving layer",
-              sQuote(x = df$layer[i]),
-              "to",
-              sQuote(x = destdir)
-            ),
-            class = 'sticky',
-            amount = 0
-          )
-          df[i, 'path'] <- as.character(x = .FileMove(
-            path = pth,
-            new_path = destdir
-          ))
-        }
+        p(
+          message = paste(
+            "Moving layer",
+            sQuote(x = df$layer[i]),
+            "to",
+            sQuote(x = destdir)
+          ),
+          class = 'sticky',
+          amount = 0
+        )
+        df[i, 'path'] <- as.character(x = .FileMove(
+          path = pth,
+          new_path = destdir
+        ))
       }
     }
     if (isTRUE(x = relative)) {
@@ -893,7 +899,7 @@ UpdateSeuratObject <- function(object) {
       object <- UpdateSlots(object = object)
       # Validate object keys
       message("Ensuring keys are in the proper structure")
-      for (ko in FilterObjects(object = object)) {
+      for (ko in .FilterObjects(object = object)) {
         key <- Key(object = object[[ko]])
         if (!length(x = key) || !nzchar(x = key)) {
           key <- Key(object = ko, quiet = TRUE)
@@ -924,7 +930,7 @@ UpdateSeuratObject <- function(object) {
       assays <- make.names(names = Assays(object = object))
       names(x = assays) <- Assays(object = object)
       object <- do.call(what = RenameAssays, args = c('object' = object, assays))
-      for (obj in FilterObjects(object = object, classes.keep = c('Assay', 'DimReduc', 'Graph'))) {
+      for (obj in .FilterObjects(object = object, classes.keep = c('Assay', 'DimReduc', 'Graph'))) {
         suppressWarnings(
           expr = object[[obj]] <- UpdateSlots(object = object[[obj]]),
           classes = 'validationWarning'
@@ -937,7 +943,7 @@ UpdateSeuratObject <- function(object) {
       }
       # Validate object keys
       message("Ensuring keys are in the proper structure")
-      for (ko in FilterObjects(object = object)) {
+      for (ko in .FilterObjects(object = object)) {
         suppressWarnings(
           expr = Key(object = object[[ko]]) <- UpdateKey(key = Key(object = object[[ko]])),
           classes = 'validationWarning'
@@ -945,7 +951,7 @@ UpdateSeuratObject <- function(object) {
       }
       # Check feature names
       message("Ensuring feature names don't have underscores or pipes")
-      for (assay.name in FilterObjects(object = object, classes.keep = 'Assay')) {
+      for (assay.name in .FilterObjects(object = object, classes.keep = 'Assay')) {
         assay <- object[[assay.name]]
         for (slot in c('counts', 'data', 'scale.data')) {
           if (!IsMatrixEmpty(x = slot(object = assay, name = slot))) {
@@ -998,7 +1004,7 @@ UpdateSeuratObject <- function(object) {
           classes = 'validationWarning'
         )
       }
-      for (reduc.name in FilterObjects(object = object, classes.keep = 'DimReduc')) {
+      for (reduc.name in .FilterObjects(object = object, classes.keep = 'DimReduc')) {
         reduc <- object[[reduc.name]]
         for (slot in c('feature.loadings', 'feature.loadings.projected')) {
           if (!IsMatrixEmpty(x = slot(object = reduc, name = slot))) {
@@ -1426,7 +1432,7 @@ DefaultAssay.Seurat <- function(object, ...) {
 #'
 DefaultFOV.Seurat <- function(object, assay = NULL, ...) {
   assay <- assay[1L] %||% DefaultAssay(object = object)
-  fovs <- FilterObjects(object = object, classes.keep = 'FOV')
+  fovs <- .FilterObjects(object = object, classes.keep = 'FOV')
   if (is.na(x = assay)) {
     return(fovs[1L])
   }
@@ -1456,7 +1462,7 @@ DefaultFOV.Seurat <- function(object, assay = NULL, ...) {
 #'
 "DefaultFOV<-.Seurat" <- function(object, assay = NA, ..., value) {
   assay <- assay[1L] %||% DefaultAssay(object = object)
-  fovs <- FilterObjects(object = object, classes.keep = 'FOV')
+  fovs <- .FilterObjects(object = object, classes.keep = 'FOV')
   value <- match.arg(arg = value, choices = fovs)
   if (!is.na(x = assay)) {
     assay <- match.arg(arg = assay, choices = Assays(object = object))
@@ -1871,7 +1877,7 @@ FetchData.Seurat <- function(
 #'
 #' @examples
 #' # Get assay data from the default assay in a Seurat object
-#' GetAssayData(object = pbmc_small, slot = "data")[1:5,1:5]
+#' GetAssayData(object = pbmc_small, layer = "data")[1:5,1:5]
 #'
 GetAssayData.Seurat <- function(
   object,
@@ -1968,7 +1974,7 @@ HVFInfo.Seurat <- function(
     cmds <- apply(
       X = expand.grid(
         c('FindVariableFeatures', 'SCTransform'),
-        FilterObjects(object = object, classes.keep = c('Assay', 'Assay5'))
+        .FilterObjects(object = object, classes.keep = c('Assay', 'Assay5'))
       ),
       MARGIN = 1,
       FUN = paste,
@@ -2153,9 +2159,11 @@ LayerData.Seurat <- function(
     ...
 ) {
   if (is_present(arg = slot)) {
-    deprecate_stop(when = "5.0.0",
-                   what = "LayerData(slot = )",
-                   with = "LayerData(layer = )")
+    deprecate_stop(
+      when = "5.0.0",
+      what = "LayerData(slot = )",
+      with = "LayerData(layer = )"
+    )
   }
   assay <- assay %||% DefaultAssay(object = object)
   assay <- arg_match(arg = assay, values = Assays(object = object))
@@ -2357,7 +2365,7 @@ RenameCells.Seurat <- function(
   Idents(object = object) <- old.ids
   names(x = new.cell.names) <- old.names
   # rename in the assay objects
-  assays <- FilterObjects(object = object, classes.keep = 'Assay')
+  assays <- .FilterObjects(object = object, classes.keep = 'Assay')
   for (i in assays) {
     slot(object = object, name = "assays")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2365,7 +2373,7 @@ RenameCells.Seurat <- function(
     )
   }
   # rename in the assay5 objects
-  assays5 <- FilterObjects(object = object, classes.keep = 'Assay5')
+  assays5 <- .FilterObjects(object = object, classes.keep = 'Assay5')
   for (i in assays5) {
     slot(object = object, name = "assays")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2373,7 +2381,7 @@ RenameCells.Seurat <- function(
     )
   }
   # rename in the DimReduc objects
-  dimreducs <- FilterObjects(object = object, classes.keep = 'DimReduc')
+  dimreducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
   for (i in dimreducs) {
     slot(object = object, name = "reductions")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2381,7 +2389,7 @@ RenameCells.Seurat <- function(
     )
   }
   # rename the graphs
-  graphs <- FilterObjects(object = object, classes.keep = "Graph")
+  graphs <- .FilterObjects(object = object, classes.keep = "Graph")
   for (g in graphs) {
     graph.g <- object[[g]]
     rownames(graph.g) <- colnames(graph.g) <- new.cell.names[colnames(x = graph.g)]
@@ -2465,13 +2473,20 @@ SetAssayData.Seurat <- function(
   ...
 ) {
   CheckDots(...)
+  if (is_present(arg = slot)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SetAssayData(slot = )',
+      with = 'SetAssayData(layer = )'
+    )
+    layer <- slot
+  }
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
   object[[assay]] <- SetAssayData(
     object = object[[assay]],
     layer = layer,
     new.data = new.data,
-    slot = slot,
     ...
   )
   return(object)
@@ -2755,7 +2770,7 @@ WhichCells.Seurat <- function(
     cells <- intersect(x = cells, y = cells.idents)
   }
   if (!missing(x = expression)) {
-    objects.use <- FilterObjects(
+    objects.use <- .FilterObjects(
       object = object,
       classes.keep = c('Assay', 'StdAssay', 'DimReduc', 'SpatialImage')
     )
@@ -2795,7 +2810,7 @@ WhichCells.Seurat <- function(
       object = object,
       vars = unique(x = expr.char[vars.use]),
       cells = cells,
-      slot = slot
+      layer = slot
     )
     cells <- rownames(x = data.subset)[eval_tidy(expr = expr, data = data.subset)]
   }
@@ -3734,11 +3749,11 @@ subset.Seurat <- function(
     f = Negate(f = is.null),
     x = slot(object = x, name = 'assays')
   )
-  if (length(x = FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
+  if (length(x = .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
     abort(message = "Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay")
   }
   # Filter DimReduc objects
-  for (dimreduc in FilterObjects(object = x, classes.keep = 'DimReduc')) {
+  for (dimreduc in .FilterObjects(object = x, classes.keep = 'DimReduc')) {
     suppressWarnings(
       x[[dimreduc]] <- tryCatch(
         expr = subset.DimReduc(x = x[[dimreduc]], cells = cells, features = features),
@@ -3754,7 +3769,7 @@ subset.Seurat <- function(
   }
   # Recalculate nCount and nFeature
   if (!is.null(features)) {
-    for (assay in FilterObjects(object = x, classes.keep = 'Assay')) {
+    for (assay in .FilterObjects(object = x, classes.keep = 'Assay')) {
       n.calc <- CalcN(object = x[[assay]])
       if (!is.null(x = n.calc)) {
         names(x = n.calc) <- paste(names(x = n.calc), assay, sep = '_')
@@ -3911,7 +3926,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       # Ensure cell order stays the same
       if (all(Cells(x = value) %in% Cells(x = x)) && !all(Cells(x = value) == Cells(x = x))) {
         for (slot in c('counts', 'data', 'scale.data')) {
-          assay.data <- GetAssayData(object = value, slot = slot)
+          assay.data <- GetAssayData(object = value, layer = slot)
           if (!IsMatrixEmpty(x = assay.data)) {
             assay.data <- assay.data[, Cells(x = x), drop = FALSE]
           }
@@ -4113,8 +4128,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       if (inherits(x = value, what = 'Assay')) {
         if ((!i %in% Assays(object = x)) |
             (i %in% Assays(object = x) && !identical(
-              x = GetAssayData(object = x, assay = i, slot = "counts"),
-              y = GetAssayData(object = value, slot = "counts"))
+              x = GetAssayData(object = x, assay = i, layer = "counts"),
+              y = GetAssayData(object = value, layer = "counts"))
             )) {
           n.calc <- CalcN(object = value)
           if (!is.null(x = n.calc)) {

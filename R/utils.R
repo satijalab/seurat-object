@@ -267,7 +267,7 @@ NULL
 #' @concept utils
 #'
 .DefaultFOV <- function(object, assay = NULL) {
-  images <- FilterObjects(object = object, classes.keep = 'FOV')
+  images <- .FilterObjects(object = object, classes.keep = 'FOV')
   if (!is.null(x = assay)) {
     assays <- c(assay, DefaultAssay(object = object[[assay]]))
     images <- Filter(
@@ -1011,7 +1011,7 @@ DefaultDimReduc <- function(object, assay = NULL) {
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
   drs.use <- c('umap', 'tsne', 'pca')
-  dim.reducs <- FilterObjects(object = object, classes.keep = 'DimReduc')
+  dim.reducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
   drs.assay <- Filter(
     f = function(x) {
       return(DefaultAssay(object = object[[x]]) == assay)
@@ -2276,7 +2276,11 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
     new_path <- fs::path_expand(path = new_path)
     new_path <- fs::dir_create(path = new_path)
     dest <- tryCatch(
-      expr = fs::dir_copy(path = path, new_path = new_path, overwrite = overwrite),
+      expr = fs::dir_copy(
+        path = path,
+        new_path = new_path,
+        overwrite = overwrite
+      ),
       EEXIST = eexist,
       error = hndlr
     )
@@ -2292,10 +2296,13 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
     )
   } else {
     abort(
-      message = paste0(
-        "Can't find path: ",
-        sQuote(x = path),
-        "; if path is relative, change working directory."
+      message = paste(
+        strwrap(x = paste0(
+          "Can't find path: ",
+          sQuote(x = path),
+          "; if path is relative, change working directory"
+        )),
+        sep = '\n'
       ),
       call = caller_env(n = 1L + n)
     )

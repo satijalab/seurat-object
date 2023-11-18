@@ -1,7 +1,7 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 5.0.0
+Version: 5.0.1
 Authors@R: c(
   person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
   person(given = 'Paul', family = 'Hoffman', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0002-7693-8957')),
@@ -46,7 +46,7 @@ Imports:
     future.apply,
     grDevices,
     grid,
-    Matrix (>= 1.6.1),
+    Matrix (>= 1.6.3),
     methods,
     progressr,
     Rcpp (>= 1.0.5),
