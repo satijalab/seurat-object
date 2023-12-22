@@ -1,10 +1,11 @@
 Package: SeuratObject
 Type: Package
 Title: Data Structures for Single Cell Data
-Version: 5.0.1
+Version: 5.0.1.9001
 Authors@R: c(
-  person(given = 'Rahul', family = 'Satija', email = 'rsatija@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9448-8833')),
-  person(given = 'Paul', family = 'Hoffman', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0002-7693-8957')),
+  person(given = 'Paul', family = 'Hoffman', email = 'hoff0792@alumni.umn.edu', role = 'aut', comment = c(ORCID = '0000-0002-7693-8957')),
+  person(given = 'Rahul', family = 'Satija', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0001-9448-8833')),
+  person(given = 'David', family = 'Collins', email = 'dcollins@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-9243-7821')),
   person(given = "Yuhan", family = "Hao", email = 'yhao@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0002-1810-0822')),
   person(given = "Austin", family = "Hartman", email = 'ahartman@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0001-7278-1852')),
   person(given = "Gesmira", family = "Molla", email = 'gmolla@nygenome.org', role = 'aut', comment = c(ORCID = '0000-0002-8628-5056')),
@@ -29,9 +30,9 @@ Description: Defines S4 classes for single-cell genomic data and associated
   Hao Y, Hao S, et al (2021) <doi:10.1016/j.cell.2021.04.048> and
   Hao Y, et al (2023) <doi:10.1101/2022.02.24.481684> for
   more details.
-URL: https://mojaveazure.github.io/seurat-object/,
-    https://github.com/mojaveazure/seurat-object
-BugReports: https://github.com/mojaveazure/seurat-object/issues
+URL: https://satijalab.github.io/seurat-object/,
+    https://github.com/satijalab/seurat-object
+BugReports: https://github.com/satijalab/seurat-object/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
