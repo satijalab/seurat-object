@@ -242,7 +242,6 @@ setMethod(
   }
 )
 
-#' @importFrom Matrix t
 #' @importClassesFrom Matrix Matrix
 #'
 setMethod(
@@ -260,7 +259,6 @@ setMethod(
   }
 )
 
-#' @importFrom spam t
 #' @importClassesFrom spam spam
 #'
 setMethod(
@@ -336,7 +334,6 @@ setMethod(
   }
 )
 
-#' @importFrom Matrix t
 #' @importClassesFrom Matrix Matrix
 #'
 setMethod(
@@ -361,7 +358,6 @@ setMethod(
   }
 )
 
-#' @importFrom spam t
 #' @importClassesFrom spam spam
 #'
 setMethod(

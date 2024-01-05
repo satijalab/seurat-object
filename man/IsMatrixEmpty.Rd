@@ -24,4 +24,7 @@ IsMatrixEmpty(matrix())
 IsMatrixEmpty(matrix(1:3))
 
 }
+\seealso{
+\code{\link{EmptyMatrix}()}
+}
 \concept{utils}

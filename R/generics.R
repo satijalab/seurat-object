@@ -997,6 +997,8 @@ IsGlobal <- function(object, ...) {
 #'
 #' @concept utils
 #'
+#' @seealso \code{\link{EmptyMatrix}()}
+#'
 #' @examples
 #' IsMatrixEmpty(new("matrix"))
 #' IsMatrixEmpty(matrix())
