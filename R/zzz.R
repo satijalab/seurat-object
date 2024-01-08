@@ -115,6 +115,13 @@ generics::intersect
 # #'
 # Matrix::colMeans
 
+#' @importFrom Matrix t
+#' @export
+#'
+#' @noRd
+#'
+Matrix::t
+
 #' @importFrom progressr handlers
 #' @export
 #'
