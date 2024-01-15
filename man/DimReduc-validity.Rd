@@ -31,7 +31,7 @@ blah
 Keys must be a one-length character vector; a key must be composed of one
 of the following:
 \itemize{
- \item An empty string (eg. \dQuote{\code{''}}) where \code{nzchar() == 0}
+ \item An empty string (eg. \dQuote{\code{''}}) where \code{nchar() == 0}
  \item An string composed of one or more alphanumeric values
  (both lower- and upper-case) that ends with an underscore
  (\dQuote{\code{_}}); the first character must be a letter
