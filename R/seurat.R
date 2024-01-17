@@ -5874,6 +5874,7 @@ UpdateDimReduction <- function(old.dr, assay) {
       cell.embeddings = as(object = cell.embeddings, Class = 'matrix'),
       feature.loadings = as(object = feature.loadings, Class = 'matrix'),
       assay.used = assay,
+      global = FALSE,
       stdev = as(object = stdev, Class = 'numeric'),
       key = as(object = new.key, Class = 'character'),
       jackstraw = new.jackstraw,
