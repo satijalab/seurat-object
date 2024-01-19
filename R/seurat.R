@@ -2124,15 +2124,13 @@ Key.Seurat <- function(object, ...) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
   return(c(
-    meta.data = Key(object = 'md', quiet = TRUE),
+    meta.data = .MetaKey,
     vapply(
       X = .FilterObjects(
         object = object,
-        classes.keep = c('Assay', 'SpatialImage', 'KeyMixin')
+        classes.keep = c('SpatialImage', 'KeyMixin')
       ),
-      FUN = function(x) {
-        return(Key(object = object[[x]]))
-      },
+      FUN = \(x) Key(object = object[[x]]),
       FUN.VALUE = character(length = 1L),
       USE.NAMES = TRUE
     )
