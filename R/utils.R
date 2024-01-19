@@ -19,13 +19,13 @@ NULL
 #'
 #' Set a default value depending on if an object is \code{NULL}
 #'
+#' @usage x \%||\% y
+#'
 #' @param x An object to test
 #' @param y A default value
 #'
 #' @return For \code{\%||\%}: \code{y} if \code{x} is \code{NULL};
 #' otherwise \code{x}
-#'
-#' @importFrom rlang %||%
 #'
 #' @name set-if-null
 #' @rdname set-if-null
@@ -34,7 +34,7 @@ NULL
 #'
 #' @seealso \code{\link[rlang:op-null-default]{rlang::\%||\%}}
 #'
-#' @export
+#' @aliases %||%
 #'
 #' @concept utils
 #'
@@ -43,7 +43,14 @@ NULL
 #' 1 %||% 2
 #' NULL %||% 2
 #'
-`%||%` <- rlang::`%||%`
+NULL
+
+#' @importFrom rlang %||%
+#' @export
+#'
+#' @noRd
+#'
+rlang::`%||%`
 
 #' @rdname set-if-null
 #'
