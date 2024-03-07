@@ -1283,7 +1283,7 @@ Project <- function(object, ...) {
 #'
 #' @concept spatialimage
 #'
-Radius <- function(object) {
+Radius <- function(object, ...) {
   UseMethod(generic = 'Radius', object = object)
 }
 
