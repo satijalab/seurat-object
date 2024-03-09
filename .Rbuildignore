@@ -19,7 +19,7 @@
 ^.*\.rds$
 ^.*\.Rds$
 ^data-raw$
-^inst$
+^data/.*\.rda$
 ^tests$
 ^LICENSE\.md$
 ^vignettes/articles$

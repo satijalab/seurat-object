@@ -88,6 +88,12 @@ Seurat.options <- list(
 )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Package environment
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+.PkgEnv <- new.env()
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Built With
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -531,10 +537,22 @@ NameIndex <- function(x, names, MARGIN) {
 }
 
 .onLoad <- function(libname, pkgname) {
+  # Get some package information
+  desc <- system.file(
+    "DESCRIPTION",
+    package = pkgname,
+    lib.loc = libname,
+    mustWork = TRUE
+  )
+  version <- as.vector(x = read.dcf(file = desc, fields = "Version"))
+  .PkgEnv$SeuratObjectVersion <- package_version(x = version)
+  lockEnvironment(env = .PkgEnv, bindings = TRUE)
+  # Set some options
   toset <- setdiff(x = names(x = Seurat.options), y = names(x = options()))
   if (length(x = toset)) {
     options(Seurat.options[toset])
   }
+  # Enable backwards compatibilty checking
   setHook(
     hookName = packageEvent(pkgname = 'Seurat', event = 'onLoad'),
     value = .SetSeuratCompat
