@@ -4,7 +4,7 @@
 \alias{Radius}
 \title{Get the spot radius from an image}
 \usage{
-Radius(object)
+Radius(object, ...)
 }
 \arguments{
 \item{object}{An image object}
