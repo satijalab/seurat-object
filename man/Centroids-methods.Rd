@@ -21,7 +21,7 @@
 
 \method{GetTissueCoordinates}{Centroids}(object, full = TRUE, ...)
 
-\method{Radius}{Centroids}(object)
+\method{Radius}{Centroids}(object, ...)
 
 \method{RenameCells}{Centroids}(object, new.names = NULL, ...)
 
