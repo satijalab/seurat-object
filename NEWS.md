@@ -1,6 +1,7 @@
 # Unreleased
 
 ## Changes:
+- Add `...` to call signature for `Radius` generic
 - Properly re-export `%||%` from rlang (#178)
 - Class key-based warnings (#180)
 - Require R 4.1 (#180)
