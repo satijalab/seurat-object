@@ -13,6 +13,9 @@ inst/doc
 doc
 Meta
 
+# Ignore built data fiels
+data/*.rda
+
 # Ignore extra pkgdown files
 docs
 *_files

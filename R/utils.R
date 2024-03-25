@@ -324,8 +324,9 @@ rlang::`%||%`
 ) {
   # Figure out current version, rounding up development versions
   caller <- caller_env()
-  current <- .RoundVersion(current = packageVersion(
-    pkg = ns_env_name(x = caller)
+  current <- .RoundVersion(current = tryCatch(
+    expr = packageVersion(pkg = ns_env_name(x = caller)),
+    error = \(...) .PkgVersion(pkg = ns_env_name(x = caller))
   ))
   cv <- paste(current, collapse = '.')
   # Ensure our 'when' is a valid version
@@ -2443,6 +2444,26 @@ t.spam <- spam::t
   # Remove excluded classes
   classes <- setdiff(x = classes, y = exclude)
   return(classes)
+}
+
+#' @inheritParams utils::packageVersion
+#'
+#' @noRd
+#'
+.PkgVersion <- function(pkg, lib.loc = NULL) {
+  if (pkg == 'SeuratObject' && is.null(x = lib.loc)) {
+    return(.PkgEnv$SeuratObjectVersion)
+  }
+  path <- path.package(package = pkg, quiet = TRUE)
+  path <- path %||% find.package(package = pkg, lib.loc = lib.loc)
+  desc <- system.file(
+    'DESCRIPTION',
+    package = pkg,
+    lib.loc = dirname(path = path),
+    mustWork = TRUE
+  )
+  version <- as.vector(x = read.dcf(file = desc, fields = 'Version'))
+  return(package_version(x = version))
 }
 
 #' Get English Vowels
