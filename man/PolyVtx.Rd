@@ -28,8 +28,7 @@ its radius (distance from center to vertex). Also permits transforming the
 resulting coordinates by moving the origin and altering the initial angle
 }
 \examples{
-coords <- PolyVtx(5, t1 = 90)
-coords
+(coords <- PolyVtx(5, t1 = 90))
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   ggplot2::ggplot(coords, ggplot2::aes(x = x, y = y)) + ggplot2::geom_polygon()
 }
