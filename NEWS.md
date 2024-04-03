@@ -6,6 +6,7 @@
 - Class key-based warnings (#180)
 - Require R 4.1 (#180)
 - Fix errors in `UpdateSeuratObject` (@ddiez, #182)
+- Fix bug in `PolyVtx` (#194)
 
 # SeuratObject 5.0.1
 

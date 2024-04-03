@@ -1391,8 +1391,7 @@ PackageCheck <- function(..., error = TRUE) {
 #' @references \url{https://stackoverflow.com/questions/3436453/calculate-coordinates-of-a-regular-polygons-vertices}
 #'
 #' @examples
-#' coords <- PolyVtx(5, t1 = 90)
-#' coords
+#' (coords <- PolyVtx(5, t1 = 90))
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   ggplot2::ggplot(coords, ggplot2::aes(x = x, y = y)) + ggplot2::geom_polygon()
 #' }
@@ -1403,10 +1402,16 @@ PolyVtx <- function(n, r = 1L, xc = 0L, yc = 0L, t1 = 0) {
   } else if (n < 3L) {
     abort(message = "'n' must be greater than or equal to 3")
   }
-  stopifnot(is_bare_integerish(x = r, n = 1L, finite = TRUE))
-  stopifnot(is_bare_integerish(x = xc, n = 1L, finite = TRUE))
-  stopifnot(is_bare_integerish(x = yc, n = 1L, finite = TRUE))
-  stopifnot(is_bare_numeric(x = t1, n = 1L))
+  stopifnot(
+    "'r' must be a single, finite number" = is_bare_numeric(x = r, n = 1L) &&
+      is.finite(x = r),
+    "'xc' must be a single, finite number" = is_bare_numeric(x = xc, n = 1L) &&
+      is.finite(x = xc),
+    "'yc' must be a single, finite number" = is_bare_numeric(x = yc, n = 1L) &&
+      is.finite(x = yc),
+    "'t1' must be a single, finite number" = is_bare_numeric(x = t1, n = 1L) &&
+      is.finite(x = t1)
+  )
   t1 <- Radians(deg = t1)
   coords <- matrix(data = 0, nrow = n, ncol = 2)
   colnames(x = coords) <- c('x', 'y')
