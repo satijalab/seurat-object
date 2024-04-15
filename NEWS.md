@@ -7,6 +7,7 @@
 - Require R 4.1 (#180)
 - Fix errors in `UpdateSeuratObject` (@ddiez, #182)
 - Fix bug in `PolyVtx` (#194)
+- Fix bug in feature-level subsetting
 
 # SeuratObject 5.0.1
 
