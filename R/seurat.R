@@ -725,6 +725,7 @@ SaveSeuratRds <- function(
   if (isTRUE(x = move)) {
     check_installed(pkg = 'fs', reason = 'for moving on-disk matrices')
   }
+  moved.paths <- c()
   for (assay in assays) {
     p(
       message = paste("Searching through assay", assay),
@@ -770,10 +771,24 @@ SaveSeuratRds <- function(
           class = 'sticky',
           amount = 0
         )
-        df[i, 'path'] <- as.character(x = .FileMove(
-          path = pth,
-          new_path = destdir
-        ))
+        if (!pth %in% names(moved.paths)) {
+          df[i, "path"] <- tryCatch(
+            expr = as.character(x = .FileMove(
+              path = pth, 
+              new_path = destdir
+              )), error = function(e) {
+                warning("Error: ", e, call. = FALSE)
+                # Return original path if can't locate new path
+                return(pth)
+                }
+            )
+          # Record that this dir was already moved in case a new layer has the same source
+          moved.paths[[pth]] <- df[i, "path"]
+        }
+        else {
+          df[i, "path"] <- moved.paths[pth]
+        }
+        
       }
     }
     if (isTRUE(x = relative)) {
@@ -790,28 +805,51 @@ SaveSeuratRds <- function(
         start = dirname(path = file)
       ))
     }
-    df$assay <- assay
-    cache[[assay]] <- df
-    if (nrow(x = df) == length(x = Layers(object = object[[assay]]))) {
-      p(
-        message = paste("Clearing layers from", assay),
-        class = 'sticky',
-        amount = 0
-      )
-      adata <- S4ToList(object = object[[assay]])
-      adata$layers <- list()
-      adata$default <- 0L
-      adata$cells <- LogMap(y = colnames(x = object[[assay]]))
-      adata$features <- LogMap(y = rownames(x = object[[assay]]))
-      object[[assay]] <- ListToS4(x = adata)
+    if (all(df$class == "RenameDims")) {
+      for (layer in unique(df$layer)) {
+        warning("Changing path in object to point to new BPCells directory location", 
+                call. = FALSE, immediate. = TRUE)
+        ldat <- LayerData(object[[assay]], layer = layer)
+        matrices <- BPCells::all_matrix_inputs(ldat)
+        matrix.dirs <- which(sapply(matrices, function(x) inherits(x, 
+                                                                   "MatrixDir")))
+        if (length(matrix.dirs) == nrow(df[df$layer == 
+                                           layer, ])) {
+          for (i in 1:length(matrix.dirs)) {
+            matrices[[matrix.dirs[i]]]@dir <- df[df$layer == 
+                                                   layer, ]$path[i]
+          }
+          BPCells::all_matrix_inputs(ldat) <- matrices
+          LayerData(object[[assay]], layer = layer) <- ldat
+        }
+        else {
+          stop("Directories to replace is not equal to length of directories")
+        }
+      }
     } else {
-      p(
-        message = paste("Clearing", nrow(x = df), "layers from", assay),
-        class = 'sticky',
-        amount = 0
-      )
-      for (layer in df$layer) {
-        LayerData(object = object[[assay]], layer = layer) <- NULL
+      df$assay <- assay
+      cache[[assay]] <- df
+      if (nrow(x = df) == length(x = Layers(object = object[[assay]]))) {
+        p(
+          message = paste("Clearing layers from", assay),
+          class = 'sticky',
+          amount = 0
+        )
+        adata <- S4ToList(object = object[[assay]])
+        adata$layers <- list()
+        adata$default <- 0L
+        adata$cells <- LogMap(y = colnames(x = object[[assay]]))
+        adata$features <- LogMap(y = rownames(x = object[[assay]]))
+        object[[assay]] <- ListToS4(x = adata)
+      } else {
+        p(
+          message = paste("Clearing", nrow(x = df), "layers from", assay),
+          class = 'sticky',
+          amount = 0
+        )
+        for (layer in df$layer) {
+          LayerData(object = object[[assay]], layer = layer) <- NULL
+        }
       }
     }
     p()
