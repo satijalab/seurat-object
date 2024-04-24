@@ -375,6 +375,27 @@ Cells <- function(x, ...) {
   UseMethod(generic = 'Cells', object = x)
 }
 
+#' Get cell names grouped by identity class
+#'
+#' @template param-dots-method
+#' @param object An object
+#'
+#' @return A named list where names are identity classes and values are vectors
+#' of cells belonging to that class
+#'
+#' @rdname CellsByIdentities
+#' @export CellsByIdentities
+#'
+#' @concept data-access
+#' @family dimnames
+#'
+#' @examples
+#' CellsByIdentities(x = pbmc_small)
+#'
+CellsByIdentities <- function(object, ...) {
+  UseMethod(generic = 'CellsByIdentities', object = object)
+}
+
 #' Check Matrix Validity
 #'
 #' @template param-dots-method
