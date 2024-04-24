@@ -160,9 +160,6 @@ setClass(
 #' @param return.null If no cells are requested, return a \code{NULL};
 #' by default, throws an error
 #'
-#' @return A named list where names are identity classes and values are vectors
-#' of cells belonging to that class
-#'
 #' @rdname CellsByIdentities
 #' @export
 #' @method CellsByIdentities Seurat
