@@ -8,6 +8,7 @@
 - Add `...` to call signature for `Radius` generic (#190)
 - Fix bug in `PolyVtx` (#194)
 - Fix bug in feature-level subsetting (#200)
+- Update `UpdateSeuratObject` to run without `Seurat` installed (#199)
 
 # SeuratObject 5.0.1
 
