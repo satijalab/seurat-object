@@ -10,6 +10,7 @@
 - Fix bug in feature-level subsetting (#200)
 - Update `UpdateSeuratObject` to run without `Seurat` installed (#199)
 - Add warning in `Layers.Assay()` when the search returns no results (@maxim-h, #189)
+- Fix bug in `subset` to allow empty images to be dropped (#204)
 
 # SeuratObject 5.0.1
 
