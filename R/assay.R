@@ -698,7 +698,11 @@ Layers.Assay <- function(object, search = NA, ...) {
     layers <- intersect(x = search, y = layers)
     if (length(x = layers) == 0) {
       warning(
-        "Layer ", search, " isn't present in the assay ", deparse(substitute(object)), ". Returning NULL.",
+        "Layer ",
+        search,
+        " isn't present in the assay ",
+        deparse(expr = substitute(expr = object)),
+        "; returning NULL",
         call. = FALSE,
         immediate. = TRUE
       )
