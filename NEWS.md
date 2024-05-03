@@ -1,4 +1,4 @@
-# Unreleased
+# SeuratObject 5.0.2
 
 ## Changes:
 - Properly re-export `%||%` from rlang (#178)
