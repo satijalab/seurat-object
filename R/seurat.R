@@ -1104,7 +1104,7 @@ UpdateSeuratObject <- function(object) {
         )
       }
       # Update object version
-      slot(object = object, name = 'version') <- packageVersion(pkg = 'Seurat')
+      slot(object = object, name = 'version') <- packageVersion(pkg = 'SeuratObject')
     }
     object <- suppressWarnings(
       expr = UpdateSlots(object = object),
