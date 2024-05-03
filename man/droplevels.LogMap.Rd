@@ -31,8 +31,8 @@ map[[]]
 }
 \seealso{
 Logical map objects, validity, and interaction methods:
-\code{\link{LogMap-validity}},
 \code{\link{LogMap}},
+\code{\link{LogMap-validity}},
 \code{\link{as.matrix.LogMap}()},
 \code{\link{intersect.LogMap}()},
 \code{\link{labels.LogMap}()}

@@ -45,8 +45,8 @@ Seurat object, validity, and interaction methods
 \code{\link{Seurat-class}},
 \code{\link{Seurat-validity}},
 \code{\link{[[.Seurat}()},
-\code{\link{[[<-,Seurat,NULL}},
 \code{\link{[[<-,Seurat}},
+\code{\link{[[<-,Seurat,NULL}},
 \code{\link{dim.Seurat}()},
 \code{\link{merge.Seurat}()},
 \code{\link{names.Seurat}()},
@@ -54,8 +54,8 @@ Seurat object, validity, and interaction methods
 
 
 \code{\link{Cells}()},
-\code{\link{dimnames.Assay5}()},
-\code{\link{dimnames.Assay}()}
+\code{\link{dimnames.Assay}()},
+\code{\link{dimnames.Assay5}()}
 }
 \concept{dimnames}
 \concept{seurat}

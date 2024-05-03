@@ -19,13 +19,13 @@ LogMap(y)
 
 \S4method{[[}{LogMap,missing,missing}(x, i, j, ...)
 
-\S4method{[[}{LogMap,`NULL`,missing}(x, i, j, ...)
+\S4method{[[}{LogMap,NULL,missing}(x, i, j, ...)
 
 \S4method{[[}{LogMap,character,missing,character}(x, i, j, ...) <- value
 
 \S4method{[[}{LogMap,character,missing,integer}(x, i, j, ...) <- value
 
-\S4method{[[}{LogMap,character,missing,`NULL`}(x, i, j, ...) <- value
+\S4method{[[}{LogMap,character,missing,NULL}(x, i, j, ...) <- value
 
 \S4method{[[}{LogMap,character,missing,numeric}(x, i, j, ...) <- value
 }

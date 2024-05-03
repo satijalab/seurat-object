@@ -25,13 +25,13 @@
 
 \S4method{[[}{StdAssay,character,missing,factor}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,character,missing,`NULL`}(x, i, j, ...) <- value
+\S4method{[[}{StdAssay,character,missing,NULL}(x, i, j, ...) <- value
 
 \S4method{[[}{StdAssay,character,missing,vector}(x, i, j, ...) <- value
 
 \S4method{[[}{StdAssay,numeric,missing,ANY}(x, i, j, ...) <- value
 
-\S4method{[[}{StdAssay,missing,missing,`NULL`}(x, i, j, ...) <- value
+\S4method{[[}{StdAssay,missing,missing,NULL}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{An \code{\link{Assay5}} object}
