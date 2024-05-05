@@ -1275,6 +1275,7 @@ Project <- function(object, ...) {
 #' Get the spot radius from an image
 #'
 #' @param object An image object
+#' @param ... Arguments passed to other methods
 #'
 #' @return The radius size
 #'
