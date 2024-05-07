@@ -36,6 +36,6 @@ BPCells is hosted on R-universe and used conditionally in SeuratObject.
 ## Downstream dependencies
 There are 2 packages that depend on SeuratObject: Seurat, and tidyseurat; this update does not impact their functionality.
 
-There are 9 packages that import Seurat: APackOfTheClones, bbknnR, CAMML, Platypus, scAnnotate, scaper, scCustomize, scpoisson, and Signac; this update does not impact their functionality.
+There are 9 packages that import SeuratObject: APackOfTheClones, bbknnR, CAMML, Platypus, scAnnotate, scaper, scCustomize, scpoisson, and Signac; this update does not impact their functionality.
 
-There are 10 packages that suggest Seurat: cellpypes, CytoSimplex, RESET, rliger, scOntoMatch, SCpubr, singleCellHaystack, SpaTopic, SPECK, and VAM; this update does not impact their functionality.
+There are 10 packages that suggest SeuratObject: cellpypes, CytoSimplex, RESET, rliger, scOntoMatch, SCpubr, singleCellHaystack, SpaTopic, SPECK, and VAM; this update does not impact their functionality.
