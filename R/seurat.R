@@ -1104,7 +1104,7 @@ UpdateSeuratObject <- function(object) {
         )
       }
       # Update object version
-      slot(object = object, name = 'version') <- packageVersion(pkg = 'Seurat')
+      slot(object = object, name = 'version') <- packageVersion(pkg = 'SeuratObject')
     }
     object <- suppressWarnings(
       expr = UpdateSlots(object = object),
@@ -2124,15 +2124,13 @@ Key.Seurat <- function(object, ...) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
   return(c(
-    meta.data = Key(object = 'md', quiet = TRUE),
+    meta.data = .MetaKey,
     vapply(
       X = .FilterObjects(
         object = object,
-        classes.keep = c('Assay', 'SpatialImage', 'KeyMixin')
+        classes.keep = c('SpatialImage', 'KeyMixin')
       ),
-      FUN = function(x) {
-        return(Key(object = object[[x]]))
-      },
+      FUN = \(x) Key(object = object[[x]]),
       FUN.VALUE = character(length = 1L),
       USE.NAMES = TRUE
     )
@@ -3789,7 +3787,13 @@ subset.Seurat <- function(
  #  }
   # subset images
   for (image in Images(object = x)) {
-    x[[image]] <- base::subset(x = x[[image]], cells = cells)
+    cells.from.image <- cells[cells %in% Cells(x[[image]])]
+    if (length(cells.from.image) == 0) {
+      image.subset <- NULL
+    } else {
+      image.subset <- base::subset(x = x[[image]], cells = cells.from.image)
+    }
+    x[[image]] <- image.subset
   }
   return(x)
 }
@@ -5874,6 +5878,7 @@ UpdateDimReduction <- function(old.dr, assay) {
       cell.embeddings = as(object = cell.embeddings, Class = 'matrix'),
       feature.loadings = as(object = feature.loadings, Class = 'matrix'),
       assay.used = assay,
+      global = FALSE,
       stdev = as(object = stdev, Class = 'numeric'),
       key = as(object = new.key, Class = 'character'),
       jackstraw = new.jackstraw,

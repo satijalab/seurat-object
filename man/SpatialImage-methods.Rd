@@ -34,7 +34,7 @@
 
 \method{Key}{SpatialImage}(object, ...) <- value
 
-\method{Radius}{SpatialImage}(object)
+\method{Radius}{SpatialImage}(object, ...)
 
 \method{RenameCells}{SpatialImage}(object, new.names = NULL, ...)
 

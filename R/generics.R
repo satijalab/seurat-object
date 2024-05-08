@@ -997,6 +997,8 @@ IsGlobal <- function(object, ...) {
 #'
 #' @concept utils
 #'
+#' @seealso \code{\link{EmptyMatrix}()}
+#'
 #' @examples
 #' IsMatrixEmpty(new("matrix"))
 #' IsMatrixEmpty(matrix())
@@ -1273,6 +1275,7 @@ Project <- function(object, ...) {
 #' Get the spot radius from an image
 #'
 #' @param object An image object
+#' @param ... Arguments passed to other methods
 #'
 #' @return The radius size
 #'
@@ -1281,7 +1284,7 @@ Project <- function(object, ...) {
 #'
 #' @concept spatialimage
 #'
-Radius <- function(object) {
+Radius <- function(object, ...) {
   UseMethod(generic = 'Radius', object = object)
 }
 

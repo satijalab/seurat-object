@@ -9,7 +9,7 @@
 \alias{Key<-.KeyMixin}
 \title{A Mixin for Keyed objects}
 \usage{
-\method{Key}{character}(object, quiet = FALSE, ...)
+\method{Key}{character}(object, ..., quiet = FALSE)
 
 \method{Key}{KeyMixin}(object, ...)
 
@@ -18,9 +18,9 @@
 \arguments{
 \item{object}{An object}
 
-\item{quiet}{Suppress warnings when updating characters to keys}
-
 \item{...}{Ignored}
+
+\item{quiet}{Suppress warnings when updating characters to keys}
 
 \item{value}{A key to set}
 }

@@ -43,9 +43,7 @@ setClass(
 #'
 #' @family key
 #'
-.KeyPattern <- function() {
-  return('^[a-zA-Z][a-zA-Z0-9]*_$')
-}
+.KeyPattern <- \() '^[a-zA-Z][a-zA-Z0-9]*_$'
 
 #' Generate a Random Key
 #'
@@ -63,24 +61,22 @@ setClass(
 #' set.seed(42L)
 #' .RandomKey()
 #'
-.RandomKey <- function(length = 7L, ...) {
-  return(Key(
-    object = RandomName(
-      length = length,
-      chars = c(letters, LETTERS, seq.int(from = 0L, to = 9L)),
-      ...
-    ),
-    quiet = TRUE
-  ))
-}
+.RandomKey <- \(length = 7L, ...) Key(
+  object = RandomName(
+    length = length,
+    chars = c(letters, LETTERS, seq.int(from = 0L, to = 9L)),
+    ...
+  ),
+  quiet = TRUE
+)
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for Seurat-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #' @param object An object
-#' @param quiet Suppress warnings when updating characters to keys
 #' @param ... Ignored
+#' @param quiet Suppress warnings when updating characters to keys
 #' @param value A key to set
 #'
 #' @details \code{Key.character}: Update a character to a key
@@ -91,10 +87,14 @@ setClass(
 #' @method Key character
 #' @export
 #'
-Key.character <- function(object, quiet = FALSE, ...) {
-  f <- ifelse(test = isTRUE(x = quiet), yes = suppressWarnings, no = identity)
-  return(f(UpdateKey(key = object)))
-}
+Key.character <- \(object, ..., quiet = FALSE) withCallingHandlers(
+  expr = UpdateKey(key = object),
+  updatedKeyWarning = \(cnd) tryInvokeRestart(r = ifelse(
+    test = isTRUE(x = quiet),
+    yes = 'muffleWarning',
+    no = RandomName()
+  ))
+)
 
 #' @details \code{Key.KeyMixin}: Get the key of a keyed object
 #'
@@ -130,9 +130,7 @@ Key.KeyMixin <- function(object, ...) {
 #' @method Key NULL
 #' @export
 #'
-Key.NULL <- function(object, ...) {
-    return(NULL)
-}
+Key.NULL <- \(object, ...) NULL
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
@@ -141,6 +139,57 @@ Key.NULL <- function(object, ...) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' Check Usage of Existing Keys
+#'
+#' Check key usage against existing keys to ensure key uniqueness
+#'
+#' @param key Existing key to check usage of; if missing, creates a
+#' key from \code{name}
+#' @param existing A vector of existing keys to match against \code{key}
+#' @param name Name of object that \code{key} is used for; if provided and
+#' \code{existing} is named, the entry of \code{existing} for \code{name} is
+#' removed from the check
+#'
+#' @return A key guaranteed to be unique in the context of \code{existing}
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.CheckKey <- function(key, existing = NULL, name = NULL) {
+  if (rlang::is_missing(x = key) || !length(x = key) || !nzchar(x = key)) {
+    key <- Key(object = tolower(name) %||% RandomName(), quiet = TRUE)
+  }
+  key <- Key(object = key, quiet = TRUE)
+  if (!is.null(x = names(x = existing)) && !is.null(x = name)) {
+    existing <- existing[setdiff(x = names(x = existing), y = name)]
+  }
+  if (key %in% existing) {
+    old <- key
+    key <- Key(object = tolower(x = name %||% RandomName()), quiet = TRUE)
+    i <- 1L
+    n <- 5L
+    while (key %in% existing) {
+      key <- Key(object = RandomName(length = n), quiet = TRUE)
+      i <- i + 1L
+      if (!i %% 7L) {
+        n <- n + 2L
+      }
+    }
+    warn(
+      message = paste(
+        "Key",
+        sQuote(x = old),
+        "taken, using",
+        sQuote(x = key),
+        "instead"
+      ),
+      class = 'existingKeyWarning'
+    )
+  }
+  return(key)
+}
 
 #' Internal Key Methods
 #'
@@ -199,17 +248,20 @@ UpdateKey <- function(key) {
   if (new.key == '_') {
     new.key <- paste0(RandomName(length = 3), '_')
   }
-  warning(
-    key.msg,
-    ", setting key from ",
-    key,
-    " to ",
-    new.key,
-    call. = FALSE,
-    immediate. = TRUE
+  warn(
+    message = paste0(
+      key.msg,
+      ", setting key from ",
+      key,
+      " to ",
+      new.key
+    ),
+    class = 'updatedKeyWarning'
   )
   return(new.key)
 }
+
+.MetaKey <- Key(object = 'md', quiet = TRUE)
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods
@@ -224,7 +276,7 @@ UpdateKey <- function(key) {
 #' Keys must be a one-length character vector; a key must be composed of one
 #' of the following:
 #' \itemize{
-#'  \item An empty string (eg. \dQuote{\code{''}}) where \code{nzchar() == 0}
+#'  \item An empty string (eg. \dQuote{\code{''}}) where \code{nchar() == 0}
 #'  \item An string composed of one or more alphanumeric values
 #'  (both lower- and upper-case) that ends with an underscore
 #'  (\dQuote{\code{_}}); the first character must be a letter
@@ -262,42 +314,10 @@ setValidity(
         # Ensure proper key composition
         valid <- c(
           valid,
-          paste0("Keys must match the pattern '", .KeyPattern(), "'")
+          paste("Keys must match the pattern", sQuote(x = .KeyPattern()))
         )
       }
     }
     return(valid %||% TRUE)
   }
 )
-
-.CheckKey <- function(key, existing = NULL, name = NULL) {
-  if (rlang::is_missing(x = key) || !length(x = key) || !nzchar(x = key)) {
-    key <- Key(object = tolower(name) %||% RandomName(), quiet = TRUE)
-  }
-  if (!is.null(x = names(x = existing)) && !is.null(x = name)) {
-    existing <- existing[setdiff(x = names(x = existing), y = name)]
-  }
-  if (key %in% existing) {
-    old <- key
-    key <- Key(object = tolower(x = name %||% RandomName()), quiet = TRUE)
-    i <- 1L
-    n <- 5L
-    while (key %in% existing) {
-      key <- Key(object = RandomName(length = n), quiet = TRUE)
-      i <- i + 1L
-      if (!i %% 7L) {
-        n <- n + 2L
-      }
-    }
-    warn(
-      message = paste(
-        "Key",
-        sQuote(x = old),
-        "taken, using",
-        sQuote(x = key),
-        "instead"
-      )
-    )
-  }
-  return(key)
-}

@@ -1,3 +1,17 @@
+# SeuratObject 5.0.2
+
+## Changes:
+- Properly re-export `%||%` from rlang (#178)
+- Class key-based warnings (#180)
+- Require R 4.1 (#180)
+- Fix errors in `UpdateSeuratObject` (@ddiez, #182)
+- Add `...` to call signature for `Radius` generic (#190)
+- Fix bug in `PolyVtx` (#194)
+- Fix bug in feature-level subsetting (#200)
+- Update `UpdateSeuratObject` to run without `Seurat` installed (#199)
+- Add warning in `Layers.Assay()` when the search returns no results (@maxim-h, #189)
+- Fix bug in `subset` to allow empty images to be dropped (#204)
+
 # SeuratObject 5.0.1
 
 ## Changes:

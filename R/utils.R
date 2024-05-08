@@ -19,13 +19,13 @@ NULL
 #'
 #' Set a default value depending on if an object is \code{NULL}
 #'
+#' @usage x \%||\% y
+#'
 #' @param x An object to test
 #' @param y A default value
 #'
 #' @return For \code{\%||\%}: \code{y} if \code{x} is \code{NULL};
 #' otherwise \code{x}
-#'
-#' @importFrom rlang %||%
 #'
 #' @name set-if-null
 #' @rdname set-if-null
@@ -34,7 +34,7 @@ NULL
 #'
 #' @seealso \code{\link[rlang:op-null-default]{rlang::\%||\%}}
 #'
-#' @export
+#' @aliases %||%
 #'
 #' @concept utils
 #'
@@ -43,7 +43,14 @@ NULL
 #' 1 %||% 2
 #' NULL %||% 2
 #'
-`%||%` <- rlang::`%||%`
+NULL
+
+#' @importFrom rlang %||%
+#' @export
+#'
+#' @noRd
+#'
+rlang::`%||%`
 
 #' @rdname set-if-null
 #'
@@ -1095,6 +1102,70 @@ EmptyDF <- function(n) {
   return(as.data.frame(x = matrix(nrow = n, ncol = 0L)))
 }
 
+#' Empty Matrices
+#'
+#' Create empty 0x0 matrices of varying types
+#'
+#' @param repr Representation of empty matrix; choose from:
+#' \itemize{
+#'  \item \dQuote{\code{C}} for a
+#'   \code{\link[Matrix:CsparseMatrix-class]{CsparseMatrix}}
+#'  \item \dQuote{\code{T}} for a
+#'   \code{\link[Matrix:TsparseMatrix-class]{TsparseMatrix}}
+#'  \item \dQuote{\code{R}} for an
+#'   \code{\link[Matrix:RsparseMatrix-class]{RsparseMatrix}}
+#'  \item \dQuote{\code{e}} for an
+#'   \code{\link[Matrix:unpackedMatrix-class]{unpackedMatrix}}
+#'  \item \dQuote{\code{d}} for a dense S3 \code{\link[base]{matrix}}
+#'  \item \dQuote{\code{spam}} for a \code{\link[spam]{spam}} matrix
+#' }
+#' @param type Type of resulting matrix to return, choose from:
+#' \itemize{
+#'  \item \dQuote{\code{d}} for numeric matrices
+#'  \item \dQuote{\code{l}} for logical matrices
+#'  \item \dQuote{\code{n}} for pattern matrices
+#' }
+#' Note, when \code{repr} is \dQuote{\code{spam}}, \code{type} must be
+#' \dQuote{\code{d}}; when \code{repr} is \dQuote{\code{d}}, setting \code{type}
+#' to \dQuote{\code{n}} returns a logical matrix
+#'
+#' @return A 0x0 matrix of the specified representation and type
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @seealso \code{\link{IsMatrixEmpty}()}
+#'
+#' @examples
+#' EmptyMatrix()
+#' EmptyMatrix("spam")
+#'
+EmptyMatrix <- function(repr = 'C', type = 'd' ) {
+  repr <- arg_match(arg = repr, values = c('C', 'T', 'R', 'e', 'd', 'spam'))
+  type <- arg_match(
+    arg = type,
+    values = switch(
+      EXPR = repr,
+      spam = 'd',
+      c('d', 'l', 'n')
+    )
+  )
+  return(switch(
+    EXPR = repr,
+    spam = spam::spam(x = 0L, nrow = 0L, ncol = 0L),
+    d = matrix(
+      data = vector(
+        mode = switch(EXPR = type, d = 'numeric', 'logical'),
+        length = 0L
+      ),
+      nrow = 0L,
+      ncol = 0L
+    ),
+    new(Class = paste0(type, 'g', repr, 'Matrix'))
+  ))
+}
+
 #' Extract delimiter information from a string.
 #'
 #' Parses a string (usually a cell name) and extracts fields based
@@ -1320,8 +1391,7 @@ PackageCheck <- function(..., error = TRUE) {
 #' @references \url{https://stackoverflow.com/questions/3436453/calculate-coordinates-of-a-regular-polygons-vertices}
 #'
 #' @examples
-#' coords <- PolyVtx(5, t1 = 90)
-#' coords
+#' (coords <- PolyVtx(5, t1 = 90))
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   ggplot2::ggplot(coords, ggplot2::aes(x = x, y = y)) + ggplot2::geom_polygon()
 #' }
@@ -1332,10 +1402,16 @@ PolyVtx <- function(n, r = 1L, xc = 0L, yc = 0L, t1 = 0) {
   } else if (n < 3L) {
     abort(message = "'n' must be greater than or equal to 3")
   }
-  stopifnot(is_bare_integerish(x = r, n = 1L, finite = TRUE))
-  stopifnot(is_bare_integerish(x = xc, n = 1L, finite = TRUE))
-  stopifnot(is_bare_integerish(x = yc, n = 1L, finite = TRUE))
-  stopifnot(is_bare_numeric(x = t1, n = 1L))
+  stopifnot(
+    "'r' must be a single, finite number" = is_bare_numeric(x = r, n = 1L) &&
+      is.finite(x = r),
+    "'xc' must be a single, finite number" = is_bare_numeric(x = xc, n = 1L) &&
+      is.finite(x = xc),
+    "'yc' must be a single, finite number" = is_bare_numeric(x = yc, n = 1L) &&
+      is.finite(x = yc),
+    "'t1' must be a single, finite number" = is_bare_numeric(x = t1, n = 1L) &&
+      is.finite(x = t1)
+  )
   t1 <- Radians(deg = t1)
   coords <- matrix(data = 0, nrow = n, ncol = 2)
   colnames(x = coords) <- c('x', 'y')
@@ -2174,6 +2250,11 @@ StitchMatrix.matrix <- function(x, y, rowmap, colmap, ...) {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Methods for R-defined generics
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#' @method t spam
+#' @export
+#'
+t.spam <- spam::t
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # S4 methods

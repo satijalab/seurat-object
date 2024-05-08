@@ -11,18 +11,19 @@ Defines S4 classes for single-cell genomic data and associated information, such
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://mojaveazure.github.io/seurat-object/}
-  \item \url{https://github.com/mojaveazure/seurat-object}
-  \item Report bugs at \url{https://github.com/mojaveazure/seurat-object/issues}
+  \item \url{https://satijalab.github.io/seurat-object/}
+  \item \url{https://github.com/satijalab/seurat-object}
+  \item Report bugs at \url{https://github.com/satijalab/seurat-object/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Paul Hoffman \email{seurat@nygenome.org} (\href{https://orcid.org/0000-0002-7693-8957}{ORCID})
+\strong{Maintainer}: Rahul Satija \email{seurat@nygenome.org} (\href{https://orcid.org/0000-0001-9448-8833}{ORCID})
 
 Authors:
 \itemize{
-  \item Rahul Satija \email{rsatija@nygenome.org} (\href{https://orcid.org/0000-0001-9448-8833}{ORCID})
+  \item Paul Hoffman \email{hoff0792@alumni.umn.edu} (\href{https://orcid.org/0000-0002-7693-8957}{ORCID})
+  \item David Collins \email{dcollins@nygenome.org} (\href{https://orcid.org/0000-0001-9243-7821}{ORCID})
   \item Yuhan Hao \email{yhao@nygenome.org} (\href{https://orcid.org/0000-0002-1810-0822}{ORCID})
   \item Austin Hartman \email{ahartman@nygenome.org} (\href{https://orcid.org/0000-0001-7278-1852}{ORCID})
   \item Gesmira Molla \email{gmolla@nygenome.org} (\href{https://orcid.org/0000-0002-8628-5056}{ORCID})

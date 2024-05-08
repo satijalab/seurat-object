@@ -904,13 +904,8 @@ setMethod(
 setMethod(
   f = 'initialize',
   signature = 'FOV',
-  definition = function(.Object, molecules, boundaries, assay, key, ...) {
+  definition = function(.Object, ...) {
     .Object <- callNextMethod(.Object, ...)
-    slot(object = .Object, name = 'molecules') <- molecules
-    slot(object = .Object, name = 'boundaries') <- boundaries
-    slot(object = .Object, name = 'assay') <- assay
-    slot(object = .Object, name = 'key') <- key
-    # Reorder cells in boundaries
     .Object <- .OrderCells(object = .Object)
     validObject(object = .Object)
     return(.Object)

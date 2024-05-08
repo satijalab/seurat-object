@@ -4,10 +4,12 @@
 \alias{Radius}
 \title{Get the spot radius from an image}
 \usage{
-Radius(object)
+Radius(object, ...)
 }
 \arguments{
 \item{object}{An image object}
+
+\item{...}{Arguments passed to other methods}
 }
 \value{
 The radius size
