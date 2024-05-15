@@ -758,23 +758,29 @@ SaveSeuratRds <- function(
       next
     }
     if (isTRUE(x = move)) {
-      for (i in seq_len(length.out = nrow(x = df))) {
-        pth <- df$path[i]
+      df.split <- split(x = df, f = df$path)
+      for (i in seq_along(along.with = df.split)) {
+        pth <- names(x = df.split)[i]
         p(
           message = paste(
-            "Moving layer",
-            sQuote(x = df$layer[i]),
-            "to",
-            sQuote(x = destdir)
+            strwrap(x = paste(
+              "Moving on-disk layer at",
+              sQuote(x = pth),
+              "to",
+              sQuote(x = destdir)
+            )),
+            collapse = '\n'
           ),
           class = 'sticky',
           amount = 0
         )
-        df[i, 'path'] <- as.character(x = .FileMove(
+        df.split[[i]]$path <- as.character(x = .FileMove(
           path = pth,
           new_path = destdir
         ))
       }
+      df <- do.call(what = rbind, args = df.split)
+      row.names(x = df) <- NULL
     }
     if (isTRUE(x = relative)) {
       p(
