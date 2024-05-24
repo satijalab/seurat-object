@@ -257,7 +257,7 @@ Key.SpatialImage <- function(object, ...) {
 #' @method Radius SpatialImage
 #' @export
 #'
-Radius.SpatialImage <- function(object) {
+Radius.SpatialImage <- function(object, ...) {
   return(NULL)
 }
 

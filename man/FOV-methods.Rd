@@ -49,7 +49,7 @@
 
 \S4method{[[}{FOV,character,missing,Molecules}(x, i, j, ...) <- value
 
-\S4method{[[}{FOV,character,missing,`NULL`}(x, i, j, ...) <- value
+\S4method{[[}{FOV,character,missing,NULL}(x, i, j, ...) <- value
 
 \S4method{[[}{FOV,character,missing,Segmentation}(x, i, j, ...) <- value
 

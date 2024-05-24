@@ -8,7 +8,7 @@
 \alias{[[<-,Seurat,character,missing,NULL-method}
 \title{Remove Subobjects and Cell-Level Meta Data}
 \usage{
-\S4method{[[}{Seurat,character,missing,`NULL`}(x, i, j, ...) <- value
+\S4method{[[}{Seurat,character,missing,NULL}(x, i, j, ...) <- value
 }
 \arguments{
 \item{x}{A \code{\link{Seurat}} object}

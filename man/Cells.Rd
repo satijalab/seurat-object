@@ -50,8 +50,8 @@ Cells(x = pbmc_small)
 }
 \seealso{
 
-\code{\link{dimnames.Assay5}()},
 \code{\link{dimnames.Assay}()},
+\code{\link{dimnames.Assay5}()},
 \code{\link{dimnames.Seurat}()}
 }
 \concept{data-access}

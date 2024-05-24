@@ -2411,6 +2411,12 @@ subset.StdAssay <- function(
   for (lyr in setdiff(x = layers.all, y = layers)) {
     LayerData(object = x, layer = lyr) <- NULL
   }
+  # Subset feature-level metadata
+  mfeatures <- MatchCells(
+    new = Features(x = x, layer = NA),
+    orig = features,
+    ordered = TRUE
+  )
   # Perform the subsets
   for (l in layers) {
     lcells <- MatchCells(
@@ -2442,12 +2448,6 @@ subset.StdAssay <- function(
   for (i in c('cells', 'features')) {
     slot(object = x, name = i) <- droplevels(x = slot(object = x, name = i))
   }
-  # Subset feature-level metadata
-  mfeatures <- MatchCells(
-    new = Features(x = x, layer = NA),
-    orig = features,
-    ordered = TRUE
-  )
   slot(object = x, name = 'meta.data') <- slot(
     object = x,
     name = 'meta.data'

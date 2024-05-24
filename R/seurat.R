@@ -1104,7 +1104,7 @@ UpdateSeuratObject <- function(object) {
         )
       }
       # Update object version
-      slot(object = object, name = 'version') <- packageVersion(pkg = 'Seurat')
+      slot(object = object, name = 'version') <- packageVersion(pkg = 'SeuratObject')
     }
     object <- suppressWarnings(
       expr = UpdateSlots(object = object),
@@ -3787,7 +3787,13 @@ subset.Seurat <- function(
  #  }
   # subset images
   for (image in Images(object = x)) {
-    x[[image]] <- base::subset(x = x[[image]], cells = cells)
+    cells.from.image <- cells[cells %in% Cells(x[[image]])]
+    if (length(cells.from.image) == 0) {
+      image.subset <- NULL
+    } else {
+      image.subset <- base::subset(x = x[[image]], cells = cells.from.image)
+    }
+    x[[image]] <- image.subset
   }
   return(x)
 }

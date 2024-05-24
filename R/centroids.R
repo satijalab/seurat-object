@@ -192,7 +192,7 @@ GetTissueCoordinates.Centroids <- function(object, full = TRUE, ...) {
 #' @method Radius Centroids
 #' @export
 #'
-Radius.Centroids <- function(object) {
+Radius.Centroids <- function(object, ...) {
   return(slot(object = object, name = 'radius'))
 }
 
