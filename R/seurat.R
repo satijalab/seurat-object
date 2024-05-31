@@ -994,7 +994,7 @@ UpdateSeuratObject <- function(object) {
         sd.features <- rownames(x = slot(object = assay, name = "scale.data"))
         data.features <- rownames(x = slot(object = assay, name = "data"))
         md.features <- rownames(x = slot(object = assay, name = "meta.features"))
-        if (!all.equal(target = md.features, current = data.features, check.attributes = FALSE)) {
+        if (!identical(md.features, data.features)) {
           slot(object = assay, name = "meta.features") <- slot(object = assay, name = "meta.features")[data.features, ]
         }
         sd.order <- sd.features[order(match(x = sd.features, table = data.features))]
