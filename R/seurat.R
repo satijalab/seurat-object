@@ -2298,11 +2298,11 @@ ReorderIdent.Seurat <- function(
   return(object)
 }
 
-#' @param add.cell.id prefix to add cell names
+#' @param add.cell.id prefix to add cell names for RNA, or suffix for ADT
 #' @param for.merge Deprecated
 #'
 #' @details
-#' If \code{add.cell.id} is set a prefix is added to existing cell names. If
+#' If \code{add.cell.id} is set a prefix is added to existing cell names for RNA, or suffix for ADT. If
 #' \code{new.names} is set these will be used to replace existing names.
 #'
 #' @rdname RenameCells
@@ -3325,7 +3325,7 @@ levels.Seurat <- function(x) {
 #' @param x A \code{\link{Seurat}} object
 #' @param y A single \code{Seurat} object or a list of \code{Seurat} objects
 #' @param add.cell.ids A character vector of \code{length(x = c(x, y))};
-#' appends the corresponding values to the start of each objects' cell names
+#' appends the corresponding values to the start (or end) of each objects' cell names
 #' @param merge.data Merge the data slots instead of just merging the counts
 #' (which requires renormalization); this is recommended if the same
 #' normalization approach was applied to all objects
