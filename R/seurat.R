@@ -517,7 +517,7 @@ RenameAssays <- function(
   on.exit(expr = options(op), add = TRUE)
   if ((!is.null(x = assay.name) & is.null(x = new.assay.name))
       | (is.null(x = assay.name) & !is.null(x = new.assay.name))) {
-    stop("Must provide both assay.name and new.assasy.name if using parameters. Otherwise, ",
+    stop("Must provide both assay.name and new.assay.name if using parameters. Otherwise, ",
          "you can set arguments without parameters by doing ",
          "{old.assay = new.assay} with your own assay names.", call. = FALSE)
   }
@@ -3723,7 +3723,7 @@ subset.Seurat <- function(
       assay.features <- features %||% rownames(x = x[[assay]])
       suppressWarnings(
         expr = slot(object = x, name = 'assays')[[assay]] <- tryCatch(
-          # because subset is also an argument, we need to explictly use the base::subset function
+          # because subset is also an argument, we need to explicitly use the base::subset function
           expr = suppressWarnings(
             expr = base::subset(
               x = x[[assay]],
@@ -4748,7 +4748,7 @@ setMethod(
       i <- arg_match(arg = i, values = names(x = value), multiple = TRUE)
     } else if (length(x = i) != length(x = value)) {
       abort(message = paste(
-        "Cannot assing",
+        "Cannot assign",
         length(x = i),
         "names to",
         length(x = value),
@@ -5913,9 +5913,9 @@ UpdateJackstraw <- function(old.jackstraw) {
     }
     new.jackstraw <- new(
       Class = 'JackStrawData',
-      empirical.p.values = old.jackstraw@emperical.p.value %||% new(Class = 'matrix'),
+      empirical.p.values = old.jackstraw@empirical.p.value %||% new(Class = 'matrix'),
       fake.reduction.scores = old.jackstraw@fake.pc.scores %||% new(Class = 'matrix'),
-      empirical.p.values.full = old.jackstraw@emperical.p.value.full %||% new(Class = 'matrix'),
+      empirical.p.values.full = old.jackstraw@empirical.p.value.full %||% new(Class = 'matrix'),
       overall.p.values = overall.p
     )
   }
