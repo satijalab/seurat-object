@@ -519,7 +519,7 @@ NameIndex <- function(x, names, MARGIN) {
         .BuiltWith[i],
         "but the current version is",
         paste0(current, ';'),
-        "it is recomended that you reinstall ",
+        "it is recommended that you reinstall ",
         sQuote(x = pkgname),
         " as the ABI for",
         switch(EXPR = i, R = i, sQuote(x = i)),

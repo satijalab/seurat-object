@@ -68,7 +68,7 @@
 
 # SeuratObject 4.1.1
 ## Changed
-- Update sparse matrix coersions due to Matrix deprecations
+- Update sparse matrix coercions due to Matrix deprecations
 
 # SeuratObject 4.1.0
 ## Changed

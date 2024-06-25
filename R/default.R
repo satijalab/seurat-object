@@ -250,7 +250,7 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
   CheckDots(...)
   if (slot %in% names(x = Misc(object = object))) {
     warning(
-      "Overwriting miscellanous data for ",
+      "Overwriting miscellaneous data for ",
       slot,
       call. = FALSE,
       immediate. = TRUE

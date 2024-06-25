@@ -292,7 +292,7 @@ rlang::`%||%`
 
 #' Deprecate Functions and Arguments
 #'
-#' Provides automatic deprecation and defunctation of functions and arguments;
+#' Provides automatic deprecation and defuncting of functions and arguments;
 #'
 #' @inheritParams lifecycle::deprecate_soft
 #' @inheritDotParams lifecycle::deprecate_soft
@@ -334,7 +334,7 @@ rlang::`%||%`
   if (cv < wv) {
     return(invisible(x = NULL))
   }
-  # Figure out if this is a soft deprecation, a warning deprecation, or a defunct
+  # Figure out if this is a soft deprecation, a warning deprecation, or a defuncting
   when <- unlist(x = strsplit(x = when, split = '\\.'))
   if (length(x = when) > 4L) {
     when[4L] <- paste(
