@@ -1553,9 +1553,7 @@ VariableFeatures.StdAssay <- function(
       var.features <- as.vector(object["var.features", drop = TRUE])
       var.features <- var.features[!is.na(var.features)]
     }
-    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) &
-        (is.infinite(x = nfeatures) || length(x = var.features) ==
-         nfeatures)) {
+    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer)))) {
       return(var.features)
     }
   }
