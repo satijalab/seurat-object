@@ -2360,101 +2360,108 @@ subset.StdAssay <- function(
   layers = NULL,
   ...
 ) {
-  if (is.null(cells) && is.null(features) && is.null(layers)){
+  # define an inner function to validate the `cells` and `features` params
+  .validate_param <- function(name, values, allowed) {
+    # if `values` is null or contains only null values, keep all allowed values
+    if (all(is.na(values))) {
+      values <- allowed
+    } else if (any(is.na(x = values))) {
+      # if any values are NA, issue a warning and remove NAs
+      warning(
+        paste0("NAs passed in ", name, " vector, removing NAs"),
+        call. = FALSE,
+        immediate. = TRUE
+      )
+      # and drop null values from `values`
+      values <- values[!is.na(x = values)]
+    }
+    # if `values` is numeric, treat them as indices
+    if (is.numeric(values)) {
+      values <- allowed[values]
+    }
+    # ensure `values` are in the allowed set
+    values <- intersect(values, allowed)
+    # if no valid values remain, stop execution with an error
+    if (!length(values)) {
+      stop(paste0("None of the ", name, " provided found in this assay"), call. = FALSE)
+    }
+    return(values)
+  }
+
+  # if no subsetting is specified, return the original object
+  if (is.null(cells) && is.null(features) && is.null(layers)) {
     return(x)
   }
-  # Check the cells vector
-  if (all(is.na(x = cells))) {
-    cells <- Cells(x = x, layer = NA)
-  } else if (any(is.na(x = cells))) {
-    warning(
-      "NAs passed in cells vector, removing NAs",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    cells <- cells[!is.na(x = cells)]
-  }
-  if (is.numeric(x = cells)) {
-    cells <- Cells(x = x, layer = NA)[cells]
-  }
-  cells <- intersect(x = Cells(x = x, layer = NA), y = cells)
-  if (!length(x = cells)) {
-    stop("None of the cells provided found in this assay", call. = FALSE)
-  }
-  # Check the features vector
-  if (all(is.na(x = features))) {
-    features <- Features(x = x, layer = NA)
-  } else if (any(is.na(x = features))) {
-    warning(
-      "NAs passed in features vector, removing NAs",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    features <- features[!is.na(x = features)]
-  }
-  if (is.numeric(x = features)) {
-    features <- Features(x = x, layer = NA)[features]
-  }
+
+  # validate and filter cells
+  all_cells <- Cells(x)
+  cells <- .validate_param("cells", cells, all_cells)
+  # validate and filter features
   all_features <- Features(x = x, layer = NA)
-  features <- intersect(x = features, y = all_features)
-  if (!length(x = features)) {
-    stop("None of the features provided found in this assay", call. = FALSE)
-  }
-  # Check the layers
-  layers.all <- Layers(object = x)
-  layers <- layers %||% layers.all
+  features <- .validate_param("features", features, all_features)
+  # validate and filter layers
+  all_layers <- Layers(object = x)
+  layers <- layers %||% all_layers
   layers <- match.arg(
     arg = layers,
-    choices = layers.all,
+    choices = all_layers,
     several.ok = TRUE
   )
-  # Remove unused layers
-  for (lyr in setdiff(x = layers.all, y = layers)) {
-    LayerData(object = x, layer = lyr) <- NULL
-  }
-  # Perform the subsets
-  for (l in layers) {
-    lcells <- MatchCells(
-      new = Cells(x = x, layer = l),
+  
+  # subset cells and features layer by layer
+  for (layer_name in all_layers) {
+    # maybe drop the layer
+    if (!layer_name %in% layers) {
+      LayerData(x, layer = layer_name) <- NULL
+      next
+    }
+    # otherwise, filter the the layer's cells and features
+    # `MatchCells` is a bit of a misnomer - assuming that `new` is a 
+    # subset of `old`, the function returns a list of indices mapping
+    # the values of `new` to their order in `orig`
+    layer_cells <- MatchCells(
+      new = Cells(x = x, layer = layer_name),
       orig = cells,
       ordered = TRUE
     )
-    lfeatures <- MatchCells(
-      new = Features(x = x, layer = l),
+    layer_features <- MatchCells(
+      new = Features(x = x, layer = layer_name),
       orig = features,
       ordered = TRUE
     )
-    if (is.null(x = lcells) || is.null(x = features)) {
-      LayerData(object = x, layer = l) <- NULL
-    } else {
-      LayerData(object = x, layer = l) <- LayerData(
-        object = x,
-        layer = l,
-        cells = lcells,
-        features = lfeatures
-      )
-    }
+    # if no valid cells or features, drop the layer data
+    if (is.null(layer_cells) || is.null(layer_features)) {
+      LayerData(object = x, layer = layer_name) <- NULL
+      next
+    } 
+    # otherwise, apply the subset
+    LayerData(object = x, layer = layer_name) <- LayerData(
+      object = x,
+      layer = layer_name,
+      cells = layer_cells,
+      features = layer_features
+    )
   }
-  slot(object = x, name = 'cells') <- droplevels(x = slot(
-    object = x,
-    name = 'cells'
-  ))
-  # Update the cell/feature maps
-  for (i in c('cells', 'features')) {
-    slot(object = x, name = i) <- droplevels(x = slot(object = x, name = i))
-  }
-  # Subset feature-level metadata
+
+  # clean up the cells and features slots
+  slot(x, name = "cells") <- droplevels(slot(x, name = "cells"))
+  slot(x, name = "features") <- droplevels(slot(x, name = "features"))
+
+  # in case any features were found in a only one layer and it was dropped
+  # in the previous loop, we need to make sure our feature list is updated
+  features <- intersect(features, Features(x = x, layer = NA))
+  # update the features to match the valid list - see note above on `MatchCells`
   mfeatures <- MatchCells(
     new = all_features,
-    # in case any features were found in a only one layer and it was dropped
-    orig = intersect(features, Features(x = x, layer = NA)),
+    orig = features,
     ordered = TRUE
   )
-  slot(object = x, name = 'meta.data') <- slot(
-    object = x,
-    name = 'meta.data'
-  )[mfeatures, , drop = FALSE]
-  validObject(object = x)
+  # subset the meta.data slot accordingly
+  slot(x, name = "meta.data") <- slot(x, name = "meta.data")[mfeatures, , drop = FALSE]
+
+  # ensure the object is valid
+  validObject(x)
+
   return(x)
 }
 
