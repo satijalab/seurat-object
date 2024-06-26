@@ -2395,7 +2395,8 @@ subset.StdAssay <- function(
   if (is.numeric(x = features)) {
     features <- Features(x = x, layer = NA)[features]
   }
-  features <- intersect(x = features, y = Features(x = x, layer = NA))
+  all_features <- Features(x = x, layer = NA)
+  features <- intersect(x = features, y = all_features)
   if (!length(x = features)) {
     stop("None of the features provided found in this assay", call. = FALSE)
   }
@@ -2411,12 +2412,6 @@ subset.StdAssay <- function(
   for (lyr in setdiff(x = layers.all, y = layers)) {
     LayerData(object = x, layer = lyr) <- NULL
   }
-  # Subset feature-level metadata
-  mfeatures <- MatchCells(
-    new = Features(x = x, layer = NA),
-    orig = features,
-    ordered = TRUE
-  )
   # Perform the subsets
   for (l in layers) {
     lcells <- MatchCells(
@@ -2448,6 +2443,13 @@ subset.StdAssay <- function(
   for (i in c('cells', 'features')) {
     slot(object = x, name = i) <- droplevels(x = slot(object = x, name = i))
   }
+  # Subset feature-level metadata
+  mfeatures <- MatchCells(
+    new = all_features,
+    # in case any features were found in a only one layer and it was dropped
+    orig = intersect(features, Features(x = x, layer = NA)),
+    ordered = TRUE
+  )
   slot(object = x, name = 'meta.data') <- slot(
     object = x,
     name = 'meta.data'
