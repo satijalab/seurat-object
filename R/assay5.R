@@ -2360,7 +2360,7 @@ subset.StdAssay <- function(
   layers = NULL,
   ...
 ) {
-  if (is.null(x = cells) && is.null(x = features)) {
+  if (is.null(cells) && is.null(features) && is.null(layers)){
     return(x)
   }
   # Check the cells vector
