@@ -43,3 +43,10 @@ jobs:
       # case the `rcmdcheck` output will be uploaded as an artifact
       - name: Run Checks
         uses: r-lib/actions/check-r-package@v2
+        env:
+          # suppress NOTEs that are accepted by CRAN
+          # see: https://www.rdocumentation.org/packages/rcmdcheck/versions/1.4.0/topics/rcmdcheck
+          _R_CHECK_PKG_SIZES_: false
+          _R_CHECK_RD_XREFS_: false
+          _R_CHECK_CRAN_INCOMING_NOTE_GNU_MAKE_: false
+          _R_CHECK_PACKAGE_DATASETS_SUPPRESS_NOTES_: true
