@@ -35,6 +35,7 @@ jobs:
         with:
           extra-packages: 
             any::rcmdcheck
+            any::pkgdown
           # installed packages are cached by default - force an upgrade to the 
           # latest version of all dependencies
           upgrade: 'TRUE'
@@ -44,9 +45,19 @@ jobs:
       - name: Run Checks
         uses: r-lib/actions/check-r-package@v2
         env:
-          # suppress NOTEs that are accepted by CRAN
-          # see: https://www.rdocumentation.org/packages/rcmdcheck/versions/1.4.0/topics/rcmdcheck
-          _R_CHECK_PKG_SIZES_: false
-          _R_CHECK_RD_XREFS_: false
-          _R_CHECK_CRAN_INCOMING_NOTE_GNU_MAKE_: false
-          _R_CHECK_PACKAGE_DATASETS_SUPPRESS_NOTES_: true
+            # suppress NOTEs that are accepted by CRAN
+            # see: https://www.rdocumentation.org/packages/rcmdcheck/versions/1.4.0/topics/rcmdcheck
+            _R_CHECK_PKG_SIZES_: false
+            _R_CHECK_RD_XREFS_: false
+            _R_CHECK_CRAN_INCOMING_NOTE_GNU_MAKE_: false
+            _R_CHECK_PACKAGE_DATASETS_SUPPRESS_NOTES_: true
+        continue-on-error: true
+      
+      # build pkgdown site
+      - name: Build Website
+        run: | 
+          pkgdown::build_site_github_pages(
+            new_process = FALSE, 
+            install = FALSE
+          )
+        shell: Rscript {0}
