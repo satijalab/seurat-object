@@ -2816,25 +2816,7 @@ WhichCells.Seurat <- function(
     } else {
       parse(text = expression)
     }
-    expr.char <- suppressWarnings(expr = as.character(x = expr))
-    expr.char <- unlist(x = lapply(X = expr.char, FUN = strsplit, split = ' '))
-    expr.char <- gsub(
-      pattern = '(',
-      replacement = '',
-      x = expr.char,
-      fixed = TRUE
-    )
-    expr.char <- gsub(
-      pattern = ')',
-      replacement = '',
-      x = expr.char,
-      fixed = TRUE
-    )
-    expr.char <- gsub(
-      pattern = '`',
-      replacement = '',
-      x = expr.char
-    )
+    expr.char <- all.vars(expr)
     vars.use <- which(
       x = expr.char %in% rownames(x = object) |
         expr.char %in% colnames(x = object[[]]) |
