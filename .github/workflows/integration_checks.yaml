@@ -1,9 +1,7 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 name: Integration Checks
 
-# because `main` is a protected branch this workflow is triggered when a PR 
-# is opened/updated and again when it is merged
+# Because `main` is a protected branch this workflow is triggered when a PR 
+# is opened/updated and again when it is merged.
 on:
   push:
     branches: 
@@ -14,60 +12,33 @@ on:
 
 jobs:
   check-package:
-    # system dependencies for cannot be automatically resolved by 
-    # `r-lib/actions/setup-r@v2` for macos or windows - to avoid having to 
-    # maintain separate logic to infer and install system of those operating 
-    # systems we'll only run integration checks with the ubuntu
     runs-on: ubuntu-latest
-
-    # run integration checks with R-release, R-devel, and R-oldrelease
-    strategy:
-      matrix:
-        r-version: ['release', 'devel', 'oldrel']
+    
+    # Use the `satijalab/seurat-ci` Docker image as the runner environment. 
+    # This image is pre-configured with everything required for running
+    # integration checks, for more details, see
+    # https://hub.docker.com/repository/docker/satijalab/seurat-ci/general.
+    container:
+      image: satijalab/seurat-ci:latest
 
     steps:
-      # pull the latest changes from the repository down to the runner
+      # Pull the latest changes from the repository down to the runner.
       - name: Checkout
         uses: actions/checkout@v4
-
-      # install R and any system dependencies
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
-        with:
-          # install the R version specified by the current strategy
-          r-version: ${{ matrix.r-version }}
-          # rspm provides pre-compiles binary packages, providing faster
-          # more reliable installs
-          use-public-rspm: true
-          # specify additional repositories to pull dependencies not
-          # available on CRAN (i.e. `BPCells`)
-          extra-repositories: ${{ 'https://bnprks.r-universe.dev' }}
       
-      # install R dependencies
+      # Install the package and all its dependencies using scripts from 
+      # `littler`, see https://eddelbuettel.github.io/littler/ for details. 
+      # `Seurat` is listed under "Enhances" so it also needs to be installed. 
       - name: Install Dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: 
-            any::rcmdcheck
-            any::pkgdown
-          # installed packages are cached by default - force an upgrade to the 
-          # latest version of all dependencies
-          upgrade: 'TRUE'
+        run: installDeps.r -s && install.r Seurat
       
-      # run CRAN checks - fails if any ERRORs or WARNINGs are raised in which 
-      # case the `rcmdcheck` output will be uploaded as an artifact
+      # Run CRAN checks, if any ERRORs or WARNINGs are raised the check fails.
       - name: Run Checks
-        uses: r-lib/actions/check-r-package@v2
-        env:
-            # suppress NOTEs that are accepted by CRAN
-            # see: https://www.rdocumentation.org/packages/rcmdcheck/versions/1.4.0/topics/rcmdcheck
-            _R_CHECK_PKG_SIZES_: false
-            _R_CHECK_RD_XREFS_: false
-            _R_CHECK_CRAN_INCOMING_NOTE_GNU_MAKE_: false
-            _R_CHECK_PACKAGE_DATASETS_SUPPRESS_NOTES_: true
+        run: rcmdcheck::rcmdcheck(args = "--as-cran", error_on="warning")
+        shell: Rscript {0}
         continue-on-error: true
       
-      # build pkgdown site
+      # Build the pkgdown site.
       - name: Build Website
         run: | 
           pkgdown::build_site_github_pages(
