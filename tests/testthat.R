@@ -1,4 +1,4 @@
 library(testthat)
-library(Seurat)
+library(SeuratObject)
 
-test_check("Seurat")
+test_check("SeuratObject")
