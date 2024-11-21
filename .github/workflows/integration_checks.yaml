@@ -36,6 +36,9 @@ jobs:
         with:
           # install the R version specified by the current strategy
           r-version: ${{ matrix.r-version }}
+          # rspm provides pre-compiles binary packages, providing faster
+          # more reliable installs
+          use-public-rspm: true
           # specify additional repositories to pull dependencies not
           # available on CRAN (i.e. `BPCells`)
           extra-repositories: ${{ 'https://bnprks.r-universe.dev' }}
