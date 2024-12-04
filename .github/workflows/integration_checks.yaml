@@ -35,7 +35,7 @@ jobs:
       - name: Run Checks
         run: |
           rcmdcheck::rcmdcheck(
-            args = c("--no-manual", "--as-cran"),
+            args = c("--as-cran"),
             error_on="warning"
           )
         shell: Rscript {0}
