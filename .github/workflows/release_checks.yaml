@@ -1,13 +1,18 @@
 name: Release Checks
 
 on:
-  push:
-    branches:
-    - testing-ci
+  workflow_dispatch:
+    inputs:
+      which:
+        type: choice
+        description: Which dependents to check
+        options:
+          - strong
+          - most
 
 jobs:
   check-reverse-dependencies:
-    name: Run Checks
+    name: Reverse check ${{ inputs.which }} dependencies
     uses: r-devel/recheck/.github/workflows/recheck.yml@v1
     with:
-      which: most
+      which: ${{ inputs.which }}
