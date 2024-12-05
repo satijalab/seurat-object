@@ -15,7 +15,7 @@ jobs:
   check-package:
     runs-on: ubuntu-latest
     
-    # Use the `satijalab/seurat-ci` Docker image as the container environment. 
+    # Use the `satijalab/seurat-ci` Docker image as the runner environment. 
     # This image is pre-configured with everything required for running
     # integration checks, for more details, see
     # https://hub.docker.com/repository/docker/satijalab/seurat-ci/general.
@@ -29,19 +29,15 @@ jobs:
       
       # Install the package and _all_ its dependencies.
       - name: Install Dependencies
-        run: installAllDeps.r
+        run: installDeps.r -s && install.r Seurat
       
       # Run CRAN checks, if any ERRORs or WARNINGs are raised the check fails.
       - name: Run Checks
-        run: |
-          rcmdcheck::rcmdcheck(
-            args = c("--as-cran"),
-            error_on="warning"
-          )
+        run: rcmdcheck::rcmdcheck(args = "--as-cran", error_on="warning")
         shell: Rscript {0}
         continue-on-error: true
       
-      # Build the pkgdown site.
+      # Build the `pkgdown` site, if any errors are raised the check fails.
       - name: Build Website
         run: | 
           pkgdown::build_site_github_pages(
