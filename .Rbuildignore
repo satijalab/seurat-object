@@ -20,6 +20,5 @@
 ^.*\.Rds$
 ^data-raw$
 ^inst$
-^tests$
 ^LICENSE\.md$
 ^vignettes/articles$
