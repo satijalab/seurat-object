@@ -36,10 +36,11 @@ jobs:
       - name: Run Checks
         run: rcmdcheck::rcmdcheck(args = "--as-cran", error_on="warning")
         shell: Rscript {0}
-        continue-on-error: true
       
       # Build the `pkgdown` site, if any errors are raised the check fails.
       - name: Build Website
+        # Run this step even if the previous one failed.
+        if: always()
         run: | 
           pkgdown::build_site_github_pages(
             new_process = FALSE, 
