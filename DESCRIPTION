@@ -44,19 +44,19 @@ Depends:
 Imports:
   future,
   future.apply,
+  generics,
   grDevices,
   grid,
+  lifecycle,
   Matrix (>= 1.6.4),
   methods,
   progressr,
   Rcpp (>= 1.0.5),
   rlang (>= 0.4.7),
+  spam,
   stats,
   tools,
-  utils,
-  spam,
-  lifecycle,
-  generics
+  utils
 Suggests:
   DelayedArray,
   fs (>= 1.5.2),
