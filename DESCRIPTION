@@ -58,14 +58,14 @@ Imports:
   tools,
   utils
 Suggests:
+  BPCells,
   DelayedArray,
   fs (>= 1.5.2),
   ggplot2,
   HDF5Array,
   rmarkdown,
-  testthat,
-  BPCells,
-  sf (>= 1.0.0)
+  sf (>= 1.0.0),
+  testthat
 LinkingTo: Rcpp, RcppEigen
 Enhances: Seurat
 Config/Needs/website: pkgdown
