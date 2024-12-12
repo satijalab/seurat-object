@@ -1,5 +1,4 @@
 Package: SeuratObject
-Type: Package
 Title: Data Structures for Single Cell Data
 Version: 5.0.99.9003
 Authors@R: c(
