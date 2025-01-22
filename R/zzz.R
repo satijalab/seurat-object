@@ -507,7 +507,11 @@ NameIndex <- function(x, names, MARGIN) {
 .onAttach <- function(libname, pkgname) {
   for (i in names(x = .BuiltWith)) {
     current <- switch(EXPR = i, R = getRversion(), packageVersion(pkg = i))
-    if (current > .BuiltWith[i]) {
+    # Compare major and minor versions only, not patch
+    curr_parts <- as.numeric(unlist(strsplit(as.character(current), "\\.")))
+    built_parts <- as.numeric(unlist(strsplit(as.character(.BuiltWith[i]), "\\.")))
+    if (curr_parts[1] > built_parts[1] || 
+        (curr_parts[1] == built_parts[1] && curr_parts[2] > built_parts[2])) {
       msg <- paste(
         sQuote(x = pkgname),
         "was built",
