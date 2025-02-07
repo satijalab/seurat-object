@@ -1545,19 +1545,23 @@ VariableFeatures.StdAssay <- function(
   }
   nfeatures <- nfeatures %||% Inf
   if ("var.features" %in% colnames(object[[]])) {
-    if ("var.features.rank" %in% colnames(object[[]])) {
-      var.features <- row.names(x = object[[]])[which(!is.na(object[[]]$var.features.rank))]
-      var.features <- var.features[order(object[[]][["var.features.rank"]][which(!is.na(object[[]]$var.features))])]
-    }
-    else {
-      var.features <- as.vector(object["var.features", drop = TRUE])
-      var.features <- var.features[!is.na(var.features)]
-    }
-    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) &
-        (is.infinite(x = nfeatures) || length(x = var.features) ==
-         nfeatures)) {
-      return(var.features)
-    }
+      if ("var.features.rank" %in% colnames(object[[]])) {
+          var.features <- row.names(x = object[[]])[which(!is.na(object[[]]$var.features.rank))]
+          var.features <- var.features[order(object[[]][["var.features.rank"]][which(!is.na(object[[]]$var.features))])]
+      }
+      else {
+          var.features <- as.vector(object["var.features", drop = TRUE])
+          var.features <- var.features[!is.na(var.features)]
+      }
+      if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) &
+          (is.infinite(x = nfeatures) || length(x = var.features) <=
+           nfeatures)) {
+          return(var.features) 
+      } else if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) &
+                 (is.infinite(x = nfeatures) || length(x = var.features) >
+                  nfeatures)) {
+          return(var.features[1:nfeatures])
+      }
   }
   msg <- 'No variable features found'
   layer.orig <- layer
