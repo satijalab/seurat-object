@@ -357,3 +357,23 @@ test_that("Update keys works", {
   expect_equal(Key(pbmc_small_no_key[["pca"]]), "pca_")
   expect_equal(Key(pbmc_small_no_key[["tsne"]]), "tSNE_")
 })
+
+# Tests for RenameCells
+# ----------------------------------------------------------------------------
+counts <- LayerData(pbmc_small, assay = "RNA", layer = "counts")
+counts_left <- counts[, 1:40]
+left <- CreateSeuratObject(counts_left, assay = "left")
+counts_right <- counts[, 41:80]
+right <- CreateSeuratObject(counts_right, assay = "right")
+test_case <- merge(right, left)
+test_that("RenameCells for Assay5 object with multiple assays", {
+    test_case2 = RenameCells(test_case, new.names = paste0("Cell_", 1:80))
+    expect_equal(colnames(test_case2)[1:3], c("Cell_1", "Cell_2", "Cell_3"))
+    # 
+    new_names = paste0("Cell_", 1:80)
+    names(new_names) = colnames(test_case)[c(41:80, 1:40)]
+    test_case2 = RenameCells(test_case, new.names = new_names)
+    expect_equal(colnames(test_case2)[1:3], c("Cell_41", "Cell_42", "Cell_43"))
+})
+
+

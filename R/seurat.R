@@ -2316,103 +2316,121 @@ ReorderIdent.Seurat <- function(
 #' head(x = colnames(x = pbmc_small))
 #'
 RenameCells.Seurat <- function(
-  object,
-  add.cell.id = missing_arg(),
-  new.names = missing_arg(),
-  for.merge = deprecated(),
-  ...
+        object,
+        add.cell.id = missing_arg(),
+        new.names = missing_arg(),
+        for.merge = deprecated(),
+        ...
 ) {
-  CheckDots(...)
-  object <- UpdateSlots(object = object)
-  working.cells <- Cells(x = object)
-  if (is_present(arg = for.merge)) {
-    .Deprecate(when = '5.0.0', what = 'RenameCells(for.merge = )')
-  }
-  if (is_missing(x = add.cell.id) && is_missing(x = new.names)) {
-    abort(message = "One of 'add.cell.id' and 'new.names' must be set")
-  }
-  if (!is_missing(x = add.cell.id) && !is_missing(x = new.names)) {
-    abort(message = "Only one of 'add.cell.id' and 'new.names' may be set")
-  }
-  if (!missing(x = add.cell.id)) {
-    new.cell.names <- paste(add.cell.id, working.cells, sep = "_")
-  } else {
-    if (length(x = new.names) == length(x = working.cells)) {
-      new.cell.names <- new.names
-    } else {
-      abort(message = paste0(
-        "the length of 'new.names' (",
-        length(x = new.names),
-        ") must be the same as the number of cells (",
-        length(x = working.cells),
-        ")"
-      ))
+    CheckDots(...)
+    object <- UpdateSlots(object = object)
+    
+    # this part is problematic since it only returns the cells of the default assay
+    # working.cells <- Cells(x = object)
+    working.cells <- colnames(x = object)
+    
+    if (is_present(arg = for.merge)) {
+        .Deprecate(when = '5.0.0', what = 'RenameCells(for.merge = )')
     }
-  }
-  old.names <- colnames(x = object)
-  new.cell.names.global <- old.names
-  new.cell.names.global[match(x = working.cells, table = old.names)] <- new.cell.names
-  new.cell.names <- new.cell.names.global
-  # rename the cell-level metadata first to rename colname()
-  old.meta.data <- object[[]]
-  row.names(x = old.meta.data) <- new.cell.names
-  slot(object = object, name = "meta.data") <- old.meta.data
-  # rename the active.idents
-  old.ids <- Idents(object = object)
-  names(x = old.ids) <- new.cell.names
-  Idents(object = object) <- old.ids
-  names(x = new.cell.names) <- old.names
-  # rename in the assay objects
-  assays <- .FilterObjects(object = object, classes.keep = 'Assay')
-  for (i in assays) {
-    slot(object = object, name = "assays")[[i]] <- RenameCells(
-      object = object[[i]],
-      new.names = new.cell.names[colnames(x = object[[i]])]
-    )
-  }
-  # rename in the assay5 objects
-  assays5 <- .FilterObjects(object = object, classes.keep = 'Assay5')
-  for (i in assays5) {
-    slot(object = object, name = "assays")[[i]] <- RenameCells(
-      object = object[[i]],
-      new.names = new.cell.names[colnames(x = object[[i]])]
-    )
-  }
-  # rename in the DimReduc objects
-  dimreducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
-  for (i in dimreducs) {
-    slot(object = object, name = "reductions")[[i]] <- RenameCells(
-      object = object[[i]],
-      new.names = new.cell.names[Cells(x = object[[i]])]
-    )
-  }
-  # rename the graphs
-  graphs <- .FilterObjects(object = object, classes.keep = "Graph")
-  for (g in graphs) {
-    graph.g <- object[[g]]
-    rownames(graph.g) <- colnames(graph.g) <- new.cell.names[colnames(x = graph.g)]
-    slot(object = object, name = "graphs")[[g]] <- graph.g
-  }
-  # Rename the images
-  for (i in Images(object = object)) {
-    slot(object = object, name = "images")[[i]] <- RenameCells(
-      object = object[[i]],
-      new.names = unname(
-        obj = new.cell.names[Cells(x = object[[i]], boundary = NA)]
-      )
-    )
-  }
-  # Rename the Neighbor
-  for (i in Neighbors(object = object)) {
-    slot(object = object, name = "neighbors")[[i]] <- RenameCells(
-      object = object[[i]],
-      old.names = Cells(x = object[[i]]),
-      new.names = new.cell.names[Cells(x = object[[i]])]
-    )
-  }
-  validObject(object)
-  return(object)
+    if (is_missing(x = add.cell.id) && is_missing(x = new.names)) {
+        abort(message = "One of 'add.cell.id' and 'new.names' must be set")
+    }
+    if (!is_missing(x = add.cell.id) && !is_missing(x = new.names)) {
+        abort(message = "Only one of 'add.cell.id' and 'new.names' may be set")
+    }
+    if (!missing(x = add.cell.id)) {
+        new.cell.names <- paste(add.cell.id, working.cells, sep = "_")
+    } else {
+        if (length(x = new.names) == length(x = working.cells)) {
+            # here we will allow the new.names to be a named vector
+            if (!is.null(names(x = new.names))){
+                # a check to make sure all the names of new.names 100% overlap with the cells in the object
+                if(setequal(x = working.cells, y = names(x = new.names))) {
+                    new.cell.names <- new.names[working.cells]
+                } else {
+                    abort(message = paste0(
+                        "Since 'new.names' is a named vector, ", 
+                        "please make sure the names match those in the original object."
+                    ))
+                }
+            } else {
+                new.cell.names <- new.names
+            }
+        } else {
+            abort(message = paste0(
+                "the length of 'new.names' (",
+                length(x = new.names),
+                ") must be the same as the number of cells (",
+                length(x = working.cells),
+                ")"
+            ))
+        }
+    }
+    old.names <- colnames(x = object)
+    new.cell.names.global <- old.names
+    new.cell.names.global[match(x = working.cells, table = old.names)] <- new.cell.names
+    new.cell.names <- new.cell.names.global
+    # rename the cell-level metadata first to rename colname()
+    old.meta.data <- object[[]]
+    row.names(x = old.meta.data) <- new.cell.names
+    slot(object = object, name = "meta.data") <- old.meta.data
+    # rename the active.idents
+    old.ids <- Idents(object = object)
+    names(x = old.ids) <- new.cell.names
+    Idents(object = object) <- old.ids
+    names(x = new.cell.names) <- old.names
+    # rename in the assay objects
+    assays <- .FilterObjects(object = object, classes.keep = 'Assay')
+    for (i in assays) {
+        slot(object = object, name = "assays")[[i]] <- RenameCells(
+            object = object[[i]],
+            new.names = new.cell.names[colnames(x = object[[i]])]
+        )
+    }
+    # rename in the assay5 objects
+    assays5 <- .FilterObjects(object = object, classes.keep = 'Assay5')
+    for (i in assays5) {
+        slot(object = object, name = "assays")[[i]] <- RenameCells(
+            object = object[[i]],
+            new.names = new.cell.names[colnames(x = object[[i]])]
+        )
+    }
+    # rename in the DimReduc objects
+    dimreducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
+    for (i in dimreducs) {
+        slot(object = object, name = "reductions")[[i]] <- RenameCells(
+            object = object[[i]],
+            new.names = new.cell.names[Cells(x = object[[i]])]
+        )
+    }
+    # rename the graphs
+    graphs <- .FilterObjects(object = object, classes.keep = "Graph")
+    for (g in graphs) {
+        graph.g <- object[[g]]
+        rownames(graph.g) <- colnames(graph.g) <- new.cell.names[colnames(x = graph.g)]
+        slot(object = object, name = "graphs")[[g]] <- graph.g
+    }
+    # Rename the images
+    for (i in Images(object = object)) {
+        slot(object = object, name = "images")[[i]] <- RenameCells(
+            object = object[[i]],
+            new.names = unname(
+                obj = new.cell.names[Cells(x = object[[i]], boundary = NA)]
+            )
+        )
+    }
+    # Rename the Neighbor
+    for (i in Neighbors(object = object)) {
+        slot(object = object, name = "neighbors")[[i]] <- RenameCells(
+            object = object[[i]],
+            old.names = Cells(x = object[[i]]),
+            new.names = new.cell.names[Cells(x = object[[i]])]
+        )
+    }
+    validObject(object)
+    return(object)
 }
+
 
 #' @rdname Idents
 #' @export
