@@ -1,7 +1,6 @@
 Package: SeuratObject
-Type: Package
 Title: Data Structures for Single Cell Data
-Version: 5.0.99.9001
+Version: 5.0.99.9004
 Authors@R: c(
   person(given = 'Paul', family = 'Hoffman', email = 'hoff0792@alumni.umn.edu', role = 'aut', comment = c(ORCID = '0000-0002-7693-8957')),
   person(given = 'Rahul', family = 'Satija', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0001-9448-8833')),
@@ -20,7 +19,8 @@ Authors@R: c(
   person(given = 'Christoph', family = 'Hafemeister', email = 'chafemeister@nygenome.org', role = 'ctb', comment = c(ORCID = '0000-0001-6365-8254')),
   person(given = 'Patrick', family = 'Roelli', email = 'proelli@nygenome.org', role = 'ctb')
   )
-Description: Defines S4 classes for single-cell genomic data and associated
+Description: 
+  Defines S4 classes for single-cell genomic data and associated
   information, such as dimensionality reduction embeddings, nearest-neighbor
   graphs, and spatially-resolved coordinates. Provides data access methods and
   R-native hooks to ensure the Seurat object is familiar to other R users. See
@@ -30,70 +30,71 @@ Description: Defines S4 classes for single-cell genomic data and associated
   Hao Y, Hao S, et al (2021) <doi:10.1016/j.cell.2021.04.048> and
   Hao Y, et al (2023) <doi:10.1101/2022.02.24.481684> for
   more details.
-URL: https://satijalab.github.io/seurat-object/,
-    https://github.com/satijalab/seurat-object
-BugReports: https://github.com/satijalab/seurat-object/issues
 License: MIT + file LICENSE
+URL: 
+  https://satijalab.github.io/seurat-object/,
+  https://github.com/satijalab/seurat-object
+BugReports: 
+  https://github.com/satijalab/seurat-object/issues
+Additional_repositories: 
+  https://bnprks.r-universe.dev
+Depends:
+  R (>= 4.1.0),
+  sp (>= 1.5.0)
+Imports:
+  future,
+  future.apply,
+  generics,
+  grDevices,
+  grid,
+  lifecycle,
+  Matrix (>= 1.6.4),
+  methods,
+  progressr,
+  Rcpp (>= 1.0.5),
+  rlang (>= 0.4.7),
+  spam,
+  stats,
+  tools,
+  utils
+Suggests:
+  BPCells,
+  DelayedArray,
+  fs (>= 1.5.2),
+  ggplot2,
+  HDF5Array,
+  rmarkdown,
+  sf (>= 1.0.0),
+  testthat
+LinkingTo: Rcpp, RcppEigen
+Enhances: Seurat
+Config/Needs/website: pkgdown
+BuildManual: true
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
-Additional_repositories:
-    https://bnprks.r-universe.dev
-Depends:
-    R (>= 4.1.0),
-    sp (>= 1.5.0)
-Imports:
-    future,
-    future.apply,
-    grDevices,
-    grid,
-    Matrix (>= 1.6.4),
-    methods,
-    progressr,
-    Rcpp (>= 1.0.5),
-    rlang (>= 0.4.7),
-    stats,
-    tools,
-    utils,
-    spam,
-    lifecycle,
-    generics
-Suggests:
-    DelayedArray,
-    fs (>= 1.5.2),
-    ggplot2,
-    HDF5Array,
-    rmarkdown,
-    testthat,
-    BPCells,
-    sf (>= 1.0.0)
 Collate:
-    'RcppExports.R'
-    'zzz.R'
-    'generics.R'
-    'keymixin.R'
-    'graph.R'
-    'default.R'
-    'assay.R'
-    'logmap.R'
-    'layers.R'
-    'assay5.R'
-    'centroids.R'
-    'command.R'
-    'compliance.R'
-    'data.R'
-    'jackstraw.R'
-    'dimreduc.R'
-    'segmentation.R'
-    'molecules.R'
-    'spatial.R'
-    'fov.R'
-    'neighbor.R'
-    'seurat.R'
-    'sparse.R'
-    'utils.R'
-LinkingTo: Rcpp, RcppEigen
-Enhances:
-    Seurat
-Config/Needs/website:
-    pkgdown
+  'RcppExports.R'
+  'zzz.R'
+  'generics.R'
+  'keymixin.R'
+  'graph.R'
+  'default.R'
+  'assay.R'
+  'logmap.R'
+  'layers.R'
+  'assay5.R'
+  'centroids.R'
+  'command.R'
+  'compliance.R'
+  'data.R'
+  'jackstraw.R'
+  'dimreduc.R'
+  'segmentation.R'
+  'molecules.R'
+  'spatial.R'
+  'fov.R'
+  'neighbor.R'
+  'seurat.R'
+  'sparse.R'
+  'utils.R'
