@@ -2432,15 +2432,18 @@ subset.StdAssay <- function(
     # if no valid cells or features, drop the layer data
     if (is.null(layer_cells) || is.null(layer_features)) {
       LayerData(object = x, layer = layer_name) <- NULL
+      # TODO: change default layer
       next
-    } 
-    # otherwise, apply the subset
-    LayerData(object = x, layer = layer_name) <- LayerData(
-      object = x,
-      layer = layer_name,
-      cells = layer_cells,
-      features = layer_features
-    )
+    }
+    else {
+      # otherwise, apply the subset
+      LayerData(object = x, layer = layer_name) <- LayerData(
+        object = x,
+        layer = layer_name,
+        cells = layer_cells,
+        features = layer_features
+      )
+    }
   }
 
   # clean up the cells and features slots
