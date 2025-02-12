@@ -1668,16 +1668,16 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
     stop("None of the features specified are present in this assay", call. = FALSE)
   }
   object[['var.features']] <- value
+  
   # add rank
-  object[['var.features.rank']] <- NA
-  object[[]][row.names(object[[]]) %in% value,]$var.features.rank <- match(row.names(object[[]])[row.names(object[[]]) %in% value], value)
-
-  # layer <- Layers(object = object, search = layer)
-  # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
-  # for (lyr in layer) {
-  #   names(x = df) <- paste('vf', method, lyr, c('variable', 'rank'), sep = '_')
-  #   object[] <- df
-  # }
+  row_names <- row.names(object[[]])
+  selected_rows <- row_names %in% value
+  matching_rows <- row_names[selected_rows]
+  rank_values <- rep(NA, length(row_names))
+  rank_values[selected_rows] <- match(matching_rows, value)
+  names(rank_values) <- row_names
+  object[["var.features.rank"]] <- rank_values
+  
   return(object)
 }
 
