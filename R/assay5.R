@@ -972,16 +972,14 @@ HVFInfo.StdAssay <- function(
   object,
   method = NULL,
   status = FALSE,
-  layer = NULL,
+  layer = NA,
   strip = TRUE,
   ...
 ) {
-  # Find available HVF methods and layers
-  vf.methods.layers <- .VFMethodsLayers(object = object, type = 'hvf')
-  #vf.methods <- .VFMethods(object = object, type = 'hvf')
-  #vf.layers <- .VFLayers(object = object, type = 'hvf')
-  # Determine which method and layer to use
-  method <- method[length(methods)] %||% names(vf.methods.layers[length(vf.methods.layers)])
+  # When layer = NA, this will return all layers in the object
+  vf.methods.layers <- .VFMethodsLayers(object = object, type = 'hvf', layers = layer)
+  # if there is multiple methods, use the first one
+  method <- method %||% names(x = methods)[length(x = methods)]
   method <- switch(
     EXPR = tolower(x = method),
     mean.var.plot = 'mvp',
@@ -998,9 +996,15 @@ HVFInfo.StdAssay <- function(
   if (is.null(x = method)) {
     return(method)
   }
-  vf.methods.layers <- unlist(vf.methods.layers, use.names = FALSE)
-  layer <- Layers(object = object, search = layer)
-  layer <- vf.methods.layers[which.min(x = adist(x = layer, y = vf.methods.layers))]
+  # Only find layer within the method
+  layer <- Layers(object = object, search = vf.methods.layers[[method]])
+  if (length(x = layer) > 1) {
+    warning("multiple layers are identified by ",
+            paste0(layer, collapse = ' '),
+            "\n only the first layer is used")
+    layer <- layer[1]
+  }
+  
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
