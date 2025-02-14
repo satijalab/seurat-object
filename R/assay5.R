@@ -1746,6 +1746,40 @@ SVFInfo.StdAssay <- function(
   return(svf.info)
 }
 
+#' @rdname SpatiallyVariableFeatures-StdAssay
+#' @method SpatiallyVariableFeatures StdAssay
+#' @export
+#'
+SpatiallyVariableFeatures.StdAssay <- function(
+  object,
+  method = "moransi",
+  decreasing = TRUE,
+  selection.method = deprecated(),
+  ...
+) {
+  CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SpatiallyVariableFeatures(selection.method = )',
+      with = 'SpatiallyVariableFeatures(method = )'
+    )
+    method <- selection.method
+  }
+  vf <- SVFInfo(object = object, method = method, status = TRUE)
+  vf <- vf[rownames(x = vf)[which(!is.na(x = vf[, "variable"]))], ]
+  if (!is.null(x = decreasing)) {
+    vf <- vf[order(x = vf[, "rank"][, 1], decreasing = !decreasing), ]
+  }
+  return(rownames(x = vf))
+}
+
+#' @rdname SpatiallyVariableFeatures
+#' @method SpatiallyVariableFeatures Assay5
+#' @export
+#'
+SpatiallyVariableFeatures.Assay5 <- SpatiallyVariableFeatures.StdAssay
+
 #' @rdname VariableFeatures
 #' @method SVFInfo Assay5
 #' @export
