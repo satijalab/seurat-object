@@ -878,7 +878,7 @@ SpatiallyVariableFeatures.Assay <- function(
     method <- selection.method
   }
   vf <- SVFInfo(object = object, method = method, status = TRUE)
-  vf <- vf[rownames(x = vf)[which(x = vf[, "variable"][, 1])], ]
+  vf <- vf[rownames(x = vf)[which(!is.na(x = vf[, "variable"]))], ]
   if (!is.null(x = decreasing)) {
     vf <- vf[order(x = vf[, "rank"], decreasing = !decreasing), ]
   }
