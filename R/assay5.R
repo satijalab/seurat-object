@@ -1690,6 +1690,68 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
 #'
 "VariableFeatures<-.Assay5" <- `VariableFeatures<-.StdAssay`
 
+#' @rdname VariableFeatures
+#' @export
+#' @method SVFInfo StdAssay
+#'
+SVFInfo.StdAssay <- function(
+  object,
+  method = c("markvariogram", "moransi"),
+  status = FALSE,
+  selection.method = deprecated(),
+  ...
+) {
+  CheckDots(...)
+  if (is_present(arg = selection.method)) {
+    .Deprecate(
+      when = '5.0.0',
+      what = 'SVFInfo(selection.method = )',
+      with = 'SVFInfo(method = )'
+    )
+    method <- selection.method
+  }
+  method <- match.arg(arg = method)
+  vars <- switch(
+    EXPR = method,
+    markvariogram = grep(
+      pattern = "r.metric",
+      x = colnames(x = object[[]]),
+      value = TRUE
+    ),
+    moransi = grep(
+      pattern = 'MoransI',
+      x = colnames(x = object[[]]),
+      value = TRUE
+    ),
+    abort(message = paste("Unknown method:", sQuote(x = method)))
+  )
+
+  tryCatch(
+    expr = svf.info <- object[[vars]],
+    error = function(e) {
+      stop(
+        "Unable to find spatially variable feature information for method '",
+        method,
+        "'",
+        call. = FALSE
+      )
+    }
+  )
+
+  colnames(x = svf.info) <- vars
+  if (status) {
+    svf.info$variable <- object[[paste0(method, '.spatially.variable')]]
+    svf.info$rank <- object[[paste0(method, '.spatially.variable.rank')]]
+  }
+  return(svf.info)
+}
+
+#' @rdname VariableFeatures
+#' @method SVFInfo Assay5
+#' @export
+#'
+SVFInfo.Assay5 <- SVFInfo.StdAssay
+
 #' @method WhichCells StdAssay
 #' @export
 #'
