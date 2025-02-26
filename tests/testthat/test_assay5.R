@@ -218,3 +218,92 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on different layers"
   result <- HVFInfo(assay, method = "mvp", layer = NA, status = TRUE)
   expect_identical(result, mvp_info)
 })
+
+test_that("`HVFInfo.Assay5` works with a single method run on multiple layers", {
+  # Populate an assay with random values for testing.
+  assay <- get_test_assay(
+    ncells = 10,
+    nfeatures = 10,
+    assay_version = "v5"
+  )
+  # Split the "counts" layer in half across it's columns and drop the original layer.
+  LayerData(assay, layer = "counts.1") <- LayerData(assay, layer = "counts")[, 1:5]
+  LayerData(assay, layer = "counts.2") <- LayerData(assay, layer = "counts")[, 5:10]
+  # Since it's first, "counts.1" would be chosen as the default layer when
+  # "counts" is dropped but we'll do it explicitly (also avoids a warning).
+  DefaultLayer(assay) <- "counts.1"
+  LayerData(assay, layer = "counts") <- NULL
+
+  # Add random HVF metadata for each layer. By adding "counts.2" before "counts.1"
+  # we introduce discrepancy between the behavior of `layer = NULL` and `layer = NA`.
+  assay <- add_hvf_info(
+    assay, 
+    nfeatures = 5,
+    method_name = "vst", 
+    layer_name = "counts.2"
+  )
+  assay <- add_hvf_info(
+    assay, 
+    nfeatures = 5,
+    method_name = "vst", 
+    layer_name = "counts.1"
+  )
+
+  # Extract the first set of HVF info and rename the columns.
+  vst.1_columns <- c(
+    "vf_vst_counts.1_variable", 
+    "vf_vst_counts.1_rank", 
+    "vf_vst_counts.1_value"
+  )
+  vst.1_info <- assay[[]][, vst.1_columns]
+  colnames(vst.1_info) <- c("variable", "rank", "value")
+  # Extract the second set of HVF info and rename the columns.
+  vst.2_columns <- c(
+    "vf_vst_counts.2_variable", 
+    "vf_vst_counts.2_rank", 
+    "vf_vst_counts.2_value"
+  )
+  vst.2_info <- assay[[]][, vst.2_columns]
+  colnames(vst.2_info) <- c("variable", "rank", "value")
+
+  # Check the base case where `method` and `layer` are both set and valid.
+  result <- HVFInfo(assay, method = "vst", layer = "counts.1")
+  expect_identical(result, vst.1_info["value"])
+  result <- HVFInfo(assay, method = "vst", layer = "counts.2")
+  expect_identical(result, vst.2_info["value"])
+
+  # Check the same case with all relevant HVF columns returned.
+  result <- HVFInfo(assay, method = "vst", layer = "counts.1", status = TRUE)
+  expect_identical(result, vst.1_info)
+  result <- HVFInfo(assay, method = "vst", layer = "counts.2", status = TRUE)
+  expect_identical(result, vst.2_info)
+
+  # Check that `layer` can be omitted. In this case, `layer` will default to
+  # `NULL` which will be in turn be interpreted as `DefaultLayer(assay)`.
+  # Thus, we are expected `layer` to resolve to "counts.1".
+  result <- HVFInfo(assay, method = "vst")
+  expect_identical(result, vst.1_info["value"])
+
+  # Check the same case with all relevant HVF columns returned.
+  result <- HVFInfo(assay, method = "vst", status = TRUE)
+  expect_identical(result, vst.1_info)
+
+  # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted 
+  # as `DefaultLayer(assay)`. Thus, we are expected `layer` to resolve to "counts".
+  result <- HVFInfo(assay, method = "vst", layer = NULL)
+  expect_identical(result, vst.1_info["value"])
+
+  # Check the same case with all relevant HVF columns returned.
+  result <- HVFInfo(assay, method = "vst", layer = NULL, status = TRUE)
+  expect_identical(result, vst.1_info)
+
+  # Check that `layer` can be `NA`. In this case, `layer` will be interpreted
+  # as `Layers(assay)` (i.e. all layers) and the first one associated with 
+  # `method` will be returned.
+  result <- HVFInfo(assay, method = "vst", layer = NA)
+  expect_identical(result, vst.2_info["value"])
+
+  # Check the same case with all relevant HVF columns returned.
+  result <- HVFInfo(assay, method = "vst", layer = NA, status = TRUE)
+  expect_identical(result, vst.2_info)
+})
