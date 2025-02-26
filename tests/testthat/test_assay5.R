@@ -2,45 +2,45 @@
 get_test_assay <- function(ncells, nfeatures, assay_version) {
   # Use the `assay_version` param to choose the correct assay builder.
   create_assay <- switch(assay_version,
-                         v3 = CreateAssayObject,
-                         v5 = CreateAssay5Object,
-                         stop("`assay_version` should be one of 'v3', 'v5'")
+    v3 = CreateAssayObject,
+    v5 = CreateAssay5Object,
+    stop("`assay_version` should be one of 'v3', 'v5'")
   )
-  
+
   # Populate a `nfeatures` x `ncells` matrix with zeros.
   counts <- matrix(0, ncol = ncells, nrow = nfeatures)
-  
+
   # Assign column and row names to the matrix to label cells and genes.
   colnames(counts) <- paste0("cell", seq(ncol(counts)))
   row.names(counts) <- paste0("gene", seq(nrow(counts)))
-  
+
   # Convert `counts` to a `dgCMatrix`.
   counts_sparse <- as.sparse(counts)
   # Build an assay of the specified type.
   assay <- create_assay(counts_sparse)
-  
+
   return(assay)
 }
 
-#' Mocks "highly variable feature" annotations and adds them to the 
+#' Mocks "highly variable feature" annotations and adds them to the
 #' feature-level metadata of `assay`.
 add_hvf_info <- function(assay, nfeatures, method_name, layer_name) {
   variable_features <- sample(
-    rownames(assay), 
-    size = nfeatures, 
+    rownames(assay),
+    size = nfeatures,
     replace = FALSE
   )
 
   all_features <- rownames(assay)
   constant_features <- setdiff(all_features, variable_features)
-  
+
   # Add a column to the assay's feature-level metadata indicating which
   # features are variable.
   is_variable <- all_features %in% variable_features
   names(is_variable) <- all_features
   variable_column <- paste("vf", method_name, layer_name, "variable", sep = "_")
   assay[[variable_column]] <- is_variable
-  
+
   # Add a column to the assay's feature-level metadata indicating the order
   # (i.e. "rank") that each variable feature was selected in.
   variable_rank <- seq_along(variable_features)
@@ -59,7 +59,7 @@ add_hvf_info <- function(assay, nfeatures, method_name, layer_name) {
   names(feature_values) <- names(feature_rank)
   value_column <- paste("vf", method_name, layer_name, "value", sep = "_")
   assay[[value_column]] <- feature_values
-  
+
   return(assay)
 }
 
@@ -74,16 +74,16 @@ test_that("`HVFInfo.Assay5` works with a single set of metadata", {
   )
   # Add similarly random HVF metadata to `assay`.
   assay <- add_hvf_info(
-    assay, 
+    assay,
     nfeatures = 10,
-    method_name = "vst", 
+    method_name = "vst",
     layer_name = "counts"
   )
 
   # Extract the expected HVFInfo and rename the columns.
   info_columns <- c(
-    "vf_vst_counts_variable", 
-    "vf_vst_counts_rank", 
+    "vf_vst_counts_variable",
+    "vf_vst_counts_rank",
     "vf_vst_counts_value"
   )
   expected_info <- assay[[]][, info_columns]
@@ -126,33 +126,33 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on different layers"
   )
   # Add similarly random HVF metadata to `assay`.
   assay <- add_hvf_info(
-    assay, 
+    assay,
     nfeatures = 5,
-    method_name = "vst", 
+    method_name = "vst",
     layer_name = "counts"
   )
   # Add a second "data" layer to the assay by duplicating "count".
   LayerData(assay, layer = "data") <- LayerData(assay, layer = "counts")
   # Add a second set of HVF columns to `assay`.
   assay <- add_hvf_info(
-    assay, 
+    assay,
     nfeatures = 5,
-    method_name = "mvp", 
+    method_name = "mvp",
     layer_name = "data"
   )
 
   # Extract the first set of HVF info and rename the columns.
   vst_columns <- c(
-    "vf_vst_counts_variable", 
-    "vf_vst_counts_rank", 
+    "vf_vst_counts_variable",
+    "vf_vst_counts_rank",
     "vf_vst_counts_value"
   )
   vst_info <- assay[[]][, vst_columns]
   colnames(vst_info) <- c("variable", "rank", "value")
   # Extract the first set of HVF info and rename the columns.
   mvp_columns <- c(
-    "vf_mvp_data_variable", 
-    "vf_mvp_data_rank", 
+    "vf_mvp_data_variable",
+    "vf_mvp_data_rank",
     "vf_mvp_data_value"
   )
   mvp_info <- assay[[]][, mvp_columns]
@@ -165,13 +165,13 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on different layers"
   expect_identical(result, mvp_info["value"])
 
   # Check that `layer` can be omitted. In this case, `layer` will default to
-  # `NULL` which will be in turn be interpreted as `DefaultLayer(assay)`. 
+  # `NULL` which will be in turn be interpreted as `DefaultLayer(assay)`.
   # Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst")
   expect_identical(result, vst_info["value"])
   expect_error(HVFInfo(assay, method = "mvp"))
 
-  # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted 
+  # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted
   # as `DefaultLayer(assay)`. Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst", layer = NULL)
   expect_identical(result, vst_info["value"])
@@ -203,30 +203,30 @@ test_that("`HVFInfo.Assay5` works with a single method run on multiple layers", 
   # Add random HVF metadata for each layer. By adding "counts.2" before "counts.1"
   # we introduce discrepancy between the behavior of `layer = NULL` and `layer = NA`.
   assay <- add_hvf_info(
-    assay, 
+    assay,
     nfeatures = 5,
-    method_name = "vst", 
+    method_name = "vst",
     layer_name = "counts.2"
   )
   assay <- add_hvf_info(
-    assay, 
+    assay,
     nfeatures = 5,
-    method_name = "vst", 
+    method_name = "vst",
     layer_name = "counts.1"
   )
 
   # Extract the first set of HVF info and rename the columns.
   vst.1_columns <- c(
-    "vf_vst_counts.1_variable", 
-    "vf_vst_counts.1_rank", 
+    "vf_vst_counts.1_variable",
+    "vf_vst_counts.1_rank",
     "vf_vst_counts.1_value"
   )
   vst.1_info <- assay[[]][, vst.1_columns]
   colnames(vst.1_info) <- c("variable", "rank", "value")
   # Extract the second set of HVF info and rename the columns.
   vst.2_columns <- c(
-    "vf_vst_counts.2_variable", 
-    "vf_vst_counts.2_rank", 
+    "vf_vst_counts.2_variable",
+    "vf_vst_counts.2_rank",
     "vf_vst_counts.2_value"
   )
   vst.2_info <- assay[[]][, vst.2_columns]
@@ -244,13 +244,13 @@ test_that("`HVFInfo.Assay5` works with a single method run on multiple layers", 
   result <- HVFInfo(assay, method = "vst")
   expect_identical(result, vst.1_info["value"])
 
-  # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted 
+  # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted
   # as `DefaultLayer(assay)`. Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst", layer = NULL)
   expect_identical(result, vst.1_info["value"])
 
   # Check that `layer` can be `NA`. In this case, `layer` will be interpreted
-  # as `Layers(assay)` (i.e. all layers) and the first one associated with 
+  # as `Layers(assay)` (i.e. all layers) and the first one associated with
   # `method` will be returned.
   result <- HVFInfo(assay, method = "vst", layer = NA)
   expect_identical(result, vst.2_info["value"])
@@ -265,31 +265,31 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on the same layer", 
   )
   # Add similarly random HVF metadata to `assay`.
   assay <- add_hvf_info(
-    assay, 
+    assay,
     nfeatures = 5,
-    method_name = "vst", 
+    method_name = "vst",
     layer_name = "counts"
   )
   # Add a second set of HVF columns to `assay`.
   assay <- add_hvf_info(
-    assay, 
+    assay,
     nfeatures = 5,
-    method_name = "mvp", 
+    method_name = "mvp",
     layer_name = "counts"
   )
 
   # Extract the first set of HVF info and rename the columns.
   vst_columns <- c(
-    "vf_vst_counts_variable", 
-    "vf_vst_counts_rank", 
+    "vf_vst_counts_variable",
+    "vf_vst_counts_rank",
     "vf_vst_counts_value"
   )
   vst_info <- assay[[]][, vst_columns]
   colnames(vst_info) <- c("variable", "rank", "value")
   # Extract the first set of HVF info and rename the columns.
   mvp_columns <- c(
-    "vf_mvp_counts_variable", 
-    "vf_mvp_counts_rank", 
+    "vf_mvp_counts_variable",
+    "vf_mvp_counts_rank",
     "vf_mvp_counts_value"
   )
   mvp_info <- assay[[]][, mvp_columns]
@@ -308,14 +308,14 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on the same layer", 
   expect_identical(result, mvp_info)
 
   # Check that `layer` can be omitted. In this case, `layer` will default to
-  # `NULL` which will be in turn be interpreted as `DefaultLayer(assay)`. 
+  # `NULL` which will be in turn be interpreted as `DefaultLayer(assay)`.
   # Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst")
   expect_identical(result, vst_info["value"])
   result <- HVFInfo(assay, method = "mvp")
   expect_identical(result, mvp_info["value"])
 
-  # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted 
+  # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted
   # as `DefaultLayer(assay)`. Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst", layer = NULL)
   expect_identical(result, vst_info["value"])
