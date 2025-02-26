@@ -101,25 +101,13 @@ test_that("`HVFInfo.Assay5` works with a single set of metadata", {
   result <- HVFInfo(assay, method = "vst")
   expect_identical(result, expected_info["value"])
 
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", status = TRUE)
-  expect_identical(result, expected_info)
-
   # Check that `layer` can be `NULL`.
   result <- HVFInfo(assay, method = "vst", layer = NULL)
   expect_identical(result, expected_info["value"])
 
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = NULL, status = TRUE)
-  expect_identical(result, expected_info)
-
   # Check that `layer` can be `NA`.
   result <- HVFInfo(assay, method = "vst", layer = NA)
   expect_identical(result, expected_info["value"])
-
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = NA, status = TRUE)
-  expect_identical(result, expected_info)
 
   # Check that the `method` parameter must be provided.
   expect_error(HVFInfo(assay))
@@ -176,12 +164,6 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on different layers"
   result <- HVFInfo(assay, method = "mvp", layer = "data")
   expect_identical(result, mvp_info["value"])
 
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = "counts", status = TRUE)
-  expect_identical(result, vst_info)
-  result <- HVFInfo(assay, method = "mvp", layer = "data", status = TRUE)
-  expect_identical(result, mvp_info)
-
   # Check that `layer` can be omitted. In this case, `layer` will default to
   # `NULL` which will be in turn be interpreted as `DefaultLayer(assay)`. 
   # Thus, we are expected `layer` to resolve to "counts".
@@ -189,21 +171,11 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on different layers"
   expect_identical(result, vst_info["value"])
   expect_error(HVFInfo(assay, method = "mvp"))
 
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", status = TRUE)
-  expect_identical(result, vst_info)
-  expect_error(HVFInfo(assay, method = "mvp", status = TRUE))
-
   # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted 
   # as `DefaultLayer(assay)`. Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst", layer = NULL)
   expect_identical(result, vst_info["value"])
   expect_error(HVFInfo(assay, method = "mvp", layer = NULL))
-
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = NULL, status = TRUE)
-  expect_identical(result, vst_info)
-  expect_error(HVFInfo(assay, method = "mvp", layer = NULL, status = TRUE))
 
   # Check that `layer` can be `NA`. In this case, `layer` will be interpreted
   # as `Layers(assay)` (i.e. all layers).
@@ -211,12 +183,6 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on different layers"
   expect_identical(result, vst_info["value"])
   result <- HVFInfo(assay, method = "mvp", layer = NA)
   expect_identical(result, mvp_info["value"])
-
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = NA, status = TRUE)
-  expect_identical(result, vst_info)
-  result <- HVFInfo(assay, method = "mvp", layer = NA, status = TRUE)
-  expect_identical(result, mvp_info)
 })
 
 test_that("`HVFInfo.Assay5` works with a single method run on multiple layers", {
@@ -272,40 +238,22 @@ test_that("`HVFInfo.Assay5` works with a single method run on multiple layers", 
   result <- HVFInfo(assay, method = "vst", layer = "counts.2")
   expect_identical(result, vst.2_info["value"])
 
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = "counts.1", status = TRUE)
-  expect_identical(result, vst.1_info)
-  result <- HVFInfo(assay, method = "vst", layer = "counts.2", status = TRUE)
-  expect_identical(result, vst.2_info)
-
   # Check that `layer` can be omitted. In this case, `layer` will default to
   # `NULL` which will be in turn be interpreted as `DefaultLayer(assay)`.
   # Thus, we are expected `layer` to resolve to "counts.1".
   result <- HVFInfo(assay, method = "vst")
   expect_identical(result, vst.1_info["value"])
 
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", status = TRUE)
-  expect_identical(result, vst.1_info)
-
   # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted 
   # as `DefaultLayer(assay)`. Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst", layer = NULL)
   expect_identical(result, vst.1_info["value"])
-
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = NULL, status = TRUE)
-  expect_identical(result, vst.1_info)
 
   # Check that `layer` can be `NA`. In this case, `layer` will be interpreted
   # as `Layers(assay)` (i.e. all layers) and the first one associated with 
   # `method` will be returned.
   result <- HVFInfo(assay, method = "vst", layer = NA)
   expect_identical(result, vst.2_info["value"])
-
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = NA, status = TRUE)
-  expect_identical(result, vst.2_info)
 })
 
 test_that("`HVFInfo.Assay5` works with multiple methods run on the same layer", {
@@ -367,12 +315,6 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on the same layer", 
   result <- HVFInfo(assay, method = "mvp")
   expect_identical(result, mvp_info["value"])
 
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", status = TRUE)
-  expect_identical(result, vst_info)
-  result <- HVFInfo(assay, method = "mvp", status = TRUE)
-  expect_identical(result, mvp_info)
-
   # Check that `layer` can be `NULL`. In this case, `layer` will be interpreted 
   # as `DefaultLayer(assay)`. Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst", layer = NULL)
@@ -380,22 +322,10 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on the same layer", 
   result <- HVFInfo(assay, method = "mvp", layer = NULL)
   expect_identical(result, mvp_info["value"])
 
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = NULL, status = TRUE)
-  expect_identical(result, vst_info)
-  result <- HVFInfo(assay, method = "mvp", layer = NULL, status = TRUE)
-  expect_identical(result, mvp_info)
-
   # Check that `layer` can be `NA`. In this case, `layer` will be interpreted
   # as `Layers(assay)` (i.e. all layers).
   result <- HVFInfo(assay, method = "vst", layer = NA)
   expect_identical(result, vst_info["value"])
   result <- HVFInfo(assay, method = "mvp", layer = NA)
   expect_identical(result, mvp_info["value"])
-
-  # Check the same case with all relevant HVF columns returned.
-  result <- HVFInfo(assay, method = "vst", layer = NA, status = TRUE)
-  expect_identical(result, vst_info)
-  result <- HVFInfo(assay, method = "mvp", layer = NA, status = TRUE)
-  expect_identical(result, mvp_info)
 })
