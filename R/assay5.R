@@ -970,37 +970,41 @@ GetAssayData.StdAssay <- function(
 #'
 HVFInfo.StdAssay <- function(
   object,
-  method = NULL,
+  method,
   status = FALSE,
   layer = NULL,
   strip = TRUE,
   ...
 ) {
-  # Find available HVF methods and layers
-  vf.methods.layers <- .VFMethodsLayers(object = object, type = 'hvf')
-  #vf.methods <- .VFMethods(object = object, type = 'hvf')
-  #vf.layers <- .VFLayers(object = object, type = 'hvf')
-  # Determine which method and layer to use
-  method <- method[length(methods)] %||% names(vf.methods.layers[length(vf.methods.layers)])
+  # Create a named list mapping HVF methods to the layers they're available for.
+  layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
+
+  # If method is not set, take the last from the available set.
   method <- switch(
-    EXPR = tolower(x = method),
-    mean.var.plot = 'mvp',
-    dispersion = 'disp',
+    EXPR = tolower(method),
+    mean.var.plot = "mvp",
+    dispersion = "disp",
     method
   )
-  method <- tryCatch(
-    expr = match.arg(arg = method, choices = names(vf.methods.layers)),
-    error = function(...) {
-      return(NULL)
-    }
-  )
-  # If no methods found, return NULL
-  if (is.null(x = method)) {
-    return(method)
+
+  # Check `method` against the list of method names parsed via
+  # `.VFMethodsLayers` and throw an informative error if no match is found.
+  if (!method %in% names(layers_by_method)) {
+    stop(
+      sprintf(
+        "Unable to find highly variable feature information for method '%s'.",
+        method, 
+        layer
+      )
+    )
   }
-  vf.methods.layers <- unlist(vf.methods.layers, use.names = FALSE)
-  layer <- Layers(object = object, search = layer)
-  layer <- vf.methods.layers[which.min(x = adist(x = layer, y = vf.methods.layers))]
+
+  # Choose the appropriate layer for the specified `method`.
+  method_layers <- layers_by_method[[method]]
+  query_layers <- Layers(object, search = layer)
+  # If there are more than one, return the first.
+  layer <- method_layers[method_layers %in% query_layers][1L]
+  
   # Find the columns for the specified method and layer
   cols <- grep(
     pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
