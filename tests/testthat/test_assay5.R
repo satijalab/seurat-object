@@ -62,3 +62,69 @@ add_hvf_info <- function(assay, nfeatures, method_name, layer_name) {
   
   return(assay)
 }
+
+context("HVFInfo")
+
+test_that("`HVFInfo.Assay5` works with a single set of metadata", {
+  # Populate an assay with random values for testing.
+  assay <- get_test_assay(
+    ncells = 10,
+    nfeatures = 10,
+    assay_version = "v5"
+  )
+  # Add similarly random HVF metadata to `assay`.
+  assay <- add_hvf_info(
+    assay, 
+    nfeatures = 10,
+    method_name = "vst", 
+    layer_name = "counts"
+  )
+
+  # Extract the expected HVFInfo and rename the columns.
+  info_columns <- c(
+    "vf_vst_counts_variable", 
+    "vf_vst_counts_rank", 
+    "vf_vst_counts_value"
+  )
+  expected_info <- assay[[]][, info_columns]
+  colnames(expected_info) <- c("variable", "rank", "value")
+
+  # Check the base case where `method` and `layer` are both set and valid.
+  result <- HVFInfo(assay, method = "vst", layer = "counts")
+  expect_identical(result, expected_info["value"])
+
+  # Check the same case with all relevant HVF columns returned.
+  result <- HVFInfo(assay, method = "vst", layer = "counts", status = TRUE)
+  expect_identical(result, expected_info)
+
+  # Check that `layer` can be omitted.
+  result <- HVFInfo(assay, method = "vst")
+  expect_identical(result, expected_info["value"])
+
+  # Check the same case with all relevant HVF columns returned.
+  result <- HVFInfo(assay, method = "vst", status = TRUE)
+  expect_identical(result, expected_info)
+
+  # Check that `layer` can be `NULL`.
+  result <- HVFInfo(assay, method = "vst", layer = NULL)
+  expect_identical(result, expected_info["value"])
+
+  # Check the same case with all relevant HVF columns returned.
+  result <- HVFInfo(assay, method = "vst", layer = NULL, status = TRUE)
+  expect_identical(result, expected_info)
+
+  # Check that `layer` can be `NA`.
+  result <- HVFInfo(assay, method = "vst", layer = NA)
+  expect_identical(result, expected_info["value"])
+
+  # Check the same case with all relevant HVF columns returned.
+  result <- HVFInfo(assay, method = "vst", layer = NA, status = TRUE)
+  expect_identical(result, expected_info)
+
+  # Check that the `method` parameter must be provided.
+  expect_error(HVFInfo(assay))
+  expect_error(HVFInfo(assay, layer = "counts"))
+
+  # Check that `method` must point to HVF metadata.
+  expect_error(HVFInfo(assay, method = "not-a-method"))
+})
