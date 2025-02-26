@@ -992,7 +992,10 @@ HVFInfo.StdAssay <- function(
   if (!method %in% names(layers_by_method)) {
     stop(
       sprintf(
-        "Unable to find highly variable feature information for method '%s'.",
+        paste(
+          "Unable to find highly variable feature information for ",
+          "method='%s' and layer='%s'."
+        ),
         method, 
         layer
       )
