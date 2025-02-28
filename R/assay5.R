@@ -978,7 +978,11 @@ HVFInfo.StdAssay <- function(
 ) {
   # When layer = NA, this will return all layers in the object
   vf.methods.layers <- .VFMethodsLayers(object = object, type = 'hvf', layers = layer)
-  # if there is multiple methods, use the first one
+  # method is required
+  if (is.null(x = method)) {
+    stop("Invalid input: method is required for HVFInfo.StdAssay()") 
+  }
+  # if there is multiple methods, use the last one
   method <- method %||% names(x = methods)[length(x = methods)]
   method <- switch(
     EXPR = tolower(x = method),
@@ -994,6 +998,7 @@ HVFInfo.StdAssay <- function(
   )
   # If no methods found, return NULL
   if (is.null(x = method)) {
+    stop("Invalid input: the method is not recognized HVFInfo.StdAssay()") 
     return(method)
   }
   # Only find layer within the method
@@ -1001,8 +1006,10 @@ HVFInfo.StdAssay <- function(
   if (length(x = layer) > 1) {
     warning("multiple layers are identified by ",
             paste0(layer, collapse = ' '),
+            " given the method of ",
+            paste0(method, collapse = ' '),
             "\n only the first layer is used")
-    layer <- layer[1]
+    layer <- layer[1L]
   }
   
   # Find the columns for the specified method and layer
