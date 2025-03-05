@@ -63,5 +63,5 @@ test_that("`labels` generic works as expected for `LogMap` instances", {
   expect_identical(result_key, result)
 
   # If no labels are found, an error is raised.
-  expect_no_error(labels(map, "value_5"))
+  expect_error(labels(map, "value_5"))
 })
