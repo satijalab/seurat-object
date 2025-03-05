@@ -972,7 +972,7 @@ HVFInfo.StdAssay <- function(
   object,
   method,
   status = FALSE,
-  layer = NULL,
+  layer = NA,
   strip = TRUE,
   ...
 ) {
