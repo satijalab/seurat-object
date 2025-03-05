@@ -24,12 +24,30 @@ get_test_assay <- function(ncells, nfeatures, assay_version) {
 
 #' Mocks "highly variable feature" annotations and adds them to the
 #' feature-level metadata of `assay`.
-add_hvf_info <- function(assay, nfeatures, method_name, layer_name) {
-  variable_features <- sample(
-    rownames(assay),
-    size = nfeatures,
-    replace = FALSE
-  )
+add_hvf_info <- function(
+  assay, 
+  nfeatures = NULL,
+  features = NULL,
+  method_name, 
+  layer_name
+) {
+  if (is.null(nfeatures) & is.null(features)) {
+    # Ensure that one of `nfeatures` or `features` is set.
+    stop("One of `nfeatures` or `features` must be provided.")
+  } else if (!is.null(nfeatures) & !is.null(features)) {
+    # Ensure that only one of `nfeatures` or `features` is set.
+    stop("Only one of `nfeatures` or `feature` may be provided.")
+  } else if (!is.null(nfeatures)) {
+    # If `nfeatures` is provided, randomly sample from the `assay`'s features.
+    variable_features <- sample(
+      rownames(assay),
+      size = nfeatures,
+      replace = FALSE
+    )
+  } else {
+    # If `features` was provided, use it.
+    variable_features <- features
+  }
 
   all_features <- rownames(assay)
   constant_features <- setdiff(all_features, variable_features)
