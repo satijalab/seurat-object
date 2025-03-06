@@ -109,9 +109,9 @@ test_that("`HVFInfo.Assay5` works with a single set of metadata", {
   result <- HVFInfo(assay, method = "vst", layer = NA)
   expect_identical(result, expected_info["value"])
 
-  # Check that the `method` parameter must be provided.
-  expect_error(HVFInfo(assay))
-  expect_error(HVFInfo(assay, layer = "counts"))
+  # Check that the `method` parameter can be omitted.
+  result <- HVFInfo(assay)
+  expect_identical(result, expected_info["value"])
 
   # Check that `method` must point to HVF metadata.
   expect_error(HVFInfo(assay, method = "not-a-method"))
