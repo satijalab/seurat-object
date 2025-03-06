@@ -1553,112 +1553,102 @@ VariableFeatures.StdAssay <- function(
   method = NULL,
   layer = NA,
   simplify = TRUE,
-  nfeatures = Inf,
+  nfeatures = NULL,
   selection.method = deprecated(),
   ...
 ) {
   if (is_present(arg = selection.method)) {
     .Deprecate(
-      when = '5.0.0',
-      what = 'VariableFeatures(selection.method = )',
-      with = 'VariableFeatures(method = )'
+      when = "5.0.0",
+      what = "VariableFeatures(selection.method = )",
+      with = "VariableFeatures(method = )"
     )
     method <- selection.method
   }
-  nfeatures <- nfeatures %||% Inf
-  if ("var.features" %in% colnames(object[[]])) {
-    if ("var.features.rank" %in% colnames(object[[]])) {
-      var.features <- row.names(x = object[[]])[which(!is.na(object[[]]$var.features.rank))]
-      var.features <- var.features[order(object[[]][["var.features.rank"]][which(!is.na(object[[]]$var.features))])]
-    }
-    else {
-      var.features <- as.vector(object["var.features", drop = TRUE])
-      var.features <- var.features[!is.na(var.features)]
-    }
-    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) &
-        (is.infinite(x = nfeatures) || length(x = var.features) ==
-         nfeatures)) {
-      return(var.features)
-    }
+
+  label_column <- "var.features"
+  rank_column <- "var.features.rank"
+  feature_metadata <- object[[]]
+  # If `method` is not provided, and the assay's metadata contains at least 
+  # one of the default variable feature columns, with a request for a flat 
+  # (`simplify=TRUE`) and assay-wide output (`layer = NA`), then return 
+  # variable features directly from the assay's  feature-level metadata.
+  if (
+    is.null(method)
+    & (
+        (label_column %in% colnames(feature_metadata)) ||
+          (rank_column %in% colnames(feature_metadata))
+      )
+    & isTRUE(simplify)
+    & is.na(layer)
+  ) {
+    variable_features <- .GetVariableFeatures(
+      hvf_info = feature_metadata,
+      label_column = "var.features",
+      rank_column = "var.features.rank",
+      nfeatures = nfeatures
+    )
+    return(variable_features)
   }
-  msg <- 'No variable features found'
-  layer.orig <- layer
-  methods <- .VFMethodsLayers(object = object, type = 'hvf', layers = layer)
-  layer <- Layers(object = object, search = layer)
-  method <- method %||% names(x = methods)[length(x = methods)]
-  method <- match.arg(arg = method, choices = names(x = methods))
-  if (is_na(x = layer.orig) || is.null(x = layer.orig)) {
-    layer <- unlist(methods[method], use.names = FALSE)
+
+  # Otherwise, we will aggregate variable features layer by layer.
+  # First things first, determine the relevant layer(s) to use.
+  query_layers <- Layers(object, search = layer)
+  # If `method` is specified, only consider layers that have the corresponding
+  # feature-level metadata.
+  if (!is.null(method)) {
+    layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
+    method_layers <- layers_by_method[[method]]
+    query_layers <- method_layers[method_layers %in% query_layers]
   }
-  vf <- sapply(
-    X = layer,
-    FUN = function(lyr) {
+
+  # For each layer, extract the relevant metadata using `HVFInfo` and then 
+  # parse the variable feature names.
+  variable_features <- sapply(
+    query_layers,
+    function(.layer) {
       hvf.info <- HVFInfo(
-        object = object,
+        object,
         method = method,
-        layer = lyr,
+        layer = .layer,
         status = TRUE,
         strip = TRUE
       )
-      if (is.null(x = hvf.info)) {
-        return(NULL)
-      } else if (!'variable' %in% names(x = hvf.info)) {
-        return(NA)
-      }
-      vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
-      if ('rank' %in% names(x = hvf.info)) {
-        vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-      } else {
-        warn(message = paste0(
-          "No variable feature rank found for ",
-          sQuote(x = lyr),
-          ", returning features in assay order"
-        ))
-      }
+      .variable_features <- .GetVariableFeatures(
+        hvf_info = hvf.info,
+        label_column = "variable",
+        rank_column = "rank",
+        nfeatures = nfeatures
+      )
+      return(.variable_features)
     },
     simplify = FALSE,
     USE.NAMES = TRUE
   )
-  if (is.null(x = unlist(x = vf))) {
+
+  # If no variable features are found across layers, return NULL.
+  if (is.null(unlist(variable_features))) {
     return(NULL)
-  } else if (all(is.na(x = unlist(x = vf)))) {
-    abort(message = msg)
+  # If all extracted features are missing (NA), halt execution with an error.
+  } else if (all(is.na(unlist(variable_features)))) {
+    stop("No variable features found.")
   }
-  if (isTRUE(x = simplify)) {
-    vf <- .SelectFeatures(
-      object = vf,
+
+  # If simplified output is requested, aggregate the variable features from all 
+  # layers by taking the most common `nfeatures`. Ties are resolved using each
+  # feature's median rank across all layers. If `nfeatures` is not provided, 
+  # the union of variable features for across all layers will be returned.
+  if (isTRUE(simplify)) {
+    variable_features <- .SelectFeatures(
+      variable_features,
       all.features = intersect(
-        x = slot(object = object, name = 'features')[,layer]
+        slot(object, "features")[, query_layers]
       ),
-      nfeatures = nfeatures
+      nfeatures = nfeatures %||% Inf
     )
   }
-  return(vf)
-  # hvf.info <- HVFInfo(
-  #   object = object,
-  #   method = method,
-  #   layer = layer,
-  #   status = TRUE,
-  #   strip = TRUE
-  # )
-  # if (is.null(x = hvf.info)) {
-  #   warning(msg, call. = FALSE, immediate. = TRUE)
-  #   return(NULL)
-  # }
-  # if (!'variable' %in% names(x = hvf.info)) {
-  #   stop(msg, call. = FALSE)
-  # }
-  # vf <- rownames(x = hvf.info)[which(x = hvf.info$variable)]
-  # if ('rank' %in% names(x = hvf.info)) {
-  #   vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-  # } else {
-  #   warning(
-  #     "No variable feature rank found, returning features in assay order",
-  #     call. = FALSE,
-  #     immediate. = TRUE
-  #   )
-  # }
-  # return(vf)
+
+  return(variable_features)
 }
 
 #' @param simplify When pulling for multiple layers, combine into a single
@@ -2782,8 +2772,7 @@ tail.Assay5 <- tail.StdAssay
 
   # Apply `feature_mask` to feature names from `hvf_info` to get variable
   # feature names.
-  features <- rownames(hvf_info)
-  variable_features <- features[feature_mask]
+  variable_features <- rownames(hvf_info)[feature_mask]
   # If a ranking is available, use it to sort the variable features.
   if (!is.null(rank_order)) {
     variable_features <- variable_features[rank_order]
