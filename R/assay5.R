@@ -2783,6 +2783,54 @@ tail.Assay5 <- tail.StdAssay
   return(variable_features)
 }
 
+#' Return the n most frequently observed features in `features_by_layer`, where
+#' n = `nfeatures`. If two features are observed at the same frequency,
+#' thee median index they appear in will be used to resolve their order. If
+#' `nfeatures` is not specified, all features found in `common_features` are
+#' returned.
+.GetConsensusFeatures <- function(features_by_layer, common_features, nfeatures = NULL) {
+  # Create a data frame indicating the position that each feature
+  # appears in the layer-specific vectors given by `features_by_layer`.
+  position_df <- do.call(
+    rbind,
+    lapply(
+      features_by_layer,
+      function(.features) {
+        data.frame(
+          feature = .features,
+          index = seq_along(.features),
+          stringsAsFactors = FALSE
+        )
+      }
+    )
+  )
+  # Only consider features in `common_features`.
+  position_df <- position_df[position_df$feature %in% common_features, ]
+
+  # Count the number of times each feature appears.
+  feature_counts <- table(position_df$feature)
+  # Calculate the median position of each feature.
+  median_feature_positions <- tapply(position_df$index, position_df$feature, median)
+  # Combine the feature-metada into a data frame.
+  feature_df <- data.frame(
+    feature = names(feature_counts),
+    frequency = as.numeric(feature_counts),
+    median_position = as.numeric(median_feature_positions),
+    stringsAsFactors = FALSE
+  )
+
+  # Order the data frame by descending frequency and ascending position.
+  feature_df <- feature_df[order(-feature_df$frequency, feature_df$median_position), ]
+
+  # Take the first `nfeatures` if provided.
+  if (is.null(nfeatures)) {
+    consensus_features <- feature_df$feature
+  } else {
+    consensus_features <- head(feature_df$feature, nfeatures)
+  }
+  return(consensus_features)
+}
+
 CalcN5 <- function(object) {
   if (IsMatrixEmpty(x = LayerData(object = object))) {
     return(NULL)
