@@ -369,3 +369,33 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on the same layer", 
   result <- HVFInfo(assay, method = "mvp", layer = NA)
   expect_identical(result, mvp_info["value"])
 })
+
+context("VariableFeatures")
+
+test_that("`VariableFeatures.Assay5` getter/setter works as expected", {
+  # Populate an assay with random values for testing.
+  assay <- get_test_assay(
+    ncells = 10,
+    nfeatures = 10,
+    assay_version = "v5"
+  )
+
+  # Set initial variable features (including some missing values).
+  test_features <- c(gene1 = "gene1", gene3 = "gene3", gene5 = "gene5")
+  assay[["var.features"]] <- test_features
+  expected_features <- c("gene1", "gene3", "gene5")
+  expect_identical(VariableFeatures(assay), expected_features)
+  expect_identical(VariableFeatures(assay, nfeatures = 2), expected_features[1:2])
+
+  # Set the ranking for the variable features.
+  test_rank <- c(gene1 = 3, gene3 = 1, gene5 = 2)
+  assay[["var.features.rank"]] <- test_rank
+  expected_features <- c("gene3", "gene5", "gene1")
+  expect_identical(VariableFeatures(assay), expected_features)
+  expect_identical(VariableFeatures(assay, nfeatures = 2), expected_features[1:2])
+
+  # Use the VariableFeatures setter to overwrite the current variable features.
+  expected_features <- c("gene10", "gene2", "gene8")
+  VariableFeatures(assay) <- expected_features
+  expect_identical(VariableFeatures(assay), expected_features)
+})
