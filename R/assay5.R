@@ -2690,6 +2690,110 @@ tail.Assay5 <- tail.StdAssay
   return(vf.list)
 }
 
+.GetVariableFeatures <- function(hvf_info, label_column, rank_column, nfeatures) {
+  # If neither `label_column` nor `rank_column` are present in `hvf_info`,
+  # just return `NULL`.
+  if (
+    (!label_column %in% colnames(hvf_info)) &
+      (!rank_column %in% colnames(hvf_info))
+  ) {
+    return(NULL)
+  }
+
+  # Create a boolean vector indicating which rows in `hvf_info` contain
+  # non-missing values in the `label_column` if it exists.
+  label_mask <- NULL
+  if (label_column %in% colnames(hvf_info)) {
+    feature_labels <- hvf_info[[label_column]]
+    # If a feature label is `NA` or `FALSE` then set it's value to false.
+    # Otherwise, treat the label as truthy.
+    label_mask <- ifelse(
+      is.na(feature_labels) | feature_labels == FALSE,
+      FALSE,
+      TRUE
+    )
+  }
+  # If a `rank_column` exists, filter out missing values and compute an
+  # ascending rank order.
+  rank_order <- NULL
+  rank_mask <- NULL
+  if (rank_column %in% colnames(hvf_info)) {
+    feature_rank <- hvf_info[[rank_column]]
+    rank_mask <- !is.na(feature_rank)
+    feature_rank <- feature_rank[rank_mask]
+    rank_order <- order(feature_rank)
+  }
+
+  # Warn if `label_mask` and `ranked_mask` are discordant (i.e some features
+  # have a label but no rank).
+  if (!is.null(label_mask) & !is.null(rank_mask)) {
+    # Identify the features labelled as variable but missing a corresponding rank.
+    missing_rank <- rownames(hvf_info)[label_mask & !rank_mask]
+    if (length(missing_rank) > 0) {
+      warning(
+        sprintf(
+          paste(
+            "The following features were labelled as variable in",
+            "'%s' but had no corresponding rank in `%s` and will",
+            "therefore be ignored: %s"
+          ),
+          label_column,
+          rank_column,
+          paste(sprintf("'%s'", missing_rank_features), collapse = ", ")
+        )
+      )
+    }
+  }
+
+  # If `nfeatures` is not specified `label_column` doesn't exist we're left
+  # with `rank_column` and so we'll return all features with a non-empty rank.
+  if (is.null(nfeatures) & is.null(label_mask)) {
+    warning(
+      sprintf(
+        paste(
+          "`nfeatures` is not specified and '%s' column is missing; returning",
+          "all features with a non-empty '%s'."
+        ),
+        label_column,
+        rank_column
+      )
+    )
+  }
+
+  # Set `nfeatures` to the count of labeled features if not explicitly provided.
+  nfeatures <- nfeatures %||% sum(label_mask)
+  # If a ranking is available use it to determine which features are variable.
+  feature_mask <- rank_mask %||% label_mask
+  # Warn if `nfeatures` exceeds the number of ranked and/or labelled features.
+  nlabelled <- sum(feature_mask)
+  if (nfeatures > sum(nlabelled)) {
+    warning(
+      sprintf(
+        paste(
+          "`nfeatures` (%d) exceeds the available features (%d) based on the",
+          "provided rank/label metadata. Returning all %d available features."
+        ),
+        nfeatures,
+        nlabelled,
+        nlabelled
+      )
+    )
+  }
+
+  # Apply `feature_mask` to feature names from `hvf_info` to get variable
+  # feature names.
+  features <- rownames(hvf_info)
+  variable_features <- features[feature_mask]
+  # If a ranking is available, use it to sort the variable features.
+  if (!is.null(rank_order)) {
+    variable_features <- variable_features[rank_order]
+  }
+
+  # Select the top `nfeatures`.
+  variable_features <- variable_features[1:nfeatures]
+  return(variable_features)
+}
+
 CalcN5 <- function(object) {
   if (IsMatrixEmpty(x = LayerData(object = object))) {
     return(NULL)
