@@ -2324,9 +2324,12 @@ RenameCells.Seurat <- function(
 ) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
-  working.cells <- Cells(x = object)
+
+  all.cells <- colnames(object)
+  default.cells <- Cells(object)
+
   if (is_present(arg = for.merge)) {
-    .Deprecate(when = '5.0.0', what = 'RenameCells(for.merge = )')
+    .Deprecate(when = "5.0.0", what = "RenameCells(for.merge = )")
   }
   if (is_missing(x = add.cell.id) && is_missing(x = new.names)) {
     abort(message = "One of 'add.cell.id' and 'new.names' must be set")
@@ -2335,35 +2338,62 @@ RenameCells.Seurat <- function(
     abort(message = "Only one of 'add.cell.id' and 'new.names' may be set")
   }
   if (!missing(x = add.cell.id)) {
-    new.cell.names <- paste(add.cell.id, working.cells, sep = "_")
+    new.names <- paste(add.cell.id, all.cells, sep = "_")
+    cells.to.rename <- all.cells
   } else {
-    if (length(x = new.names) == length(x = working.cells)) {
-      new.cell.names <- new.names
+    # Determine which set of cells names `new.names` is intended to replace.
+    # If `new.names` is a named vector, assume it should provide the mapping
+    # we need.
+    if (!is.null(names(new.names))) {
+      cells.to.rename <- names(new.names)
     } else {
-      abort(message = paste0(
-        "the length of 'new.names' (",
-        length(x = new.names),
-        ") must be the same as the number of cells (",
-        length(x = working.cells),
-        ")"
-      ))
+      # If `new.names` contains a value for every cell in the object, we'll
+      # assume that `new.names` and `all.cells` are co-indexed.
+      if (length(new.names) == length(all.cells)) {
+        cells.to.rename <- all.cells
+        # If `new.names` contains a value for every cell in the default assay,
+        # we'll assume that `new.names` and `default.cells` are co-indexed.
+      } else if (length(new.names) == length(default.cells)) {
+        cells.to.rename <- default.cells
+        # If the length of `new.names` doesn't match either option, we don't
+        # know what cells to rename, so we'll throw an error.
+      } else {
+        stop(
+          sprintf(
+            paste(
+              "`new.names` should be a named list or else be the same length",
+              "as `colnames(object)`: %i or `Cells(object)`: %i. ",
+              "`length(new.names)` was %i"
+            ),
+            length(old.names_all),
+            length(old.names_default),
+            length(new.names)
+          )
+        )
+      }
     }
   }
-  old.names <- colnames(x = object)
-  new.cell.names.global <- old.names
-  new.cell.names.global[match(x = working.cells, table = old.names)] <- new.cell.names
-  new.cell.names <- new.cell.names.global
+
+  # Validate that `cells.to.rename` only contains valid cell names.
+  missing.cells <- setdiff(cells.to.rename, all.cells)
+  if (length(missing.cells) > 0) {
+    stop("The following cells are not present in `object`: ...")
+  }
+
+  # Create a global mapping for all cell names in `object`.
+  new.cell.names <- setNames(all.cells, all.cells)
+  new.cell.names[cells.to.rename] <- new.names
+
   # rename the cell-level metadata first to rename colname()
   old.meta.data <- object[[]]
   row.names(x = old.meta.data) <- new.cell.names
   slot(object = object, name = "meta.data") <- old.meta.data
   # rename the active.idents
-  old.ids <- Idents(object = object)
-  names(x = old.ids) <- new.cell.names
-  Idents(object = object) <- old.ids
-  names(x = new.cell.names) <- old.names
+  old.ids <- Idents(object)
+  names(old.ids) <- new.cell.names
+  Idents(object) <- old.ids
   # rename in the assay objects
-  assays <- .FilterObjects(object = object, classes.keep = 'Assay')
+  assays <- .FilterObjects(object = object, classes.keep = "Assay")
   for (i in assays) {
     slot(object = object, name = "assays")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2371,7 +2401,7 @@ RenameCells.Seurat <- function(
     )
   }
   # rename in the assay5 objects
-  assays5 <- .FilterObjects(object = object, classes.keep = 'Assay5')
+  assays5 <- .FilterObjects(object = object, classes.keep = "Assay5")
   for (i in assays5) {
     slot(object = object, name = "assays")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2379,7 +2409,7 @@ RenameCells.Seurat <- function(
     )
   }
   # rename in the DimReduc objects
-  dimreducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
+  dimreducs <- .FilterObjects(object = object, classes.keep = "DimReduc")
   for (i in dimreducs) {
     slot(object = object, name = "reductions")[[i]] <- RenameCells(
       object = object[[i]],
