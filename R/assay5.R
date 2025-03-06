@@ -970,7 +970,7 @@ GetAssayData.StdAssay <- function(
 #'
 HVFInfo.StdAssay <- function(
   object,
-  method,
+  method = NULL,
   status = FALSE,
   layer = NA,
   strip = TRUE,
@@ -978,6 +978,12 @@ HVFInfo.StdAssay <- function(
 ) {
   # Create a named list mapping HVF methods to the layers they're available for.
   layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
+
+  # If `method` is not provided, use the last one from `layer_by_method`.
+  if (is.null(method)) {
+    available_methods <- names(layers_by_method)
+    method <- available_methods[length(available_methods)]
+  }
 
   # If method is not set, take the last from the available set.
   method <- switch(
