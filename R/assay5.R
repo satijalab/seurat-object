@@ -472,13 +472,6 @@ CreateAssay5Object <- function(
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
 }
 
-#' @method .SelectFeatures StdAssay
-#' @export
-#'
-.SelectFeatures.StdAssay <- function(object, ...) {
-  .NotYetImplemented()
-}
-
 #' @templateVar fxn AddMetaData
 #' @template method-stdassay
 #'
