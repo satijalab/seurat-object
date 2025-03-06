@@ -14,7 +14,7 @@
   method = NULL,
   layer = NA,
   simplify = TRUE,
-  nfeatures = Inf,
+  nfeatures = NULL,
   selection.method = deprecated(),
   ...
 )
