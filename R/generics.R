@@ -141,21 +141,6 @@ NULL
   UseMethod(generic = '.MARGIN', object = x)
 }
 
-#' Combine and Select Features
-#'
-#' @template param-dots-method
-#' @param object An object
-#'
-#' @return A vector of features selected
-#'
-#' @keywords internal
-#'
-#' @export .SelectFeatures
-#'
-.SelectFeatures <- function(object, ...) {
-  UseMethod(generic = '.SelectFeatures', object = object)
-}
-
 #' Add in metadata associated with either cells or features.
 #'
 #' Adds additional data to the object. Can be any piece of information
