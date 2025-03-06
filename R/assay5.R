@@ -1639,12 +1639,10 @@ VariableFeatures.StdAssay <- function(
   # feature's median rank across all layers. If `nfeatures` is not provided, 
   # the union of variable features for across all layers will be returned.
   if (isTRUE(simplify)) {
-    variable_features <- .SelectFeatures(
+    variable_features <- .GetConsensusFeatures(
       variable_features,
-      all.features = intersect(
-        slot(object, "features")[, query_layers]
-      ),
-      nfeatures = nfeatures %||% Inf
+      common_features = intersect(slot(object, "features")[, query_layers]),
+      nfeatures = nfeatures
     )
   }
 
