@@ -399,3 +399,46 @@ test_that("`VariableFeatures.Assay5` getter/setter works as expected", {
   VariableFeatures(assay) <- expected_features
   expect_identical(VariableFeatures(assay), expected_features)
 })
+
+test_that("`VariableFeatures` works with multi-layer assays", {
+  # Populate an assay with random values for testing.
+  assay <- get_test_assay(
+    ncells = 9,
+    nfeatures = 10,
+    assay_version = "v5"
+  )  
+  # Split the "counts" layer in thirds across it's columns and drop the original layer.
+  LayerData(assay, layer = "counts.1") <- LayerData(assay, layer = "counts")[, 1:3]
+  LayerData(assay, layer = "counts.2") <- LayerData(assay, layer = "counts")[, 4:6]
+  LayerData(assay, layer = "counts.3") <- LayerData(assay, layer = "counts")[, 7:9]
+  # Since it's first, "counts.1" would be chosen as the default layer when
+  # "counts" is dropped but we'll do it explicitly (also avoids a warning).
+  DefaultLayer(assay) <- "counts.1"
+  LayerData(assay, layer = "counts") <- NULL
+
+  # Add HVF metadata to each layer.
+  assay <- add_hvf_info(
+    assay,
+    features = c("gene1", "gene2", "gene3"),
+    method_name = "vst",
+    layer_name = "counts.1"
+  )
+  assay <- add_hvf_info(
+    assay,
+    features = c("gene3", "gene2", "gene4"),
+    method_name = "vst",
+    layer_name = "counts.2"
+  )
+  assay <- add_hvf_info(
+    assay,
+    features = c("gene1", "gene2", "gene5"),
+    method_name = "vst",
+    layer_name = "counts.3"
+  )
+
+  # Expect the consensus (aggregated) variable features from the 
+  # multi-layer assay.
+  expected_features <- c("gene2", "gene1", "gene3", "gene4", "gene5")
+  expect_identical(VariableFeatures(assay), expected_features)
+  expect_identical(VariableFeatures(assay, nfeatures = 2), expected_features[1:2])
+})
