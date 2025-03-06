@@ -2,7 +2,7 @@
 
 ## Changes:
 - Fix bug in `RenameCells.Seurat` (#237)
-- Fix bug in `subset` - prevent `invalid 'row.names' length` error when one or more layers are dropped during feature-level subsetting (#214)
+- Fix bug in `subset.StdAssay` (#214)
 
 # SeuratObject 5.0.2
 
