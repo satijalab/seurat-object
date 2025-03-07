@@ -981,7 +981,7 @@ HVFInfo.StdAssay <- function(
 
   if (length(layers_by_method) < 1) {
     warning("Unable to find any highly variable feature information for the assay.")
-    return (NULL)
+    return(NULL)
   }
 
   # If `method` is not provided, use the last one from `layer_by_method`.
@@ -999,7 +999,7 @@ HVFInfo.StdAssay <- function(
   )
 
   # Check `method` against the list of method names parsed via
-  # `.VFMethodsLayers` and throw an warning error if no match is found 
+  # `.VFMethodsLayers` and throw an warning error if no match is found
   # and return `NULL`.
   if (!method %in% names(layers_by_method)) {
     # `sprintf` cannot handle `NULL` values.
@@ -1014,7 +1014,7 @@ HVFInfo.StdAssay <- function(
         pretty_layer
       )
     )
-    return (NULL)
+    return(NULL)
   }
 
   # Choose the appropriate layer for the specified `method`.
@@ -1022,29 +1022,29 @@ HVFInfo.StdAssay <- function(
   query_layers <- Layers(object, search = layer)
   # If there are more than one, return the first.
   layer <- method_layers[method_layers %in% query_layers][1L]
-  
+
   # Find the columns for the specified method and layer
   cols <- grep(
-    pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
+    pattern = paste0(paste("^vf", method, layer, sep = "_"), "_"),
     x = colnames(x = object[[]]),
     value = TRUE
   )
   if (!isTRUE(x = status)) {
     cols <- setdiff(
       x = cols,
-      y = paste('vf', method, layer, c('variable', 'rank'), sep = '_')
+      y = paste("vf", method, layer, c("variable", "rank"), sep = "_")
     )
   }
   hvf.info <- object[[cols]]
   colnames(x = hvf.info) <- gsub(
-    pattern = '^vf_',
-    replacement = '',
+    pattern = "^vf_",
+    replacement = "",
     x = colnames(x = hvf.info)
   )
   if (isTRUE(x = strip)) {
     colnames(x = hvf.info) <- gsub(
-      pattern = paste0(paste(method, layer, sep = '_'), '_'),
-      replacement = '',
+      pattern = paste0(paste(method, layer, sep = "_"), "_"),
+      replacement = "",
       x = colnames(x = hvf.info)
     )
   }
