@@ -979,13 +979,18 @@ HVFInfo.StdAssay <- function(
   # Create a named list mapping HVF methods to the layers they're available for.
   layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
 
+  if (length(layers_by_method) < 1) {
+    warning("Unable to find any highly variable feature information for the assay.")
+    return (NULL)
+  }
+
   # If `method` is not provided, use the last one from `layer_by_method`.
   if (is.null(method)) {
     available_methods <- names(layers_by_method)
     method <- available_methods[length(available_methods)]
   }
 
-  # If method is not set, take the last from the available set.
+  # Normalize "mean.var.plot" to "mvp" and "dispersion" to "disp".
   method <- switch(
     EXPR = tolower(method),
     mean.var.plot = "mvp",
@@ -994,18 +999,22 @@ HVFInfo.StdAssay <- function(
   )
 
   # Check `method` against the list of method names parsed via
-  # `.VFMethodsLayers` and throw an informative error if no match is found.
+  # `.VFMethodsLayers` and throw an warning error if no match is found 
+  # and return `NULL`.
   if (!method %in% names(layers_by_method)) {
-    stop(
+    # `sprintf` cannot handle `NULL` values.
+    pretty_layer <- ifelse(is.null(layer), "NULL", layer)
+    warning(
       sprintf(
         paste(
-          "Unable to find highly variable feature information for ",
+          "Unable to find highly variable feature information for",
           "method='%s' and layer='%s'."
         ),
-        method, 
-        layer
+        method,
+        pretty_layer
       )
     )
+    return (NULL)
   }
 
   # Choose the appropriate layer for the specified `method`.
