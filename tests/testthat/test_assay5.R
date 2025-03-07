@@ -113,8 +113,23 @@ test_that("`HVFInfo.Assay5` works with a single set of metadata", {
   result <- HVFInfo(assay)
   expect_identical(result, expected_info["value"])
 
-  # Check that `method` must point to HVF metadata.
-  expect_error(HVFInfo(assay, method = "not-a-method"))
+  # Check that `NULL` is returned if `method` does not point HVF metadata.
+  result <- expect_warning(
+    HVFInfo(assay, method = "not-a-method"),
+    paste(
+      "Unable to find highly variable feature information for",
+      "method='not-a-method' and layer='NA'."
+    )
+  )
+  expect_null(result)
+  result <- expect_warning(
+    HVFInfo(assay, method = "not-a-method", layer = "counts"),
+    paste(
+      "Unable to find highly variable feature information for",
+      "method='not-a-method' and layer='counts'."
+    )
+  )
+  expect_null(result)
 })
 
 test_that("`HVFInfo.Assay5` works with multiple methods run on different layers", {
@@ -175,7 +190,14 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on different layers"
   # as `DefaultLayer(assay)`. Thus, we are expected `layer` to resolve to "counts".
   result <- HVFInfo(assay, method = "vst", layer = NULL)
   expect_identical(result, vst_info["value"])
-  expect_error(HVFInfo(assay, method = "mvp", layer = NULL))
+  result <- expect_warning(
+    HVFInfo(assay, method = "mvp", layer = NULL),
+    paste(
+      "Unable to find highly variable feature information for",
+      "method='mvp' and layer='NULL'."
+    )
+  )
+  expect_null(result)
 
   # Check that `layer` can be `NA`. In this case, `layer` will be interpreted
   # as `Layers(assay)` (i.e. all layers).
@@ -239,7 +261,7 @@ test_that("`HVFInfo.Assay5` works with a single method run on multiple layers", 
   expect_identical(result, vst.2_info["value"])
 
   # Check that `layer` can be omitted. In this case, `layer` will default to
-  # `NULL` which will be in turn be interpreted as `Layers(assay)` 
+  # `NULL` which will be in turn be interpreted as `Layers(assay)`
   # (i.e. all layers). Thus, we are expected `layer` to resolve to "counts.2".
   result <- HVFInfo(assay, method = "vst")
   expect_identical(result, vst.2_info["value"])
