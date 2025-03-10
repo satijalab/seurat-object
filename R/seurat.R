@@ -1247,6 +1247,7 @@ CreateSeuratObject.default <- function(
   project = 'SeuratProject',
   min.cells = 0,
   min.features = 0,
+  calcN = NULL,
   ...
 ) {
   assay.version <- getOption(x = 'Seurat.object.assay.version', default = 'v5')
@@ -1279,7 +1280,8 @@ CreateSeuratObject.default <- function(
     names.field = names.field,
     names.delim = names.delim,
     meta.data = meta.data,
-    project = project
+    project = project,
+    calcN = calcN,
   ))
 }
 
@@ -1294,6 +1296,7 @@ CreateSeuratObject.Assay <- function(
   names.delim = '_',
   meta.data = NULL,
   project = 'SeuratProject',
+  calcN = NULL,
   ...
 ) {
   # Check the assay key
@@ -1348,11 +1351,11 @@ CreateSeuratObject.Assay <- function(
   options(op)
   object[['orig.ident']] <- idents
   # Calculate nCount and nFeature
-  calcN_option <- getOption(
+  # Check for user-provided calcN_option; if not provided, get the global option or default to TRUE
+  calcN_option <- calcN %||% getOption(
     x = 'Seurat.object.assay.calcn',
-    default =  Seurat.options$Seurat.object.assay.calcn
-  )
-  calcN_option <- calcN_option %||% TRUE
+    default = Seurat.options$Seurat.object.assay.calcn
+  ) %||% TRUE
   if (isTRUE(x = calcN_option)) {
     ncalc <- CalcN(object = counts)
     if (!is.null(x = ncalc)) {
