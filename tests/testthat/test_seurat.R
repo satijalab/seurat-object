@@ -20,6 +20,119 @@ get_random_counts <- function(ncells, nfeatures) {
   return(counts_sparse)
 }
 
+context("merge")
+
+test_that("`merge` works with multi-assay inputs", {
+  # Run checks against `Assay` and `Assay5` instances.
+  for (assay_version in c("v5")) {
+    create_assay <- switch(assay_version,
+      v3 = CreateAssayObject,
+      v5 = CreateAssay5Object,
+      stop("`assay_version` should be one of 'v3', 'v5'")
+    )
+    
+    # Populate a `Seurat` instance with two assays, "LEFT" and "RIGHT".
+    counts_LEFT_A <- get_random_counts(ncells = 10, nfeatures = 10)
+    input_A <- CreateSeuratObject(
+      create_assay(counts_LEFT_A), 
+      assay = "LEFT", 
+      project = "A"
+    )
+    counts_RIGHT_A <- get_random_counts(ncells = 10, nfeatures = 10)
+    input_A[["RIGHT"]] <- create_assay(counts_RIGHT_A)
+    
+    # Populate a second `Seurat` instance with a single assay, "LEFT".
+    counts_LEFT_B <- get_random_counts(ncells = 5, nfeatures = 5)
+    input_B <- CreateSeuratObject(
+      create_assay(counts_LEFT_B), 
+      assay = "LEFT", 
+      project = "B"
+    )
+    
+    # Populate a third `Seurat` instance with two assays, "LEFT" and "RIGHT".
+    counts_LEFT_C <- get_random_counts(ncells = 5, nfeatures = 5)
+    input_C <- CreateSeuratObject(
+      create_assay(counts_LEFT_C), 
+      assay = "LEFT", 
+      project = "C"
+    )
+    counts_RIGHT_C <- get_random_counts(ncells = 5, nfeatures = 5)
+    input_C[["RIGHT"]] <- create_assay(counts_RIGHT_C)
+
+    # Merge the three `Seurat` instances.
+    result <- expect_warning(
+      merge(input_A, c(input_B, input_C)),
+      paste(
+        "Some cell names are duplicated across objects provided.",
+        "Renaming to enforce unique cell names."
+      )
+    )
+
+    # If we have an `Assay` input, split it into multiple layers
+    if (assay_version == "v3") {
+      result <- expect_warning(split(result, f = Idents(result)))
+    }
+    
+    # Check that the result layers are named according to their project values.
+    expected_layers <- c("counts.A", "counts.B", "counts.C")
+    expect_identical(Layers(result[["LEFT"]]), expected_layers)
+    expected_layers <- c("counts.A", "counts.C")
+    expect_identical(Layers(result[["RIGHT"]]), expected_layers)
+    # Check that the "LEFT" assay contains the expected cell names.
+    expected_cells <- c(
+      paste0("cell", seq(10), "_1"),
+      paste0("cell", seq(5), "_2"),
+      paste0("cell", seq(5), "_3")
+    )
+    expect_identical(Cells(result[["LEFT"]]), expected_cells)
+    # Check that the "RIGHT" assay contains the expected cell names.
+    expected_cells <- c(
+      paste0("cell", seq(10), "_1"),
+      paste0("cell", seq(5), "_3")
+    )
+    expect_identical(Cells(result[["RIGHT"]]), expected_cells)
+    # Check that the values for "counts.A" in the "LEFT" assay are preserved.
+    expected_counts <- counts_LEFT_A
+    colnames(expected_counts) <- paste0("cell", seq(10), "_1")
+    expect_identical(
+      LayerData(result, assay = "LEFT", layer = "counts.A"),
+      expected_counts
+    )
+    # Check that the values for "counts.B" in the "LEFT" assay are preserved.
+    expected_counts <- counts_LEFT_B
+    colnames(expected_counts) <- paste0("cell", seq(5), "_2")
+    observed_counts <- LayerData(result, assay = "LEFT", layer = "counts.B")
+    expect_identical(
+      observed_counts,
+      expected_counts,
+      info = dim(expected_counts)
+    )
+    # Check that the values for "counts.C" in the "LEFT" assay are preserved.
+    expected_counts <- counts_LEFT_C
+    colnames(expected_counts) <- paste0("cell", seq(5), "_3")
+    expect_identical(
+      LayerData(result, assay = "LEFT", layer = "counts.C"),
+      expected_counts,
+      info = assay_version
+    )
+    # Check that the values for "counts.A" in the "RIGHT" assay are preserved.
+    expected_counts <- counts_RIGHT_A
+    colnames(expected_counts) <- paste0("cell", seq(10), "_1")
+    expect_identical(
+      LayerData(result, assay = "RIGHT", layer = "counts.A"),
+      expected_counts
+    )
+    # Check that the values for "counts.C" in the "RIGHT" assay are preserved.
+    expected_counts <- counts_RIGHT_C
+    colnames(expected_counts) <- paste0("cell", seq(5), "_3")
+    expect_identical(
+      LayerData(result, assay = "RIGHT", layer = "counts.C"),
+      expected_counts,
+      info = assay_version
+    )
+  }
+})
+
 context("RenameCells")
 
 test_that("`RenameCells` works with multi-assay inputs", {
