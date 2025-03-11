@@ -1,7 +1,14 @@
 #' Returns a random counts matrix.
 get_random_counts <- function(ncells, nfeatures) {
-  # Populate a `nfeatures` x `ncells` matrix with zeros.
-  counts <- matrix(0, ncol = ncells, nrow = nfeatures)
+  # Instantiate an empty nfeatures by ncells matrix.
+  counts <- matrix(NA, ncol = ncells, nrow = nfeatures)
+  
+  # Populate the matrix one row at a time by generating a negative 
+  # binomial distribution using a random `mu` between 0.1 and 10.
+  for (i in 1:nfeatures) {
+    mu <- runif(1, min = 0.1, max = 10)
+    counts[i, ] <- values <- rnbinom(ncells, mu = mu, size = 1)
+  }
 
   # Assign column and row names to the matrix to label cells and genes.
   colnames(counts) <- paste0("cell", seq(ncol(counts)))
