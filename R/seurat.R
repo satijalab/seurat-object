@@ -3472,7 +3472,7 @@ merge.Seurat <- function(
     assays.all[[assay]] <- merge(
       x = objects[[idx.x]][[assay]],
       y = lapply(X = objects[idx.y], FUN = '[[', assay),
-      labels = projects,
+      labels = projects[assay.objs],
       add.cell.ids = NULL,
       collapse = collapse,
       merge.data = merge.data
