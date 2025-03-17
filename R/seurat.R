@@ -2362,11 +2362,11 @@ RenameCells.Seurat <- function(
           sprintf(
             paste(
               "`new.names` should be a named list or else be the same length",
-              "as `colnames(object)`: %i or `Cells(object)`: %i. ",
-              "`length(new.names)` was %i"
+              "as `colnames(object)` (%i) or `Cells(object)` (%i).",
+              "`length(new.names)` was %i."
             ),
-            length(old.names_all),
-            length(old.names_default),
+            length(all.cells),
+            length(default.cells),
             length(new.names)
           )
         )
