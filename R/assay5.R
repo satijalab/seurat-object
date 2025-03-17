@@ -2736,7 +2736,7 @@ tail.Assay5 <- tail.StdAssay
           ),
           label_column,
           rank_column,
-          paste(sprintf("'%s'", missing_rank_features), collapse = ", ")
+          paste(sprintf("'%s'", missing_rank), collapse = ", ")
         )
       )
     }
