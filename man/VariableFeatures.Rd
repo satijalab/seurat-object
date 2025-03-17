@@ -93,7 +93,7 @@ SpatiallyVariableFeatures(object, method, ...)
 
 \method{VariableFeatures}{Assay}(object, ...) <- value
 
-\method{HVFInfo}{Assay5}(object, method = NULL, status = FALSE, layer = NULL, strip = TRUE, ...)
+\method{HVFInfo}{Assay5}(object, method = NULL, status = FALSE, layer = NA, strip = TRUE, ...)
 
 \method{VariableFeatures}{Assay5}(
   object,

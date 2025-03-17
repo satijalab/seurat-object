@@ -7,7 +7,7 @@
 \alias{VariableFeatures<-.StdAssay}
 \title{Highly Variable Features}
 \usage{
-\method{HVFInfo}{StdAssay}(object, method = NULL, status = FALSE, layer = NULL, strip = TRUE, ...)
+\method{HVFInfo}{StdAssay}(object, method = NULL, status = FALSE, layer = NA, strip = TRUE, ...)
 
 \method{VariableFeatures}{StdAssay}(
   object,

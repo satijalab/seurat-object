@@ -972,57 +972,79 @@ HVFInfo.StdAssay <- function(
   object,
   method = NULL,
   status = FALSE,
-  layer = NULL,
+  layer = NA,
   strip = TRUE,
   ...
 ) {
-  # Find available HVF methods and layers
-  vf.methods.layers <- .VFMethodsLayers(object = object, type = 'hvf')
-  #vf.methods <- .VFMethods(object = object, type = 'hvf')
-  #vf.layers <- .VFLayers(object = object, type = 'hvf')
-  # Determine which method and layer to use
-  method <- method[length(methods)] %||% names(vf.methods.layers[length(vf.methods.layers)])
+  # Create a named list mapping HVF methods to the layers they're available for.
+  layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
+
+  if (length(layers_by_method) < 1) {
+    warning("Unable to find any highly variable feature information for the assay.")
+    return(NULL)
+  }
+
+  # If `method` is not provided, use the last one from `layer_by_method`.
+  if (is.null(method)) {
+    available_methods <- names(layers_by_method)
+    method <- available_methods[length(available_methods)]
+  }
+
+  # Normalize "mean.var.plot" to "mvp" and "dispersion" to "disp".
   method <- switch(
-    EXPR = tolower(x = method),
-    mean.var.plot = 'mvp',
-    dispersion = 'disp',
+    EXPR = tolower(method),
+    mean.var.plot = "mvp",
+    dispersion = "disp",
     method
   )
-  method <- tryCatch(
-    expr = match.arg(arg = method, choices = names(vf.methods.layers)),
-    error = function(...) {
-      return(NULL)
-    }
-  )
-  # If no methods found, return NULL
-  if (is.null(x = method)) {
-    return(method)
+
+  # Check `method` against the list of method names parsed via
+  # `.VFMethodsLayers` and throw an warning error if no match is found
+  # and return `NULL`.
+  if (!method %in% names(layers_by_method)) {
+    # `sprintf` cannot handle `NULL` values.
+    pretty_layer <- ifelse(is.null(layer), "NULL", layer)
+    warning(
+      sprintf(
+        paste(
+          "Unable to find highly variable feature information for",
+          "method='%s' and layer='%s'."
+        ),
+        method,
+        pretty_layer
+      )
+    )
+    return(NULL)
   }
-  vf.methods.layers <- unlist(vf.methods.layers, use.names = FALSE)
-  layer <- Layers(object = object, search = layer)
-  layer <- vf.methods.layers[which.min(x = adist(x = layer, y = vf.methods.layers))]
+
+  # Choose the appropriate layer for the specified `method`.
+  method_layers <- layers_by_method[[method]]
+  query_layers <- Layers(object, search = layer)
+  # If there are more than one, return the first.
+  layer <- method_layers[method_layers %in% query_layers][1L]
+
   # Find the columns for the specified method and layer
   cols <- grep(
-    pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
+    pattern = paste0(paste("^vf", method, layer, sep = "_"), "_"),
     x = colnames(x = object[[]]),
     value = TRUE
   )
   if (!isTRUE(x = status)) {
     cols <- setdiff(
       x = cols,
-      y = paste('vf', method, layer, c('variable', 'rank'), sep = '_')
+      y = paste("vf", method, layer, c("variable", "rank"), sep = "_")
     )
   }
   hvf.info <- object[[cols]]
   colnames(x = hvf.info) <- gsub(
-    pattern = '^vf_',
-    replacement = '',
+    pattern = "^vf_",
+    replacement = "",
     x = colnames(x = hvf.info)
   )
   if (isTRUE(x = strip)) {
     colnames(x = hvf.info) <- gsub(
-      pattern = paste0(paste(method, layer, sep = '_'), '_'),
-      replacement = '',
+      pattern = paste0(paste(method, layer, sep = "_"), "_"),
+      replacement = "",
       x = colnames(x = hvf.info)
     )
   }
