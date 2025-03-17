@@ -24,12 +24,30 @@ get_test_assay <- function(ncells, nfeatures, assay_version) {
 
 #' Mocks "highly variable feature" annotations and adds them to the
 #' feature-level metadata of `assay`.
-add_hvf_info <- function(assay, nfeatures, method_name, layer_name) {
-  variable_features <- sample(
-    rownames(assay),
-    size = nfeatures,
-    replace = FALSE
-  )
+add_hvf_info <- function(
+  assay, 
+  nfeatures = NULL,
+  features = NULL,
+  method_name, 
+  layer_name
+) {
+  if (is.null(nfeatures) & is.null(features)) {
+    # Ensure that one of `nfeatures` or `features` is set.
+    stop("One of `nfeatures` or `features` must be provided.")
+  } else if (!is.null(nfeatures) & !is.null(features)) {
+    # Ensure that only one of `nfeatures` or `features` is set.
+    stop("Only one of `nfeatures` or `feature` may be provided.")
+  } else if (!is.null(nfeatures)) {
+    # If `nfeatures` is provided, randomly sample from the `assay`'s features.
+    variable_features <- sample(
+      rownames(assay),
+      size = nfeatures,
+      replace = FALSE
+    )
+  } else {
+    # If `features` was provided, use it.
+    variable_features <- features
+  }
 
   all_features <- rownames(assay)
   constant_features <- setdiff(all_features, variable_features)
@@ -350,4 +368,78 @@ test_that("`HVFInfo.Assay5` works with multiple methods run on the same layer", 
   expect_identical(result, vst_info["value"])
   result <- HVFInfo(assay, method = "mvp", layer = NA)
   expect_identical(result, mvp_info["value"])
+})
+
+context("VariableFeatures")
+
+test_that("`VariableFeatures.Assay5` getter/setter works as expected", {
+  # Populate an assay with random values for testing.
+  assay <- get_test_assay(
+    ncells = 10,
+    nfeatures = 10,
+    assay_version = "v5"
+  )
+
+  # Set initial variable features (including some missing values).
+  test_features <- c(gene1 = "gene1", gene3 = "gene3", gene5 = "gene5")
+  assay[["var.features"]] <- test_features
+  expected_features <- c("gene1", "gene3", "gene5")
+  expect_identical(VariableFeatures(assay), expected_features)
+  expect_identical(VariableFeatures(assay, nfeatures = 2), expected_features[1:2])
+
+  # Set the ranking for the variable features.
+  test_rank <- c(gene1 = 3, gene3 = 1, gene5 = 2)
+  assay[["var.features.rank"]] <- test_rank
+  expected_features <- c("gene3", "gene5", "gene1")
+  expect_identical(VariableFeatures(assay), expected_features)
+  expect_identical(VariableFeatures(assay, nfeatures = 2), expected_features[1:2])
+
+  # Use the VariableFeatures setter to overwrite the current variable features.
+  expected_features <- c("gene10", "gene2", "gene8")
+  VariableFeatures(assay) <- expected_features
+  expect_identical(VariableFeatures(assay), expected_features)
+})
+
+test_that("`VariableFeatures` works with multi-layer assays", {
+  # Populate an assay with random values for testing.
+  assay <- get_test_assay(
+    ncells = 9,
+    nfeatures = 10,
+    assay_version = "v5"
+  )  
+  # Split the "counts" layer in thirds across it's columns and drop the original layer.
+  LayerData(assay, layer = "counts.1") <- LayerData(assay, layer = "counts")[, 1:3]
+  # Leave "gene10" out of "counts.2" so that it cannot be called variable.
+  LayerData(assay, layer = "counts.2") <- LayerData(assay, layer = "counts")[1:9, 4:6]
+  LayerData(assay, layer = "counts.3") <- LayerData(assay, layer = "counts")[, 7:9]
+  # Since it's first, "counts.1" would be chosen as the default layer when
+  # "counts" is dropped but we'll do it explicitly (also avoids a warning).
+  DefaultLayer(assay) <- "counts.1"
+  LayerData(assay, layer = "counts") <- NULL
+
+  # Add HVF metadata to each layer.
+  assay <- add_hvf_info(
+    assay,
+    features = c("gene1", "gene2", "gene3"),
+    method_name = "vst",
+    layer_name = "counts.1"
+  )
+  assay <- add_hvf_info(
+    assay,
+    features = c("gene3", "gene2", "gene4"),
+    method_name = "vst",
+    layer_name = "counts.2"
+  )
+  assay <- add_hvf_info(
+    assay,
+    features = c("gene1", "gene2", "gene10"),
+    method_name = "vst",
+    layer_name = "counts.3"
+  )
+
+  # Expect the consensus (aggregated) variable features from the 
+  # multi-layer assay.
+  expected_features <- c("gene2", "gene1", "gene3", "gene4")
+  expect_identical(VariableFeatures(assay), expected_features)
+  expect_identical(VariableFeatures(assay, nfeatures = 2), expected_features[1:2])
 })

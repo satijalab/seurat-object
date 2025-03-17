@@ -1,6 +1,7 @@
 # Unreleased
 
 ## Changes:
+- Fix bug in `VariableFeatures.StdAssay` (#245)
 - Fix bug in `HVFInfo.StdAssay` (#244)
 - Fix bug in `RenameCells.Seurat` (#237)
 - Fix bug in `subset.StdAssay` (#214)

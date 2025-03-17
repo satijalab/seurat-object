@@ -472,13 +472,6 @@ CreateAssay5Object <- function(
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
 }
 
-#' @method .SelectFeatures StdAssay
-#' @export
-#'
-.SelectFeatures.StdAssay <- function(object, ...) {
-  .NotYetImplemented()
-}
-
 #' @templateVar fxn AddMetaData
 #' @template method-stdassay
 #'
@@ -1553,112 +1546,100 @@ VariableFeatures.StdAssay <- function(
   method = NULL,
   layer = NA,
   simplify = TRUE,
-  nfeatures = Inf,
+  nfeatures = NULL,
   selection.method = deprecated(),
   ...
 ) {
   if (is_present(arg = selection.method)) {
     .Deprecate(
-      when = '5.0.0',
-      what = 'VariableFeatures(selection.method = )',
-      with = 'VariableFeatures(method = )'
+      when = "5.0.0",
+      what = "VariableFeatures(selection.method = )",
+      with = "VariableFeatures(method = )"
     )
     method <- selection.method
   }
-  nfeatures <- nfeatures %||% Inf
-  if ("var.features" %in% colnames(object[[]])) {
-    if ("var.features.rank" %in% colnames(object[[]])) {
-      var.features <- row.names(x = object[[]])[which(!is.na(object[[]]$var.features.rank))]
-      var.features <- var.features[order(object[[]][["var.features.rank"]][which(!is.na(object[[]]$var.features))])]
-    }
-    else {
-      var.features <- as.vector(object["var.features", drop = TRUE])
-      var.features <- var.features[!is.na(var.features)]
-    }
-    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) &
-        (is.infinite(x = nfeatures) || length(x = var.features) ==
-         nfeatures)) {
-      return(var.features)
-    }
+
+  label_column <- "var.features"
+  rank_column <- "var.features.rank"
+  feature_metadata <- object[[]]
+  # If `method` is not provided, and the assay's metadata contains at least 
+  # one of the default variable feature columns, with a request for a flat 
+  # (`simplify=TRUE`) and assay-wide output (`layer = NA`), then return 
+  # variable features directly from the assay's  feature-level metadata.
+  if (
+    is.null(method)
+    & (
+        (label_column %in% colnames(feature_metadata)) ||
+          (rank_column %in% colnames(feature_metadata))
+      )
+    & isTRUE(simplify)
+    & is.na(layer)
+  ) {
+    variable_features <- .GetVariableFeatures(
+      hvf_info = feature_metadata,
+      label_column = "var.features",
+      rank_column = "var.features.rank",
+      nfeatures = nfeatures
+    )
+    return(variable_features)
   }
-  msg <- 'No variable features found'
-  layer.orig <- layer
-  methods <- .VFMethodsLayers(object = object, type = 'hvf', layers = layer)
-  layer <- Layers(object = object, search = layer)
-  method <- method %||% names(x = methods)[length(x = methods)]
-  method <- match.arg(arg = method, choices = names(x = methods))
-  if (is_na(x = layer.orig) || is.null(x = layer.orig)) {
-    layer <- unlist(methods[method], use.names = FALSE)
+
+  # Otherwise, we will aggregate variable features layer by layer.
+  # First things first, determine the relevant layer(s) to use.
+  query_layers <- Layers(object, search = layer)
+  # If `method` is specified, only consider layers that have the corresponding
+  # feature-level metadata.
+  if (!is.null(method)) {
+    layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
+    method_layers <- layers_by_method[[method]]
+    query_layers <- method_layers[method_layers %in% query_layers]
   }
-  vf <- sapply(
-    X = layer,
-    FUN = function(lyr) {
+
+  # For each layer, extract the relevant metadata using `HVFInfo` and then 
+  # parse the variable feature names.
+  variable_features <- sapply(
+    query_layers,
+    function(.layer) {
       hvf.info <- HVFInfo(
-        object = object,
+        object,
         method = method,
-        layer = lyr,
+        layer = .layer,
         status = TRUE,
         strip = TRUE
       )
-      if (is.null(x = hvf.info)) {
-        return(NULL)
-      } else if (!'variable' %in% names(x = hvf.info)) {
-        return(NA)
-      }
-      vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
-      if ('rank' %in% names(x = hvf.info)) {
-        vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-      } else {
-        warn(message = paste0(
-          "No variable feature rank found for ",
-          sQuote(x = lyr),
-          ", returning features in assay order"
-        ))
-      }
+      .variable_features <- .GetVariableFeatures(
+        hvf_info = hvf.info,
+        label_column = "variable",
+        rank_column = "rank",
+        nfeatures = nfeatures
+      )
+      return(.variable_features)
     },
     simplify = FALSE,
     USE.NAMES = TRUE
   )
-  if (is.null(x = unlist(x = vf))) {
+
+  # If no variable features are found across layers, return NULL.
+  if (is.null(unlist(variable_features))) {
     return(NULL)
-  } else if (all(is.na(x = unlist(x = vf)))) {
-    abort(message = msg)
+  # If all extracted features are missing (NA), halt execution with an error.
+  } else if (all(is.na(unlist(variable_features)))) {
+    stop("No variable features found.")
   }
-  if (isTRUE(x = simplify)) {
-    vf <- .SelectFeatures(
-      object = vf,
-      all.features = intersect(
-        x = slot(object = object, name = 'features')[,layer]
-      ),
+
+  # If simplified output is requested, aggregate the variable features from all 
+  # layers by taking the most common `nfeatures`. Ties are resolved using each
+  # feature's median rank across all layers. If `nfeatures` is not provided, 
+  # the union of variable features for across all layers will be returned.
+  if (isTRUE(simplify)) {
+    variable_features <- .GetConsensusFeatures(
+      variable_features,
+      common_features = intersect(slot(object, "features")[, query_layers]),
       nfeatures = nfeatures
     )
   }
-  return(vf)
-  # hvf.info <- HVFInfo(
-  #   object = object,
-  #   method = method,
-  #   layer = layer,
-  #   status = TRUE,
-  #   strip = TRUE
-  # )
-  # if (is.null(x = hvf.info)) {
-  #   warning(msg, call. = FALSE, immediate. = TRUE)
-  #   return(NULL)
-  # }
-  # if (!'variable' %in% names(x = hvf.info)) {
-  #   stop(msg, call. = FALSE)
-  # }
-  # vf <- rownames(x = hvf.info)[which(x = hvf.info$variable)]
-  # if ('rank' %in% names(x = hvf.info)) {
-  #   vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-  # } else {
-  #   warning(
-  #     "No variable feature rank found, returning features in assay order",
-  #     call. = FALSE,
-  #     immediate. = TRUE
-  #   )
-  # }
-  # return(vf)
+
+  return(variable_features)
 }
 
 #' @param simplify When pulling for multiple layers, combine into a single
@@ -2688,6 +2669,180 @@ tail.Assay5 <- tail.StdAssay
     vf.list <- NULL
   }
   return(vf.list)
+}
+
+#' Returns the top variable features from a data frame of highly variable
+#' feature annotations. Features are marked as variable if their value in
+#' `label_column` is neither `NA` nor `FALSE`. When a ranking is provided via
+#' `rank_column`, features are ordered accordingly.
+#' 
+#' @param hvf_info A `data.frame` containing highly variable feature 
+#' annotations.
+#' @param label_column A column in `hvf_info` indicating which features
+#' are variable. A feature is considered variable if it's corresponding
+#' value is not `NA` or `FALSE`.
+#' @param rank_column A column in `hvf_info` indicating the rank of
+#' each feature.
+#' @param nfeatures The number of variable features to return.
+#' 
+#' @keywords internal
+#' 
+.GetVariableFeatures <- function(hvf_info, label_column, rank_column, nfeatures) {
+  # If neither `label_column` nor `rank_column` are present in `hvf_info`,
+  # just return `NULL`.
+  if (
+    (!label_column %in% colnames(hvf_info)) &
+      (!rank_column %in% colnames(hvf_info))
+  ) {
+    return(NULL)
+  }
+
+  # Create a boolean vector indicating which rows in `hvf_info` contain
+  # non-missing values in the `label_column` if it exists.
+  label_mask <- NULL
+  if (label_column %in% colnames(hvf_info)) {
+    feature_labels <- hvf_info[[label_column]]
+    # If a feature label is `NA` or `FALSE` then set it's value to false.
+    # Otherwise, treat the label as truthy.
+    label_mask <- ifelse(
+      is.na(feature_labels) | feature_labels == FALSE,
+      FALSE,
+      TRUE
+    )
+  }
+  # If a `rank_column` exists, filter out missing values and compute an
+  # ascending rank order.
+  rank_order <- NULL
+  rank_mask <- NULL
+  if (rank_column %in% colnames(hvf_info)) {
+    feature_rank <- hvf_info[[rank_column]]
+    rank_mask <- !is.na(feature_rank)
+    feature_rank <- feature_rank[rank_mask]
+    rank_order <- order(feature_rank)
+  }
+
+  # Warn if `label_mask` and `ranked_mask` are discordant (i.e some features
+  # have a label but no rank).
+  if (!is.null(label_mask) & !is.null(rank_mask)) {
+    # Identify the features labelled as variable but missing a corresponding rank.
+    missing_rank <- rownames(hvf_info)[label_mask & !rank_mask]
+    if (length(missing_rank) > 0) {
+      warning(
+        sprintf(
+          paste(
+            "The following features were labelled as variable in",
+            "'%s' but had no corresponding rank in `%s` and will",
+            "therefore be ignored: %s"
+          ),
+          label_column,
+          rank_column,
+          paste(sprintf("'%s'", missing_rank), collapse = ", ")
+        )
+      )
+    }
+  }
+
+  # If `nfeatures` is not specified `label_column` doesn't exist we're left
+  # with `rank_column` and so we'll return all features with a non-empty rank.
+  if (is.null(nfeatures) & is.null(label_mask)) {
+    warning(
+      sprintf(
+        paste(
+          "`nfeatures` is not specified and '%s' column is missing; returning",
+          "all features with a non-empty '%s'."
+        ),
+        label_column,
+        rank_column
+      )
+    )
+  }
+
+  # Set `nfeatures` to the count of labeled features if not explicitly provided.
+  nfeatures <- nfeatures %||% sum(label_mask)
+  # If a ranking is available use it to determine which features are variable.
+  feature_mask <- rank_mask %||% label_mask
+  # Warn if `nfeatures` exceeds the number of ranked and/or labelled features.
+  nlabelled <- sum(feature_mask)
+  if (nfeatures > sum(nlabelled)) {
+    warning(
+      sprintf(
+        paste(
+          "`nfeatures` (%d) exceeds the available features (%d) based on the",
+          "provided rank/label metadata. Returning all %d available features."
+        ),
+        nfeatures,
+        nlabelled,
+        nlabelled
+      )
+    )
+  }
+
+  # Apply `feature_mask` to feature names from `hvf_info` to get variable
+  # feature names.
+  variable_features <- rownames(hvf_info)[feature_mask]
+  # If a ranking is available, use it to sort the variable features.
+  if (!is.null(rank_order)) {
+    variable_features <- variable_features[rank_order]
+  }
+
+  # Select the top `nfeatures`.
+  variable_features <- variable_features[1:nfeatures]
+  return(variable_features)
+}
+
+#' Returns the most frequently observed features in `features_by_layer`. If 
+#' two features are observed at the same frequency their median index will be 
+#' used to break the tie. If `nfeatures` is not specified, all features in 
+#' `common_features` are returned.
+#' 
+#' @param features_by_layer A 2D named vector containing mapping each layer
+#' to it's corresponding variable features.
+#' @param common_features The intersection of features across all layers.
+#' @param nfeatures The number of variable features to return.
+#' 
+#' @keywords internal
+#' 
+.GetConsensusFeatures <- function(features_by_layer, common_features, nfeatures = NULL) {
+  # Create a data frame indicating the position that each feature
+  # appears in the layer-specific vectors given by `features_by_layer`.
+  position_df <- do.call(
+    rbind,
+    lapply(
+      features_by_layer,
+      function(.features) {
+        data.frame(
+          feature = .features,
+          index = seq_along(.features),
+          stringsAsFactors = FALSE
+        )
+      }
+    )
+  )
+  # Only consider features in `common_features`.
+  position_df <- position_df[position_df$feature %in% common_features, ]
+
+  # Count the number of times each feature appears.
+  feature_counts <- table(position_df$feature)
+  # Calculate the median position of each feature.
+  median_feature_positions <- tapply(position_df$index, position_df$feature, median)
+  # Combine the feature-metada into a data frame.
+  feature_df <- data.frame(
+    feature = names(feature_counts),
+    frequency = as.numeric(feature_counts),
+    median_position = as.numeric(median_feature_positions),
+    stringsAsFactors = FALSE
+  )
+
+  # Order the data frame by descending frequency and ascending position.
+  feature_df <- feature_df[order(-feature_df$frequency, feature_df$median_position), ]
+
+  # Take the first `nfeatures` if provided.
+  if (is.null(nfeatures)) {
+    consensus_features <- feature_df$feature
+  } else {
+    consensus_features <- head(feature_df$feature, nfeatures)
+  }
+  return(consensus_features)
 }
 
 CalcN5 <- function(object) {

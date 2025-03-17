@@ -1837,44 +1837,6 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   return(paths)
 }
 
-#' @rdname dot-SelectFeatures
-#' @method .SelectFeatures list
-#' @export
-#'
-.SelectFeatures.list <- function(
-  object,
-  all.features = NULL,
-  nfeatures = Inf,
-  ...
-) {
-  if (length(x = object) == 1L) {
-    return(head(x = object[[1L]], n = nfeatures))
-  }
-  features <- unlist(x = object, use.names = FALSE)
-  features <- sort(x = table(features), decreasing = TRUE)
-  # Select only features present in all entries
-  if (!is.null(x = all.features)) {
-    present <- intersect(x = names(x = features), y = all.features)
-    if (!length(x = present)) {
-      abort(
-        message = "None of the features provided are present in the feature set"
-      )
-    }
-    features <- features[present]
-  }
-  tie.val <- features[min(nfeatures, length(x = features))]
-  # Select features
-  selected <- names(x = features[which(x = features > tie.val)])
-  if (length(x = features)) {
-    selected <- .FeatureRank(features = selected, flist = object)
-  }
-  tied <- .FeatureRank(
-    features = names(x = features[which(x = features == tie.val)]),
-    flist = object
-  )
-  return(head(x = c(selected, tied), n = nfeatures))
-}
-
 #' @rdname as.Centroids
 #' @method as.Centroids Segmentation
 #' @export
