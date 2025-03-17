@@ -2,18 +2,25 @@
 % Please edit documentation in R/assay5.R
 \name{.GetConsensusFeatures}
 \alias{.GetConsensusFeatures}
-\title{Return the n most frequently observed features in `features_by_layer`, where
-n = `nfeatures`. If two features are observed at the same frequency,
-thee median index they appear in will be used to resolve their order. If
-`nfeatures` is not specified, all features found in `common_features` are
-returned.}
+\title{Returns the most frequently observed features in `features_by_layer`. If 
+two features are observed at the same frequency their median index will be 
+used to break the tie. If `nfeatures` is not specified, all features in 
+`common_features` are returned.}
 \usage{
 .GetConsensusFeatures(features_by_layer, common_features, nfeatures = NULL)
 }
-\description{
-Return the n most frequently observed features in `features_by_layer`, where
-n = `nfeatures`. If two features are observed at the same frequency,
-thee median index they appear in will be used to resolve their order. If
-`nfeatures` is not specified, all features found in `common_features` are
-returned.
+\arguments{
+\item{features_by_layer}{A 2D named vector containing mapping each layer
+to it's corresponding variable features.}
+
+\item{common_features}{The intersection of features across all layers.}
+
+\item{nfeatures}{The number of variable features to return.}
 }
+\description{
+Returns the most frequently observed features in `features_by_layer`. If 
+two features are observed at the same frequency their median index will be 
+used to break the tie. If `nfeatures` is not specified, all features in 
+`common_features` are returned.
+}
+\keyword{internal}
