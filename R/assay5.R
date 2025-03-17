@@ -2671,6 +2671,22 @@ tail.Assay5 <- tail.StdAssay
   return(vf.list)
 }
 
+#' Returns the top variable features from a data frame of highly variable
+#' feature annotations. Features are marked as variable if their value in
+#' `label_column` is neither `NA` nor `FALSE`. When a ranking is provided via
+#' `rank_column`, features are ordered accordingly.
+#' 
+#' @param hvf_info A `data.frame` containing highly variable feature 
+#' annotations.
+#' @param label_column A column in `hvf_info` indicating which features
+#' are variable. A feature is considered variable if it's corresponding
+#' value is not `NA` or `FALSE`.
+#' @param rank_column A column in `hvf_info` indicating the rank of
+#' each feature.
+#' @param nfeatures The number of variable features to return.
+#' 
+#' @keywords internal
+#' 
 .GetVariableFeatures <- function(hvf_info, label_column, rank_column, nfeatures) {
   # If neither `label_column` nor `rank_column` are present in `hvf_info`,
   # just return `NULL`.
