@@ -2774,11 +2774,18 @@ tail.Assay5 <- tail.StdAssay
   return(variable_features)
 }
 
-#' Return the n most frequently observed features in `features_by_layer`, where
-#' n = `nfeatures`. If two features are observed at the same frequency,
-#' thee median index they appear in will be used to resolve their order. If
-#' `nfeatures` is not specified, all features found in `common_features` are
-#' returned.
+#' Returns the most frequently observed features in `features_by_layer`. If 
+#' two features are observed at the same frequency their median index will be 
+#' used to break the tie. If `nfeatures` is not specified, all features in 
+#' `common_features` are returned.
+#' 
+#' @param features_by_layer A 2D named vector containing mapping each layer
+#' to it's corresponding variable features.
+#' @param common_features The intersection of features across all layers.
+#' @param nfeatures The number of variable features to return.
+#' 
+#' @keywords internal
+#' 
 .GetConsensusFeatures <- function(features_by_layer, common_features, nfeatures = NULL) {
   # Create a data frame indicating the position that each feature
   # appears in the layer-specific vectors given by `features_by_layer`.
