@@ -2362,11 +2362,11 @@ RenameCells.Seurat <- function(
           sprintf(
             paste(
               "`new.names` should be a named list or else be the same length",
-              "as `colnames(object)`: %i or `Cells(object)`: %i. ",
-              "`length(new.names)` was %i"
+              "as `colnames(object)` (%i) or `Cells(object)` (%i).",
+              "`length(new.names)` was %i."
             ),
-            length(old.names_all),
-            length(old.names_default),
+            length(all.cells),
+            length(default.cells),
             length(new.names)
           )
         )
@@ -3431,13 +3431,6 @@ merge.Seurat <- function(
         message = "Please provide a cell identifier for each object provided to merge"
       )
     }
-    # for (i in seq_along(along.with = add.cell.ids)) {
-    #   colnames(x = objects[[i]]) <- paste(
-    #     colnames(x = objects[[i]]),
-    #     add.cell.ids[[i]],
-    #     sep = '_'
-    #   )
-    # }
     for (i in 1:length(x = objects)) {
       objects[[i]] <- RenameCells(object = objects[[i]], add.cell.id = add.cell.ids[i])
     }
@@ -3461,10 +3454,6 @@ merge.Seurat <- function(
     simplify = FALSE,
     USE.NAMES = TRUE
   )
-  # TODO: Handle merging v3 and v5 assays
-  # if (any(sapply(X = assay.classes, FUN = length) != 1L)) {
-  #   stop("Cannot merge assays of different classes")
-  # }
   assays.all <- vector(mode = 'list', length = length(x = assays))
   names(x = assays.all) <- assays
   for (assay in assays) {
@@ -3483,7 +3472,7 @@ merge.Seurat <- function(
     assays.all[[assay]] <- merge(
       x = objects[[idx.x]][[assay]],
       y = lapply(X = objects[idx.y], FUN = '[[', assay),
-      labels = projects,
+      labels = projects[assay.objs],
       add.cell.ids = NULL,
       collapse = collapse,
       merge.data = merge.data
