@@ -878,9 +878,9 @@ SpatiallyVariableFeatures.Assay <- function(
     method <- selection.method
   }
   vf <- SVFInfo(object = object, method = method, status = TRUE)
-  vf <- vf[rownames(x = vf)[which(x = vf[, "variable"][, 1])], ]
+  vf <- vf[rownames(x = vf)[which(!is.na(x = vf[, "variable"]))], ]
   if (!is.null(x = decreasing)) {
-    vf <- vf[order(x = vf[, "rank"], decreasing = !decreasing), ]
+    vf <- vf[order(x = vf[, "rank"][, 1], decreasing = !decreasing), ]
   }
   return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
 }
@@ -911,12 +911,12 @@ SVFInfo.Assay <- function(
     EXPR = method,
     markvariogram = grep(
       pattern = "r.metric",
-      x = colnames(x = object[]),
+      x = colnames(x = object[[]]),
       value = TRUE
     ),
     moransi = grep(
-      pattern = 'moransi',
-      x = colnames(x = object[]),
+      pattern = 'MoransI',
+      x = colnames(x = object[[]]),
       value = TRUE
     ),
     abort(message = paste("Unknown method:", sQuote(x = method)))
@@ -925,7 +925,7 @@ SVFInfo.Assay <- function(
     expr = svf.info <- object[[vars]],
     error = function(e) {
       stop(
-        "Unable to find highly variable feature information for method '",
+        "Unable to find spatially variable feature information for method '",
         method,
         "'",
         call. = FALSE
