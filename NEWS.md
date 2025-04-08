@@ -1,6 +1,8 @@
 # Unreleased
 
 ## Changes:
+- Add `SVFInfo.Assay5` & `SpatiallyVariableFeatures.Assay5` (#242)
+- Fix bug in `SpatiallyVariableFeatures.Assay` (#242)
 - Fix bug in `merge.Seurat` (#246)
 - Fix bug in `VariableFeatures.StdAssay` (#245)
 - Fix bug in `HVFInfo.StdAssay` (#244)

@@ -871,18 +871,18 @@ SpatiallyVariableFeatures.Assay <- function(
   CheckDots(...)
   if (is_present(arg = selection.method)) {
     .Deprecate(
-      when = '5.0.0',
-      what = 'SpatiallyVariableFeatures(selection.method = )',
-      with = 'SpatiallyVariableFeatures(method = )'
+      when = "5.0.0",
+      what = "SpatiallyVariableFeatures(selection.method = )",
+      with = "SpatiallyVariableFeatures(method = )"
     )
     method <- selection.method
   }
   vf <- SVFInfo(object = object, method = method, status = TRUE)
-  vf <- vf[rownames(x = vf)[which(x = vf[, "variable"][, 1])], ]
+  vf <- vf[rownames(vf)[which(vf[, "variable"][, 1])], ]
   if (!is.null(x = decreasing)) {
-    vf <- vf[order(x = vf[, "rank"], decreasing = !decreasing), ]
+    vf <- vf[order(vf[, "rank"][, 1], decreasing = !decreasing), ]
   }
-  return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
+  return(rownames(vf))
 }
 
 #' @rdname VariableFeatures
@@ -899,24 +899,23 @@ SVFInfo.Assay <- function(
   CheckDots(...)
   if (is_present(arg = selection.method)) {
     .Deprecate(
-      when = '5.0.0',
-      what = 'SVFInfo(selection.method = )',
-      with = 'SVFInfo(method = )'
+      when = "5.0.0",
+      what = "SVFInfo(selection.method = )",
+      with = "SVFInfo(method = )"
     )
     method <- selection.method
   }
-  method <- method[1]
-  method <- match.arg(arg = method)
+  method <- match.arg(method)
   vars <- switch(
     EXPR = method,
     markvariogram = grep(
       pattern = "r.metric",
-      x = colnames(x = object[]),
+      x = colnames(object[[]]),
       value = TRUE
     ),
     moransi = grep(
-      pattern = 'moransi',
-      x = colnames(x = object[]),
+      pattern = "MoransI",
+      x = colnames(object[[]]),
       value = TRUE
     ),
     abort(message = paste("Unknown method:", sQuote(x = method)))
@@ -925,7 +924,7 @@ SVFInfo.Assay <- function(
     expr = svf.info <- object[[vars]],
     error = function(e) {
       stop(
-        "Unable to find highly variable feature information for method '",
+        "Unable to find spatially variable feature information for method '",
         method,
         "'",
         call. = FALSE
@@ -934,8 +933,8 @@ SVFInfo.Assay <- function(
   )
   colnames(x = svf.info) <- vars
   if (status) {
-    svf.info$variable <- object[[paste0(method, '.spatially.variable')]]
-    svf.info$rank <- object[[paste0(method, '.spatially.variable.rank')]]
+    svf.info$variable <- object[[paste0(method, ".spatially.variable")]]
+    svf.info$rank <- object[[paste0(method, ".spatially.variable.rank")]]
   }
   return(svf.info)
 }

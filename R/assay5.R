@@ -1684,11 +1684,36 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   return(object)
 }
 
-#' @rdname VariableFeatures
+#' @rdname VariableFeatures-StdAssay
 #' @method VariableFeatures<- Assay5
 #' @export
 #'
 "VariableFeatures<-.Assay5" <- `VariableFeatures<-.StdAssay`
+
+#' @rdname VariableFeatures
+#' @export
+#' @method SVFInfo StdAssay
+#'
+SVFInfo.StdAssay <- SVFInfo.Assay
+
+#' @rdname VariableFeatures-StdAssay
+#' @method SpatiallyVariableFeatures StdAssay
+#' @export
+#'
+SpatiallyVariableFeatures.StdAssay <- SpatiallyVariableFeatures.Assay
+
+#' @rdname VariableFeatures
+#' @method SVFInfo Assay5
+#' @export
+#'
+SVFInfo.Assay5 <- SVFInfo.StdAssay
+
+#' @rdname VariableFeatures
+#' @method SpatiallyVariableFeatures Assay5
+#' @export
+#'
+SpatiallyVariableFeatures.Assay5 <- SpatiallyVariableFeatures.StdAssay
+
 
 #' @method WhichCells StdAssay
 #' @export
