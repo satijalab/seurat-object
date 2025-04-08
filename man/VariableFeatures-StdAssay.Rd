@@ -5,6 +5,8 @@
 \alias{HVFInfo.StdAssay}
 \alias{VariableFeatures.StdAssay}
 \alias{VariableFeatures<-.StdAssay}
+\alias{VariableFeatures<-.Assay5}
+\alias{SpatiallyVariableFeatures.StdAssay}
 \title{Highly Variable Features}
 \usage{
 \method{HVFInfo}{StdAssay}(object, method = NULL, status = FALSE, layer = NA, strip = TRUE, ...)
@@ -20,6 +22,16 @@
 )
 
 \method{VariableFeatures}{StdAssay}(object, method = "custom", layer = NULL, ...) <- value
+
+\method{VariableFeatures}{Assay5}(object, method = "custom", layer = NULL, ...) <- value
+
+\method{SpatiallyVariableFeatures}{StdAssay}(
+  object,
+  method = "moransi",
+  decreasing = TRUE,
+  selection.method = deprecated(),
+  ...
+)
 }
 \arguments{
 \item{object}{An object}
@@ -55,6 +67,9 @@ vector and select a common set of variable features for all layers}
 \item{selection.method}{\Sexpr[stage=build,results=rd]{lifecycle::badge("deprecated")}}
 
 \item{value}{A character vector of variable features}
+
+\item{decreasing}{Return features in decreasing order (most spatially
+variable first).}
 }
 \value{
 \code{HVFInfo}: A data frame with feature means, dispersion, and
