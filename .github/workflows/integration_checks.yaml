@@ -1,23 +1,36 @@
 name: Integration Checks
 
-# Because `main` is a protected branch this workflow is triggered when a PR 
-# is opened/updated and again when it is merged.
 on:
-  push:
-    branches: 
-    - main
+  # Trigger the workflow when a PR is opened/updated against the default or
+  # any release branch.
   pull_request:
-    branches: 
+    branches:
     - main
+    - 'release/*'
+  # Trigger the workflow when commits are pushed to a release branch. 
+  # Because they are protected branches this workflow is effectively triggered 
+  # by three events:
+  # 1. When a release branch is initially created/pushed.
+  # 2. When a PR against the default or any release branch is opened/updated.
+  # 3. When a PR against the default or any release branch is merged.
+  push:
+    branches:
+    - main
+    - 'release/*'
+  # Allow the workflow to be triggered manually.
+  workflow_dispatch:
 
 jobs:
   check-package:
-    runs-on: ubuntu-latest
-    
+    # Override the default job name to differentiate it from similar jobs in 
+    # other workflows.
+    name: "check-package (r2u)"
+
     # Use the `satijalab/seurat-ci` Docker image as the runner environment. 
     # This image is pre-configured with everything required for running
     # integration checks, for more details, see
     # https://hub.docker.com/repository/docker/satijalab/seurat-ci/general.
+    runs-on: ubuntu-latest
     container:
       image: satijalab/seurat-ci:latest
 
@@ -35,15 +48,4 @@ jobs:
       # Run CRAN checks, if any ERRORs or WARNINGs are raised the check fails.
       - name: Run Checks
         run: rcmdcheck::rcmdcheck(args = "--as-cran", error_on="warning")
-        shell: Rscript {0}
-      
-      # Build the `pkgdown` site, if any errors are raised the check fails.
-      - name: Build Website
-        # Run this step even if the previous one failed.
-        if: always()
-        run: | 
-          pkgdown::build_site_github_pages(
-            new_process = FALSE, 
-            install = FALSE
-          )
         shell: Rscript {0}
