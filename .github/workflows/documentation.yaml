@@ -1,42 +1,62 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-on:
-  push:
-    branches: master
-  pull_request:
-    branches: master
-  release:
-    types: [published]
-  workflow_dispatch:
+name: Documentation
 
-name: pkgdown
+on:
+  # Allow the workflow to be triggered manually.
+  workflow_dispatch:
+    inputs:
+      # Allow the user to build the documentation site without deploying it.
+      deploy:
+        type: boolean
+        description: "Deploy to Pages"
 
 jobs:
-  pkgdown:
+  build-site:
+    # Use the `satijalab/seurat-ci` Docker image as the runner environment. 
+    # This image is pre-configured with everything required for running
+    # integration checks, for more details, see
+    # https://hub.docker.com/repository/docker/satijalab/seurat-ci/general.
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
-    concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    container:
+      image: satijalab/seurat-ci:latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: r-lib/actions/setup-pandoc@v2
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          use-public-rspm: true
-          extra-repositories: https://bnprks.r-universe.dev
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: local::.
-          needs: website
-      - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+      # Pull the latest changes from the repository down to the runner.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install the package's dependencies using scripts from `littler`,
+      # for more details see: https://eddelbuettel.github.io/littler/.
+      - name: Install Dependencies
+        run: installDeps.r -s
+
+      # Install the package and build the documentation site. By default the
+      # site's content is written to the `docs/` directory.
+      - name: Run pkgdown
+        run: pkgdown::build_site_github_pages(install = TRUE)
         shell: Rscript {0}
-      - name: Deploy to GitHub pages
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
+
+      # Archive the `docs/` directory to the `github-pages` artifact.
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          clean: false
-          branch: gh-pages
-          folder: docs
+          path: docs/
+
+  deploy-pages:
+    # Require the `build-site` job to complete successfully and for the 
+    # `deploy` input to be True.
+    needs: build-site
+    if: ${{ inputs.deploy }}
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment.
+    permissions:
+      pages: write
+      id-token: write
+
+    # Deploy to the github-pages environment.
+    environment:
+      name: github-pages
+
+    # Deploy the contents of the `github_pages` artifact.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/deploy-pages@v4
