@@ -67,7 +67,6 @@ Suggests:
   sf (>= 1.0.0),
   testthat
 LinkingTo: Rcpp, RcppEigen
-Enhances: Seurat
 Config/Needs/website: pkgdown
 BuildManual: true
 Encoding: UTF-8
