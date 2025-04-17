@@ -28,6 +28,9 @@ jobs:
 
     # Run checks with R-release, R-devel, and R-oldrelease.
     strategy:
+      # Make sure each job runs independently. When `fail-fast` is true 
+      # (by default) all jobs in the matrix are cancelled as soon as one fails.
+      fail-fast: false
       matrix:
         r-version: ['release', 'devel', 'oldrel']
 
