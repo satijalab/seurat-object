@@ -1,0 +1,62 @@
+name: Documentation
+
+on:
+  # Allow the workflow to be triggered manually.
+  workflow_dispatch:
+    inputs:
+      # Allow the user to build the documentation site without deploying it.
+      deploy:
+        type: boolean
+        description: "Deploy to Pages"
+
+jobs:
+  build-site:
+    # Use the `satijalab/seurat-ci` Docker image as the runner environment. 
+    # This image is pre-configured with everything required for running
+    # integration checks, for more details, see
+    # https://hub.docker.com/repository/docker/satijalab/seurat-ci/general.
+    runs-on: ubuntu-latest
+    container:
+      image: satijalab/seurat-ci:latest
+
+    steps:
+      # Pull the latest changes from the repository down to the runner.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install the package's dependencies using scripts from `littler`,
+      # for more details see: https://eddelbuettel.github.io/littler/.
+      - name: Install Dependencies
+        run: installDeps.r -s
+
+      # Install the package and build the documentation site. By default the
+      # site's content is written to the `docs/` directory.
+      - name: Run pkgdown
+        run: pkgdown::build_site_github_pages(install = TRUE)
+        shell: Rscript {0}
+
+      # Archive the `docs/` directory to the `github-pages` artifact.
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/
+
+  deploy-pages:
+    # Require the `build-site` job to complete successfully and for the 
+    # `deploy` input to be True.
+    needs: build-site
+    if: ${{ inputs.deploy }}
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment.
+    permissions:
+      pages: write
+      id-token: write
+
+    # Deploy to the github-pages environment.
+    environment:
+      name: github-pages
+
+    # Deploy the contents of the `github_pages` artifact.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/deploy-pages@v4
