@@ -1488,7 +1488,13 @@ subset.Assay <- function(x, cells = NULL, features = NULL, ...) {
     new(Class = 'matrix')
   }
   VariableFeatures(object = x) <- VariableFeatures(object = x)[VariableFeatures(object = x) %in% features]
-  slot(object = x, name = 'meta.features') <- x[[]][features, , drop = FALSE]
+
+  # Subset feature-level metadata.
+  meta.features <- x[[]]
+  meta.features <- meta.features[features, , drop = FALSE]
+  meta.features <- droplevels(meta.features)
+  slot(object = x, name = 'meta.features') <- meta.features
+
   validObject(object = x)
   return(x)
 }
