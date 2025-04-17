@@ -1,4 +1,4 @@
-name: Integration Checks
+name: Pre-Merge Checks
 
 on:
   # Trigger the workflow when a PR is opened/updated against the default or
