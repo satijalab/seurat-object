@@ -54,7 +54,7 @@ jobs:
           use-public-rspm: true
           # Specify additional repositories to pull dependencies not
           # available on CRAN (i.e. `BPCells`).
-          extra-repositories: ${{ 'https://bnprks.r-universe.dev' }}
+          extra-repositories: 'https://bnprks.r-universe.dev'
       
       # Install R dependencies.
       - name: Install Dependencies
