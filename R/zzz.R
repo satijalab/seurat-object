@@ -493,27 +493,3 @@ NameIndex <- function(x, names, MARGIN) {
     }
   }
 }
-
-.onLoad <- function(libname, pkgname) {
-  toset <- setdiff(x = names(x = Seurat.options), y = names(x = options()))
-  if (length(x = toset)) {
-    options(Seurat.options[toset])
-  }
-  setHook(
-    hookName = packageEvent(pkgname = 'Seurat', event = 'onLoad'),
-    value = .SetSeuratCompat
-  )
-  setHook(
-    hookName = packageEvent(pkgname = 'Signac', event = 'onLoad'),
-    value = .SetSeuratCompat
-  )
-  setHook(
-    hookName = packageEvent(pkgname = 'Seurat', event = 'attach'),
-    value = .SeuratCompatMessage
-  )
-  setHook(
-    hookName = packageEvent(pkgname = 'Signac', event = 'attach'),
-    value = .SeuratCompatMessage
-  )
-  return(invisible(x = NULL))
-}
