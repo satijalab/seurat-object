@@ -1,6 +1,7 @@
 # Unreleased
 
 ## Changes:
+- Drop `Seurat` from `Enhances`; update `.IsFutureSeurat` to avoid calling `requireNamespace('Seurat', ...)` (#250)
 - Update the `VariableFeatures.StdAssay` setter to apply a speedup (#240)
 - Add `SVFInfo.Assay5` & `SpatiallyVariableFeatures.Assay5` (#242)
 - Fix bug in `SpatiallyVariableFeatures.Assay` (#242)
