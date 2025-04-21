@@ -241,6 +241,42 @@ setOldClass(Classes = 'package_version')
   return(length(x = class(x = x)) == 1L && inherits(x = x, what = 'data.frame'))
 }
 
+#' Test Future Compatibility with \pkg{Seurat}
+#'
+#' Check to see if \pkg{SeuratObject} and/or \pkg{Seurat} are at least a
+#' specific version or if they're configured to act as if they're a
+#' specific version (see details below). This allows testing compatibility with
+#' future requirements for both \pkg{SeuratObject} and \pkg{Seurat}
+#'
+#' Blah blah blah
+#'
+#' @inheritParams utils::packageVersion
+#' @param version A version string or object of class
+#' \code{\link{package_version}}
+#'
+#' @return \code{TRUE} if \pkg{SeuratObject} and/or \pkg{Seurat}
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @aliases IsFutureSeurat
+#'
+.IsFutureSeurat <- function(version, lib.loc = NULL) {
+  version <- package_version(x = version)
+  opt <- paste0(
+    'Seurat.future.v',
+    gsub(pattern = '\\.', replacement = '_', x = as.character(x = version))
+  )
+  future <- isTRUE(x = getOption(x = opt, default = FALSE)) ||
+    packageVersion(pkg = 'SeuratObject', lib.loc = lib.loc) >= version
+  if (requireNamespace('Seurat', quietly = TRUE)) {
+    future <- future ||
+      packageVersion(pkg = 'Seurat', lib.loc = lib.loc) >= version
+  }
+  return(future)
+}
+
 .IsNull <- function(x) {
   return(vapply(X = x, FUN = is.null, FUN.VALUE = logical(length = 1L)))
 }
