@@ -1,6 +1,7 @@
 # Unreleased
 
 ## Changes:
+- Update the `VariableFeatures.StdAssay` setter to apply a speedup (#240)
 - Add `SVFInfo.Assay5` & `SpatiallyVariableFeatures.Assay5` (#242)
 - Fix bug in `SpatiallyVariableFeatures.Assay` (#242)
 - Fix bug in `merge.Seurat` (#246)
