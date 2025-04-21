@@ -1,6 +1,7 @@
 # Unreleased
 
 ## Changes:
+- Fix bug in `WhichCells.Seurat` (@maxim-h, #219)
 - Update `subset.Seurat` to call `droplevels` on the input's cell-level `meta.data` slot; update `subset.Assay` to call `droplevels` on the input's feature-level `meta.features` slot; update `subset.StdAssay` to call `droplevels` on the input's feature-level `meta.data` slot (#251)
 - Update `UpdateSeuratObject` to call `droplevels` on the input's cell-level `meta.data` slot (@samuel-marsh, #247)
 - Drop `Seurat` from `Enhances`; update `.IsFutureSeurat` to avoid calling `requireNamespace('Seurat', ...)` (#250)
