@@ -1,6 +1,7 @@
 # Unreleased
 
 ## Changes:
+- Update `UpdateSeuratObject` to call `droplevels` on the input's cell-level `meta.data` slot (#247)
 - Drop `Seurat` from `Enhances`; update `.IsFutureSeurat` to avoid calling `requireNamespace('Seurat', ...)` (#250)
 - Update the `VariableFeatures.StdAssay` setter to apply a speedup (#240)
 - Add `SVFInfo.Assay5` & `SpatiallyVariableFeatures.Assay5` (#242)
