@@ -973,7 +973,7 @@ HVFInfo.StdAssay <- function(
   layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
 
   if (length(layers_by_method) < 1) {
-    warning("Unable to find any highly variable feature information for the assay.")
+    # If no HVF metadata is present for the specified `assay`, return `NULL`.
     return(NULL)
   }
 
