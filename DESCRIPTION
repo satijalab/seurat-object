@@ -1,6 +1,6 @@
 Package: SeuratObject
 Title: Data Structures for Single Cell Data
-Version: 5.0.99.9010
+Version: 5.0.99.9011
 Authors@R: c(
   person(given = 'Paul', family = 'Hoffman', email = 'hoff0792@alumni.umn.edu', role = 'aut', comment = c(ORCID = '0000-0002-7693-8957')),
   person(given = 'Rahul', family = 'Satija', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0001-9448-8833')),
@@ -67,7 +67,6 @@ Suggests:
   sf (>= 1.0.0),
   testthat
 LinkingTo: Rcpp, RcppEigen
-Enhances: Seurat
 Config/Needs/website: pkgdown
 BuildManual: true
 Encoding: UTF-8

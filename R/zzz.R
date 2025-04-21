@@ -270,9 +270,12 @@ setOldClass(Classes = 'package_version')
   )
   future <- isTRUE(x = getOption(x = opt, default = FALSE)) ||
     packageVersion(pkg = 'SeuratObject', lib.loc = lib.loc) >= version
-  if (requireNamespace('Seurat', quietly = TRUE)) {
+  # If `Seurat` is installed, check against it's version.
+  # This is a (probably bad/hacky) workaround to avoid calling `requireNamespace`
+  # and forcing us to list `Seurat` as a dependency.
+  if (nzchar(system.file(package = "Seurat"))) {
     future <- future ||
-      packageVersion(pkg = 'Seurat', lib.loc = lib.loc) >= version
+      packageVersion("Seurat", lib.loc = lib.loc) >= version
   }
   return(future)
 }
