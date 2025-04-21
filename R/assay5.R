@@ -973,7 +973,7 @@ HVFInfo.StdAssay <- function(
   layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
 
   if (length(layers_by_method) < 1) {
-    warning("Unable to find any highly variable feature information for the assay.")
+    # If no HVF metadata is present for the specified `assay`, return `NULL`.
     return(NULL)
   }
 
@@ -2790,21 +2790,6 @@ tail.Assay5 <- tail.StdAssay
   nfeatures <- nfeatures %||% sum(label_mask)
   # If a ranking is available use it to determine which features are variable.
   feature_mask <- rank_mask %||% label_mask
-  # Warn if `nfeatures` exceeds the number of ranked and/or labelled features.
-  nlabelled <- sum(feature_mask)
-  if (nfeatures > sum(nlabelled)) {
-    warning(
-      sprintf(
-        paste(
-          "`nfeatures` (%d) exceeds the available features (%d) based on the",
-          "provided rank/label metadata. Returning all %d available features."
-        ),
-        nfeatures,
-        nlabelled,
-        nlabelled
-      )
-    )
-  }
 
   # Apply `feature_mask` to feature names from `hvf_info` to get variable
   # feature names.
