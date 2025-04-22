@@ -1,41 +1,13 @@
-# SeuratObject v5.0.2
+# SeuratObject v5.1.0
 
 ## Test environments
-* local ubuntu 20.04 install, R 4.3.2
-* local macOS 14.1, R 4.4.0
-* win-builder (oldrelease, release, devel)
-* mac-builder (devel)
-
-We were unable to test on r-release on mac-builder because the portal seemed to point to the wrong version.
+* Ubuntu 22.04 (Docker container): R-release
+* Ubuntu 24.04 (GitHub Actions Runner): R-oldrelease, R-release, R-devel
+* [win-builder](https://win-builder.r-project.org/): R-oldrelease, R-release, R-devel
+* [macOS builder](https://mac.r-project.org/macbuilder/submit.html): R-release, R-devel
 
 ## R CMD check results
+Status: OK
 
-There were no ERRORs or WARNINGs
-
-There were two NOTEs
-
-> * checking CRAN incoming feasibility ... NOTE
-> Maintainer: 'Rahul Satija <seurat@nygenome.org>'
-> 
-> New maintainer:
->   Rahul Satija <seurat@nygenome.org>
-> Old maintainer(s):
->   Paul Hoffman <seurat@nygenome.org>
-> Suggests or Enhances not in mainstream repositories:
->   BPCells
-> Availability using Additional_repositories specification:
->   BPCells   yes  https://bnprks.r-universe.dev
-
-The new maintainer is Rahul Satija, the email address has remained the same.
-
-> * checking package dependencies ... NOTE
-> Package suggested but not available for checking: 'BPCells'
-
-BPCells is hosted on R-universe and used conditionally in SeuratObject.
-
-## Downstream dependencies
-There are 2 packages that depend on SeuratObject: Seurat, and tidyseurat; this update does not impact their functionality.
-
-There are 9 packages that import SeuratObject: APackOfTheClones, bbknnR, CAMML, Platypus, scAnnotate, scaper, scCustomize, scpoisson, and Signac; this update does not impact their functionality.
-
-There are 10 packages that suggest SeuratObject: cellpypes, CytoSimplex, RESET, rliger, scOntoMatch, SCpubr, singleCellHaystack, SpaTopic, SPECK, and VAM; this update does not impact their functionality.
+## Reverse dependency check results
+We checked 25 reverse dependencies, comparing `R CMD check` results across the CRAN and dev versions of this package, and saw no new problems.
