@@ -1,13 +1,17 @@
 # Unreleased
 
+## Changes
+
+# SeuratObject 5.1.0
+
 ## Changes:
-- Fix bug in `UpdateSeuratObject` (@neanderthalensis, #210)
-- Fix bug in `WhichCells.Seurat` (@maxim-h, #219)
 - Update `subset.Seurat` to call `droplevels` on the input's cell-level `meta.data` slot; update `subset.Assay` to call `droplevels` on the input's feature-level `meta.features` slot; update `subset.StdAssay` to call `droplevels` on the input's feature-level `meta.data` slot (#251)
 - Update `UpdateSeuratObject` to call `droplevels` on the input's cell-level `meta.data` slot (@samuel-marsh, #247)
 - Drop `Seurat` from `Enhances`; update `.IsFutureSeurat` to avoid calling `requireNamespace('Seurat', ...)` (#250)
 - Update the `VariableFeatures.StdAssay` setter to apply a speedup (#240)
 - Add `SVFInfo.Assay5` & `SpatiallyVariableFeatures.Assay5` (#242)
+- Fix bug in `UpdateSeuratObject` (@neanderthalensis, #210)
+- Fix bug in `WhichCells.Seurat` (@maxim-h, #219)
 - Fix bug in `SpatiallyVariableFeatures.Assay` (#242)
 - Fix bug in `merge.Seurat` (#246)
 - Fix bug in `VariableFeatures.StdAssay` (#245)
