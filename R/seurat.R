@@ -2799,6 +2799,23 @@ WhichCells.Seurat <- function(
       replacement = '',
       x = expr.char
     )
+    if (any(grepl('is.na', expr.char))) {
+      expr.char <- gsub(
+        pattern = 'is.na',
+        replacement = '',
+        x = expr.char
+      )
+      expr.char <- gsub(
+        pattern = '!',
+        replacement = '',
+        x = expr.char
+      )
+      expr.char <- gsub(
+        pattern = ')',
+        replacement = '',
+        x = expr.char
+      )
+    }
     vars.use <- which(
       x = expr.char %in% rownames(x = object) |
         expr.char %in% colnames(x = object[[]]) |

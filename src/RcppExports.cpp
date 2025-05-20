@@ -34,7 +34,7 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP isnull(SEXP);
+RcppExport SEXP isnull(void *);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_SeuratObject_GraphToNeighborHelper", (DL_FUNC) &_SeuratObject_GraphToNeighborHelper, 1},

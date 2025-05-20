@@ -320,6 +320,13 @@ test_that("passing an expression works", {
   expect_equal(lyz.pos[30], "CTTGATTGATCTTC")
 })
 
+test("!is.na() works", {
+  pbmc_small$nCount_with_NA <- pbmc_small$nCount_RNA
+  pbmc_small$nCount_with_NA[1:10] <- NA
+  pbmc_small1 <- subset(pbmc_small, subset = !is.na(nCount_with_NA))
+  expect_equal(ncol(pbmc_small1), 70)
+})
+
 # Tests for small other functions
 # ------------------------------------------------------------------------------
 test_that("Top works", {
