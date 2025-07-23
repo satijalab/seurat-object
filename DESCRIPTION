@@ -53,6 +53,7 @@ Imports:
   progressr,
   Rcpp (>= 1.0.5),
   rlang (>= 0.4.7),
+  sf (>= 1.0.0),
   spam,
   stats,
   tools,
@@ -64,7 +65,6 @@ Suggests:
   ggplot2,
   HDF5Array,
   rmarkdown,
-  sf (>= 1.0.0),
   testthat
 LinkingTo: Rcpp, RcppEigen
 Config/Needs/website: pkgdown

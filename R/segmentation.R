@@ -12,13 +12,22 @@ NULL
 
 #' The \code{Segmentation} Class
 #'
+#' A container for cell segmentation boundaries.
+#' Inherits from \code{\link[sp:SpatialPolygons-class]{SpatialPolygons}}.
+#' Supports storing boundaries in \code{\link[sf]{sf}} objects.
+#'
+#' @slot sf.data Segmentation boundaries in \code{\link[sf]{sf}} format
+#'
 #' @family segmentation
 #' @templateVar cls Segmentation
 #' @template seealso-methods
 #'
 setClass(
   Class = 'Segmentation',
-  contains = 'SpatialPolygons'
+  contains = 'SpatialPolygons',
+  slots = list(
+    sf.data = 'sf'
+  )
 )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,6 +131,24 @@ CreateSegmentation.data.frame <- function(coords) {
 #'
 CreateSegmentation.Segmentation <- function(coords) {
   return(coords)
+}
+
+#' @rdname CreateSegmentation
+#' @method CreateSegmentation sf
+#' @export
+#'
+CreateSegmentation.sf <- function(coords) {
+  # Method is called when creating Segmentation from an sf object
+  # Convert sf object to SpatialPolygons
+  sp_obj <- as(object = coords, Class = 'Spatial')
+
+  obj <- new(
+    Class = 'Segmentation',
+    sp_obj,
+    sf.data = coords # Store sf data in its original format
+  )
+
+  return(obj)
 }
 
 #' @method Crop Segmentation
@@ -242,13 +269,48 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @details \code{[[<-}: Attach an \code{sf} object to a \code{Segmentation} object
+#'
+#' @return \code{[[<-}: If \code{value} is an \code{sf} object,
+#' returns \code{x} with \code{value} stored in \code{sf};
+#' requires that \code{i} is \dQuote{sf.data}.
+#'
+#' @rdname Segmentation-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Segmentation',
+    i = 'character',
+    j = 'missing',
+    value = 'sf'
+  ),
+  definition = function(x, i, ..., value) {
+    if (i == "sf.data") {
+      # Update sf.data slot
+      slot(object = x, name = 'sf.data') <- value
+      validObject(x)
+      return(x)
+    } else {
+      stop("Cannot assign sf object to slot '", i, "' in Segmentation object", call. = FALSE)
+    }
+  }
+)
+
 #' @rdname Segmentation-methods
 #'
 setMethod(
   f = '[',
   signature = c(x = 'Segmentation'),
   definition = function(x, i, j, ..., drop = TRUE) {
+    # Ensure that subsetting preserves sf.data
+    sf_data <- slot(object = x, name = 'sf.data')
+    if (!is.null(sf_data)) {
+      sf_data <- sf_data[i, j, drop = drop]
+    }
     x <- callNextMethod()
+    # Update the sf.data slot with the subsetted sf data
+    slot(object = x, name = 'sf.data') <- sf_data
     return(as(object = x, Class = 'Segmentation'))
   }
 )
