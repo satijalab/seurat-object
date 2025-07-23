@@ -269,12 +269,15 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @details \code{[[<-}: Attach an \code{sf} object to a \code{Segmentation} object
+#' @details \code{[[<-}: Attach or remove \code{sf} object to/from a \code{Segmentation} object
 #'
-#' @return \code{[[<-}: If \code{value} is an \code{sf} object,
-#' returns \code{x} with \code{value} stored in \code{sf};
-#' requires that \code{i} is \dQuote{sf.data}.
-#'
+#' @return \code{[[<-}: 
+#' \itemize{
+#'  \item If \code{value} is an \code{sf} object,
+#'  returns \code{x} with \code{value} stored in \code{sf};
+#'  requires that \code{i} is \dQuote{sf.data}.
+#'  \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf} removed.
+#' }
 #' @rdname Segmentation-methods
 #'
 setMethod(
@@ -297,6 +300,29 @@ setMethod(
   }
 )
 
+#' @importFrom methods as
+#'
+#' @rdname Segmentation-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Segmentation',
+    i = 'character',
+    j = 'missing',
+    value = 'NULL'
+  ),
+  definition = function(x, i, ..., value) {
+    i <- match.arg(arg = i, choices = names(x = x))
+    # If the slot is sf.data, remove it
+    if (inherits(x = x[[i]], what = 'sf')) {
+      slot(object = x, name = 'sf.data') <- NULL
+    }
+    validObject(object = x)
+    return(x)
+  }
+)
+
 #' @rdname Segmentation-methods
 #'
 setMethod(
@@ -310,8 +336,10 @@ setMethod(
     }
     x <- callNextMethod()
     result <- as(object = x, Class = 'Segmentation')
-    # Update the sf.data slot with the subsetted sf data
-    slot(object = result, name = 'sf.data') <- sf_data
+    # Update the sf.data slot with the subsetted sf data, if it exists
+    if (!is.null(x = sf_data)) {
+      slot(object = result, name = 'sf.data') <- sf_data
+    }
     return(result)
   }
 )

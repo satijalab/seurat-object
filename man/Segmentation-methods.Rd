@@ -8,6 +8,7 @@
 \alias{lengths.Segmentation}
 \alias{subset.Segmentation}
 \alias{[[<-,Segmentation,character,missing,sf-method}
+\alias{[[<-,Segmentation,character,missing,NULL-method}
 \alias{[,Segmentation,ANY,ANY,ANY-method}
 \alias{coordinates,Segmentation-method}
 \alias{show,Segmentation-method}
@@ -24,6 +25,8 @@
 \method{subset}{Segmentation}(x, cells = NULL, ...)
 
 \S4method{[[}{Segmentation,character,missing,sf}(x, i, j, ...) <- value
+
+\S4method{[[}{Segmentation,character,missing,NULL}(x, i, j, ...) <- value
 
 \S4method{[}{Segmentation,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
 
@@ -70,9 +73,13 @@ for the cell. Note: \code{GetTissueCoordinates} ....
 \code{subset}, \code{[}: \code{x} subsetted to the cells specified
 by \code{cells}/\code{i}
 
-\code{[[<-}: If \code{value} is an \code{sf} object,
-returns \code{x} with \code{value} stored in \code{sf};
-requires that \code{i} is \dQuote{sf.data}.
+\code{[[<-}: 
+\itemize{
+ \item If \code{value} is an \code{sf} object,
+ returns \code{x} with \code{value} stored in \code{sf};
+ requires that \code{i} is \dQuote{sf.data}.
+ \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf} removed.
+}
 
 \code{show}: Invisibly returns \code{NULL}
 }
@@ -93,7 +100,7 @@ tissue coordinates
 \code{subset}, \code{[}: Subset a \code{Segmentation} object to
 certain cells
 
-\code{[[<-}: Attach an \code{sf} object to a \code{Segmentation} object
+\code{[[<-}: Attach or remove \code{sf} object to/from a \code{Segmentation} object
 
 \code{show}: Display an object summary to stdout
 }
