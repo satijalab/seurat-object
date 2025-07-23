@@ -7,7 +7,7 @@
 \alias{RenameCells.Segmentation}
 \alias{lengths.Segmentation}
 \alias{subset.Segmentation}
-\alias{[[<-,Segmentation,character,missing,sf-method}
+\alias{[[<-,Segmentation,character,missing,ANY-method}
 \alias{[[<-,Segmentation,character,missing,NULL-method}
 \alias{[,Segmentation,ANY,ANY,ANY-method}
 \alias{coordinates,Segmentation-method}
@@ -24,7 +24,7 @@
 
 \method{subset}{Segmentation}(x, cells = NULL, ...)
 
-\S4method{[[}{Segmentation,character,missing,sf}(x, i, j, ...) <- value
+\S4method{[[}{Segmentation,character,missing,ANY}(x, i, j, ...) <- value
 
 \S4method{[[}{Segmentation,character,missing,NULL}(x, i, j, ...) <- value
 

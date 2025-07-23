@@ -14,7 +14,7 @@ NULL
 #'
 #' A container for cell segmentation boundaries.
 #' Inherits from \code{\link[sp:SpatialPolygons-class]{SpatialPolygons}}.
-#' Supports storing boundaries in \code{\link[sf]{sf}} objects.
+#' Supports storing boundaries in objects of class \code{\link[sf]{sf}}.
 #'
 #' @slot sf.data Segmentation boundaries in \code{\link[sf]{sf}} format
 #'
@@ -26,7 +26,7 @@ setClass(
   Class = 'Segmentation',
   contains = 'SpatialPolygons',
   slots = list(
-    sf.data = 'sf'
+    sf.data = 'ANY'
   )
 )
 
@@ -286,10 +286,13 @@ setMethod(
     x = 'Segmentation',
     i = 'character',
     j = 'missing',
-    value = 'sf'
+    value = 'ANY'
   ),
   definition = function(x, i, ..., value) {
     if (i == "sf.data") {
+      if (!is.null(x = value) && !inherits(x = value, what = 'sf')) {
+        stop("Value assigned to 'sf.data' must inherit from the sf class", call. = FALSE)
+      }
       # Update sf.data slot
       slot(object = x, name = 'sf.data') <- value
       validObject(x)

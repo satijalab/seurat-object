@@ -7,7 +7,7 @@
 \description{
 A container for cell segmentation boundaries.
 Inherits from \code{\link[sp:SpatialPolygons-class]{SpatialPolygons}}.
-Supports storing boundaries in \code{\link[sf]{sf}} objects.
+Supports storing boundaries in objects of class \code{\link[sf]{sf}}.
 }
 \section{Slots}{
 
