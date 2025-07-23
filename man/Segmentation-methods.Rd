@@ -145,7 +145,8 @@ Segmentation layer classes:
 \code{\link{Centroids-methods}},
 \code{\link{Molecules-class}},
 \code{\link{Molecules-methods}},
-\code{\link{Segmentation-class}}
+\code{\link{Segmentation-class}},
+\code{\link{Segmentation-validity}}
 }
 \concept{future}
 \concept{segmentation}

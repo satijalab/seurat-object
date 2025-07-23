@@ -451,3 +451,43 @@ setMethod(
     cat("A spatial segmentation for", length(x = object), "cells\n")
   }
 )
+
+#' Segmentation Validity
+#'
+#' @templateVar cls Segmentation
+#' @template desc-validity
+#'
+#' @section sf.data Validation:
+#' Validates that the sf.data slot contains an object of class \code{sf}.
+#'
+#' @name Segmentation-validity
+#'
+#' @family segmentation
+#'
+#' @seealso \code{\link[methods]{validObject}}
+#'
+setValidity(
+  Class = 'Segmentation',
+  method = function(object) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
+      return(TRUE)
+    }
+    valid <- NULL
+    # Check sf.data slot
+    sf_data <- slot(object = object, name = 'sf.data')
+    if (!is.null(x = sf_data)) {
+      # If sf.data is populated, it should inherit from 'sf'
+      if (!inherits(x = sf_data, 'sf')) {
+        valid <- c(
+          valid,
+          "'sf.data' slot must inherit from 'sf' class"
+        )
+      }
+    }
+    return(valid %||% TRUE)
+  }
+)
