@@ -4,6 +4,7 @@
 \alias{CreateSegmentation}
 \alias{CreateSegmentation.data.frame}
 \alias{CreateSegmentation.Segmentation}
+\alias{CreateSegmentation.sf}
 \title{Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects}
 \usage{
 CreateSegmentation(coords)
@@ -11,6 +12,8 @@ CreateSegmentation(coords)
 \method{CreateSegmentation}{data.frame}(coords)
 
 \method{CreateSegmentation}{Segmentation}(coords)
+
+\method{CreateSegmentation}{sf}(coords)
 }
 \arguments{
 \item{coords}{The coordinates of cell segmentations}
