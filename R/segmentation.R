@@ -309,9 +309,10 @@ setMethod(
       sf_data <- sf_data[i, j, drop = drop]
     }
     x <- callNextMethod()
+    result <- as(object = x, Class = 'Segmentation')
     # Update the sf.data slot with the subsetted sf data
-    slot(object = x, name = 'sf.data') <- sf_data
-    return(as(object = x, Class = 'Segmentation'))
+    slot(object = result, name = 'sf.data') <- sf_data
+    return(result)
   }
 )
 
