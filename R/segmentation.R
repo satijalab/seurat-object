@@ -334,13 +334,14 @@ setMethod(
   definition = function(x, i, j, ..., drop = TRUE) {
     # Ensure that subsetting preserves sf.data
     sf_data <- slot(object = x, name = 'sf.data')
-    if (!is.null(sf_data)) {
+    if (!is.null(x = sf_data)) {
       sf_data <- sf_data[i, j, drop = drop]
     }
     x <- callNextMethod()
     result <- as(object = x, Class = 'Segmentation')
     # Update the sf.data slot with the subsetted sf data, if it exists
     if (!is.null(x = sf_data)) {
+      sf_data <- st_as_sf(sf_data)
       slot(object = result, name = 'sf.data') <- sf_data
     }
     return(result)
