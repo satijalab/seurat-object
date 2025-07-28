@@ -141,13 +141,13 @@ CreateSegmentation.sf <- function(coords) {
   # Method is called when creating Segmentation from an sf object
   # Convert sf object to SpatialPolygons
   sp_obj <- as(object = coords, Class = 'Spatial')
-
+  
   obj <- new(
     Class = 'Segmentation',
     sp_obj,
     sf.data = coords # Store sf data in its original format
   )
-
+  
   return(obj)
 }
 
@@ -248,6 +248,7 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   if (is.null(x = cells)) {
     return(x)
   }
+  sf_data <- slot(object = x, name = 'sf.data')
   if (is.numeric(x = cells)) {
     cells <- Cells(x = x)[cells]
     cells <- MatchCells(new = Cells(x = x), orig = cells, ordered = TRUE)
@@ -258,7 +259,14 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
     stop("None of the requested cells found")
   }
   x <- x[cells]
-  return(as(object = x, Class = 'Segmentation'))
+  result <- as(object = x, Class = 'Segmentation')
+  # If sf.data is present, subset it as well
+  if (!is.null(x = sf_data)) {
+    sf_data <- sf_data[sf_data$barcodes %in% cells, ]
+    sf_data <- st_as_sf(sf_data)
+    slot(object = result, name = 'sf.data') <- sf_data
+  }
+  return(result)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
