@@ -139,7 +139,7 @@ CreateSegmentation.Segmentation <- function(coords) {
 #'
 CreateSegmentation.sf <- function(coords) {
   # Method is called when creating Segmentation from an sf object
-  # Convert sf object to SpatialPolygons
+  # Convert sf object to SpatialPolygons first
   sp_obj <- as(object = coords, Class = 'Spatial')
   
   obj <- new(
@@ -147,6 +147,17 @@ CreateSegmentation.sf <- function(coords) {
     sp_obj,
     sf.data = coords # Store sf data in its original format
   )
+  
+  # Set the cell IDs properly by updating the polygon IDs
+  if ("barcodes" %in% names(coords)) {
+    polygons <- slot(object = obj, name = 'polygons')
+    for (i in seq_along(polygons)) {
+      slot(object = polygons[[i]], name = 'ID') <- coords$barcodes[i]
+    }
+    # Update the names of the polygons list
+    names(polygons) <- coords$barcodes
+    slot(object = obj, name = 'polygons') <- polygons
+  }
   
   return(obj)
 }
