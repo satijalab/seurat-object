@@ -37,6 +37,7 @@ Other contributors:
   \item Saket Choudhary \email{schoudhary@nygenome.org} (\href{https://orcid.org/0000-0001-5202-7633}{ORCID}) [contributor]
   \item Skylar Li \email{sli@nygenome.org} [contributor]
   \item Longda Jiang \email{ljiang@nygenome.org} (\href{https://orcid.org/0000-0003-4964-6497}{ORCID}) [contributor]
+  \item Anagha Shenoy \email{ashenoy@nygenome.org} (\href{https://orcid.org/0000-0002-0537-6862}{ORCID}) [contributor]
   \item Jeff Farrell \email{jfarrell@g.harvard.edu} [contributor]
   \item Shiwei Zheng \email{szheng@nygenome.org} (\href{https://orcid.org/0000-0001-6682-6743}{ORCID}) [contributor]
   \item Christoph Hafemeister \email{chafemeister@nygenome.org} (\href{https://orcid.org/0000-0001-6365-8254}{ORCID}) [contributor]

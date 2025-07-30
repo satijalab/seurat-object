@@ -1,6 +1,6 @@
 Package: SeuratObject
 Title: Data Structures for Single Cell Data
-Version: 5.1.99.9000
+Version: 5.2.0
 Authors@R: c(
   person(given = 'Paul', family = 'Hoffman', email = 'hoff0792@alumni.umn.edu', role = 'aut', comment = c(ORCID = '0000-0002-7693-8957')),
   person(given = 'Rahul', family = 'Satija', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0001-9448-8833')),
@@ -14,6 +14,7 @@ Authors@R: c(
   person(given = "Saket", family = "Choudhary", email = "schoudhary@nygenome.org", role = "ctb", comment = c(ORCID = "0000-0001-5202-7633")),
   person(given = "Skylar", family = "Li", email = "sli@nygenome.org", role = "ctb"),
   person(given = "Longda", family = "Jiang", email = "ljiang@nygenome.org", role = "ctb", comment = c(ORCID = "0000-0003-4964-6497")),
+  person(given = "Anagha", family = "Shenoy", email = "ashenoy@nygenome.org", role = "ctb", comment = c(ORCID = "0000-0002-0537-6862")),
   person(given = 'Jeff', family = 'Farrell', email = 'jfarrell@g.harvard.edu', role = 'ctb'),
   person(given = 'Shiwei', family = 'Zheng', email = 'szheng@nygenome.org', role = 'ctb', comment = c(ORCID = '0000-0001-6682-6743')),
   person(given = 'Christoph', family = 'Hafemeister', email = 'chafemeister@nygenome.org', role = 'ctb', comment = c(ORCID = '0000-0001-6365-8254')),
@@ -53,7 +54,6 @@ Imports:
   progressr,
   Rcpp (>= 1.0.5),
   rlang (>= 0.4.7),
-  sf (>= 1.0.0),
   spam,
   stats,
   tools,
@@ -62,6 +62,7 @@ Suggests:
   BPCells,
   DelayedArray,
   fs (>= 1.5.2),
+  sf (>= 1.0.0),
   ggplot2,
   HDF5Array,
   rmarkdown,
