@@ -50,6 +50,8 @@
 to all cells}
 
 \item{j, drop}{Ignored}
+
+\item{value}{The value to assign to the slot specified by \code{i} in the \code{Segmentation} object.}
 }
 \value{
 \code{Cells}: A vector of cell names

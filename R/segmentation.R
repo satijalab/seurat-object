@@ -228,6 +228,11 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
     SIMPLIFY = FALSE,
     USE.NAMES = TRUE
   )
+  sf <- slot(object = object, name = 'sf.data')
+  if (!is.null(x = sf)) {
+    sf$barcodes <- new.names
+    slot(object = object, name = 'sf.data') <- sf
+  }
   return(object)
 }
 
@@ -274,7 +279,7 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   # If sf.data is present, subset it as well
   if (!is.null(x = sf_data)) {
     sf_data <- sf_data[sf_data$barcodes %in% cells, ]
-    sf_data <- st_as_sf(sf_data)
+    sf_data <- sf::st_as_sf(sf_data)
     slot(object = result, name = 'sf.data') <- sf_data
   }
   return(result)
@@ -297,6 +302,7 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
 #'  requires that \code{i} is \dQuote{sf.data}.
 #'  \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf} removed.
 #' }
+#' @param value The value to assign to the slot specified by \code{i} in the \code{Segmentation} object.
 #' @rdname Segmentation-methods
 #'
 setMethod(
@@ -324,6 +330,7 @@ setMethod(
 
 #' @importFrom methods as
 #'
+#' @param value The value to assign to the slot specified by \code{i} in the \code{Segmentation} object.
 #' @rdname Segmentation-methods
 #'
 setMethod(
@@ -360,7 +367,7 @@ setMethod(
     result <- as(object = x, Class = 'Segmentation')
     # Update the sf.data slot with the subsetted sf data, if it exists
     if (!is.null(x = sf_data)) {
-      sf_data <- st_as_sf(sf_data)
+      sf_data <- sf::st_as_sf(sf_data)
       slot(object = result, name = 'sf.data') <- sf_data
     }
     return(result)
