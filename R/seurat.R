@@ -1048,7 +1048,7 @@ UpdateSeuratObject <- function(object) {
               }
             },
             error = function(e) {
-              message("No segmentations found in ", x)
+              message("Error checking for segmentations in FOV ", sQuote(fov_name))
             }
           )
         }

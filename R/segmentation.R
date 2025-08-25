@@ -323,7 +323,7 @@ setMethod(
       validObject(x)
       return(x)
     } else {
-      stop("Cannot assign sf object to slot '", i, "' in Segmentation object", call. = FALSE)
+      stop("Cannot assign value to slot '", i, "' in Segmentation object", call. = FALSE)
     }
   }
 )
@@ -342,10 +342,13 @@ setMethod(
     value = 'NULL'
   ),
   definition = function(x, i, ..., value) {
-    i <- match.arg(arg = i, choices = names(x = x))
-    # If the slot is sf.data, remove it
-    if (inherits(x = x[[i]], what = 'sf')) {
-      slot(object = x, name = 'sf.data') <- NULL
+    if (i == "sf.data") {
+      if (is.null(x = slot(object = x, name = 'sf.data'))) {
+        warning("The 'sf.data' slot is already NULL", call. = FALSE)
+        return(x)
+      } else {
+        slot(object = x, name = 'sf.data') <- NULL
+      }
     }
     validObject(object = x)
     return(x)
@@ -361,7 +364,7 @@ setMethod(
     # Ensure that subsetting preserves sf.data
     sf_data <- slot(object = x, name = 'sf.data')
     if (!is.null(x = sf_data)) {
-      sf_data <- sf_data[i, j, drop = drop]
+      sf_data <- sf_data[i, , drop = drop]
     }
     x <- callNextMethod()
     result <- as(object = x, Class = 'Segmentation')
