@@ -1030,6 +1030,28 @@ UpdateSeuratObject <- function(object) {
       for (x in names(x = object)) {
         message("Updating slots in ", x)
         xobj <- object[[x]]
+        if (inherits(x = xobj, what = 'FOV')) {
+          # Get the segmentation object if it exists
+          fov_name <- x
+          message("Checking for segmentation object in FOV ", sQuote(fov_name))
+          tryCatch(
+            expr = {
+              boundaries <- slot(object = xobj, name = 'boundaries')
+              segm_exists <- "segmentations" %in% names(boundaries)
+              segm <- boundaries[["segmentations"]]
+              # Handle Segmentation objects that may be missing the sf.data slot
+              if (segm_exists && !.hasSlot(object = segm, name = 'sf.data')) {
+                message("Updating segmentation object in FOV ", sQuote(fov_name))
+                slot(object = segm, name = 'sf.data') <- NULL
+                boundaries[["segmentations"]] <- segm
+                slot(object = xobj, name = 'boundaries') <- boundaries
+              }
+            },
+            error = function(e) {
+              message("Error checking for segmentations in FOV ", sQuote(fov_name))
+            }
+          )
+        }
         xobj <- suppressWarnings(
           expr = UpdateSlots(object = xobj),
           classes = 'validationWarning'

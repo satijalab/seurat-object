@@ -18,6 +18,7 @@ NULL
 #' priority for visualization when the assay is set as the active/default assay
 #' in a \code{Seurat} object
 #' @template slot-key
+#' @template slot-misc
 #'
 #' @name SpatialImage-class
 #' @rdname SpatialImage-class
@@ -33,7 +34,11 @@ setClass(
   contains = 'VIRTUAL',
   slots = list(
     'assay' = 'character',
-    'key' = 'character'
+    'key' = 'character',
+    'misc' = 'OptionalList'
+  ),
+  prototype = list(
+    'misc' = list()
   )
 )
 

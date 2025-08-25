@@ -125,6 +125,7 @@ Segmentation layer classes:
 \code{\link{Molecules-class}},
 \code{\link{Molecules-methods}},
 \code{\link{Segmentation-class}},
-\code{\link{Segmentation-methods}}
+\code{\link{Segmentation-methods}},
+\code{\link{Segmentation-validity}}
 }
 \concept{segmentation}

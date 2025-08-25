@@ -5,8 +5,16 @@
 \alias{Segmentation-class}
 \title{The \code{Segmentation} Class}
 \description{
-The \code{Segmentation} Class
+A container for cell segmentation boundaries.
+Inherits from \code{\link[sp:SpatialPolygons-class]{SpatialPolygons}}.
+Supports storing boundaries in objects of class \code{\link[sf]{sf}}.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{sf.data}}{Segmentation boundaries in \code{\link[sf]{sf}} format}
+}}
+
 \seealso{
 \code{Segmentation} methods: \code{\link{Segmentation-methods}}
 
@@ -15,6 +23,7 @@ Segmentation layer classes:
 \code{\link{Centroids-methods}},
 \code{\link{Molecules-class}},
 \code{\link{Molecules-methods}},
-\code{\link{Segmentation-methods}}
+\code{\link{Segmentation-methods}},
+\code{\link{Segmentation-validity}}
 }
 \concept{segmentation}

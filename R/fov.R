@@ -121,6 +121,7 @@ CreateFOV.Centroids <- function(
   molecules = NULL,
   assay = 'Spatial',
   key = NULL,
+  misc = NULL,
   name = NULL,
   ...
 ) {
@@ -131,7 +132,8 @@ CreateFOV.Centroids <- function(
     coords = coords,
     molecules = molecules,
     assay = assay,
-    key = key
+    key = key,
+    misc = misc %||% list()
   ))
 }
 
@@ -147,6 +149,7 @@ CreateFOV.Centroids <- function(
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}}, or
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}}, name
 #' to store coordinates as
+#' @param misc A list of miscellaneous information to store with the object
 #'
 #' @rdname CreateFOV
 #' @method CreateFOV data.frame
@@ -161,6 +164,7 @@ CreateFOV.data.frame <- function(
   molecules = NULL,
   assay = 'Spatial',
   key = NULL,
+  misc = NULL,
   name = NULL,
   ...
 ) {
@@ -180,7 +184,8 @@ CreateFOV.data.frame <- function(
     coords = coords,
     molecules = molecules,
     assay = assay,
-    key = key
+    key = key,
+    misc = misc %||% list()
   ))
 }
 
@@ -194,6 +199,7 @@ CreateFOV.list <- function(
   molecules = NULL,
   assay = 'Spatial',
   key = NULL,
+  misc = NULL,
   ...
 ) {
   # Create a list of Molecules objects if provided; otherwise use an empty list
@@ -207,7 +213,8 @@ CreateFOV.list <- function(
     boundaries = coords,
     molecules = molecules,
     assay = assay,
-    key = key %||% Key(object = assay, quiet = TRUE)
+    key = key %||% Key(object = assay, quiet = TRUE),
+    misc = misc %||% list()
   )
   return(obj)
 }

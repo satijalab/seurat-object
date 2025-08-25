@@ -12,13 +12,22 @@ NULL
 
 #' The \code{Segmentation} Class
 #'
+#' A container for cell segmentation boundaries.
+#' Inherits from \code{\link[sp:SpatialPolygons-class]{SpatialPolygons}}.
+#' Supports storing boundaries in objects of class \code{\link[sf]{sf}}.
+#'
+#' @slot sf.data Segmentation boundaries in \code{\link[sf]{sf}} format
+#'
 #' @family segmentation
 #' @templateVar cls Segmentation
 #' @template seealso-methods
 #'
 setClass(
   Class = 'Segmentation',
-  contains = 'SpatialPolygons'
+  contains = 'SpatialPolygons',
+  slots = list(
+    sf.data = 'ANY'
+  )
 )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -124,6 +133,35 @@ CreateSegmentation.Segmentation <- function(coords) {
   return(coords)
 }
 
+#' @rdname CreateSegmentation
+#' @method CreateSegmentation sf
+#' @export
+#'
+CreateSegmentation.sf <- function(coords) {
+  # Method is called when creating Segmentation from an sf object
+  # Convert sf object to SpatialPolygons first
+  sp_obj <- as(object = coords, Class = 'Spatial')
+  
+  obj <- new(
+    Class = 'Segmentation',
+    sp_obj,
+    sf.data = coords # Store sf data in its original format
+  )
+  
+  # Set the cell IDs properly by updating the polygon IDs
+  if ("barcodes" %in% names(coords)) {
+    polygons <- slot(object = obj, name = 'polygons')
+    for (i in seq_along(polygons)) {
+      slot(object = polygons[[i]], name = 'ID') <- coords$barcodes[i]
+    }
+    # Update the names of the polygons list
+    names(polygons) <- coords$barcodes
+    slot(object = obj, name = 'polygons') <- polygons
+  }
+  
+  return(obj)
+}
+
 #' @method Crop Segmentation
 #' @export
 #'
@@ -190,6 +228,11 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
     SIMPLIFY = FALSE,
     USE.NAMES = TRUE
   )
+  sf <- slot(object = object, name = 'sf.data')
+  if (!is.null(x = sf)) {
+    sf$barcodes <- new.names
+    slot(object = object, name = 'sf.data') <- sf
+  }
   return(object)
 }
 
@@ -221,6 +264,7 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   if (is.null(x = cells)) {
     return(x)
   }
+  sf_data <- slot(object = x, name = 'sf.data')
   if (is.numeric(x = cells)) {
     cells <- Cells(x = x)[cells]
     cells <- MatchCells(new = Cells(x = x), orig = cells, ordered = TRUE)
@@ -231,7 +275,14 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
     stop("None of the requested cells found")
   }
   x <- x[cells]
-  return(as(object = x, Class = 'Segmentation'))
+  result <- as(object = x, Class = 'Segmentation')
+  # If sf.data is present, subset it as well
+  if (!is.null(x = sf_data)) {
+    sf_data <- sf_data[sf_data$barcodes %in% cells, ]
+    sf_data <- sf::st_as_sf(sf_data)
+    slot(object = result, name = 'sf.data') <- sf_data
+  }
+  return(result)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -242,14 +293,87 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#' @details \code{[[<-}: Attach or remove \code{sf} object to/from a \code{Segmentation} object
+#'
+#' @return \code{[[<-}: 
+#' \itemize{
+#'  \item If \code{value} is an \code{sf} object,
+#'  returns \code{x} with \code{value} stored in \code{sf};
+#'  requires that \code{i} is \dQuote{sf.data}.
+#'  \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf} removed.
+#' }
+#' @param value The value to assign to the slot specified by \code{i} in the \code{Segmentation} object.
+#' @rdname Segmentation-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Segmentation',
+    i = 'character',
+    j = 'missing',
+    value = 'ANY'
+  ),
+  definition = function(x, i, ..., value) {
+    if (i == "sf.data") {
+      if (!is.null(x = value) && !inherits(x = value, what = 'sf')) {
+        stop("Value assigned to 'sf.data' must inherit from the sf class", call. = FALSE)
+      }
+      # Update sf.data slot
+      slot(object = x, name = 'sf.data') <- value
+      validObject(x)
+      return(x)
+    } else {
+      stop("Cannot assign value to slot '", i, "' in Segmentation object", call. = FALSE)
+    }
+  }
+)
+
+#' @importFrom methods as
+#'
+#' @param value The value to assign to the slot specified by \code{i} in the \code{Segmentation} object.
+#' @rdname Segmentation-methods
+#'
+setMethod(
+  f = '[[<-',
+  signature = c(
+    x = 'Segmentation',
+    i = 'character',
+    j = 'missing',
+    value = 'NULL'
+  ),
+  definition = function(x, i, ..., value) {
+    if (i == "sf.data") {
+      if (is.null(x = slot(object = x, name = 'sf.data'))) {
+        warning("The 'sf.data' slot is already NULL", call. = FALSE)
+        return(x)
+      } else {
+        slot(object = x, name = 'sf.data') <- NULL
+      }
+    }
+    validObject(object = x)
+    return(x)
+  }
+)
+
 #' @rdname Segmentation-methods
 #'
 setMethod(
   f = '[',
   signature = c(x = 'Segmentation'),
   definition = function(x, i, j, ..., drop = TRUE) {
+    # Ensure that subsetting preserves sf.data
+    sf_data <- slot(object = x, name = 'sf.data')
+    if (!is.null(x = sf_data)) {
+      sf_data <- sf_data[i, , drop = drop]
+    }
     x <- callNextMethod()
-    return(as(object = x, Class = 'Segmentation'))
+    result <- as(object = x, Class = 'Segmentation')
+    # Update the sf.data slot with the subsetted sf data, if it exists
+    if (!is.null(x = sf_data)) {
+      sf_data <- sf::st_as_sf(sf_data)
+      slot(object = result, name = 'sf.data') <- sf_data
+    }
+    return(result)
   }
 )
 
@@ -358,5 +482,45 @@ setMethod(
   signature = c(object = 'Segmentation'),
   definition = function(object) {
     cat("A spatial segmentation for", length(x = object), "cells\n")
+  }
+)
+
+#' Segmentation Validity
+#'
+#' @templateVar cls Segmentation
+#' @template desc-validity
+#'
+#' @section sf.data Validation:
+#' Validates that the sf.data slot contains an object of class \code{sf}.
+#'
+#' @name Segmentation-validity
+#'
+#' @family segmentation
+#'
+#' @seealso \code{\link[methods]{validObject}}
+#'
+setValidity(
+  Class = 'Segmentation',
+  method = function(object) {
+    if (isFALSE(x = getOption(x = "Seurat.object.validate", default = TRUE))) {
+      warn(
+        message = paste("Not validating", class(x = object)[1L], "objects"),
+        class = 'validationWarning'
+      )
+      return(TRUE)
+    }
+    valid <- NULL
+    # Check sf.data slot
+    sf_data <- slot(object = object, name = 'sf.data')
+    if (!is.null(x = sf_data)) {
+      # If sf.data is populated, it should inherit from 'sf'
+      if (!inherits(x = sf_data, 'sf')) {
+        valid <- c(
+          valid,
+          "'sf.data' slot must inherit from 'sf' class"
+        )
+      }
+    }
+    return(valid %||% TRUE)
   }
 )
