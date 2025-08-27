@@ -2,6 +2,15 @@
 
 ## Changes
 
+# SeuratObject 5.2.0
+
+## Changes:
+- Add `sf.data` slot to the `Segmentation` class to store an [`sf`](https://r-spatial.github.io/sf/articles/sf1.html) object (#258)
+  - `sf.data` will represent segmentation boundaries for a given image inside the `images` slot of a Seurat object
+  - Add `CreateSegmentation.sf`, `[[<-`, `setValidity` for interacting with `Segmentation` objects 
+  - Update `RenameCells.Segmentation`, `subset.Segmentation`, `[`, `UpdateSeuratObject`
+- Add optional `misc` slot to `SpatialImage` to store additional info associated with an object in a list (#258)
+
 # SeuratObject 5.1.0
 
 ## Changes:
