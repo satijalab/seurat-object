@@ -588,7 +588,7 @@ LayerData.Assay <- function(
     stop('features are not found')
   }
   # Pull the matrix for the cells/features requested
-  return(methods::slot(object = object, name = layer)[features, cells])
+  return(methods::slot(object = object, name = layer)[features, cells, drop = FALSE])
 }
 
 #' @rdname Layers

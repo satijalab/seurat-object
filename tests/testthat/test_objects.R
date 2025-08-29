@@ -309,6 +309,7 @@ test_that("Specifying idents works", {
 test_that("downsample works", {
   expect_equal(length(x = WhichCells(object = pbmc_small, downsample = 5)), 15)
   expect_equal(length(x = WhichCells(object = pbmc_small, downsample = 100)), 80)
+  expect_equal(dim(LayerData(subset(pbmc_small, cells = 1))), c(230L, 1L))
 })
 
 test_that("passing an expression works", {
