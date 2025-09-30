@@ -1037,13 +1037,19 @@ UpdateSeuratObject <- function(object) {
           tryCatch(
             expr = {
               boundaries <- slot(object = xobj, name = 'boundaries')
-              segm_exists <- "segmentations" %in% names(boundaries)
-              segm <- boundaries[["segmentations"]]
+              segm_key <- if ("segmentations" %in% names(boundaries)) { # Visium
+                "segmentations"
+              } else if ("segmentation" %in% names(boundaries)) { # Xenium
+                "segmentation"
+              } else {
+                NULL
+              }
               # Handle Segmentation objects that may be missing the sf.data slot
-              if (segm_exists && !.hasSlot(object = segm, name = 'sf.data')) {
+              if (!is.null(segm_key) && !.hasSlot(object = boundaries[[segm_key]], name = 'sf.data')) {
+                segm <- boundaries[[segm_key]]
                 message("Updating segmentation object in FOV ", sQuote(fov_name))
                 slot(object = segm, name = 'sf.data') <- NULL
-                boundaries[["segmentations"]] <- segm
+                boundaries[[segm_key]] <- segm
                 slot(object = xobj, name = 'boundaries') <- boundaries
               }
             },
