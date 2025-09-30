@@ -1,4 +1,8 @@
+# SeuratObject 5.2.1
+
 # Unreleased
+
+- Fix segmentation object updating in `UpdateSeuratObject` for Xenium objects
 
 ## Changes
 
