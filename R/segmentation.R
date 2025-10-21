@@ -167,6 +167,49 @@ CreateSegmentation.sf <- function(coords) {
 #'
 Crop.Segmentation <- .Crop
 
+#' Get coordinates for polygon plotting
+#'
+#' Extract coordinates from a Segmentation object in a format suitable
+#' for use with \code{ggplot2::geom_polygon()}.
+#'
+#' @param object A \code{sf} object
+#' @return A data.frame with columns x, y, and cell_id, such that each row
+#' represents a single vertex of that cell's segmentation polygon
+#'
+#' @rdname Segmentation-methods
+#' @export
+#'
+GetPolygonCoordinates <- function(sf_data) {
+  if (!is.null(sf_data) && inherits(sf_data, 'sf')) {
+    # Extract coordinates as a dataframe from sf object
+    coords_mat <- sf::st_coordinates(sf_data)
+    coords_df <- as.data.frame(coords_mat)
+    
+    n_coords <- nrow(coords_mat)
+    coords_df <- data.frame(x = coords_mat[, 1],
+                            y = coords_mat[, 2],
+                            cell = character(n_coords))
+
+    # L2 column corresponds to polygon (cell) index
+    coords_df$cell <- sf_data$barcodes[coords_mat[, "L2"]]
+
+    # For reattaching expression data
+    # Remove geometry and centroids; keep other columns
+    sf_data_plot <- sf_data %>% 
+                      st_set_geometry(NULL) %>%
+                      select(-x, -y, -cell_id)
+
+    coords_final <- coords_df %>% 
+                      left_join(sf_data_plot,
+                        by = c("cell" = "barcodes")) %>%
+                      select(cell, everything())
+
+    return(coords_final)
+  } else {
+    stop("The 'sf.data' slot is either NULL or does not contain a valid sf object.")
+  }
+}
+
 #' @details \code{GetTissueCoordinates}, \code{coordinates}: Get
 #' tissue coordinates
 #'
