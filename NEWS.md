@@ -1,6 +1,8 @@
 # Unreleased
 
 ## Changes
+- Add function `GetPolygonCoordinates` to retrieve polygon coordinates from an sf object in a format suitable for plotting using geom_polygon
+- Fix logic in `UpdateSeuratObject` to update `Segmentation` objects (when adding `sf.data` slot)
 
 # SeuratObject 5.2.0
 
