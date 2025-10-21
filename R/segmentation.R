@@ -167,16 +167,15 @@ CreateSegmentation.sf <- function(coords) {
 #'
 Crop.Segmentation <- .Crop
 
-#' Get coordinates for polygon plotting
+#' Get coordinates for polygon plotting from an \code{sf} object
 #'
-#' Extract coordinates from a Segmentation object in a format suitable
+#' Extract coordinates from an \code{sf} object in a format suitable
 #' for use with \code{ggplot2::geom_polygon()}.
 #'
-#' @param object A \code{sf} object
+#' @param sf_data A \code{sf} object
 #' @return A data.frame with columns x, y, and cell_id, such that each row
-#' represents a single vertex of that cell's segmentation polygon
+#' represents a single vertex of the segmentation.
 #'
-#' @rdname Segmentation-methods
 #' @export
 #'
 GetPolygonCoordinates <- function(sf_data) {
