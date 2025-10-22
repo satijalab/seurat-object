@@ -173,8 +173,8 @@ Crop.Segmentation <- .Crop
 #' for use with \code{ggplot2::geom_polygon()}.
 #'
 #' @param sf_data A \code{sf} object
-#' @return A data.frame with columns x, y, and cell_id, such that each row
-#' represents a single vertex of the segmentation.
+#' @return A data.frame with columns x, y, and cell (barcode), such that each row
+#' represents a single vertex of the segmentation corresponding to that barcode.
 #'
 #' @export
 #'
@@ -192,20 +192,24 @@ GetPolygonCoordinates <- function(sf_data) {
     # L2 column corresponds to polygon (cell) index
     coords_df$cell <- sf_data$barcodes[coords_mat[, "L2"]]
 
-    # For reattaching expression data
-    # Remove geometry and centroids; keep other columns
-    sf_data_plot <- sf_data %>% 
-                      st_set_geometry(NULL) %>%
-                      select(-x, -y, -cell_id)
-
-    coords_final <- coords_df %>% 
-                      left_join(sf_data_plot,
-                        by = c("cell" = "barcodes")) %>%
-                      select(cell, everything())
-
-    return(coords_final)
+    # Remove geometry, centroids, and cell id (numeric); keep all other columns
+    plot_data <- sf_data
+    sf::st_geometry(plot_data) <- NULL
+    data_columns <- setdiff(names(plot_data), c("x", "y", "cell_id"))
+    plot_data <- plot_data[, data_columns, drop = FALSE]
+    
+    # Check if there are any additional columns to merge
+    if (ncol(plot_data) > 0 && "barcodes" %in% names(plot_data)) {
+      # Reattach data (ex. metadata, expression data, if any) to coordinates dataframe
+      coords_df <- merge(
+        coords_df, plot_data, 
+        by.x = "cell", by.y = "barcodes", 
+        all.x = TRUE, sort = FALSE
+      )
+    }
+    return(coords_df)
   } else {
-    stop("The 'sf.data' slot is either NULL or does not contain a valid sf object.")
+    stop("Unable to extract polygon coordinates; the 'sf.data' slot does not contain an sf object.")
   }
 }
 
