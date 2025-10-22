@@ -182,25 +182,21 @@ GetPolygonCoordinates <- function(sf_data) {
   if (!is.null(sf_data) && inherits(sf_data, 'sf')) {
     # Extract coordinates as a dataframe from sf object
     coords_mat <- sf::st_coordinates(sf_data)
-    coords_df <- as.data.frame(coords_mat)
-    
-    n_coords <- nrow(coords_mat)
-    coords_df <- data.frame(x = coords_mat[, 1],
-                            y = coords_mat[, 2],
-                            cell = character(n_coords))
+    coords_df <- data.frame(cell = sf_data$barcodes[coords_mat[, "L2"]], # L2 column corresponds to polygon (cell) index
+                            x = coords_mat[, 1],
+                            y = coords_mat[, 2])
 
-    # L2 column corresponds to polygon (cell) index
-    coords_df$cell <- sf_data$barcodes[coords_mat[, "L2"]]
-
-    # Remove geometry, centroids, and cell id (numeric); keep all other columns
-    plot_data <- sf_data
-    sf::st_geometry(plot_data) <- NULL
-    data_columns <- setdiff(names(plot_data), c("x", "y", "cell_id"))
-    plot_data <- plot_data[, data_columns, drop = FALSE]
+    # Column names in sf_data other than centroid coordinates, cell id (numeric), and geometry ("sf_column")
+    data_columns <- setdiff(names(sf_data), c("x", "y", "cell_id", attr(sf_data, "sf_column")))
     
     # Check if there are any additional columns to merge
-    if (ncol(plot_data) > 0 && "barcodes" %in% names(plot_data)) {
-      # Reattach data (ex. metadata, expression data, if any) to coordinates dataframe
+    if (length(data_columns) > 0 && "barcodes" %in% data_columns) {
+      # Retrieve additional data (ex. metadata, expression data, etc) that is attached to the sf object
+      plot_data <- sf_data
+      sf::st_geometry(plot_data) <- NULL
+      plot_data <- plot_data[, data_columns, drop = FALSE]
+
+      # Reattach data to coordinates dataframe
       coords_df <- merge(
         coords_df, plot_data, 
         by.x = "cell", by.y = "barcodes", 
