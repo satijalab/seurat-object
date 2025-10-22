@@ -10,8 +10,8 @@ GetPolygonCoordinates(sf_data)
 \item{sf_data}{A \code{sf} object}
 }
 \value{
-A data.frame with columns x, y, and cell_id, such that each row
-represents a single vertex of the segmentation.
+A data.frame with columns x, y, and cell (barcode), such that each row
+represents a single vertex of the segmentation corresponding to that barcode.
 }
 \description{
 Extract coordinates from an \code{sf} object in a format suitable
