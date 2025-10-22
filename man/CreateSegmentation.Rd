@@ -7,13 +7,13 @@
 \alias{CreateSegmentation.sf}
 \title{Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects}
 \usage{
-CreateSegmentation(coords)
+CreateSegmentation(coords, ...)
 
 \method{CreateSegmentation}{data.frame}(coords)
 
 \method{CreateSegmentation}{Segmentation}(coords)
 
-\method{CreateSegmentation}{sf}(coords)
+\method{CreateSegmentation}{sf}(coords, lightweight = FALSE)
 }
 \arguments{
 \item{coords}{The coordinates of cell segmentations}

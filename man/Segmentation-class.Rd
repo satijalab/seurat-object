@@ -13,6 +13,9 @@ Supports storing boundaries in objects of class \code{\link[sf]{sf}}.
 
 \describe{
 \item{\code{sf.data}}{Segmentation boundaries in \code{\link[sf]{sf}} format}
+
+\item{\code{is.lightweight}}{Logical indicating whether ot not the object only stores 
+segmentation information in the \code{sf.data} slot}
 }}
 
 \seealso{

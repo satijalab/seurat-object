@@ -17,6 +17,8 @@ NULL
 #' Supports storing boundaries in objects of class \code{\link[sf]{sf}}.
 #'
 #' @slot sf.data Segmentation boundaries in \code{\link[sf]{sf}} format
+#' @slot is.lightweight Logical indicating whether ot not the object only stores 
+#' segmentation information in the \code{sf.data} slot
 #'
 #' @family segmentation
 #' @templateVar cls Segmentation
@@ -26,7 +28,11 @@ setClass(
   Class = 'Segmentation',
   contains = 'SpatialPolygons',
   slots = list(
-    sf.data = 'ANY'
+    sf.data = 'ANY',
+    is.lightweight = 'logical'
+  ),
+  prototype = list(
+    is.lightweight = FALSE
   )
 )
 
@@ -95,6 +101,10 @@ NULL
 #' @export
 #'
 Cells.Segmentation <- function(x, ...) {
+  if (slot(object = x, name = 'is.lightweight')) {
+    sf_data <- slot(object = x, name = 'sf.data')
+    return(unname(obj = sf_data$barcodes))
+  }
   return(unname(obj = names(x = x)))
 }
 
@@ -137,28 +147,59 @@ CreateSegmentation.Segmentation <- function(coords) {
 #' @method CreateSegmentation sf
 #' @export
 #'
-CreateSegmentation.sf <- function(coords) {
+CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
   # Method is called when creating Segmentation from an sf object
-  # Convert sf object to SpatialPolygons first
-  sp_obj <- as(object = coords, Class = 'Spatial')
-  
-  obj <- new(
-    Class = 'Segmentation',
-    sp_obj,
-    sf.data = coords # Store sf data in its original format
-  )
-  
-  # Set the cell IDs properly by updating the polygon IDs
-  if ("barcodes" %in% names(coords)) {
-    polygons <- slot(object = obj, name = 'polygons')
-    for (i in seq_along(polygons)) {
-      slot(object = polygons[[i]], name = 'ID') <- coords$barcodes[i]
+  if (lightweight) {
+    # Create minimal valid SpatialPolygons structure to satisfy inheritance
+    minimal_coords <- matrix(c(0, 1, 1, 1, 1, 0, 0, 0, 0, 1), ncol = 2, byrow = TRUE)
+    minimal_polygon <- Polygons(
+      srl = list(Polygon(coords = minimal_coords)),
+      ID = "placeholder"
+    )
+
+    sp_base <- SpatialPolygons(list(minimal_polygon))
+
+    # Now create Segmentation object with valid SpatialPolygons inheritance
+    obj <- new(
+      Class = 'Segmentation',
+      sp_base,
+      sf.data = coords
+    )
+    
+    # Override with empty polygons for lightweight mode
+    slot(obj, 'polygons') <- list()
+    slot(obj, 'plotOrder') <- integer(0)
+    slot(obj, 'proj4string') <- CRS(as.character(NA))
+
+    # Get bbox from sf data (can be helpful to see coord range)
+    slot(obj, 'bbox') <- matrix(sf::st_bbox(sf.data), 
+                                nrow = 2,
+                                ncol = 2, 
+                                dimnames = list(c("x", "y"), c("min", "max")))
+    slot(obj, 'is.lightweight') <- TRUE
+    return(obj)
+  } else {
+    # Convert sf object to SpatialPolygons first
+    sp_obj <- as(object = coords, Class = 'Spatial')
+    
+    obj <- new(
+      Class = 'Segmentation',
+      sp_obj,
+      sf.data = coords, # Store sf data in its original format
+      is.lightweight = FALSE
+    )
+    
+    # Set the cell IDs properly by updating the polygon IDs
+    if ("barcodes" %in% names(coords)) {
+      polygons <- slot(object = obj, name = 'polygons')
+      for (i in seq_along(polygons)) {
+        slot(object = polygons[[i]], name = 'ID') <- coords$barcodes[i]
+      }
+      # Update the names of the polygons list
+      names(polygons) <- coords$barcodes
+      slot(object = obj, name = 'polygons') <- polygons
     }
-    # Update the names of the polygons list
-    names(polygons) <- coords$barcodes
-    slot(object = obj, name = 'polygons') <- polygons
   }
-  
   return(obj)
 }
 
@@ -215,23 +256,29 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
   if (length(x = new.names) != length(x = Cells(x = object))) {
     stop("Cannot partially rename segmentation cells", call. = FALSE)
   }
-  names(x = slot(object = object, name = 'polygons')) <- new.names
-  p <- progressor(along = slot(object = object, name = 'polygons'))
-  slot(object = object, name = 'polygons') <- future_mapply(
-    FUN = function(polygon, name) {
-      slot(object = polygon, name = 'ID') <- name
-      p()
-      return(polygon)
-    },
-    polygon = slot(object = object, name = 'polygons'),
-    name = new.names,
-    SIMPLIFY = FALSE,
-    USE.NAMES = TRUE
-  )
-  sf <- slot(object = object, name = 'sf.data')
-  if (!is.null(x = sf)) {
-    sf$barcodes <- new.names
-    slot(object = object, name = 'sf.data') <- sf
+  if (slot(object = object, name = 'is.lightweight')) {
+    sf_data <- slot(object = object, name = 'sf.data')
+    sf_data$barcodes <- new.names
+    slot(object = object, name = 'sf.data') <- sf_data
+  } else {
+    names(x = slot(object = object, name = 'polygons')) <- new.names
+    p <- progressor(along = slot(object = object, name = 'polygons'))
+    slot(object = object, name = 'polygons') <- future_mapply(
+      FUN = function(polygon, name) {
+        slot(object = polygon, name = 'ID') <- name
+        p()
+        return(polygon)
+      },
+      polygon = slot(object = object, name = 'polygons'),
+      name = new.names,
+      SIMPLIFY = FALSE,
+      USE.NAMES = TRUE
+    )
+    sf <- slot(object = object, name = 'sf.data')
+    if (!is.null(x = sf)) {
+      sf$barcodes <- new.names
+      slot(object = object, name = 'sf.data') <- sf
+    }
   }
   return(object)
 }
@@ -264,25 +311,32 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   if (is.null(x = cells)) {
     return(x)
   }
-  sf_data <- slot(object = x, name = 'sf.data')
-  if (is.numeric(x = cells)) {
-    cells <- Cells(x = x)[cells]
-    cells <- MatchCells(new = Cells(x = x), orig = cells, ordered = TRUE)
-  } else {
-    cells <- intersect(Cells(x), cells)
-  }
-  if (!length(x = cells)) {
-    stop("None of the requested cells found")
-  }
-  x <- x[cells]
-  result <- as(object = x, Class = 'Segmentation')
-  # If sf.data is present, subset it as well
-  if (!is.null(x = sf_data)) {
+  if (slot(object = x, name = 'is.lightweight')) {
+    sf_data <- slot(object = x, name = 'sf.data')
     sf_data <- sf_data[sf_data$barcodes %in% cells, ]
     sf_data <- sf::st_as_sf(sf_data)
-    slot(object = result, name = 'sf.data') <- sf_data
+    slot(object = x, name = 'sf.data') <- sf_data
+    return(x)
+  } else {
+    if (is.numeric(x = cells)) {
+      cells <- Cells(x = x)[cells]
+      cells <- MatchCells(new = Cells(x = x), orig = cells, ordered = TRUE)
+    } else {
+      cells <- intersect(Cells(x), cells)
+    }
+    if (!length(x = cells)) {
+      stop("None of the requested cells found")
+    }
+    x <- x[cells]
+    result <- as(object = x, Class = 'Segmentation')
+    # If sf.data is present, subset it as well
+    if (!is.null(x = sf_data)) {
+      sf_data <- sf_data[sf_data$barcodes %in% cells, ]
+      sf_data <- sf::st_as_sf(sf_data)
+      slot(object = result, name = 'sf.data') <- sf_data
+    }
+    return(result)
   }
-  return(result)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -361,19 +415,26 @@ setMethod(
   f = '[',
   signature = c(x = 'Segmentation'),
   definition = function(x, i, j, ..., drop = TRUE) {
-    # Ensure that subsetting preserves sf.data
-    sf_data <- slot(object = x, name = 'sf.data')
-    if (!is.null(x = sf_data)) {
+    if (slot(object = x, name = 'is.lightweight')) {
+      sf_data <- slot(object = x, name = 'sf.data')
       sf_data <- sf_data[i, , drop = drop]
+      slot(object = x, name = 'sf.data') <- sf::st_as_sf(sf_data)
+      return(x)
+    } else {
+      # Ensure that subsetting preserves sf.data
+      sf_data <- slot(object = x, name = 'sf.data')
+      if (!is.null(x = sf_data)) {
+        sf_data <- sf_data[i, , drop = drop]
+      }
+      x <- callNextMethod()
+      result <- as(object = x, Class = 'Segmentation')
+      # Update the sf.data slot with the subsetted sf data, if it exists
+      if (!is.null(x = sf_data)) {
+        sf_data <- sf::st_as_sf(sf_data)
+        slot(object = result, name = 'sf.data') <- sf_data
+      }
+      return(result)
     }
-    x <- callNextMethod()
-    result <- as(object = x, Class = 'Segmentation')
-    # Update the sf.data slot with the subsetted sf data, if it exists
-    if (!is.null(x = sf_data)) {
-      sf_data <- sf::st_as_sf(sf_data)
-      slot(object = result, name = 'sf.data') <- sf_data
-    }
-    return(result)
   }
 )
 
@@ -383,28 +444,46 @@ setMethod(
   f = 'coordinates',
   signature = c(obj = 'Segmentation'),
   definition = function(obj, full = TRUE, ...) {
-    if (!isTRUE(x = full)) {
-      coords <- as.data.frame(x = callNextMethod(obj = obj))
-      coords$cell <- Cells(x = obj)
+    if (slot(object = obj, name = 'is.lightweight')) {
+      sf_data <- slot(object = obj, name = 'sf.data')
+      if (isTRUE(x = full)) {
+        coords <- sf::st_coordinates(sf_data)
+        coords <- as.data.frame(x = coords)
+        coords$ID <- sf_data$barcodes[coords[, 'L2']]
+        coords <- coords[, c('X', 'Y', 'ID')]
+      } else {
+        centroids <- sf::st_centroid(sf_data)
+        coords <- sf::st_coordinates(centroids)
+        coords <- as.data.frame(x = coords)
+        coords$cell <- sf_data$barcodes[coords[, 'L2']]
+      }
+      colnames(x = coords) <- c('x', 'y', 'cell')
+      rownames(x = coords) <- NULL
+      return(coords)
+    } else {
+      if (!isTRUE(x = full)) {
+        coords <- as.data.frame(x = callNextMethod(obj = obj))
+        coords$cell <- Cells(x = obj)
+        return(coords)
+      }
+      coords <- lapply(
+        X = slot(object = obj, name = 'polygons'),
+        FUN = function(x) {
+          polys <- lapply(
+            X = slot(object = x, name = 'Polygons'),
+            FUN = slot,
+            name = 'coords'
+          )
+          polys <- as.data.frame(x = do.call(what = 'rbind', args = polys))
+          colnames(x = polys) <- c('x', 'y')
+          polys$ID <- slot(object = x, name = 'ID')
+          return(polys)
+        }
+      )
+      coords <- do.call(what = 'rbind', args = coords)
+      rownames(x = coords) <- NULL
       return(coords)
     }
-    coords <- lapply(
-      X = slot(object = obj, name = 'polygons'),
-      FUN = function(x) {
-        polys <- lapply(
-          X = slot(object = x, name = 'Polygons'),
-          FUN = slot,
-          name = 'coords'
-        )
-        polys <- as.data.frame(x = do.call(what = 'rbind', args = polys))
-        colnames(x = polys) <- c('x', 'y')
-        polys$ID <- slot(object = x, name = 'ID')
-        return(polys)
-      }
-    )
-    coords <- do.call(what = 'rbind', args = coords)
-    rownames(x = coords) <- NULL
-    return(coords)
   }
 )
 
@@ -437,16 +516,26 @@ setMethod(
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
     check_installed(pkg = 'sf', reason = 'to overlay spatial information')
+    is_lightweight <- slot(object = x, name = 'is.lightweight')
+    if (is_lightweight) {
+      x_sf <- slot(object = x, name = 'sf.data')
+    } else {
+      x_sf <- as(object = x, Class = 'sf')
+    }
     idx <- sf::st_intersects(
-      x = as(object = x, Class = 'sf'),
+      x = x_sf,
       y = as(object = y, Class = 'sf'),
       sparse = FALSE
     )
     idx <- which(x = idx)
-    names_in_sf_object1 <- if (!is.null(x = row.names(x = x))) {
-      row.names(x = x)[idx]
+    if (is_lightweight) {
+      names_in_sf_object1 <- x_sf$barcodes[idx]
     } else {
-      x$id[idx]
+      names_in_sf_object1 <- if (!is.null(x = row.names(x = x))) {
+        row.names(x = x)[idx]
+      } else {
+        x$id[idx]
+      }
     }
     idx <- setNames(
       object = rep.int(x = TRUE, times = length(x = idx)),
@@ -456,15 +545,20 @@ setMethod(
       warn("The selected region does not contain any cell segmentations")
       return(NULL)
     }
-    names(x = idx) <- vapply(
-      X = strsplit(x = names(x = idx), split = '\\.'),
-      FUN = '[[',
-      FUN.VALUE = character(length = 1L),
-      1L,
-      USE.NAMES = FALSE
-    )
+    if (is_lightweight) {
+      cells <- names(x = idx)
+    } else {
+      names(x = idx) <- vapply(
+        X = strsplit(x = names(x = idx), split = '\\.'),
+        FUN = '[[',
+        FUN.VALUE = character(length = 1L),
+        1L,
+        USE.NAMES = FALSE
+      )
+      cells <- names(x = idx)
+    }
     cells <- if (isTRUE(x = invert)) {
-      setdiff(x = Cells(x = x), y = names(x = idx))
+      setdiff(x = Cells(x = x), y = cells)
     } else {
       names(x = idx)
     }

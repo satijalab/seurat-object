@@ -473,7 +473,7 @@ CreateMolecules <- function(coords, ...) {
 #'
 #' @concept spatial
 #'
-CreateSegmentation <- function(coords) {
+CreateSegmentation <- function(coords, ...) {
   UseMethod(generic = 'CreateSegmentation', object = coords)
 }
 
