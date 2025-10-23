@@ -172,8 +172,6 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
                                 nrow = 2,
                                 ncol = 2, 
                                 dimnames = list(c("x", "y"), c("min", "max")))
-
-    slot(obj, 'is.lightweight') <- TRUE
     return(obj)
   } else {
     # Convert sf object to SpatialPolygons first
