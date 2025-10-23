@@ -1033,6 +1033,7 @@ UpdateSeuratObject <- function(object) {
         if (inherits(x = xobj, what = 'FOV')) {
           # Get the segmentation object if it exists
           fov_name <- x
+          has_lightweight_slot <- .hasSlot(xobj, "is.lightweight")
           message("Checking for segmentation objects in FOV ", sQuote(fov_name))
           tryCatch(
             expr = {
@@ -1042,9 +1043,7 @@ UpdateSeuratObject <- function(object) {
               
               if (length(segm_indices) > 0) {
                 segm_names <- names(boundaries)[segm_indices]
-                message("Found ", length(segm_indices), " segmentation object(s) in FOV ", sQuote(fov_name), ": ", paste(segm_names, collapse = ", "))
-                
-                boundaries_updated <- FALSE
+                message("Found ", length(segm_indices), " Segmentation object(s) in FOV ", sQuote(fov_name), ": ", paste(segm_names, collapse = ", "))
                 
                 # Process each segmentation object
                 for (i in seq_along(segm_indices)) {
@@ -1054,20 +1053,42 @@ UpdateSeuratObject <- function(object) {
                   # Let UpdateSlots handle the slot addition automatically
                   updated_segm <- UpdateSlots(object = segm)
                   boundaries[[segm_name]] <- updated_segm
-                  boundaries_updated <- TRUE
-                }
-                
-                # Update the FOV object if any boundaries were modified
-                if (boundaries_updated) {
-                  slot(object = xobj, name = 'boundaries') <- boundaries
-                  message("Successfully updated segmentation objects in FOV ", sQuote(fov_name))
+                  message("Updated Segmentation object ", sQuote(segm_name), " in FOV ", sQuote(fov_name))
                 }
               } else {
-                message("No segmentation objects found in FOV ", sQuote(fov_name), "; continuing")
+                message("No Segmentation objects found in FOV ", sQuote(fov_name), "; continuing")
               }
+              # Find all centroid objects in boundaries
+              centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Centroids'))
+
+              if (length(centroids_indices) > 0) {
+                centroids_names <- names(boundaries)[centroids_indices]
+                message("Found ", length(centroids_indices), " Centroids object(s) in FOV ", sQuote(fov_name), ": ", paste(centroids_names, collapse = ", "))
+                
+                # Process each centroids object
+                for (i in seq_along(centroids_indices)) {
+                  cent_name <- centroids_names[i]
+                  cent <- boundaries[[cent_name]]
+
+                  if (!has_lightweight_slot) { # Object was saved prior to correcting order of loading coordinates
+                    # Swap x and y coordinates 
+                    new_coords <- GetTissueCoordinates(object = cent)
+                    old_x_coords <- new_coords$x
+                    new_coords$x <- new_coords$y
+                    new_coords$y <- old_x_coords
+                    updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
+                    boundaries[[cent_name]] <- updated_cent
+                    message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
+                  }
+                }
+              } else {
+                message("No Centroids objects found in FOV ", sQuote(fov_name), "; continuing")
+              }
+              # Update the FOV object if any boundaries were modified
+              slot(object = xobj, name = 'boundaries') <- boundaries
             },
             error = function(e) {
-              message("Error updating segmentation objects in FOV ", sQuote(fov_name))
+              message("Error updating objects in boundaries in FOV ", sQuote(fov_name))
             }
           )
         }

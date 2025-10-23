@@ -35,10 +35,12 @@ setClass(
   slots = list(
     'assay' = 'character',
     'key' = 'character',
-    'misc' = 'OptionalList'
+    'misc' = 'OptionalList',
+    'is.lightweight' = 'OptionalLogical'
   ),
   prototype = list(
-    'misc' = list()
+    'misc' = list(),
+    'is.lightweight' = FALSE
   )
 )
 

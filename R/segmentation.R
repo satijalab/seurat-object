@@ -28,11 +28,7 @@ setClass(
   Class = 'Segmentation',
   contains = 'SpatialPolygons',
   slots = list(
-    sf.data = 'ANY',
-    is.lightweight = 'logical'
-  ),
-  prototype = list(
-    is.lightweight = FALSE
+    sf.data = 'ANY'
   )
 )
 
