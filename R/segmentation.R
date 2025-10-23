@@ -168,10 +168,11 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
     slot(obj, 'proj4string') <- CRS(as.character(NA))
 
     # Get bbox from sf data (can be helpful to see coord range)
-    slot(obj, 'bbox') <- matrix(sf::st_bbox(sf.data), 
+    slot(obj, 'bbox') <- matrix(sf::st_bbox(coords), 
                                 nrow = 2,
                                 ncol = 2, 
                                 dimnames = list(c("x", "y"), c("min", "max")))
+
     slot(obj, 'is.lightweight') <- TRUE
     return(obj)
   } else {
