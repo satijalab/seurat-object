@@ -1033,22 +1033,41 @@ UpdateSeuratObject <- function(object) {
         if (inherits(x = xobj, what = 'FOV')) {
           # Get the segmentation object if it exists
           fov_name <- x
-          message("Checking for segmentation object in FOV ", sQuote(fov_name))
+          message("Checking for segmentation objects in FOV ", sQuote(fov_name))
           tryCatch(
             expr = {
               boundaries <- slot(object = xobj, name = 'boundaries')
-              segm_exists <- "segmentations" %in% names(boundaries)
-              segm <- boundaries[["segmentations"]]
-              # Handle Segmentation objects that may be missing the sf.data slot
-              if (segm_exists && !.hasSlot(object = segm, name = 'sf.data')) {
-                message("Updating segmentation object in FOV ", sQuote(fov_name))
-                slot(object = segm, name = 'sf.data') <- NULL
-                boundaries[["segmentations"]] <- segm
-                slot(object = xobj, name = 'boundaries') <- boundaries
+              # Find all segmentation objects in boundaries
+              segm_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Segmentation'))
+              
+              if (length(segm_indices) > 0) {
+                segm_names <- names(boundaries)[segm_indices]
+                message("Found ", length(segm_indices), " segmentation object(s) in FOV ", sQuote(fov_name), ": ", paste(segm_names, collapse = ", "))
+                
+                boundaries_updated <- FALSE
+                
+                # Process each segmentation object
+                for (i in seq_along(segm_indices)) {
+                  segm_name <- segm_names[i]
+                  segm <- boundaries[[segm_name]]
+                  
+                  # Let UpdateSlots handle the slot addition automatically
+                  updated_segm <- UpdateSlots(object = segm)
+                  boundaries[[segm_name]] <- updated_segm
+                  boundaries_updated <- TRUE
+                }
+                
+                # Update the FOV object if any boundaries were modified
+                if (boundaries_updated) {
+                  slot(object = xobj, name = 'boundaries') <- boundaries
+                  message("Successfully updated segmentation objects in FOV ", sQuote(fov_name))
+                }
+              } else {
+                message("No segmentation objects found in FOV ", sQuote(fov_name), "; continuing")
               }
             },
             error = function(e) {
-              message("Error checking for segmentations in FOV ", sQuote(fov_name))
+              message("Error updating segmentation objects in FOV ", sQuote(fov_name))
             }
           )
         }
