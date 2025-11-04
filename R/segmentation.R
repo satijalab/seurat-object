@@ -472,9 +472,7 @@ setMethod(
       result <- as(object = x, Class = 'Segmentation')
       # Update the sf.data slot with the subsetted sf data, if it exists
       if (!is.null(x = sf_data)) {
-        sf_data <- sf::st_as_sf(sf_data)
         slot(object = result, name = 'sf.data') <- sf_data
-        
       }
       return(result)
     }
@@ -612,7 +610,13 @@ setMethod(
   f = 'show',
   signature = c(object = 'Segmentation'),
   definition = function(object) {
-    cat("A spatial segmentation for", length(x = object), "cells\n")
+    if (slot(object = object, name = 'is.lightweight')) {
+      sf_data <- slot(object = object, name = 'sf.data')
+      cat("A spatial segmentation for", length(unique(sf_data$cell)), "cells\n")
+    } else {
+      cat("A spatial segmentation for", length(x = object), "cells\n")
+    }
+    cat("Is lightweight:", slot(object = object, name = 'is.lightweight'), "\n")
   }
 )
 
