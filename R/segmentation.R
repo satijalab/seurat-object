@@ -371,6 +371,7 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
     x <- x[cells]
     result <- as(object = x, Class = 'Segmentation')
     # If sf.data is present, subset it as well
+    sf_data <- slot(object = x, name = 'sf.data')
     if (!is.null(x = sf_data)) {
       sf_data <- sf_data[sf_data$cell %in% cells, ]
       sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
