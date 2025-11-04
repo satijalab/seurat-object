@@ -103,7 +103,7 @@ NULL
 Cells.Segmentation <- function(x, ...) {
   if (slot(object = x, name = 'is.lightweight')) {
     sf_data <- slot(object = x, name = 'sf.data')
-    return(unname(obj = sf_data$barcodes))
+    return(unname(obj = sf_data$cell))
   }
   return(unname(obj = names(x = x)))
 }
@@ -114,7 +114,40 @@ Cells.Segmentation <- function(x, ...) {
 #' @method CreateSegmentation data.frame
 #' @export
 #'
-CreateSegmentation.data.frame <- function(coords) {
+CreateSegmentation.data.frame <- function(coords, lightweight = FALSE) {
+  if (lightweight) {
+    # Create minimal valid SpatialPolygons structure to satisfy inheritance
+    minimal_coords <- matrix(c(0, 1, 1, 1, 1, 0, 0, 0, 0, 1), ncol = 2, byrow = TRUE)
+    minimal_polygon <- Polygons(
+      srl = list(Polygon(coords = minimal_coords)),
+      ID = "placeholder"
+    )
+
+    sp_base <- SpatialPolygons(list(minimal_polygon))
+
+    # Now create Segmentation object with valid SpatialPolygons inheritance
+    obj <- new(
+      Class = 'Segmentation',
+      sp_base,
+      sf.data = coords
+    )
+
+    # Override with empty polygons for lightweight mode
+    slot(obj, 'polygons') <- list()
+    slot(obj, 'plotOrder') <- integer(0)
+    slot(obj, 'proj4string') <- CRS(as.character(NA))
+
+    # Get bbox from coordinate ranges in the dataframe
+    x_range <- range(coords$x, na.rm = TRUE)
+    y_range <- range(coords$y, na.rm = TRUE)
+    slot(obj, 'bbox') <- matrix(c(x_range[1], y_range[1], x_range[2], y_range[2]), 
+                                nrow = 2,
+                                ncol = 2, 
+                                dimnames = list(c("x", "y"), c("min", "max")))
+
+    slot(obj, 'is.lightweight') <- TRUE
+    return(obj)
+  }
   idx <- NameIndex(x = coords, names = c('cell', 'x', 'y'), MARGIN = 2L)
   xy <- idx[c('x', 'y')]
   cell.idx <- idx[['cell']]
@@ -181,7 +214,8 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
     return(obj)
   } else {
     # Convert sf object to SpatialPolygons first
-    sp_obj <- as(object = coords, Class = 'Spatial')
+    sf_obj <- sf::st_as_sf(coords)
+    sp_obj <- as(object = sf_obj, Class = 'Spatial')
     
     obj <- new(
       Class = 'Segmentation',
@@ -191,13 +225,13 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
     )
     
     # Set the cell IDs properly by updating the polygon IDs
-    if ("barcodes" %in% names(coords)) {
+    if ("cell" %in% names(coords)) {
       polygons <- slot(object = obj, name = 'polygons')
       for (i in seq_along(polygons)) {
-        slot(object = polygons[[i]], name = 'ID') <- coords$barcodes[i]
+        slot(object = polygons[[i]], name = 'ID') <- coords$cell[i]
       }
       # Update the names of the polygons list
-      names(polygons) <- coords$barcodes
+      names(polygons) <- coords$cell
       slot(object = obj, name = 'polygons') <- polygons
     }
   }
@@ -207,7 +241,13 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
 #' @method Crop Segmentation
 #' @export
 #'
-Crop.Segmentation <- .Crop
+Crop.Segmentation <- function(object, ...) {
+  if (slot(object = object, name = 'is.lightweight')) {
+    warn("Cropping is not yet supported for lightweight Segmentation objects")
+    return(object)
+  }
+  return(.Crop(object, ...))
+}
 
 #' @details \code{GetTissueCoordinates}, \code{coordinates}: Get
 #' tissue coordinates
@@ -259,7 +299,7 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
   }
   if (slot(object = object, name = 'is.lightweight')) {
     sf_data <- slot(object = object, name = 'sf.data')
-    sf_data$barcodes <- new.names
+    sf_data$cell <- new.names
     slot(object = object, name = 'sf.data') <- sf_data
   } else {
     names(x = slot(object = object, name = 'polygons')) <- new.names
@@ -277,7 +317,7 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
     )
     sf <- slot(object = object, name = 'sf.data')
     if (!is.null(x = sf)) {
-      sf$barcodes <- new.names
+      sf$cell <- new.names
       slot(object = object, name = 'sf.data') <- sf
     }
   }
@@ -314,8 +354,8 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   }
   if (slot(object = x, name = 'is.lightweight')) {
     sf_data <- slot(object = x, name = 'sf.data')
-    sf_data <- sf_data[sf_data$barcodes %in% cells, ]
-    sf_data <- sf::st_as_sf(sf_data)
+    sf_data <- sf_data[sf_data$cell %in% cells, ]
+    sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
     slot(object = x, name = 'sf.data') <- sf_data
     return(x)
   } else {
@@ -332,8 +372,8 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
     result <- as(object = x, Class = 'Segmentation')
     # If sf.data is present, subset it as well
     if (!is.null(x = sf_data)) {
-      sf_data <- sf_data[sf_data$barcodes %in% cells, ]
-      sf_data <- sf::st_as_sf(sf_data)
+      sf_data <- sf_data[sf_data$cell %in% cells, ]
+      sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
       slot(object = result, name = 'sf.data') <- sf_data
     }
     return(result)
@@ -348,14 +388,14 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
 # S4 methods
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' @details \code{[[<-}: Attach or remove \code{sf} object to/from a \code{Segmentation} object
+#' @details \code{[[<-}: Attach or remove \code{sf}-derived data to/from a \code{Segmentation} object
 #'
 #' @return \code{[[<-}: 
 #' \itemize{
-#'  \item If \code{value} is an \code{sf} object,
-#'  returns \code{x} with \code{value} stored in \code{sf};
+#'  \item If \code{value} is an \code{data.frame} object,
+#'  returns \code{x} with \code{value} stored in \code{sf.data};
 #'  requires that \code{i} is \dQuote{sf.data}.
-#'  \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf} removed.
+#'  \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf.data} removed.
 #' }
 #' @param value The value to assign to the slot specified by \code{i} in the \code{Segmentation} object.
 #' @rdname Segmentation-methods
@@ -370,8 +410,8 @@ setMethod(
   ),
   definition = function(x, i, ..., value) {
     if (i == "sf.data") {
-      if (!is.null(x = value) && !inherits(x = value, what = 'sf')) {
-        stop("Value assigned to 'sf.data' must inherit from the sf class", call. = FALSE)
+      if (!is.null(x = value) && !inherits(x = value, what = 'data.frame')) {
+        stop("Value assigned to 'sf.data' must inherit from the data.frame class", call. = FALSE)
       }
       # Update sf.data slot
       slot(object = x, name = 'sf.data') <- value
@@ -419,20 +459,22 @@ setMethod(
     if (slot(object = x, name = 'is.lightweight')) {
       sf_data <- slot(object = x, name = 'sf.data')
       sf_data <- sf_data[i, , drop = drop]
-      slot(object = x, name = 'sf.data') <- sf::st_as_sf(sf_data)
+      sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
+      slot(object = x, name = 'sf.data') <- sf_data
       return(x)
     } else {
       # Ensure that subsetting preserves sf.data
       sf_data <- slot(object = x, name = 'sf.data')
-      if (!is.null(x = sf_data)) {
-        sf_data <- sf_data[i, , drop = drop]
-      }
+      sf_data <- sf_data[i, , drop = drop]
+      sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
+      slot(object = x, name = 'sf.data') <- sf_data
       x <- callNextMethod()
       result <- as(object = x, Class = 'Segmentation')
       # Update the sf.data slot with the subsetted sf data, if it exists
       if (!is.null(x = sf_data)) {
         sf_data <- sf::st_as_sf(sf_data)
         slot(object = result, name = 'sf.data') <- sf_data
+        
       }
       return(result)
     }
@@ -446,21 +488,15 @@ setMethod(
   signature = c(obj = 'Segmentation'),
   definition = function(obj, full = TRUE, ...) {
     if (slot(object = obj, name = 'is.lightweight')) {
-      sf_data <- slot(object = obj, name = 'sf.data')
+      coords <- slot(object = obj, name = 'sf.data')
       if (isTRUE(x = full)) {
-        coords <- sf::st_coordinates(sf_data)
-        coords <- as.data.frame(x = coords)
-        coords$ID <- sf_data$barcodes[coords[, 'L2']]
-        coords <- coords[, c('X', 'Y', 'ID')]
-      } else {
-        centroids <- sf::st_centroid(sf_data)
-        coords <- sf::st_coordinates(centroids)
-        coords <- as.data.frame(x = coords)
-        coords$cell <- sf_data$barcodes[coords[, 'L2']]
+        return(coords)
       }
-      colnames(x = coords) <- c('x', 'y', 'cell')
-      rownames(x = coords) <- NULL
-      return(coords)
+      sf_obj <- sf::st_as_sf(coords)
+      centroids <- sf::st_centroid(sf_obj)
+      centroids_coords <- as.data.frame(sf::st_coordinates(centroids))
+      centroids_coords$cell <- coords$cell[centroids_coords[, 'L2']]
+      return(centroids_coords)
     } else {
       if (!isTRUE(x = full)) {
         coords <- as.data.frame(x = callNextMethod(obj = obj))
@@ -519,7 +555,7 @@ setMethod(
     check_installed(pkg = 'sf', reason = 'to overlay spatial information')
     is_lightweight <- slot(object = x, name = 'is.lightweight')
     if (is_lightweight) {
-      x_sf <- slot(object = x, name = 'sf.data')
+      x_sf <- sf::st_as_sf(slot(object = x, name = 'sf.data'))
     } else {
       x_sf <- as(object = x, Class = 'sf')
     }
@@ -530,7 +566,7 @@ setMethod(
     )
     idx <- which(x = idx)
     if (is_lightweight) {
-      names_in_sf_object1 <- x_sf$barcodes[idx]
+      names_in_sf_object1 <- x_sf$cell[idx]
     } else {
       names_in_sf_object1 <- if (!is.null(x = row.names(x = x))) {
         row.names(x = x)[idx]
@@ -609,10 +645,10 @@ setValidity(
     sf_data <- slot(object = object, name = 'sf.data')
     if (!is.null(x = sf_data)) {
       # If sf.data is populated, it should inherit from 'sf'
-      if (!inherits(x = sf_data, 'sf')) {
+      if (!inherits(x = sf_data, 'data.frame')) {
         valid <- c(
           valid,
-          "'sf.data' slot must inherit from 'sf' class"
+          "'sf.data' slot must inherit from 'data.frame' class"
         )
       }
     }
