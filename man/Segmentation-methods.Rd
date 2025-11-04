@@ -77,10 +77,10 @@ by \code{cells}/\code{i}
 
 \code{[[<-}: 
 \itemize{
- \item If \code{value} is an \code{sf} object,
- returns \code{x} with \code{value} stored in \code{sf};
+ \item If \code{value} is an \code{data.frame} object,
+ returns \code{x} with \code{value} stored in \code{sf.data};
  requires that \code{i} is \dQuote{sf.data}.
- \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf} removed.
+ \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf.data} removed.
 }
 
 \code{show}: Invisibly returns \code{NULL}
@@ -102,7 +102,7 @@ tissue coordinates
 \code{subset}, \code{[}: Subset a \code{Segmentation} object to
 certain cells
 
-\code{[[<-}: Attach or remove \code{sf} object to/from a \code{Segmentation} object
+\code{[[<-}: Attach or remove \code{sf}-derived data to/from a \code{Segmentation} object
 
 \code{show}: Display an object summary to stdout
 }

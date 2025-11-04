@@ -9,7 +9,7 @@
 \usage{
 CreateSegmentation(coords, ...)
 
-\method{CreateSegmentation}{data.frame}(coords)
+\method{CreateSegmentation}{data.frame}(coords, lightweight = FALSE)
 
 \method{CreateSegmentation}{Segmentation}(coords)
 
