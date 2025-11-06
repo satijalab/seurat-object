@@ -25,6 +25,7 @@ NULL
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 #' spatially-resolved boundaries
+#' @slot coords_x_orientation A character indicating the orientation of the x-axis ('h' for horizontal, 'v' for vertical)
 #' @slot assay A character naming the associated assay
 #' of the spatial coordinates
 #' @template slot-key
@@ -42,7 +43,11 @@ setClass(
   contains = 'SpatialImage',
   slots = list(
     molecules = 'list',
-    boundaries = 'list'
+    boundaries = 'list',
+    coords_x_orientation = 'character'
+  ),
+  prototype = list(
+    coords_x_orientation = 'h'
   )
 )
 

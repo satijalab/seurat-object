@@ -101,7 +101,8 @@ NULL
 #' @export
 #'
 Cells.Segmentation <- function(x, ...) {
-  if (slot(object = x, name = 'is.lightweight')) {
+  lightweight <- .hasSlot(object = x, name = 'is.lightweight') && slot(object = x, name = 'is.lightweight')
+  if (lightweight) {
     sf_data <- slot(object = x, name = 'sf.data')
     return(unname(obj = sf_data$cell))
   }
@@ -242,7 +243,8 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
 #' @export
 #'
 Crop.Segmentation <- function(object, ...) {
-  if (slot(object = object, name = 'is.lightweight')) {
+  lightweight <- .hasSlot(object = object, name = 'is.lightweight') && slot(object = object, name = 'is.lightweight')
+  if (lightweight) {
     warn("Cropping is not yet supported for lightweight Segmentation objects")
     return(object)
   }
@@ -352,7 +354,8 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   if (is.null(x = cells)) {
     return(x)
   }
-  if (slot(object = x, name = 'is.lightweight')) {
+  lightweight <- .hasSlot(object = x, name = 'is.lightweight') && slot(object = x, name = 'is.lightweight')
+  if (lightweight) {
     sf_data <- slot(object = x, name = 'sf.data')
     sf_data <- sf_data[sf_data$cell %in% cells, ]
     sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
@@ -457,24 +460,24 @@ setMethod(
   f = '[',
   signature = c(x = 'Segmentation'),
   definition = function(x, i, j, ..., drop = TRUE) {
-    if (slot(object = x, name = 'is.lightweight')) {
+    lightweight <- .hasSlot(object = x, name = 'is.lightweight') && slot(object = x, name = 'is.lightweight')
+    if (lightweight) {
       sf_data <- slot(object = x, name = 'sf.data')
       sf_data <- sf_data[i, , drop = drop]
       sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
       slot(object = x, name = 'sf.data') <- sf_data
       return(x)
     } else {
-      # Ensure that subsetting preserves sf.data
+    # Ensure that subsetting preserves sf.data
+    has_sf_data <- .hasSlot(object = x, name = 'sf.data') && !is.null(x = slot(object = x, name = 'sf.data'))
+    if (has_sf_data) {
       sf_data <- slot(object = x, name = 'sf.data')
       sf_data <- sf_data[i, , drop = drop]
       sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
       slot(object = x, name = 'sf.data') <- sf_data
+    } 
       x <- callNextMethod()
       result <- as(object = x, Class = 'Segmentation')
-      # Update the sf.data slot with the subsetted sf data, if it exists
-      if (!is.null(x = sf_data)) {
-        slot(object = result, name = 'sf.data') <- sf_data
-      }
       return(result)
     }
   }
@@ -486,7 +489,8 @@ setMethod(
   f = 'coordinates',
   signature = c(obj = 'Segmentation'),
   definition = function(obj, full = TRUE, ...) {
-    if (slot(object = obj, name = 'is.lightweight')) {
+    lightweight <- .hasSlot(object = obj, name = 'is.lightweight') && slot(object = obj, name = 'is.lightweight')
+    if (lightweight) {
       coords <- slot(object = obj, name = 'sf.data')
       if (isTRUE(x = full)) {
         return(coords)
@@ -552,7 +556,7 @@ setMethod(
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
     check_installed(pkg = 'sf', reason = 'to overlay spatial information')
-    is_lightweight <- slot(object = x, name = 'is.lightweight')
+    is_lightweight <- .hasSlot(object = x, name = 'is.lightweight') && slot(object = x, name = 'is.lightweight')
     if (is_lightweight) {
       x_sf <- sf::st_as_sf(slot(object = x, name = 'sf.data'))
     } else {
@@ -611,13 +615,14 @@ setMethod(
   f = 'show',
   signature = c(object = 'Segmentation'),
   definition = function(object) {
-    if (slot(object = object, name = 'is.lightweight')) {
+    is_lightweight <- .hasSlot(object = object, name = 'is.lightweight') && slot(object = object, name = 'is.lightweight')
+    if (is_lightweight) {
       sf_data <- slot(object = object, name = 'sf.data')
       cat("A spatial segmentation for", length(unique(sf_data$cell)), "cells\n")
     } else {
       cat("A spatial segmentation for", length(x = object), "cells\n")
     }
-    cat("Is lightweight:", slot(object = object, name = 'is.lightweight'), "\n")
+    cat("Is lightweight:", is_lightweight, "\n")
   }
 )
 

@@ -1033,7 +1033,7 @@ UpdateSeuratObject <- function(object) {
         if (inherits(x = xobj, what = 'FOV')) {
           # Get the segmentation object if it exists
           fov_name <- x
-          has_lightweight_slot <- .hasSlot(xobj, "is.lightweight")
+          has_axis_orientation_info <- .hasSlot(xobj, "coords_x_orientation")
           message("Checking for segmentation objects in FOV ", sQuote(fov_name))
           tryCatch(
             expr = {
@@ -1070,7 +1070,7 @@ UpdateSeuratObject <- function(object) {
                   cent_name <- centroids_names[i]
                   cent <- boundaries[[cent_name]]
 
-                  if (!has_lightweight_slot) { # Object was saved prior to correcting order of loading coordinates
+                  if (!has_axis_orientation_info) { # Object was saved prior to correcting order of loading coordinates
                     # Swap x and y coordinates 
                     new_coords <- GetTissueCoordinates(object = cent)
                     old_x_coords <- new_coords$x
