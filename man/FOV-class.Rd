@@ -23,6 +23,8 @@ spatially-resolved molecular coordinates}
 \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 spatially-resolved boundaries}
 
+\item{\code{coords_x_name}}{A character indicating whether the \code{x} coordinates are associated with image column ('col', default) or row ('row')}
+
 \item{\code{assay}}{A character naming the associated assay
 of the spatial coordinates}
 
