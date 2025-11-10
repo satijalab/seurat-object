@@ -1033,7 +1033,8 @@ UpdateSeuratObject <- function(object) {
         if (inherits(x = xobj, what = 'FOV')) {
           # Get the segmentation object if it exists
           fov_name <- x
-          has_axis_orientation_info <- .hasSlot(xobj, "coords_x_orientation")
+          has_axis_orientation_info <- .hasSlot(xobj, "coords_x_name")
+          is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
           message("Checking for segmentation objects in FOV ", sQuote(fov_name))
           tryCatch(
             expr = {
@@ -1070,7 +1071,7 @@ UpdateSeuratObject <- function(object) {
                   cent_name <- centroids_names[i]
                   cent <- boundaries[[cent_name]]
 
-                  if (!has_axis_orientation_info) { # Object was saved prior to correcting order of loading coordinates
+                  if (!has_axis_orientation_info && is_visium) { # Object is of type Visium and was saved prior to correcting order of loading coordinates
                     # Swap x and y coordinates 
                     new_coords <- GetTissueCoordinates(object = cent)
                     old_x_coords <- new_coords$x
