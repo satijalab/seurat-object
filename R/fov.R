@@ -680,7 +680,7 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   for (i in Boundaries(object = x)) {
     x[[i]] <- subset(x = x[[i]], cells = cells)
   }
-  validObject(object = x)
+  safeValidityCheck(object = x)
   return(x)
 }
 
@@ -754,7 +754,7 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   # Reorder cells
   x <- .OrderCells(object = x)
   # Validate and return
-  validObject(object = x)
+  safeValidityCheck(object = x)
   return(x)
 }
 
@@ -857,7 +857,7 @@ setMethod(
     # Add incoming molecules
     slot(object = x, name = 'molecules')[[i]] <- value
     # Validate and return
-    validObject(object = x)
+    safeValidityCheck(object = x)
     return(x)
   }
 )
@@ -883,7 +883,7 @@ setMethod(
     } else {
       slot(object = x, name = 'boundaries')[[i]] <- NULL
     }
-    validObject(object = x)
+    safeValidityCheck(object = x)
     return(x)
   }
 )
@@ -919,7 +919,7 @@ setMethod(
   definition = function(.Object, ...) {
     .Object <- callNextMethod(.Object, ...)
     .Object <- .OrderCells(object = .Object)
-    validObject(object = .Object)
+    safeValidityCheck(object = .Object)
     return(.Object)
   }
 )
