@@ -243,11 +243,6 @@ CreateSegmentation.sf <- function(coords, compact = FALSE) {
 #' @export
 #'
 Crop.Segmentation <- function(object, ...) {
-  compact <- .hasSlot(object = object, name = 'compact') && slot(object = object, name = 'compact')
-  if (compact) {
-    warn("Cropping is not yet supported for compact Segmentation objects")
-    return(object)
-  }
   return(.Crop(object, ...))
 }
 
