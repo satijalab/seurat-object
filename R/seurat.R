@@ -1031,9 +1031,9 @@ UpdateSeuratObject <- function(object) {
         message("Updating slots in ", x)
         xobj <- object[[x]]
         if (inherits(x = xobj, what = 'FOV')) {
-          # Get the segmentation object if it exists
           fov_name <- x
-          has_axis_orientation_info <- .hasSlot(xobj, "coords_x_name")
+          # Legacy if object doesn't have coords_x_orientation slot or was saved prior to correction
+          legacy_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
           is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
           message("Checking for segmentation objects in FOV ", sQuote(fov_name))
           tryCatch(
@@ -1071,14 +1071,15 @@ UpdateSeuratObject <- function(object) {
                   cent_name <- centroids_names[i]
                   cent <- boundaries[[cent_name]]
 
-                  if (!has_axis_orientation_info && is_visium) { # Object is of type Visium and was saved prior to correcting order of loading coordinates
-                    # Swap x and y coordinates 
+                  # Only correct the x and y axis orientation if object is of type Visium
+                  if (legacy_axis_orientation && is_visium) { 
                     new_coords <- GetTissueCoordinates(object = cent)
                     old_x_coords <- new_coords$x
                     new_coords$x <- new_coords$y
                     new_coords$y <- old_x_coords
                     updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
                     boundaries[[cent_name]] <- updated_cent
+                    slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
                     message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
                   }
                 }
