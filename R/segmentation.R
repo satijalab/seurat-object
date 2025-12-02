@@ -17,8 +17,8 @@ NULL
 #' Supports storing boundaries in objects of class \code{\link[sf]{sf}}.
 #'
 #' @slot sf.data Segmentation boundaries in \code{\link[sf]{sf}} format
-#' @slot is.lightweight Logical indicating whether ot not the object only stores 
-#' segmentation information in the \code{sf.data} slot
+#' @slot compact Logical indicating whether ot not the object only stores 
+#' segmentation information in the \code{sf.data} slot (currently only relevant for Visium data)
 #'
 #' @family segmentation
 #' @templateVar cls Segmentation
@@ -29,10 +29,10 @@ setClass(
   contains = 'SpatialPolygons',
   slots = list(
     sf.data = 'ANY',
-    is.lightweight = 'OptionalLogical'
+    compact = 'OptionalLogical'
   ),
   prototype = list(
-    is.lightweight = FALSE
+    compact = FALSE
   )
 )
 
@@ -101,8 +101,8 @@ NULL
 #' @export
 #'
 Cells.Segmentation <- function(x, ...) {
-  lightweight <- .hasSlot(object = x, name = 'is.lightweight') && slot(object = x, name = 'is.lightweight')
-  if (lightweight) {
+  compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
+  if (compact) {
     sf_data <- slot(object = x, name = 'sf.data')
     return(unname(obj = sf_data$cell))
   }
@@ -115,8 +115,8 @@ Cells.Segmentation <- function(x, ...) {
 #' @method CreateSegmentation data.frame
 #' @export
 #'
-CreateSegmentation.data.frame <- function(coords, lightweight = FALSE) {
-  if (lightweight) {
+CreateSegmentation.data.frame <- function(coords, compact = FALSE) {
+  if (compact) {
     # Create minimal valid SpatialPolygons structure to satisfy inheritance
     minimal_coords <- matrix(c(0, 1, 1, 1, 1, 0, 0, 0, 0, 1), ncol = 2, byrow = TRUE)
     minimal_polygon <- Polygons(
@@ -133,7 +133,7 @@ CreateSegmentation.data.frame <- function(coords, lightweight = FALSE) {
       sf.data = coords
     )
 
-    # Override with empty polygons for lightweight mode
+    # Override with empty polygons for compact mode
     slot(obj, 'polygons') <- list()
     slot(obj, 'plotOrder') <- integer(0)
     slot(obj, 'proj4string') <- CRS(as.character(NA))
@@ -146,7 +146,7 @@ CreateSegmentation.data.frame <- function(coords, lightweight = FALSE) {
                                 ncol = 2, 
                                 dimnames = list(c("x", "y"), c("min", "max")))
 
-    slot(obj, 'is.lightweight') <- TRUE
+    slot(obj, 'compact') <- TRUE
     return(obj)
   }
   idx <- NameIndex(x = coords, names = c('cell', 'x', 'y'), MARGIN = 2L)
@@ -181,9 +181,9 @@ CreateSegmentation.Segmentation <- function(coords) {
 #' @method CreateSegmentation sf
 #' @export
 #'
-CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
+CreateSegmentation.sf <- function(coords, compact = FALSE) {
   # Method is called when creating Segmentation from an sf object
-  if (lightweight) {
+  if (compact) {
     # Create minimal valid SpatialPolygons structure to satisfy inheritance
     minimal_coords <- matrix(c(0, 1, 1, 1, 1, 0, 0, 0, 0, 1), ncol = 2, byrow = TRUE)
     minimal_polygon <- Polygons(
@@ -199,8 +199,8 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
       sp_base,
       sf.data = coords
     )
-    
-    # Override with empty polygons for lightweight mode
+
+    # Override with empty polygons for compact mode
     slot(obj, 'polygons') <- list()
     slot(obj, 'plotOrder') <- integer(0)
     slot(obj, 'proj4string') <- CRS(as.character(NA))
@@ -211,7 +211,7 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
                                 ncol = 2, 
                                 dimnames = list(c("x", "y"), c("min", "max")))
 
-    slot(obj, 'is.lightweight') <- TRUE
+    slot(obj, 'compact') <- TRUE
     return(obj)
   } else {
     # Convert sf object to SpatialPolygons first
@@ -222,7 +222,7 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
       Class = 'Segmentation',
       sp_obj,
       sf.data = coords, # Store sf data in its original format
-      is.lightweight = FALSE
+      compact = FALSE
     )
     
     # Set the cell IDs properly by updating the polygon IDs
@@ -243,9 +243,9 @@ CreateSegmentation.sf <- function(coords, lightweight = FALSE) {
 #' @export
 #'
 Crop.Segmentation <- function(object, ...) {
-  lightweight <- .hasSlot(object = object, name = 'is.lightweight') && slot(object = object, name = 'is.lightweight')
-  if (lightweight) {
-    warn("Cropping is not yet supported for lightweight Segmentation objects")
+  compact <- .hasSlot(object = object, name = 'compact') && slot(object = object, name = 'compact')
+  if (compact) {
+    warn("Cropping is not yet supported for compact Segmentation objects")
     return(object)
   }
   return(.Crop(object, ...))
@@ -299,7 +299,7 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
   if (length(x = new.names) != length(x = Cells(x = object))) {
     stop("Cannot partially rename segmentation cells", call. = FALSE)
   }
-  if (slot(object = object, name = 'is.lightweight')) {
+  if (slot(object = object, name = 'compact')) {
     sf_data <- slot(object = object, name = 'sf.data')
     sf_data$cell <- new.names
     slot(object = object, name = 'sf.data') <- sf_data
@@ -354,8 +354,8 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   if (is.null(x = cells)) {
     return(x)
   }
-  lightweight <- .hasSlot(object = x, name = 'is.lightweight') && slot(object = x, name = 'is.lightweight')
-  if (lightweight) {
+  compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
+  if (compact) {
     sf_data <- slot(object = x, name = 'sf.data')
     sf_data <- sf_data[sf_data$cell %in% cells, ]
     sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
@@ -460,8 +460,8 @@ setMethod(
   f = '[',
   signature = c(x = 'Segmentation'),
   definition = function(x, i, j, ..., drop = TRUE) {
-    lightweight <- .hasSlot(object = x, name = 'is.lightweight') && slot(object = x, name = 'is.lightweight')
-    if (lightweight) {
+    compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
+    if (compact) {
       sf_data <- slot(object = x, name = 'sf.data')
       sf_data <- sf_data[i, , drop = drop]
       sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
@@ -489,8 +489,8 @@ setMethod(
   f = 'coordinates',
   signature = c(obj = 'Segmentation'),
   definition = function(obj, full = TRUE, ...) {
-    lightweight <- .hasSlot(object = obj, name = 'is.lightweight') && slot(object = obj, name = 'is.lightweight')
-    if (lightweight) {
+    compact <- .hasSlot(object = obj, name = 'compact') && slot(object = obj, name = 'compact')
+    if (compact) {
       coords <- slot(object = obj, name = 'sf.data')
       if (isTRUE(x = full)) {
         return(coords)
@@ -556,8 +556,8 @@ setMethod(
   signature = c(x = 'Segmentation', y = 'SpatialPolygons'),
   definition = function(x, y, invert = FALSE, ...) {
     check_installed(pkg = 'sf', reason = 'to overlay spatial information')
-    is_lightweight <- .hasSlot(object = x, name = 'is.lightweight') && slot(object = x, name = 'is.lightweight')
-    if (is_lightweight) {
+    compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
+    if (compact) {
       x_sf <- sf::st_as_sf(slot(object = x, name = 'sf.data'))
     } else {
       x_sf <- as(object = x, Class = 'sf')
@@ -568,7 +568,7 @@ setMethod(
       sparse = FALSE
     )
     idx <- which(x = idx)
-    if (is_lightweight) {
+    if (compact) {
       names_in_sf_object1 <- x_sf$cell[idx]
     } else {
       names_in_sf_object1 <- if (!is.null(x = row.names(x = x))) {
@@ -585,7 +585,7 @@ setMethod(
       warn("The selected region does not contain any cell segmentations")
       return(NULL)
     }
-    if (is_lightweight) {
+    if (compact) {
       cells <- names(x = idx)
     } else {
       names(x = idx) <- vapply(
@@ -615,14 +615,14 @@ setMethod(
   f = 'show',
   signature = c(object = 'Segmentation'),
   definition = function(object) {
-    is_lightweight <- .hasSlot(object = object, name = 'is.lightweight') && slot(object = object, name = 'is.lightweight')
-    if (is_lightweight) {
+    compact <- .hasSlot(object = object, name = 'compact') && slot(object = object, name = 'compact')
+    if (compact) {
       sf_data <- slot(object = object, name = 'sf.data')
       cat("A spatial segmentation for", length(unique(sf_data$cell)), "cells\n")
     } else {
       cat("A spatial segmentation for", length(x = object), "cells\n")
     }
-    cat("Is lightweight:", is_lightweight, "\n")
+    cat("Is compact:", compact, "\n")
   }
 )
 
