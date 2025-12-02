@@ -23,7 +23,11 @@ spatially-resolved molecular coordinates}
 \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 spatially-resolved boundaries}
 
-\item{\code{coords_x_name}}{A character indicating whether the \code{x} coordinates are associated with image column ('col', default) or row ('row')}
+\item{\code{coords_x_orientation}}{A character indicating which axis 
+\code{x} coordinates are associated with in spatial plots. 
+Currently only applies to Visium objects. Ensures consistency in 
+plotting spatial data across versions, as objects prior to the 
+addition of this slot had \code{x} coordinates mapped to the vertical axis.}
 
 \item{\code{assay}}{A character naming the associated assay
 of the spatial coordinates}
