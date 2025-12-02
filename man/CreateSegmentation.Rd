@@ -9,11 +9,11 @@
 \usage{
 CreateSegmentation(coords, ...)
 
-\method{CreateSegmentation}{data.frame}(coords, lightweight = FALSE)
+\method{CreateSegmentation}{data.frame}(coords, compact = FALSE)
 
 \method{CreateSegmentation}{Segmentation}(coords)
 
-\method{CreateSegmentation}{sf}(coords, lightweight = FALSE)
+\method{CreateSegmentation}{sf}(coords, compact = FALSE)
 }
 \arguments{
 \item{coords}{The coordinates of cell segmentations}
