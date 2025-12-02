@@ -25,7 +25,11 @@ NULL
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 #' spatially-resolved boundaries
-#' @slot coords_x_name A character indicating whether the \code{x} coordinates are associated with image column ('col', default) or row ('row')
+#' @slot coords_x_orientation A character indicating which axis 
+#' \code{x} coordinates are associated with in spatial plots. 
+#' Currently only applies to Visium objects. Ensures consistency in 
+#' plotting spatial data across versions, as objects prior to the 
+#' addition of this slot had \code{x} coordinates mapped to the vertical axis.
 #' @slot assay A character naming the associated assay
 #' of the spatial coordinates
 #' @template slot-key
@@ -44,10 +48,10 @@ setClass(
   slots = list(
     molecules = 'list',
     boundaries = 'list',
-    coords_x_name = 'character'
+    coords_x_orientation = 'character'
   ),
   prototype = list(
-    coords_x_name = 'col'
+    coords_x_orientation = character(0)
   )
 )
 
