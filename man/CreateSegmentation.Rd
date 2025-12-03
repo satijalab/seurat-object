@@ -17,6 +17,9 @@ CreateSegmentation(coords, ...)
 }
 \arguments{
 \item{coords}{The coordinates of cell segmentations}
+
+\item{compact}{Logical indicating whether or not the object should only store segmentation data
+in the \code{sf.data} slot; see \link{Segmentation} for details.}
 }
 \value{
 A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
