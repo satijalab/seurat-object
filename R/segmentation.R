@@ -189,6 +189,20 @@ CreateSegmentation.Segmentation <- function(coords) {
 #'
 CreateSegmentation.sf <- function(coords, compact = FALSE) {
   # Method is called when creating Segmentation from an sf object
+
+  # Set the attribute-geometry relationship to constant
+  # See https://r-spatial.github.io/sf/reference/sf.html#details
+  st_agr(coords) <- "constant"
+
+  # Extract coordinates as a dataframe from sf object
+  coords_mat <- sf::st_coordinates(coords)
+  l2_indices <- coords_mat[, "L2"] # L2 column corresponds to polygon (cell) index
+  
+  coords_df <- data.frame(x = coords_mat[, 1],
+                          y = coords_mat[, 2],
+                          cell = coords$barcodes[l2_indices],
+                          stringsAsFactors = FALSE)
+
   if (compact) {
     # Create minimal valid SpatialPolygons structure to satisfy inheritance
     minimal_coords <- matrix(c(0, 1, 1, 1, 1, 0, 0, 0, 0, 1), ncol = 2, byrow = TRUE)
@@ -203,7 +217,8 @@ CreateSegmentation.sf <- function(coords, compact = FALSE) {
     obj <- new(
       Class = 'Segmentation',
       sp_base,
-      sf.data = coords
+      sf.data = coords_df,
+      compact = TRUE
     )
 
     # Override with empty polygons for compact mode
@@ -212,35 +227,20 @@ CreateSegmentation.sf <- function(coords, compact = FALSE) {
     slot(obj, 'proj4string') <- CRS(as.character(NA))
 
     # Get bbox from sf data (can be helpful to see coord range)
-    slot(obj, 'bbox') <- matrix(sf::st_bbox(coords), 
+    slot(obj, 'bbox') <- matrix(sf::st_bbox(coords),
                                 nrow = 2,
                                 ncol = 2, 
                                 dimnames = list(c("x", "y"), c("min", "max")))
-
-    slot(obj, 'compact') <- TRUE
-    return(obj)
   } else {
     # Convert sf object to SpatialPolygons first
-    sf_obj <- sf::st_as_sf(coords)
-    sp_obj <- as(object = sf_obj, Class = 'Spatial')
-    
+    sp_obj <- as(object = coords, Class = 'Spatial')
+
     obj <- new(
       Class = 'Segmentation',
       sp_obj,
-      sf.data = coords, # Store sf data in its original format
+      sf.data = coords_df, # Store sf data as dataframe
       compact = FALSE
     )
-    
-    # Set the cell IDs properly by updating the polygon IDs
-    if ("cell" %in% names(coords)) {
-      polygons <- slot(object = obj, name = 'polygons')
-      for (i in seq_along(polygons)) {
-        slot(object = polygons[[i]], name = 'ID') <- coords$cell[i]
-      }
-      # Update the names of the polygons list
-      names(polygons) <- coords$cell
-      slot(object = obj, name = 'polygons') <- polygons
-    }
   }
   return(obj)
 }
