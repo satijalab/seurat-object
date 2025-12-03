@@ -1030,41 +1030,25 @@ UpdateSeuratObject <- function(object) {
       for (x in names(x = object)) {
         message("Updating slots in ", x)
         xobj <- object[[x]]
+        xobj <- suppressWarnings(
+          expr = UpdateSlots(object = xobj),
+          classes = 'validationWarning'
+        )
         if (inherits(x = xobj, what = 'FOV')) {
           fov_name <- x
-          # Legacy if object doesn't have coords_x_orientation slot or was saved prior to correction
-          legacy_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
+          # Old if object doesn't have coords_x_orientation slot or was saved prior to correction
+          old_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
           is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
-          message("Checking for segmentation objects in FOV ", sQuote(fov_name))
+          boundaries_updated <- FALSE
           tryCatch(
             expr = {
               boundaries <- slot(object = xobj, name = 'boundaries')
-              # Find all segmentation objects in boundaries
-              segm_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Segmentation'))
-              
-              if (length(segm_indices) > 0) {
-                segm_names <- names(boundaries)[segm_indices]
-                message("Found ", length(segm_indices), " Segmentation object(s) in FOV ", sQuote(fov_name), ": ", paste(segm_names, collapse = ", "))
-                
-                # Process each segmentation object
-                for (i in seq_along(segm_indices)) {
-                  segm_name <- segm_names[i]
-                  segm <- boundaries[[segm_name]]
-                  
-                  # Let UpdateSlots handle the slot addition automatically
-                  updated_segm <- UpdateSlots(object = segm)
-                  boundaries[[segm_name]] <- updated_segm
-                  message("Updated Segmentation object ", sQuote(segm_name), " in FOV ", sQuote(fov_name))
-                }
-              } else {
-                message("No Segmentation objects found in FOV ", sQuote(fov_name), "; continuing")
-              }
+              message("Checking for objects in boundaries to update in FOV ", sQuote(fov_name))
               # Find all centroid objects in boundaries
               centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Centroids'))
 
               if (length(centroids_indices) > 0) {
                 centroids_names <- names(boundaries)[centroids_indices]
-                message("Found ", length(centroids_indices), " Centroids object(s) in FOV ", sQuote(fov_name), ": ", paste(centroids_names, collapse = ", "))
                 
                 # Process each centroids object
                 for (i in seq_along(centroids_indices)) {
@@ -1072,7 +1056,7 @@ UpdateSeuratObject <- function(object) {
                   cent <- boundaries[[cent_name]]
 
                   # Only correct the x and y axis orientation if object is of type Visium
-                  if (legacy_axis_orientation && is_visium) { 
+                  if (old_axis_orientation && is_visium) { 
                     new_coords <- GetTissueCoordinates(object = cent)
                     old_x_coords <- new_coords$x
                     new_coords$x <- new_coords$y
@@ -1081,23 +1065,23 @@ UpdateSeuratObject <- function(object) {
                     boundaries[[cent_name]] <- updated_cent
                     slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
                     message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
+                    if (!boundaries_updated) {
+                      boundaries_updated <- TRUE
+                    }
                   }
                 }
-              } else {
-                message("No Centroids objects found in FOV ", sQuote(fov_name), "; continuing")
               }
               # Update the FOV object if any boundaries were modified
-              slot(object = xobj, name = 'boundaries') <- boundaries
+              if (boundaries_updated) {
+                message("Updated boundaries in FOV ", sQuote(fov_name))
+                slot(object = xobj, name = 'boundaries') <- boundaries
+              }
             },
             error = function(e) {
               message("Error updating objects in boundaries in FOV ", sQuote(fov_name))
             }
           )
         }
-        xobj <- suppressWarnings(
-          expr = UpdateSlots(object = xobj),
-          classes = 'validationWarning'
-        )
         if (inherits(x = xobj, what = "SCTAssay")){
           sctmodels <- names(x = slot(object = xobj, name = "SCTModel.list"))
           for (sctmodel in sctmodels){
