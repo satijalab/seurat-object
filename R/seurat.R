@@ -1063,7 +1063,6 @@ UpdateSeuratObject <- function(object) {
                     new_coords$y <- old_x_coords
                     updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
                     boundaries[[cent_name]] <- updated_cent
-                    slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
                     message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
                     if (!boundaries_updated) {
                       boundaries_updated <- TRUE
@@ -1075,6 +1074,7 @@ UpdateSeuratObject <- function(object) {
               if (boundaries_updated) {
                 message("Updated boundaries in FOV ", sQuote(fov_name))
                 slot(object = xobj, name = 'boundaries') <- boundaries
+                slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
               }
             },
             error = function(e) {
