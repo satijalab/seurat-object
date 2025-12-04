@@ -264,10 +264,11 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
     return(object)
   }
   new.names <- make.unique(names = new.names)
+  compact <- .hasSlot(object = object, name = 'compact') && slot(object = object, name = 'compact')
   if (length(x = new.names) != length(x = Cells(x = object))) {
     stop("Cannot partially rename segmentation cells", call. = FALSE)
   }
-  if (slot(object = object, name = 'compact')) {
+  if (compact) {
     sf_data <- slot(object = object, name = 'sf.data')
     sf_data$cell <- new.names
     slot(object = object, name = 'sf.data') <- sf_data
