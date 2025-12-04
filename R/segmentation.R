@@ -111,9 +111,9 @@ Cells.Segmentation <- function(x, ...) {
   return(unname(obj = names(x = x)))
 }
 
-#' @importFrom sp Polygon Polygons SpatialPolygons
+#' @importFrom sp Polygon Polygons SpatialPolygons CRS
 #' @param compact Logical indicating whether or not the object should only store segmentation data
-#' in the \code{sf.data} slot; see \link{Segmentation} for details.
+#' in the \code{sf.data} slot; see \link{Segmentation-class} for details.
 #'
 #' @rdname CreateSegmentation
 #' @method CreateSegmentation data.frame
@@ -177,22 +177,24 @@ CreateSegmentation.data.frame <- function(coords, compact = FALSE) {
 #' @method CreateSegmentation Segmentation
 #' @export
 #'
-CreateSegmentation.Segmentation <- function(coords) {
+CreateSegmentation.Segmentation <- function(coords, compact = FALSE) {
   return(coords)
 }
 
 #' @rdname CreateSegmentation
 #' @method CreateSegmentation sf
+#'
 #' @param compact Logical indicating whether or not the object should only store segmentation data
-#' in the \code{sf.data} slot; see \link{Segmentation} for details.
+#' in the \code{sf.data} slot; see \link{Segmentation-class} for details.
+#'
 #' @export
 #'
-CreateSegmentation.sf <- function(coords, compact = FALSE) {
+CreateSegmentation.sf <- function(coords, compact = TRUE) {
   # Method is called when creating Segmentation from an sf object
 
   # Set the attribute-geometry relationship to constant
   # See https://r-spatial.github.io/sf/reference/sf.html#details
-  st_agr(coords) <- "constant"
+  sf::st_agr(coords) <- "constant"
 
   # Extract coordinates as a dataframe from sf object
   coords_mat <- sf::st_coordinates(coords)

@@ -466,6 +466,8 @@ CreateMolecules <- function(coords, ...) {
 #' Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects
 #'
 #' @param coords The coordinates of cell segmentations
+#' @param compact Logical indicating whether or not the object should only store segmentation data
+#' in the \code{sf.data} slot; see \link{Segmentation-class} for details.
 #'
 #' @return A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 #'
@@ -473,7 +475,7 @@ CreateMolecules <- function(coords, ...) {
 #'
 #' @concept spatial
 #'
-CreateSegmentation <- function(coords, ...) {
+CreateSegmentation <- function(coords, compact = FALSE) {
   UseMethod(generic = 'CreateSegmentation', object = coords)
 }
 
