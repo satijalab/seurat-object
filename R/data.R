@@ -20,6 +20,6 @@
 #'   \item{version}{Seurat version used to create the object}
 #'   \item{commands}{Command history}
 #' }
-#' @source \url{https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/pbmc3k}
+#' @source \url{https://www.10xgenomics.com/datasets/3-k-pbm-cs-from-a-healthy-donor-1-standard-1-1-0}
 #'
 "pbmc_small"
