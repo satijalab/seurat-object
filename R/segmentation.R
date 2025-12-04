@@ -203,45 +203,7 @@ CreateSegmentation.sf <- function(coords, compact = FALSE) {
                           cell = coords$barcodes[l2_indices],
                           stringsAsFactors = FALSE)
 
-  if (compact) {
-    # Create minimal valid SpatialPolygons structure to satisfy inheritance
-    minimal_coords <- matrix(c(0, 1, 1, 1, 1, 0, 0, 0, 0, 1), ncol = 2, byrow = TRUE)
-    minimal_polygon <- Polygons(
-      srl = list(Polygon(coords = minimal_coords)),
-      ID = "placeholder"
-    )
-
-    sp_base <- SpatialPolygons(list(minimal_polygon))
-
-    # Now create Segmentation object with valid SpatialPolygons inheritance
-    obj <- new(
-      Class = 'Segmentation',
-      sp_base,
-      sf.data = coords_df,
-      compact = TRUE
-    )
-
-    # Override with empty polygons for compact mode
-    slot(obj, 'polygons') <- list()
-    slot(obj, 'plotOrder') <- integer(0)
-    slot(obj, 'proj4string') <- CRS(as.character(NA))
-
-    # Get bbox from sf data (can be helpful to see coord range)
-    slot(obj, 'bbox') <- matrix(sf::st_bbox(coords),
-                                nrow = 2,
-                                ncol = 2, 
-                                dimnames = list(c("x", "y"), c("min", "max")))
-  } else {
-    # Convert sf object to SpatialPolygons first
-    sp_obj <- as(object = coords, Class = 'Spatial')
-
-    obj <- new(
-      Class = 'Segmentation',
-      sp_obj,
-      sf.data = coords_df, # Store sf data as dataframe
-      compact = FALSE
-    )
-  }
+  obj <- CreateSegmentation.data.frame(coords = coords_df, compact = compact)
   return(obj)
 }
 
