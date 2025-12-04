@@ -3727,13 +3727,7 @@ subset.Seurat <- function(
   # Remove metadata for cells not present
   orig.cells <- colnames(x = x)
   cells <- intersect(x = orig.cells, y = cells)
-  
-  # Subset cell-level metadata.
-  meta.data <- x[[]]
-  meta.data <- meta.data[cells, , drop = FALSE]
-  meta.data <- droplevels(meta.data)
-  slot(object = x, name = 'meta.data') <- meta.data
-  
+  slot(object = x, name = 'meta.data') <- x[[]][cells, , drop = FALSE]
   if (!all(orig.cells %in% cells)) {
     # Remove neighbors
     slot(object = x, name = 'neighbors') <- list()

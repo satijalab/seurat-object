@@ -2484,12 +2484,8 @@ subset.StdAssay <- function(
     orig = features,
     ordered = TRUE
   )
-
-  # Subset feature-level metadata.
-  meta.data <- slot(x, name = "meta.data")
-  meta.data <- meta.data[mfeatures, , drop = FALSE]
-  meta.data <- droplevels(meta.data)
-  slot(x, name = "meta.data") <- meta.data
+  # subset the meta.data slot accordingly
+  slot(x, name = "meta.data") <- slot(x, name = "meta.data")[mfeatures, , drop = FALSE]
 
   # ensure the object is valid
   validObject(x)
