@@ -7,16 +7,19 @@
 \alias{CreateSegmentation.sf}
 \title{Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects}
 \usage{
-CreateSegmentation(coords)
+CreateSegmentation(coords, compact = FALSE)
 
-\method{CreateSegmentation}{data.frame}(coords)
+\method{CreateSegmentation}{data.frame}(coords, compact = FALSE)
 
-\method{CreateSegmentation}{Segmentation}(coords)
+\method{CreateSegmentation}{Segmentation}(coords, compact = FALSE)
 
-\method{CreateSegmentation}{sf}(coords)
+\method{CreateSegmentation}{sf}(coords, compact = TRUE)
 }
 \arguments{
 \item{coords}{The coordinates of cell segmentations}
+
+\item{compact}{Logical indicating whether or not the object should only store segmentation data
+in the \code{sf.data} slot; see \link{Segmentation-class} for details.}
 }
 \value{
 A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object

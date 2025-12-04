@@ -144,6 +144,7 @@ sparse.classes <- new.env()
 
 setClassUnion(name = 'OptionalCharacter', members = c('NULL', 'character'))
 setClassUnion(name = 'OptionalList', members = c('NULL', 'list'))
+setClassUnion(name = 'OptionalLogical', members = c('NULL', 'logical'))
 
 setOldClass(Classes = 'package_version')
 
