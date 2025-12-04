@@ -1,6 +1,7 @@
 # Unreleased
 
 ## Changes
+ - Update `subset.Seurat` to no longer call `droplevels` on the input's cell-level `meta.data` slot; update `subset.Assay` to no longer call `droplevels` on the input's feature-level `meta.features` slot; update `subset.StdAssay` to no longer call `droplevels` on the input's feature-level `meta.data` slot (reverting #251, see discussion in #247)
 
 # SeuratObject 5.2.0
 
