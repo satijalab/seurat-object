@@ -85,6 +85,24 @@ CreateCentroids.default <- function(
   radius = NULL,
   theta = 0L
 ) {
+  if (inherits(x = coords, what = 'sf')) {
+    # Set the attribute-geometry relationship to constant
+    # See https://r-spatial.github.io/sf/reference/sf.html#details
+    st_agr(coords) <- "constant"
+
+    # Extract centroids from sf object
+    centroids <- sf::st_centroid(coords)
+
+    # Convert to data frame and format
+    centroid_coords <- sf::st_coordinates(centroids)
+    centroids_df <- data.frame(
+      x = centroid_coords[, "X"],
+      y = centroid_coords[, "Y"],
+      row.names = coords$barcodes,
+      stringsAsFactors = FALSE
+    )
+    coords <- centroids_df
+  }
   cnames <- c('x', 'y')
   if (ncol(x = coords) >= 3) {
     cnames <- append(x = cnames, values = 'cell')
