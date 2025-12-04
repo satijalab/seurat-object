@@ -88,7 +88,7 @@ CreateCentroids.default <- function(
   if (inherits(x = coords, what = 'sf')) {
     # Set the attribute-geometry relationship to constant
     # See https://r-spatial.github.io/sf/reference/sf.html#details
-    st_agr(coords) <- "constant"
+    sf::st_agr(coords) <- "constant"
 
     # Extract centroids from sf object
     centroids <- sf::st_centroid(coords)
