@@ -355,34 +355,28 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   if (is.null(x = cells)) {
     return(x)
   }
+  if (is.numeric(x = cells)) { # Account for the case when cells to subset are given as indices and not IDs
+    cells <- Cells(x = x)[cells]
+    cells <- MatchCells(new = Cells(x = x), orig = cells, ordered = TRUE)
+  } else {
+    cells <- intersect(Cells(x), cells)
+  }
+  if (!length(x = cells)) {
+    stop("None of the requested cells found")
+  }
   compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
-  if (compact) {
+  has_sf_data <- .hasSlot(object = x, name = 'sf.data') && !is.null(x = slot(object = x, name = 'sf.data'))
+  if (!compact) {
+    x <- x[cells]
+    x <- as(object = x, Class = 'Segmentation')
+  }
+  if (has_sf_data) { # Only subset sf.data if it exists
     sf_data <- slot(object = x, name = 'sf.data')
     sf_data <- sf_data[sf_data$cell %in% cells, ]
     sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
     slot(object = x, name = 'sf.data') <- sf_data
-    return(x)
-  } else {
-    if (is.numeric(x = cells)) {
-      cells <- Cells(x = x)[cells]
-      cells <- MatchCells(new = Cells(x = x), orig = cells, ordered = TRUE)
-    } else {
-      cells <- intersect(Cells(x), cells)
-    }
-    if (!length(x = cells)) {
-      stop("None of the requested cells found")
-    }
-    x <- x[cells]
-    result <- as(object = x, Class = 'Segmentation')
-    # If sf.data is present, subset it as well
-    sf_data <- slot(object = x, name = 'sf.data')
-    if (!is.null(x = sf_data)) {
-      sf_data <- sf_data[sf_data$cell %in% cells, ]
-      sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
-      slot(object = result, name = 'sf.data') <- sf_data
-    }
-    return(result)
   }
+  return(x)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
