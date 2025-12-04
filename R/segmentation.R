@@ -327,17 +327,20 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
     stop("None of the requested cells found")
   }
   compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
-  has_sf_data <- .hasSlot(object = x, name = 'sf.data') && !is.null(x = slot(object = x, name = 'sf.data'))
+  sf_data <- if (.hasSlot(object = x, name = 'sf.data')) slot(object = x, name = 'sf.data') else NULL
+  
+  sf_data_subset <- NULL
+
+  if (!is.null(sf_data)) {
+    sf_data_subset <- sf_data[sf_data$cell %in% cells, ]
+    sf_data_subset <- sf_data_subset[order(as.numeric(row.names(sf_data_subset))), ]
+  }
+  
   if (!compact) {
     x <- x[cells]
     x <- as(object = x, Class = 'Segmentation')
   }
-  if (has_sf_data) { # Only subset sf.data if it exists
-    sf_data <- slot(object = x, name = 'sf.data')
-    sf_data <- sf_data[sf_data$cell %in% cells, ]
-    sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
-    slot(object = x, name = 'sf.data') <- sf_data
-  }
+  slot(object = x, name = 'sf.data') <- sf_data_subset
   return(x)
 }
 
