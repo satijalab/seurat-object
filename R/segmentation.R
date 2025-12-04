@@ -421,25 +421,27 @@ setMethod(
   signature = c(x = 'Segmentation'),
   definition = function(x, i, j, ..., drop = TRUE) {
     compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
-    if (compact) {
-      sf_data <- slot(object = x, name = 'sf.data')
-      sf_data <- sf_data[i, , drop = drop]
-      sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
-      slot(object = x, name = 'sf.data') <- sf_data
-      return(x)
-    } else {
-    # Ensure that subsetting preserves sf.data
-    has_sf_data <- .hasSlot(object = x, name = 'sf.data') && !is.null(x = slot(object = x, name = 'sf.data'))
-    if (has_sf_data) {
-      sf_data <- slot(object = x, name = 'sf.data')
-      sf_data <- sf_data[i, , drop = drop]
-      sf_data <- sf_data[order(as.numeric(row.names(sf_data))), ]
-      slot(object = x, name = 'sf.data') <- sf_data
-    } 
-      x <- callNextMethod()
-      result <- as(object = x, Class = 'Segmentation')
-      return(result)
+    sf_data <- if (.hasSlot(object = x, name = 'sf.data')) slot(object = x, name = 'sf.data') else NULL
+    
+    if (is.numeric(i)) { # Handle numeric indexing
+        cells <- Cells(x = x)[i]
+      } else {
+        cells <- intersect(Cells(x), i)
+      }
+    
+    sf_data_subset <- NULL
+    if (!is.null(sf_data)) {
+        sf_data_subset <- sf_data[sf_data$cell %in% cells, ]
+        sf_data_subset <- sf_data_subset[order(as.numeric(row.names(sf_data_subset))), ]
     }
+    
+    if (!compact) {
+      x <- callNextMethod()
+      x <- as(object = x, Class = 'Segmentation')
+    }
+    
+    slot(object = x, name = 'sf.data') <- sf_data_subset
+    return(x)
   }
 )
 
