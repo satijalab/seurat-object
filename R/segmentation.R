@@ -204,6 +204,11 @@ CreateSegmentation.sf <- function(coords, compact = FALSE) {
                           stringsAsFactors = FALSE)
 
   obj <- CreateSegmentation.data.frame(coords = coords_df, compact = compact)
+
+  if (!compact) { # When compact = FALSE, make sure to store the sf dataframe
+    slot(object = obj, name = 'sf.data') <- coords_df
+  }
+
   return(obj)
 }
 
