@@ -1054,6 +1054,49 @@ DefaultDimReduc <- function(object, assay = NULL) {
   return(dim.reducs[min(index[[1]])])
 }
 
+#' @rdname DefaultDimReduc
+#' @export
+#' @method DefaultDimReduc<-  Seurat
+#'
+#' @examples
+#' \dontrun{
+#' # Set UMAP as default for RNA assay
+#' DefaultDimReduc(seurat_obj) <- "umap"
+#'
+#' # Clear the set default
+#' DefaultDimReduc(seurat_obj) <- NULL
+#' }
+
+"DefaultDimReduc<-.Seurat" <- function(object, ..., value) {
+  current_assay <- DefaultAssay(object)
+  # Get existing defaults or create empty named vector
+  defaults <- Tool(object, slot = "`DefaultDimReduc<-.Seurat`")
+  if (is.null(defaults)) {
+    defaults <- character(0)
+  }
+
+  if (is.null(value)) {
+    # Clear default for current assay
+    new_defaults <- defaults[names(defaults) != current_assay]
+    message(paste0("Removing the set default DimReduc for ", current_assay, " assay."))
+  } else {
+    # Validate that the dim reduc exists
+    if (!value %in% names(object@reductions)) {
+      stop(paste0("DimReduc ", value, " not present in object."))
+    }
+
+    # Set default for current assay
+    message(paste0('Setting "', value, '" as default DimReduc for "', current_assay, '" assay.'))
+    new_defaults <- c(defaults[names(defaults) != current_assay], setNames(value, current_assay))
+  }
+
+  # Store back using Tool<-
+  Tool(object) <- new_defaults
+
+  return(object)
+}
+
+
 #' Radian/Degree Conversions
 #'
 #' Convert degrees to radians and vice versa
