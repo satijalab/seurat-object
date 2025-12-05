@@ -1065,6 +1065,8 @@ DefaultDimReduc <- function(object, assay = NULL) {
 #' @export
 #' @method DefaultDimReduc<-  Seurat
 #'
+#' @concept utils
+#'
 #' @examples
 #' \dontrun{
 #' # Set UMAP as default for RNA assay
@@ -1085,7 +1087,7 @@ DefaultDimReduc <- function(object, assay = NULL) {
   if (is.null(value)) {
     # Clear default for current assay
     new_defaults <- defaults[names(defaults) != current_assay]
-    message(paste0("Removing the set default DimReduc for ", current_assay, " assay."))
+    message(paste0('Removing the set default DimReduc for "', current_assay, '" assay.'))
   } else {
     # Validate that the dim reduc exists
     if (!value %in% names(object@reductions)) {
