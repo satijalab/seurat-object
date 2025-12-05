@@ -1017,41 +1017,48 @@ ClassKey <- function(class, package = NULL) {
 DefaultDimReduc <- function(object, assay = NULL) {
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
-  drs.use <- c('umap', 'tsne', 'pca')
-  dim.reducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
-  drs.assay <- Filter(
-    f = function(x) {
-      return(DefaultAssay(object = object[[x]]) == assay)
-    },
-    x = dim.reducs
-  )
-  if (length(x = drs.assay)) {
+
+  # check if stored defaults and if not use original behavior
+  defaults <- Tool(object, slot = "`DefaultDimReduc<-.Seurat`")
+  if (!is.null(x = defaults) && assay %in% names(x = defaults)) {
+    return(defaults[[assay]])
+  } else {
+    drs.use <- c('umap', 'tsne', 'pca')
+    dim.reducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
+    drs.assay <- Filter(
+      f = function(x) {
+        return(DefaultAssay(object = object[[x]]) == assay)
+      },
+      x = dim.reducs
+    )
+    if (length(x = drs.assay)) {
+      index <- lapply(
+        X = drs.use,
+        FUN = grep,
+        x = drs.assay,
+        ignore.case = TRUE
+      )
+      index <- Filter(f = length, x = index)
+      if (length(x = index)) {
+        return(drs.assay[min(index[[1]])])
+      }
+    }
     index <- lapply(
       X = drs.use,
       FUN = grep,
-      x = drs.assay,
+      x = dim.reducs,
       ignore.case = TRUE
     )
     index <- Filter(f = length, x = index)
-    if (length(x = index)) {
-      return(drs.assay[min(index[[1]])])
+    if (!length(x = index)) {
+      abort(message = paste0(
+        "Unable to find a DimReduc matching one of ",
+        .Oxford(drs.use),
+        "; please specify a dimensional reduction to use"
+      ))
     }
+    return(dim.reducs[min(index[[1]])])
   }
-  index <- lapply(
-    X = drs.use,
-    FUN = grep,
-    x = dim.reducs,
-    ignore.case = TRUE
-  )
-  index <- Filter(f = length, x = index)
-  if (!length(x = index)) {
-    abort(message = paste0(
-      "Unable to find a DimReduc matching one of ",
-      .Oxford(drs.use),
-      "; please specify a dimensional reduction to use"
-    ))
-  }
-  return(dim.reducs[min(index[[1]])])
 }
 
 #' @rdname DefaultDimReduc
