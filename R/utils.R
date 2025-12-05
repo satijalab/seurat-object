@@ -1077,21 +1077,27 @@ DefaultDimReduc <- function(object, assay = NULL) {
 #' }
 
 "DefaultDimReduc<-.Seurat" <- function(object, ..., value) {
-  current_assay <- DefaultAssay(object)
+  current_assay <- DefaultAssay(object = object)
   # Get existing defaults or create empty named vector
   defaults <- Tool(object, slot = "`DefaultDimReduc<-.Seurat`")
-  if (is.null(defaults)) {
+  if (is.null(x = defaults)) {
     defaults <- character(0)
   }
 
-  if (is.null(value)) {
+  if (is.null(x = value)) {
     # Clear default for current assay
-    new_defaults <- defaults[names(defaults) != current_assay]
+    new_defaults <- defaults[names(x = defaults) != current_assay]
     message(paste0('Removing the set default DimReduc for "', current_assay, '" assay.'))
   } else {
     # Validate that the dim reduc exists
-    if (!value %in% names(object@reductions)) {
+    if (!value %in% Reductions(object = object)) {
       stop(paste0("DimReduc ", value, " not present in object."))
+    }
+
+    # Check reduction is associated with current assay
+    reduc_assay <- DefaultAssay(object@reductions[[value]])
+    if (current_assay != reduc_assay) {
+      stop(paste0('The reduction "', value, '" is not associated with current assay "', current_assay, '". No change made to default DimReduc.'))
     }
 
     # Set default for current assay
