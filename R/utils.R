@@ -1102,7 +1102,7 @@ DefaultDimReduc <- function(object, assay = NULL) {
 
     # Set default for current assay
     message(paste0('Setting "', value, '" as default DimReduc for "', current_assay, '" assay.'))
-    new_defaults <- c(defaults[names(defaults) != current_assay], setNames(value, current_assay))
+    new_defaults <- c(defaults[names(x = defaults) != current_assay], setNames(value, current_assay))
   }
 
   # Store back using Tool<-
