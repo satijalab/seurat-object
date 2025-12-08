@@ -1095,7 +1095,7 @@ DefaultDimReduc <- function(object, assay = NULL) {
     }
 
     # Check reduction is associated with current assay
-    reduc_assay <- DefaultAssay(object@reductions[[value]])
+    reduc_assay <- DefaultAssay(object[[value]])
     if (assay != reduc_assay) {
       stop(paste0('The reduction "', value, '" is not associated with current assay "', assay, '". No change made to default DimReduc.'))
     }
