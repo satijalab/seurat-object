@@ -1030,10 +1030,6 @@ UpdateSeuratObject <- function(object) {
       for (x in names(x = object)) {
         message("Updating slots in ", x)
         xobj <- object[[x]]
-        xobj <- suppressWarnings(
-          expr = UpdateSlots(object = xobj),
-          classes = 'validationWarning'
-        )
         if (inherits(x = xobj, what = 'FOV')) {
           fov_name <- x
           # Old if object doesn't have coords_x_orientation slot or was saved prior to correction
@@ -1047,7 +1043,9 @@ UpdateSeuratObject <- function(object) {
               # Find all centroid objects in boundaries
               centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Centroids'))
 
-              if (length(centroids_indices) > 0) {
+              # Only correct the x and y axis orientation 
+              # if object is of type Visium and old coordinate orientation is detected
+              if (length(centroids_indices) > 0 && is_visium && old_axis_orientation) {
                 centroids_names <- names(boundaries)[centroids_indices]
                 
                 # Process each centroids object
@@ -1055,18 +1053,15 @@ UpdateSeuratObject <- function(object) {
                   cent_name <- centroids_names[i]
                   cent <- boundaries[[cent_name]]
 
-                  # Only correct the x and y axis orientation if object is of type Visium
-                  if (old_axis_orientation && is_visium) { 
-                    new_coords <- GetTissueCoordinates(object = cent)
-                    old_x_coords <- new_coords$x
-                    new_coords$x <- new_coords$y
-                    new_coords$y <- old_x_coords
-                    updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
-                    boundaries[[cent_name]] <- updated_cent
-                    message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
-                    if (!boundaries_updated) {
-                      boundaries_updated <- TRUE
-                    }
+                  new_coords <- GetTissueCoordinates(object = cent)
+                  old_x_coords <- new_coords$x
+                  new_coords$x <- new_coords$y
+                  new_coords$y <- old_x_coords
+                  updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
+                  boundaries[[cent_name]] <- updated_cent
+                  message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
+                  if (!boundaries_updated) {
+                    boundaries_updated <- TRUE
                   }
                 }
               }
@@ -1094,6 +1089,10 @@ UpdateSeuratObject <- function(object) {
             xobj@SCTModel.list[[sctmodel]]@median_umi <- median_umi
           }
         }
+        xobj <- suppressWarnings(
+          expr = UpdateSlots(object = xobj),
+          classes = 'validationWarning'
+        )
         if (inherits(x = xobj, what = 'DimReduc')) {
           if (any(sapply(X = c('tsne', 'umap'), FUN = grepl, x = tolower(x = x)))) {
             message("Setting ", x, " DimReduc to global")
