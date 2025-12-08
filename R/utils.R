@@ -1540,10 +1540,8 @@ safeValidityCheck <- function(object) {
     },
     error = function(e) {
       if (grepl(pattern = "slots in class definition but not in object", x = e$message)) {
-        e$message <- paste0(
-          "Consider running UpdateSeuratObject; ",
-          e$message
-        )
+        e <- simpleError(message = paste0("Consider running UpdateSeuratObject; ", conditionMessage(e)),
+                        call = conditionCall(e))
       }
       stop(e)
     }
