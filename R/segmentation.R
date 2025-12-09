@@ -270,12 +270,9 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
   if (length(x = new.names) != length(x = Cells(x = object))) {
     stop("Cannot partially rename segmentation cells", call. = FALSE)
   }
-  if (compact) {
-    sf_data <- slot(object = object, name = 'sf.data')
-    id_map <- setNames(new.names, Cells(x = object))
-    sf_data$cell <- id_map[ sf_data$cell ]
-    slot(object = object, name = 'sf.data') <- sf_data
-  } else {
+  sf_data <- if (.hasSlot(object = object, name = 'sf.data')) slot(object = object, name = 'sf.data') else NULL
+  id_map <- setNames(new.names, Cells(x = object))
+  if (!compact) {
     names(x = slot(object = object, name = 'polygons')) <- new.names
     p <- progressor(along = slot(object = object, name = 'polygons'))
     slot(object = object, name = 'polygons') <- future_mapply(
@@ -289,12 +286,11 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
       SIMPLIFY = FALSE,
       USE.NAMES = TRUE
     )
-    sf <- slot(object = object, name = 'sf.data')
-    if (!is.null(x = sf)) {
-      sf$cell <- new.names
-      slot(object = object, name = 'sf.data') <- sf
-    }
   }
+  if (!is.null(x = sf_data)) {
+    sf_data$cell <- id_map[ sf_data$cell ]
+  }
+  slot(object = object, name = 'sf.data') <- sf_data
   return(object)
 }
 
