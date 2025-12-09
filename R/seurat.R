@@ -1032,45 +1032,50 @@ UpdateSeuratObject <- function(object) {
         xobj <- object[[x]]
         if (inherits(x = xobj, what = 'FOV')) {
           fov_name <- x
-          # Old if object doesn't have coords_x_orientation slot or was saved prior to correction
+          # Needs coord system update if 
+          # object doesn't have coords_x_orientation slot or 
+          # was saved prior to correction
           old_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
           is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
-          tryCatch(
-            expr = {
-              boundaries <- slot(object = xobj, name = 'boundaries')
-              # Find all centroid objects in boundaries
-              centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Centroids'))
+          if (is_visium && old_axis_orientation) {
+            tryCatch(
+              expr = {
+                boundaries <- slot(object = xobj, name = 'boundaries')
+                # Find all centroid objects in boundaries
+                centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Centroids'))
 
-              # Only correct the x and y axis orientation 
-              # if object is of type Visium and old coordinate orientation is detected
-              if (length(centroids_indices) > 0 && is_visium && old_axis_orientation) {
-                centroids_names <- names(boundaries)[centroids_indices]
-                
-                # Process each centroids object
-                for (i in seq_along(centroids_indices)) {
-                  cent_name <- centroids_names[i]
-                  cent <- boundaries[[cent_name]]
+                if (length(centroids_indices) > 0) {
+                  centroids_names <- names(boundaries)[centroids_indices]
+                  # Process each centroids object
+                  for (i in seq_along(centroids_indices)) {
+                    cent_name <- centroids_names[i]
+                    cent <- boundaries[[cent_name]]
 
-                  new_coords <- GetTissueCoordinates(object = cent)
-                  old_x_coords <- new_coords$x
-                  new_coords$x <- new_coords$y
-                  new_coords$y <- old_x_coords
-                  updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
-                  boundaries[[cent_name]] <- updated_cent
-                  message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
+                    new_coords <- GetTissueCoordinates(object = cent)
+                    old_x_coords <- new_coords$x
+                    new_coords$x <- new_coords$y
+                    new_coords$y <- old_x_coords
+                    updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
+                    boundaries[[cent_name]] <- updated_cent
+                    message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
+                  }
+
+                  # Update the FOV object if any boundaries were modified
+                  message("Updated boundaries in FOV ", sQuote(fov_name))
+                  slot(object = xobj, name = 'boundaries') <- boundaries
+                  slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
                 }
-
-                # Update the FOV object if any boundaries were modified
-                message("Updated boundaries in FOV ", sQuote(fov_name))
-                slot(object = xobj, name = 'boundaries') <- boundaries
-                slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
+              },
+              error = function(e) {
+                message("Error updating objects in boundaries in FOV ", sQuote(fov_name))
               }
-            },
-            error = function(e) {
-              message("Error updating objects in boundaries in FOV ", sQuote(fov_name))
-            }
-          )
+            )
+          }
         }
+        xobj <- suppressWarnings(
+          expr = UpdateSlots(object = xobj),
+          classes = 'validationWarning'
+        )
         if (inherits(x = xobj, what = "SCTAssay")){
           sctmodels <- names(x = slot(object = xobj, name = "SCTModel.list"))
           for (sctmodel in sctmodels){
@@ -1083,10 +1088,6 @@ UpdateSeuratObject <- function(object) {
             xobj@SCTModel.list[[sctmodel]]@median_umi <- median_umi
           }
         }
-        xobj <- suppressWarnings(
-          expr = UpdateSlots(object = xobj),
-          classes = 'validationWarning'
-        )
         if (inherits(x = xobj, what = 'DimReduc')) {
           if (any(sapply(X = c('tsne', 'umap'), FUN = grepl, x = tolower(x = x)))) {
             message("Setting ", x, " DimReduc to global")
