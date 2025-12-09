@@ -1035,11 +1035,9 @@ UpdateSeuratObject <- function(object) {
           # Old if object doesn't have coords_x_orientation slot or was saved prior to correction
           old_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
           is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
-          boundaries_updated <- FALSE
           tryCatch(
             expr = {
               boundaries <- slot(object = xobj, name = 'boundaries')
-              message("Checking for objects in boundaries to update in FOV ", sQuote(fov_name))
               # Find all centroid objects in boundaries
               centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Centroids'))
 
@@ -1060,13 +1058,9 @@ UpdateSeuratObject <- function(object) {
                   updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
                   boundaries[[cent_name]] <- updated_cent
                   message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
-                  if (!boundaries_updated) {
-                    boundaries_updated <- TRUE
-                  }
                 }
-              }
-              # Update the FOV object if any boundaries were modified
-              if (boundaries_updated) {
+
+                # Update the FOV object if any boundaries were modified
                 message("Updated boundaries in FOV ", sQuote(fov_name))
                 slot(object = xobj, name = 'boundaries') <- boundaries
                 slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
