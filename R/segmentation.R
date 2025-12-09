@@ -625,7 +625,7 @@ setValidity(
     # Check sf.data slot
     sf_data <- slot(object = object, name = 'sf.data')
     if (!is.null(x = sf_data)) {
-      # If sf.data is populated, it should inherit from 'sf'
+      # If sf.data is populated, it should inherit from 'data.frame'
       if (!inherits(x = sf_data, 'data.frame')) {
         valid <- c(
           valid,
