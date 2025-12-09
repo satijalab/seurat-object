@@ -272,7 +272,8 @@ RenameCells.Segmentation <- function(object, new.names = NULL, ...) {
   }
   if (compact) {
     sf_data <- slot(object = object, name = 'sf.data')
-    sf_data$cell <- new.names
+    id_map <- setNames(new.names, Cells(x = object))
+    sf_data$cell <- id_map[ sf_data$cell ]
     slot(object = object, name = 'sf.data') <- sf_data
   } else {
     names(x = slot(object = object, name = 'polygons')) <- new.names
