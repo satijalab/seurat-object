@@ -341,8 +341,10 @@ subset.Segmentation <- function(x, cells = NULL, ...) {
   sf_data_subset <- NULL
 
   if (!is.null(sf_data)) {
-    sf_data_subset <- sf_data[sf_data$cell %in% cells, ]
-    sf_data_subset <- sf_data_subset[order(as.numeric(row.names(sf_data_subset))), ]
+    # Maintain original order of cells in subsetted object
+    # Order is important when plotting polygons to avoid the sides (lines between vertices) being drawn incorrectly
+    matching_indices <- which(sf_data$cell %in% cells)
+    sf_data_subset <- sf_data[matching_indices, ]
   }
   
   if (!compact) {
@@ -440,8 +442,8 @@ setMethod(
     
     sf_data_subset <- NULL
     if (!is.null(sf_data)) {
-        sf_data_subset <- sf_data[sf_data$cell %in% cells, ]
-        sf_data_subset <- sf_data_subset[order(as.numeric(row.names(sf_data_subset))), ]
+      matching_indices <- which(sf_data$cell %in% cells)
+      sf_data_subset <- sf_data[matching_indices, ]
     }
     
     if (!compact) {
