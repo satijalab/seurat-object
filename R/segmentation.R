@@ -527,26 +527,22 @@ setMethod(
   definition = function(x, y, invert = FALSE, ...) {
     check_installed(pkg = 'sf', reason = 'to overlay spatial information')
     compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
+    sf_data <- if (.hasSlot(object = x, name = 'sf.data')) slot(object = x, name = 'sf.data') else NULL
+
     if (compact) {
-      message("Overlaying compact Segmentation objects is not supported.")
+      message("Overlaying compact Segmentation objects is currently not supported.")
       return(NULL)
-    } else {
-      x_sf <- as(object = x, Class = 'sf')
     }
     idx <- sf::st_intersects(
-      x = x_sf,
+      x = as(object = x, Class = 'sf'),
       y = as(object = y, Class = 'sf'),
       sparse = FALSE
     )
     idx <- which(x = idx)
-    if (compact) {
-      names_in_sf_object1 <- x_sf$cell[idx]
+    names_in_sf_object1 <- if (!is.null(x = row.names(x = x))) {
+      row.names(x = x)[idx]
     } else {
-      names_in_sf_object1 <- if (!is.null(x = row.names(x = x))) {
-        row.names(x = x)[idx]
-      } else {
-        x$id[idx]
-      }
+      x$id[idx]
     }
     idx <- setNames(
       object = rep.int(x = TRUE, times = length(x = idx)),
@@ -556,24 +552,26 @@ setMethod(
       warn("The selected region does not contain any cell segmentations")
       return(NULL)
     }
-    if (compact) {
-      cells <- names(x = idx)
-    } else {
-      names(x = idx) <- vapply(
-        X = strsplit(x = names(x = idx), split = '\\.'),
-        FUN = '[[',
-        FUN.VALUE = character(length = 1L),
-        1L,
-        USE.NAMES = FALSE
-      )
-      cells <- names(x = idx)
-    }
+    names(x = idx) <- vapply(
+      X = strsplit(x = names(x = idx), split = '\\.'),
+      FUN = '[[',
+      FUN.VALUE = character(length = 1L),
+      1L,
+      USE.NAMES = FALSE
+    )
     cells <- if (isTRUE(x = invert)) {
-      setdiff(x = Cells(x = x), y = cells)
+      setdiff(x = Cells(x = x), y = names(x = idx))
     } else {
       names(x = idx)
     }
     x <- x[cells]
+    sf_data <- if (!is.null(x = sf_data)) {
+      matching_indices <- which(sf_data$cell %in% cells)
+      sf_data[matching_indices, ]
+    } else {
+      NULL
+    }
+    slot(object = x, name = 'sf.data') <- sf_data
     return(x)
   }
 )
