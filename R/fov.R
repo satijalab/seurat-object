@@ -25,6 +25,11 @@ NULL
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 #' spatially-resolved boundaries
+#' @slot coords_x_orientation A character indicating which axis 
+#' \code{x} coordinates are associated with in spatial plots. 
+#' Currently only applies to Visium objects. Ensures consistency in 
+#' plotting spatial data across versions, as objects prior to the 
+#' addition of this slot had \code{x} coordinates mapped to the vertical axis.
 #' @slot assay A character naming the associated assay
 #' of the spatial coordinates
 #' @template slot-key
@@ -42,7 +47,11 @@ setClass(
   contains = 'SpatialImage',
   slots = list(
     molecules = 'list',
-    boundaries = 'list'
+    boundaries = 'list',
+    coords_x_orientation = 'character'
+  ),
+  prototype = list(
+    coords_x_orientation = character(0)
   )
 )
 
@@ -675,7 +684,7 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   for (i in Boundaries(object = x)) {
     x[[i]] <- subset(x = x[[i]], cells = cells)
   }
-  validObject(object = x)
+  safeValidityCheck(object = x)
   return(x)
 }
 
@@ -749,7 +758,7 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   # Reorder cells
   x <- .OrderCells(object = x)
   # Validate and return
-  validObject(object = x)
+  safeValidityCheck(object = x)
   return(x)
 }
 
@@ -852,7 +861,7 @@ setMethod(
     # Add incoming molecules
     slot(object = x, name = 'molecules')[[i]] <- value
     # Validate and return
-    validObject(object = x)
+    safeValidityCheck(object = x)
     return(x)
   }
 )
@@ -878,7 +887,7 @@ setMethod(
     } else {
       slot(object = x, name = 'boundaries')[[i]] <- NULL
     }
-    validObject(object = x)
+    safeValidityCheck(object = x)
     return(x)
   }
 )
@@ -914,7 +923,7 @@ setMethod(
   definition = function(.Object, ...) {
     .Object <- callNextMethod(.Object, ...)
     .Object <- .OrderCells(object = .Object)
-    validObject(object = .Object)
+    safeValidityCheck(object = .Object)
     return(.Object)
   }
 )

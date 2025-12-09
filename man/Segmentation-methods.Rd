@@ -77,10 +77,10 @@ by \code{cells}/\code{i}
 
 \code{[[<-}: 
 \itemize{
- \item If \code{value} is an \code{sf} object,
- returns \code{x} with \code{value} stored in \code{sf};
+ \item If \code{value} is an \code{data.frame} object,
+ returns \code{x} with \code{value} stored in \code{sf.data};
  requires that \code{i} is \dQuote{sf.data}.
- \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf} removed.
+ \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf.data} removed.
 }
 
 \code{show}: Invisibly returns \code{NULL}
@@ -102,7 +102,7 @@ tissue coordinates
 \code{subset}, \code{[}: Subset a \code{Segmentation} object to
 certain cells
 
-\code{[[<-}: Attach or remove \code{sf} object to/from a \code{Segmentation} object
+\code{[[<-}: Attach or remove \code{sf}-derived data to/from a \code{Segmentation} object
 
 \code{show}: Display an object summary to stdout
 }
@@ -118,7 +118,7 @@ To enable progress updates, wrap
 the function call in \code{\link[progressr]{with_progress}} or run
 \code{\link[progressr:handlers]{handlers(global = TRUE)}} before running
 this function. For more details about \pkg{progressr}, please read
-\href{https://progressr.futureverse.org/articles/progressr-intro.html}{\code{vignette("progressr-intro")}}
+\href{https://progressr.futureverse.org/articles/progressr-01-intro.html}{\code{vignette("progressr-intro")}}
 }
 
 \section{Parallelization with \pkg{future}}{

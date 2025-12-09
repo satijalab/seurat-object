@@ -13,6 +13,11 @@ Supports storing boundaries in objects of class \code{\link[sf]{sf}}.
 
 \describe{
 \item{\code{sf.data}}{Segmentation boundaries in \code{\link[sf]{sf}} format}
+
+\item{\code{compact}}{Logical indicating whether or not the object only stores 
+segmentation information in the \code{sf.data} slot, rather than also in the
+standard \code{SpatialPolygons} slots, to save memory and processing time.
+Currently only relevant for Visium data.}
 }}
 
 \seealso{

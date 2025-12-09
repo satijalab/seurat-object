@@ -136,6 +136,7 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
   if (is.null(x = x) && is.null(x = y)) {
     return(object)
   }
+  compact <- .hasSlot(object = object, name = 'compact') && slot(object = object, name = 'compact')
   coords <- coords[1L]
   coords <- match.arg(arg = coords)
   switch(
@@ -171,7 +172,7 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
   df <- do.call(what = expand.grid, args = args)
   df <- df[c(1, 3, 4, 2), ]
   df$cell <- 'cell'
-  return(Overlay(x = object, y = CreateSegmentation(coords = df)))
+  return(Overlay(x = object, y = CreateSegmentation(coords = df, compact = compact)))
 }
 
 #' Test Finiteness of Centroids
