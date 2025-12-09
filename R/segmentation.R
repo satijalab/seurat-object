@@ -581,8 +581,8 @@ setMethod(
   signature = c(object = 'Segmentation'),
   definition = function(object) {
     compact <- .hasSlot(object = object, name = 'compact') && slot(object = object, name = 'compact')
-    if (compact) {
-      sf_data <- slot(object = object, name = 'sf.data')
+    sf_data <- if (.hasSlot(object = object, name = 'sf.data')) slot(object = object, name = 'sf.data') else NULL
+    if (compact && !is.null(x = sf_data)) {
       cat("A spatial segmentation for", length(unique(sf_data$cell)), "cells\n")
     } else {
       cat("A spatial segmentation for", length(x = object), "cells\n")
