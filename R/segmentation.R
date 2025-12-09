@@ -468,11 +468,8 @@ setMethod(
       if (isTRUE(x = full)) {
         return(coords)
       }
-      sf_obj <- sf::st_as_sf(coords)
-      centroids <- sf::st_centroid(sf_obj)
-      centroids_coords <- as.data.frame(sf::st_coordinates(centroids))
-      centroids_coords$cell <- coords$cell[centroids_coords[, 'L2']]
-      return(centroids_coords)
+      message("Centroids cannot be computed for compact Segmentation objects; returning full coordinates.")
+      return(coords)
     } else {
       if (!isTRUE(x = full)) {
         coords <- as.data.frame(x = callNextMethod(obj = obj))
@@ -531,7 +528,8 @@ setMethod(
     check_installed(pkg = 'sf', reason = 'to overlay spatial information')
     compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
     if (compact) {
-      x_sf <- sf::st_as_sf(slot(object = x, name = 'sf.data'))
+      message("Overlaying compact Segmentation objects is not supported.")
+      return(NULL)
     } else {
       x_sf <- as(object = x, Class = 'sf')
     }
