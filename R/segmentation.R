@@ -106,7 +106,7 @@ Cells.Segmentation <- function(x, ...) {
   compact <- .hasSlot(object = x, name = 'compact') && slot(object = x, name = 'compact')
   if (compact) {
     sf_data <- slot(object = x, name = 'sf.data')
-    return(unname(obj = sf_data$cell))
+    return(unique(sf_data$cell))
   }
   return(unname(obj = names(x = x)))
 }
