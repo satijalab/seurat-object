@@ -1401,7 +1401,7 @@ LayerData.Assay5 <- LayerData.StdAssay
   value <- if (fdim == 1L) {
     value[fmatch, cmatch, drop = FALSE]
   } else {
-    value[cmatch, fmatch]
+    value[cmatch, fmatch, drop = FALSE]
   }
   # Add the layer
   slot(object = object, name = 'layers')[[layer]] <- value
