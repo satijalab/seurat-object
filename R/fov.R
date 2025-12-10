@@ -440,14 +440,14 @@ FetchData.FOV <- function(
   return(data.fetched)
 }
 
-#' @param which Name of segmentation boundary or molecule set
+#' @param which Name of segmentation boundary or molecule set to retrieve coordinates for;
+#' if NULL, will retrieve coordinates for the default boundary
 #'
-#' @details \code{GetTissueCoordinates}: Get boundary or molecule
-#' coordinates from a \code{FOV} object
-#'
-#' @return \code{GetTissueCoordinates}: ...
-#'
-#' @rdname FOV-methods
+#' @examples
+#' \dontrun{
+#' GetTissueCoordinates(object, which = "centroids")
+#' }
+#' @rdname GetTissueCoordinates
 #' @method GetTissueCoordinates FOV
 #' @export
 #'

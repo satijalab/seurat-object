@@ -1965,7 +1965,7 @@ GetImage.Seurat <- function(
 }
 
 #' @param image Name of \code{SpatialImage} object to get coordinates for; if
-#' \code{NULL}, will attempt to select an image automatically
+#' \code{NULL}, will retrieve coordinates for the default image
 #'
 #' @rdname GetTissueCoordinates
 #' @method GetTissueCoordinates Seurat
