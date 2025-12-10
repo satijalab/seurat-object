@@ -176,8 +176,8 @@ pbmc.assay <- pbmc_small[["RNA"]]
 x <- merge(x = pbmc.assay, y = pbmc.assay)
 
 test_that("Merging Assays works properly", {
-  expect_equal(dim(GetAssayData(object = x, slot = "counts")), c(230, 160))
-  expect_equal(dim(GetAssayData(object = x, slot = "data")), c(230, 160))
+  expect_equal(dim(GetAssayData(object = x, layer = "counts")), c(230, 160))
+  expect_equal(dim(GetAssayData(object = x, layer = "data")), c(230, 160))
   expect_equal(GetAssayData(object = x, slot = "scale.data"), new(Class = "matrix"))
   expect_equal(Key(object = x), "rna_")
   expect_equal(VariableFeatures(object = x), vector())
@@ -188,18 +188,18 @@ pbmc.assay2 <- pbmc.assay
 pbmc.assay2@counts <- new("dgCMatrix")
 test_that("Merging Assays handles case when counts not present", {
   y <- merge(x = pbmc.assay2, y = pbmc.assay)
-  expect_equal(unname(colSums(x = GetAssayData(object = y, slot = "counts"))[1:80]), rep.int(x = 0, times = 80))
+  expect_equal(unname(colSums(x = GetAssayData(object = y, layer = "counts"))[1:80]), rep.int(x = 0, times = 80))
   z <- merge(x = pbmc.assay2, pbmc.assay2)
-  expect_equal(Matrix::nnzero(x = GetAssayData(object = z, slot = "counts")), 0)
+  expect_equal(Matrix::nnzero(x = GetAssayData(object = z, layer = "counts")), 0)
 })
 
 pbmc.assay2 <- pbmc.assay
 pbmc.assay2@data <- new("dgCMatrix")
 test_that("Merging Assays handles case when data not present", {
   y <- merge(x = pbmc.assay2, y = pbmc.assay, merge.data = TRUE)
-  expect_equal(unname(colSums(x = GetAssayData(object = y, slot = "data"))[1:80]), rep.int(x = 0, times = 80))
+  expect_equal(unname(colSums(x = GetAssayData(object = y, layer = "data"))[1:80]), rep.int(x = 0, times = 80))
   z <- merge(x = pbmc.assay2, y = pbmc.assay2, merge.data = TRUE)
-  expect_equal(Matrix::nnzero(x = GetAssayData(object = z, slot = "data")), 0)
+  expect_equal(Matrix::nnzero(x = GetAssayData(object = z, layer = "data")), 0)
 })
 
 # # Tests for Neighbor object
@@ -314,7 +314,7 @@ test_that("downsample works", {
 
 test_that("passing an expression works", {
   lyz.pos <- WhichCells(object = pbmc_small, expression = LYZ > 1)
-  expect_true(all(GetAssayData(object = pbmc_small, slot = "data")["LYZ", lyz.pos] > 1))
+  expect_true(all(GetAssayData(object = pbmc_small, layer = "data")["LYZ", lyz.pos] > 1))
   # multiple values in expression
   lyz.pos <- WhichCells(object = pbmc_small, expression = LYZ > 1 & groups == "g1")
   expect_equal(length(x = lyz.pos), 30)
