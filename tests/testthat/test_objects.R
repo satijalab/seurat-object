@@ -70,6 +70,17 @@ test_that("CreateAssayObject works as expected", {
   expect_equal(GetAssayData(object = rna.assay2, layer = "counts"), new(Class = "matrix"))
 })
 
+test_that("CreateAssayObject works as expected for single cell edge case", {
+  # Test whether methods work for single cell input
+  expect_no_error(rna.assay.single <- CreateAssayObject(counts = pbmc.raw[, 1, drop = FALSE]))
+  expect_no_error(
+    LayerData(rna.assay.single, "counts") <- LayerData(as(rna.assay.single, "Assay"))
+  )
+  expect_no_error(
+    LayerData(rna.assay.single, "counts") <- LayerData(as(rna.assay.single, "Assay5"))
+  )
+})
+
 rna.assay2 <- CreateAssayObject(counts = pbmc.raw, min.cells = 10, min.features = 30)
 test_that("CreateAssayObject filtering works", {
   expect_equal(dim(x = rna.assay2), c(163, 77))
