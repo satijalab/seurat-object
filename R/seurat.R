@@ -256,8 +256,6 @@ CellsByImage <- function(object, images = NULL, unlist = FALSE) {
 #' @templateVar repl .FilterObjects
 #' @template lifecycle-deprecated
 #'
-#' @examples
-#' FilterObjects(pbmc_small)
 #'
 FilterObjects <- function(
   object,
