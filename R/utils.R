@@ -1338,8 +1338,6 @@ ListToS4 <- function(x) {
 #' \code{PackageCheck} was deprecated in version 5.0.0; please use
 #' \code{\link[rlang:check_installed]{rlang::check_installed}()} instead
 #'
-#' @examples
-#' PackageCheck("SeuratObject", error = FALSE)
 #'
 PackageCheck <- function(..., error = TRUE) {
   .Deprecate(
