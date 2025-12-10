@@ -25,8 +25,6 @@ if NULL, will retrieve coordinates for the default boundary}
 }
 \value{
 A data frame with tissue coordinates
-
-\code{GetTissueCoordinates}: ...
 }
 \description{
 Retrieve tissue coordinates from spatial objects.
