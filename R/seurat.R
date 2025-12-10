@@ -628,6 +628,7 @@ RenameAssays <- function(
 #' @order 1
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("fs", quietly = TRUE)) {
 #'   # Write out with DelayedArray
 #'   if (requireNamespace("HDF5Array", quietly = TRUE)) {
@@ -677,6 +678,7 @@ RenameAssays <- function(
 #'     pbmc2
 #'     pbmc2[["disk"]]
 #'   }
+#' }
 #' }
 #'
 SaveSeuratRds <- function(
