@@ -1399,7 +1399,7 @@ LayerData.Assay5 <- LayerData.StdAssay
   }
   # Reorder the layer data
   value <- if (fdim == 1L) {
-    value[fmatch, cmatch]
+    value[fmatch, cmatch, drop = FALSE]
   } else {
     value[cmatch, fmatch]
   }
@@ -1562,9 +1562,9 @@ VariableFeatures.StdAssay <- function(
   label_column <- "var.features"
   rank_column <- "var.features.rank"
   feature_metadata <- object[[]]
-  # If `method` is not provided, and the assay's metadata contains at least 
-  # one of the default variable feature columns, with a request for a flat 
-  # (`simplify=TRUE`) and assay-wide output (`layer = NA`), then return 
+  # If `method` is not provided, and the assay's metadata contains at least
+  # one of the default variable feature columns, with a request for a flat
+  # (`simplify=TRUE`) and assay-wide output (`layer = NA`), then return
   # variable features directly from the assay's  feature-level metadata.
   if (
     is.null(method)
@@ -1595,7 +1595,7 @@ VariableFeatures.StdAssay <- function(
     query_layers <- method_layers[method_layers %in% query_layers]
   }
 
-  # For each layer, extract the relevant metadata using `HVFInfo` and then 
+  # For each layer, extract the relevant metadata using `HVFInfo` and then
   # parse the variable feature names.
   variable_features <- sapply(
     query_layers,
@@ -1627,9 +1627,9 @@ VariableFeatures.StdAssay <- function(
     stop("No variable features found.")
   }
 
-  # If simplified output is requested, aggregate the variable features from all 
+  # If simplified output is requested, aggregate the variable features from all
   # layers by taking the most common `nfeatures`. Ties are resolved using each
-  # feature's median rank across all layers. If `nfeatures` is not provided, 
+  # feature's median rank across all layers. If `nfeatures` is not provided,
   # the union of variable features for across all layers will be returned.
   if (isTRUE(simplify)) {
     variable_features <- .GetConsensusFeatures(
@@ -1671,7 +1671,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
     stop("None of the features specified are present in this assay", call. = FALSE)
   }
   object[['var.features']] <- value
-  
+
   # add rank
   row_names <- row.names(object[[]])
   selected_rows <- row_names %in% value
@@ -1680,7 +1680,7 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
   rank_values[selected_rows] <- match(matching_rows, value)
   names(rank_values) <- row_names
   object[["var.features.rank"]] <- rank_values
-  
+
   return(object)
 }
 
@@ -2435,7 +2435,7 @@ subset.StdAssay <- function(
     choices = all_layers,
     several.ok = TRUE
   )
-  
+
   # subset cells and features layer by layer
   for (layer_name in all_layers) {
     # maybe drop the layer
@@ -2444,7 +2444,7 @@ subset.StdAssay <- function(
       next
     }
     # otherwise, filter the the layer's cells and features
-    # `MatchCells` is a bit of a misnomer - assuming that `new` is a 
+    # `MatchCells` is a bit of a misnomer - assuming that `new` is a
     # subset of `old`, the function returns a list of indices mapping
     # the values of `new` to their order in `orig`
     layer_cells <- MatchCells(
@@ -2461,7 +2461,7 @@ subset.StdAssay <- function(
     if (is.null(layer_cells) || is.null(layer_features)) {
       LayerData(object = x, layer = layer_name) <- NULL
       next
-    } 
+    }
     # otherwise, apply the subset
     LayerData(object = x, layer = layer_name) <- LayerData(
       object = x,
@@ -2700,8 +2700,8 @@ tail.Assay5 <- tail.StdAssay
 #' feature annotations. Features are marked as variable if their value in
 #' `label_column` is neither `NA` nor `FALSE`. When a ranking is provided via
 #' `rank_column`, features are ordered accordingly.
-#' 
-#' @param hvf_info A `data.frame` containing highly variable feature 
+#'
+#' @param hvf_info A `data.frame` containing highly variable feature
 #' annotations.
 #' @param label_column A column in `hvf_info` indicating which features
 #' are variable. A feature is considered variable if it's corresponding
@@ -2709,9 +2709,9 @@ tail.Assay5 <- tail.StdAssay
 #' @param rank_column A column in `hvf_info` indicating the rank of
 #' each feature.
 #' @param nfeatures The number of variable features to return.
-#' 
+#'
 #' @keywords internal
-#' 
+#'
 .GetVariableFeatures <- function(hvf_info, label_column, rank_column, nfeatures) {
   # If neither `label_column` nor `rank_column` are present in `hvf_info`,
   # just return `NULL`.
@@ -2800,18 +2800,18 @@ tail.Assay5 <- tail.StdAssay
   return(variable_features)
 }
 
-#' Returns the most frequently observed features in `features_by_layer`. If 
-#' two features are observed at the same frequency their median index will be 
-#' used to break the tie. If `nfeatures` is not specified, all features in 
+#' Returns the most frequently observed features in `features_by_layer`. If
+#' two features are observed at the same frequency their median index will be
+#' used to break the tie. If `nfeatures` is not specified, all features in
 #' `common_features` are returned.
-#' 
+#'
 #' @param features_by_layer A 2D named vector containing mapping each layer
 #' to it's corresponding variable features.
 #' @param common_features The intersection of features across all layers.
 #' @param nfeatures The number of variable features to return.
-#' 
+#'
 #' @keywords internal
-#' 
+#'
 .GetConsensusFeatures <- function(features_by_layer, common_features, nfeatures = NULL) {
   # Create a data frame indicating the position that each feature
   # appears in the layer-specific vectors given by `features_by_layer`.
