@@ -178,7 +178,7 @@ x <- merge(x = pbmc.assay, y = pbmc.assay)
 test_that("Merging Assays works properly", {
   expect_equal(dim(GetAssayData(object = x, layer = "counts")), c(230, 160))
   expect_equal(dim(GetAssayData(object = x, layer = "data")), c(230, 160))
-  expect_equal(GetAssayData(object = x, slot = "scale.data"), new(Class = "matrix"))
+  expect_equal(GetAssayData(object = x, layer = "scale.data"), new(Class = "matrix"))
   expect_equal(Key(object = x), "rna_")
   expect_equal(VariableFeatures(object = x), vector())
   expect_equal(x[[]], data.frame(row.names = rownames(x = pbmc.assay)))
