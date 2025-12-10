@@ -803,6 +803,11 @@ GetImage <- function(object, mode = c('grob', 'raster', 'plotly', 'raw'), ...) {
 }
 
 #' Get tissue coordinates
+#' 
+#' Retrieve tissue coordinates from spatial objects. 
+#'
+#' Spatial classes may have specific implementations; 
+#' refer to those documentation pages for more details.
 #'
 #' @template param-dots-method
 #' @param object An object
