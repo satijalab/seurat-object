@@ -65,7 +65,8 @@ three columns:
 }
 If \code{full} is \code{TRUE}, then each coordinate will indicate a vertex
 for the cell polygon; otherwise, each coordinate will indicate a centroid
-for the cell. Note: \code{GetTissueCoordinates} ....
+for the cell. Note: to compute centroids for segmentations stored in compact mode,
+call \code{GetTissueCoordinates} on the associated \code{Centroids} object instead.
 
 \code{RenameCells}: \code{object} with the cells renamed to
 \code{new.names}

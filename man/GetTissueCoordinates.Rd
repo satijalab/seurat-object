@@ -17,10 +17,11 @@ GetTissueCoordinates(object, ...)
 
 \item{...}{Arguments passed to other methods}
 
-\item{which}{Name of segmentation boundary or molecule set to retrieve coordinates for}
+\item{which}{Name of segmentation boundary or molecule set to retrieve coordinates for;
+if NULL, will retrieve coordinates for the default boundary}
 
 \item{image}{Name of \code{SpatialImage} object to get coordinates for; if
-\code{NULL}, will retrieve coordinates from the default image}
+\code{NULL}, will retrieve coordinates for the default image}
 }
 \value{
 A data frame with tissue coordinates
@@ -28,7 +29,11 @@ A data frame with tissue coordinates
 \code{GetTissueCoordinates}: ...
 }
 \description{
-Get tissue coordinates
+Retrieve tissue coordinates from spatial objects.
+}
+\details{
+Spatial classes may have specific implementations; 
+refer to those documentation pages for more details.
 }
 \examples{
 \dontrun{
