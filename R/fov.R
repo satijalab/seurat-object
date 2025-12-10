@@ -440,7 +440,8 @@ FetchData.FOV <- function(
   return(data.fetched)
 }
 
-#' @param which Name of segmentation boundary or molecule set to retrieve coordinates for
+#' @param which Name of segmentation boundary or molecule set to retrieve coordinates for;
+#' if NULL, will retrieve coordinates for the default boundary
 #'
 #' @return \code{GetTissueCoordinates}: ...
 #' @examples
