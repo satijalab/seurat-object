@@ -1,6 +1,6 @@
 Package: SeuratObject
 Title: Data Structures for Single Cell Data
-Version: 5.2.1.9000
+Version: 5.2.1.9001
 Authors@R: c(
   person(given = 'Paul', family = 'Hoffman', email = 'hoff0792@alumni.umn.edu', role = 'aut', comment = c(ORCID = '0000-0002-7693-8957')),
   person(given = 'Rahul', family = 'Satija', email = 'seurat@nygenome.org', role = c('aut', 'cre'), comment = c(ORCID = '0000-0001-9448-8833')),
@@ -72,7 +72,7 @@ Config/Needs/website: pkgdown
 BuildManual: true
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Collate:
   'RcppExports.R'
   'zzz.R'
