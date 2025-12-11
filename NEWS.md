@@ -1,7 +1,15 @@
-# Unreleased
+# SeuratObject 5.3.0
 
-## Changes
+## Changes:
  - Update `subset.Seurat` to no longer call `droplevels` on the input's cell-level `meta.data` slot; update `subset.Assay` to no longer call `droplevels` on the input's feature-level `meta.features` slot; update `subset.StdAssay` to no longer call `droplevels` on the input's feature-level `meta.data` slot (reverting #251, see discussion in #247)
+ - Add `drop = FALSE` when retrieving data in `LayerData.Assay` to preserve dimensions when subsetting to the requested cells (#261)
+ - Update `sf.data` slot in the `Segmentation` class to store a `data.frame` in accordance with changes in loading Visium segmentations (#267)
+ - Add `compact` slot to the `Segmentation` class to denote whether the object only stores segmentation information in the `sf.data` slot, or also the `sp`-inherited slots (#267)
+ - Update `CreateSegmentation`, `CreateSegmentation.data.frame`, `CreateSegmentation.sf`, and methods interacting with `Segmentation` objects (`Cells.Segmentation`, `RenameCells.Segmentation`, `Crop.Segmentation`, `subset.Segmentation`, `[[<-`, `coordinates`, `Overlay`, `show`, `setValidity`) to account for the addition of `compact` and the update to `sf.data`
+   - For a detailed description of changes, see [#267](https://github.com/satijalab/seurat-object/pull/267)
+ - Add `coords_x_orientation` slot to the `FOV` class to hold the orientation of the x-axis for spatial data (to mark whether the coordinate system of a spatial object has been updated)
+ - Update `UpdateSeuratObject` to check whether an object requires an update to the coordinate system based on the existence and value of the `coords_x_orientation` slot (currently only relevant for Visium objects)
+ - Add method `safeValidityCheck` to show an improved error message suggesting to run `UpdateSeuratObject` when a "slots in class definition but not in object" error is thrown by R's internal object validation; use in `FOV`-interacting methods
 
 # SeuratObject 5.2.0
 
