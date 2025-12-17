@@ -4090,8 +4090,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
         }
       }
       # Check to ensure that we aren't adding duplicate names
-      if (any(colnames(x = meta.data) %in% FilterObjects(object = x))) {
-        bad.cols <- colnames(x = meta.data)[which(colnames(x = meta.data) %in% FilterObjects(object = x))]
+      if (any(colnames(x = meta.data) %in% .FilterObjects(object = x))) {
+        bad.cols <- colnames(x = meta.data)[which(colnames(x = meta.data) %in% .FilterObjects(object = x))]
         stop(
           paste0(
             "Cannot add a metadata column with the same name as an Assay or DimReduc - ",
@@ -4193,7 +4193,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       }
       # When removing an Assay, clear out associated DimReducs, Graphs, and SeuratCommands
       if (is.null(x = value) && inherits(x = x[[i]], what = 'Assay')) {
-        objs.assay <- FilterObjects(
+        objs.assay <- .FilterObjects(
           object = x,
           classes.keep = c('DimReduc', 'SeuratCommand', 'Graph')
         )
