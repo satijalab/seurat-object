@@ -1030,19 +1030,26 @@ UpdateSeuratObject <- function(object) {
       for (x in names(x = object)) {
         message("Updating slots in ", x)
         xobj <- object[[x]]
-        if (inherits(x = xobj, what = 'FOV')) {
-          fov_name <- x
+        is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
+        if (inherits(x = xobj, what = "FOV") || is_visium) {
           # Needs coord system update if 
           # object doesn't have coords_x_orientation slot or 
           # was saved prior to correction
-          old_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
-          is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
+          fov_name <- x
+
+          # Check if object is missing coords_x_orientation slot or is not horizontal
+          old_axis_orientation <-
+            (!.hasSlot(xobj, "coords_x_orientation")) ||
+            (.hasSlot(xobj, "coords_x_orientation") &&
+            (slot(xobj, "coords_x_orientation") != "horizontal"))
+
+          # If object is Visium and axis orientation is either missing/incorrect, update it
           if (is_visium && old_axis_orientation) {
             tryCatch(
               expr = {
-                boundaries <- slot(object = xobj, name = 'boundaries')
+                boundaries <- slot(object = xobj, name = "boundaries")
                 # Find all centroid objects in boundaries
-                centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Centroids'))
+                centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = "Centroids"))
 
                 if (length(centroids_indices) > 0) {
                   centroids_names <- names(boundaries)[centroids_indices]
@@ -1060,11 +1067,14 @@ UpdateSeuratObject <- function(object) {
                     message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
                   }
 
-                  # Update the FOV object if any boundaries were modified
+                  # Update boundaries slot with new centroids
                   message("Updated boundaries in FOV ", sQuote(fov_name))
-                  slot(object = xobj, name = 'boundaries') <- boundaries
-                  slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
+                  slot(object = xobj, name = "boundaries") <- boundaries
                 }
+                
+
+                # Update coords_x_orientation slot
+                slot(object = xobj, name = "coords_x_orientation") <- "horizontal"
               },
               error = function(e) {
                 message("Error updating objects in boundaries in FOV ", sQuote(fov_name))
