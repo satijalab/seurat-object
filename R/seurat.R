@@ -1047,24 +1047,28 @@ UpdateSeuratObject <- function(object) {
           if (is_visium && old_axis_orientation) {
             tryCatch(
               expr = {
-                boundaries <- slot(object = xobj, name = "boundaries")
-                # Find all centroid objects in boundaries
-                centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = "Centroids"))
+                # Boundaries slot do not exist for VisiumV1 objects
+                # Only run boundaries logic if the slot exists
+                if (.hasSlot(xobj, "boundaries")) {
+                  boundaries <- slot(object = xobj, name = "boundaries")
+                  # Find all centroid objects in boundaries
+                  centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = "Centroids"))
 
-                if (length(centroids_indices) > 0) {
-                  centroids_names <- names(boundaries)[centroids_indices]
-                  # Process each centroids object
-                  for (i in seq_along(centroids_indices)) {
-                    cent_name <- centroids_names[i]
-                    cent <- boundaries[[cent_name]]
+                  if (length(centroids_indices) > 0) {
+                    centroids_names <- names(boundaries)[centroids_indices]
+                    # Process each centroids object
+                    for (i in seq_along(centroids_indices)) {
+                      cent_name <- centroids_names[i]
+                      cent <- boundaries[[cent_name]]
 
-                    new_coords <- GetTissueCoordinates(object = cent)
-                    old_x_coords <- new_coords$x
-                    new_coords$x <- new_coords$y
-                    new_coords$y <- old_x_coords
-                    updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
-                    boundaries[[cent_name]] <- updated_cent
-                    message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
+                      new_coords <- GetTissueCoordinates(object = cent)
+                      old_x_coords <- new_coords$x
+                      new_coords$x <- new_coords$y
+                      new_coords$y <- old_x_coords
+                      updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
+                      boundaries[[cent_name]] <- updated_cent
+                      message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
+                    }
                   }
 
                   # Update boundaries slot with new centroids
