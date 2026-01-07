@@ -1032,8 +1032,8 @@ UpdateSeuratObject <- function(object) {
         xobj <- object[[x]]
         if (inherits(x = xobj, what = 'FOV')) {
           fov_name <- x
-          # Needs coord system update if 
-          # object doesn't have coords_x_orientation slot or 
+          # Needs coord system update if
+          # object doesn't have coords_x_orientation slot or
           # was saved prior to correction
           old_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
           is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
@@ -1569,6 +1569,7 @@ Features.Seurat <- function(x, assay = NULL, ...) {
 #' pull identity classes
 #' @param cells Cells to collect data for (default is all cells)
 #' @param layer Layer to pull feature data for
+#' @param assay Assay to pull feature data from
 #' @param clean Remove cells that are missing data; choose from:
 #' \itemize{
 #'  \item \dQuote{\code{all}}: consider all columns for cleaning
@@ -1600,6 +1601,7 @@ FetchData.Seurat <- function(
   vars,
   cells = NULL,
   layer = NULL,
+  assay = NULL,
   clean = TRUE,
   slot = deprecated(),
   ...
@@ -1613,6 +1615,8 @@ FetchData.Seurat <- function(
     layer <- layer %||% slot
   }
   object <- UpdateSlots(object = object)
+  assay <- assay %||% DefaultAssay(object = object)
+  assay <- arg_match(arg = assay, values = Assays(object = object))
   if (isTRUE(x = clean)) {
     clean <- 'ident'
   } else if (isFALSE(x = clean)) {
@@ -1633,13 +1637,13 @@ FetchData.Seurat <- function(
   meta.vars <- intersect(x = vars, y = names(x = object[[]]))
   meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
   if (length(x = meta.vars)) {
-    meta.default <- intersect(x = meta.vars, y = rownames(x = object))
+    meta.default <- intersect(x = meta.vars, y = rownames(x = object[[assay]]))
     if (length(x = meta.default)) {
       warn(message = paste0(
-        "The following variables were found in both object meta data and the default assay: ",
+        "The following variables were found in both object meta data and the selected assay: ",
         paste0(meta.default, collapse = ', '),
         "\nReturning meta data; if you want the feature, please use the assay's key (eg. ",
-        paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
+        paste0(Key(object = object)[assay], meta.default[1L]),
         ")"
       ))
     }
@@ -1714,12 +1718,12 @@ FetchData.Seurat <- function(
     df <- data.keyed[[i]]
     data.fetched[row.names(x = df), names(x = df)] <- df
   }
-  # Pull vars from the default assay
-  default.vars <- intersect(x = vars, y = rownames(x = object))
+  # Pull vars from the selected assay
+  default.vars <- intersect(x = vars, y = rownames(x = object[[assay]]))
   default.vars <- setdiff(x = default.vars, y = names(x = data.fetched))
   if (length(x = default.vars)) {
     df <- FetchData(
-      object = object[[DefaultAssay(object = object)]],
+      object = object[[assay]],
       vars = default.vars,
       cells = cells,
       layer = layer,
@@ -1761,7 +1765,7 @@ FetchData.Seurat <- function(
     ))
     if (length(x = vars.many)) {
       warn(message = paste(
-        "Found the following features in more than one assay, excluding the default.",
+        "Found the following features in more than one assay, excluding the selected.",
         "We will not include these in the final data frame:",
         paste(vars.many, collapse = ', ')
       ))
