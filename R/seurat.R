@@ -1569,6 +1569,7 @@ Features.Seurat <- function(x, assay = NULL, ...) {
 #' pull identity classes
 #' @param cells Cells to collect data for (default is all cells)
 #' @param layer Layer to pull feature data for
+#' @param assay Assay to pull feature data from
 #' @param clean Remove cells that are missing data; choose from:
 #' \itemize{
 #'  \item \dQuote{\code{all}}: consider all columns for cleaning
