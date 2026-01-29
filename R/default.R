@@ -175,6 +175,34 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
   return(Overlay(x = object, y = CreateSegmentation(coords = df, compact = compact)))
 }
 
+#' Internal Cropping Function for VisiumV2
+#'
+#' @inheritParams Crop
+#' @param image.scale The image scale to use for getting tissue coordinates
+#'
+#' @return Cropped object
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.CropVisiumV2 <- function(object, x = NULL, y = NULL, image.scale = "lowres") {
+  if (is.null(x = x) && is.null(x = y)) {
+    return(object)
+  }
+
+  xlim <- range(x %||% bbox(obj = object)['x', , drop = TRUE])
+  ylim <- range(y %||% bbox(obj = object)['y', , drop = TRUE])
+
+  coords <- GetTissueCoordinates(object = object, scale = image.scale, which = "centroids")
+
+  coords_crop <- subset(coords,
+                        x >= xlim[1L] & x <= xlim[2L] & y >= ylim[1L] & y <= ylim[2L])
+
+  object_crop <- subset(object, cells = unique(coords_crop$cell))
+  return(object_crop)
+}
+
 #' Test Finiteness of Centroids
 #'
 #' Determines if a \code{\link{Centroids}} object should be finite; for
