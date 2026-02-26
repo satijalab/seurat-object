@@ -193,7 +193,12 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
 
   xlim <- range(x %||% bbox(obj = object)['x', , drop = TRUE])
   ylim <- range(y %||% bbox(obj = object)['y', , drop = TRUE])
-  coords <- GetTissueCoordinates(object = object, ...)
+
+  dots <- list(...)
+  scale <- dots$scale %||% 'lowres'
+  which <- dots$which %||% DefaultBoundary(object)
+
+  coords <- GetTissueCoordinates(object = object, scale = scale, which = which)
 
   coords_crop <- subset(coords,
                         x >= xlim[1L] & x <= xlim[2L] & y >= ylim[1L] & y <= ylim[2L])
