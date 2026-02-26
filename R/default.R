@@ -178,7 +178,7 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
 #' Internal Cropping Function for VisiumV2
 #'
 #' @inheritParams Crop
-#' @param image.scale The image scale to use for getting tissue coordinates
+#' @param ... Arguments passed to \code{\link{GetTissueCoordinates}}
 #'
 #' @return Cropped object
 #'
@@ -186,15 +186,14 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
 #'
 #' @noRd
 #'
-.CropVisiumV2 <- function(object, x = NULL, y = NULL, image.scale = "lowres") {
+.CropVisiumV2 <- function(object, x = NULL, y = NULL, ...) {
   if (is.null(x = x) && is.null(x = y)) {
     return(object)
   }
 
   xlim <- range(x %||% bbox(obj = object)['x', , drop = TRUE])
   ylim <- range(y %||% bbox(obj = object)['y', , drop = TRUE])
-
-  coords <- GetTissueCoordinates(object = object, scale = image.scale, which = "centroids")
+  coords <- GetTissueCoordinates(object = object, ...)
 
   coords_crop <- subset(coords,
                         x >= xlim[1L] & x <= xlim[2L] & y >= ylim[1L] & y <= ylim[2L])
