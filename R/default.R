@@ -197,8 +197,9 @@ MatchCells.numeric <- function(new, orig, ordered = FALSE) {
 
   coords_crop <- subset(coords,
                         x >= xlim[1L] & x <= xlim[2L] & y >= ylim[1L] & y <= ylim[2L])
-
   object_crop <- subset(object, cells = unique(coords_crop$cell))
+  DefaultBoundary(object_crop) <- "centroids"
+
   return(object_crop)
 }
 
