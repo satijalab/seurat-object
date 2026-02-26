@@ -550,10 +550,7 @@ CreateSeuratObject <- function(
 #'  \item \dQuote{\code{plot}}: Coordinates as shown when plotting
 #'  \item \dQuote{\code{tissue}}: Coordinates from
 #'   \code{\link{GetTissueCoordinates}}
-#' }
-#' @param image.scale Image scale to use when cropping images, 
-#' should follow the scale of the image present in the FOV object. 
-#' Currently only used when cropping FOVs that inherit from VisiumV2
+#' } (not applicable to FOVs that inherit from class \code{VisiumV2})
 #'
 #' @return \code{object} cropped to the region specified by \code{x}
 #' and \code{y}
@@ -562,7 +559,7 @@ CreateSeuratObject <- function(
 #'
 #' @concept spatial
 #'
-Crop <- function(object, x = NULL, y = NULL, coords = c('plot', 'tissue'), image.scale = "lowres", ...) {
+Crop <- function(object, x = NULL, y = NULL, coords = c('plot', 'tissue'), ...) {
   UseMethod(generic = 'Crop', object = object)
 }
 
