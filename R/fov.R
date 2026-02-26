@@ -248,16 +248,13 @@ Crop.FOV <- function(
   if (is.null(x = x) && is.null(x = y)) {
     return(object)
   }
-  # Check if object inherits from VisiumV2
   if (inherits(object, "VisiumV2")) {
+    # For VisiumV2, use custom cropping function
     object <- .CropVisiumV2(object = object, x = x, y = y, ...)
-    DefaultBoundary(object) <- "centroids"
-    return(object)
-  }
-
-  # Default behavior for other FOV objects (Xenium, etc.)
-  for (s in names(x = object)) {
-    object[[s]] <- Crop(object = object[[s]], x = x, y = y, coords = coords)
+  } else {
+    for (s in names(x = object)) {
+      object[[s]] <- Crop(object = object[[s]], x = x, y = y, coords = coords)
+    }
   }
   return(object)
 }
