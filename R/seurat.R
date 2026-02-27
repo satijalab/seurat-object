@@ -3861,6 +3861,7 @@ subset.Seurat <- function(
     x[[image]] <- image.subset
   }
 
+  # drop unused levels in meta.data if desired
   if (isTRUE(x = droplevels.meta.data)) {
     x@meta.data <- droplevels(x = x@meta.data)
   }
