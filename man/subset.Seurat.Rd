@@ -13,6 +13,7 @@
   features = NULL,
   idents = NULL,
   return.null = FALSE,
+  droplevels.meta.data = FALSE,
   ...
 )
 
@@ -31,6 +32,9 @@
 
 \item{return.null}{If no cells are requested, return a \code{NULL};
 by default, throws an error}
+
+\item{droplevels.meta.data}{logical, whether to drop unused factor levels from meta.data
+columns after subsetting.  Default is FALSE.}
 
 \item{...}{Arguments passed to \code{\link{WhichCells}}}
 }
