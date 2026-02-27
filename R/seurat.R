@@ -3693,6 +3693,8 @@ split.Seurat <- function(
 #' @param cells,j A vector of cell names or indices to keep
 #' @param features,i A vector of feature names or indices to keep
 #' @param idents A vector of identity classes to keep
+#' @param droplevels.meta.data logical, whether to drop unused factor levels from meta.data
+#' columns after subsetting.  Default is FALSE.
 #' @param ... Arguments passed to \code{\link{WhichCells}}
 #'
 #' @return \code{subset}: A subsetted \code{Seurat} object
@@ -3725,6 +3727,7 @@ subset.Seurat <- function(
   features = NULL,
   idents = NULL,
   return.null = FALSE,
+  droplevels.meta.data = FALSE,
   ...
 ) {
   # var.features <- VariableFeatures(object = x)
@@ -3791,7 +3794,7 @@ subset.Seurat <- function(
             classes = 'validationWarning'
           ),
           error = function(e) {
-            if (e$message %in% c("Cannot find features provided", 
+            if (e$message %in% c("Cannot find features provided",
                                  "None of the features provided found in this assay")
             ) {
               return(NULL)
@@ -3811,7 +3814,7 @@ subset.Seurat <- function(
       !DefaultAssay(object = x) %in% names(slot(object = x, name = 'assays'))) {
     abort(message = "Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay")
   }
-  
+
   # Filter DimReduc objects
   for (dimreduc in .FilterObjects(object = x, classes.keep = 'DimReduc')) {
     suppressWarnings(
@@ -3857,6 +3860,11 @@ subset.Seurat <- function(
     }
     x[[image]] <- image.subset
   }
+
+  if (isTRUE(x = droplevels.meta.data)) {
+    x@meta.data <- droplevels(x = x@meta.data)
+  }
+
   return(x)
 }
 
