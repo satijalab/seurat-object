@@ -550,7 +550,7 @@ CreateSeuratObject <- function(
 #'  \item \dQuote{\code{plot}}: Coordinates as shown when plotting
 #'  \item \dQuote{\code{tissue}}: Coordinates from
 #'   \code{\link{GetTissueCoordinates}}
-#' } (not applicable to FOVs that inherit from class \code{VisiumV2})
+#' }
 #'
 #' @return \code{object} cropped to the region specified by \code{x}
 #' and \code{y}
