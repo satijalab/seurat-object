@@ -20,7 +20,7 @@ Crop(object, x = NULL, y = NULL, coords = c("plot", "tissue"), ...)
  \item \dQuote{\code{plot}}: Coordinates as shown when plotting
  \item \dQuote{\code{tissue}}: Coordinates from
   \code{\link{GetTissueCoordinates}}
-} (not applicable to FOVs that inherit from class \code{VisiumV2})}
+}}
 
 \item{...}{Arguments passed to other methods}
 }
