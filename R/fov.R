@@ -298,7 +298,7 @@ Crop.FOV <- function(
   }
   if (inherits(object, "VisiumV2")) {
     # For VisiumV2, use custom cropping function
-    object <- .CropVisiumV2(object = object, x = x, y = y, ...)
+    object <- .CropVisiumV2(object = object, x = x, y = y, coords = coords, ...)
   } else {
     for (s in names(x = object)) {
       object[[s]] <- Crop(object = object[[s]], x = x, y = y, coords = coords)
