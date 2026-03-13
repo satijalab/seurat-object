@@ -1,3 +1,10 @@
+# Unreleased
+
+## Changes:
+- Add `drop = FALSE` in `LayerData<-.StdAssay` to preserve dimensions when setting layer to the requested cells (#269)
+- Fix bug relating to error message handling in `subset.Seurat` (#265)
+- Fix call to defunct method `FilterObjects` in `[[<-` (#275)
+
 # SeuratObject 5.3.0
 
 ## Changes:

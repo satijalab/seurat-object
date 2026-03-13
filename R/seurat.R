@@ -3786,7 +3786,9 @@ subset.Seurat <- function(
             classes = 'validationWarning'
           ),
           error = function(e) {
-            if (e$message == "Cannot find features provided") {
+            if (e$message %in% c("Cannot find features provided", 
+                                 "None of the features provided found in this assay")
+            ) {
               return(NULL)
             } else {
               stop(e)
@@ -3800,9 +3802,11 @@ subset.Seurat <- function(
     f = Negate(f = is.null),
     x = slot(object = x, name = 'assays')
   )
-  if (length(x = .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
+  if (length(x = .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 ||
+      !DefaultAssay(object = x) %in% names(slot(object = x, name = 'assays'))) {
     abort(message = "Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay")
   }
+  
   # Filter DimReduc objects
   for (dimreduc in .FilterObjects(object = x, classes.keep = 'DimReduc')) {
     suppressWarnings(
