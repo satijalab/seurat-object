@@ -1032,8 +1032,8 @@ UpdateSeuratObject <- function(object) {
         xobj <- object[[x]]
         if (inherits(x = xobj, what = 'FOV')) {
           fov_name <- x
-          # Needs coord system update if 
-          # object doesn't have coords_x_orientation slot or 
+          # Needs coord system update if
+          # object doesn't have coords_x_orientation slot or
           # was saved prior to correction
           old_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
           is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
@@ -3684,6 +3684,8 @@ split.Seurat <- function(
 #' @param cells,j A vector of cell names or indices to keep
 #' @param features,i A vector of feature names or indices to keep
 #' @param idents A vector of identity classes to keep
+#' @param droplevels.meta.data logical, whether to drop unused factor levels from meta.data
+#' columns after subsetting.  Default is FALSE.
 #' @param ... Arguments passed to \code{\link{WhichCells}}
 #'
 #' @return \code{subset}: A subsetted \code{Seurat} object
@@ -3703,11 +3705,21 @@ split.Seurat <- function(
 #'
 #' @examples
 #' # `subset` examples
+#' # subset using expression threshold (and optionally specify the layer to use)
 #' subset(pbmc_small, subset = MS4A1 > 4)
+#' subset(pbmc_small, subset = MS4A1 > 3, layer = 'counts')
+#'
+#' # subset using expression threshold when "-" present in feature name
 #' subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
+#'
+#' # subset using identity (invert keeps identities not specified)
 #' subset(pbmc_small, idents = '0', invert = TRUE)
-#' subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
+#'
+#' # subset retaining only specific set of features
 #' subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
+#'
+#' # subset and drop unused levels from meta.data columns after subset
+#' subset(pbmc_small, idents = '0', droplevels.meta.data = TRUE)
 #'
 subset.Seurat <- function(
   x,
@@ -3716,6 +3728,7 @@ subset.Seurat <- function(
   features = NULL,
   idents = NULL,
   return.null = FALSE,
+  droplevels.meta.data = FALSE,
   ...
 ) {
   # var.features <- VariableFeatures(object = x)
@@ -3782,7 +3795,7 @@ subset.Seurat <- function(
             classes = 'validationWarning'
           ),
           error = function(e) {
-            if (e$message %in% c("Cannot find features provided", 
+            if (e$message %in% c("Cannot find features provided",
                                  "None of the features provided found in this assay")
             ) {
               return(NULL)
@@ -3802,7 +3815,7 @@ subset.Seurat <- function(
       !DefaultAssay(object = x) %in% names(slot(object = x, name = 'assays'))) {
     abort(message = "Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay")
   }
-  
+
   # Filter DimReduc objects
   for (dimreduc in .FilterObjects(object = x, classes.keep = 'DimReduc')) {
     suppressWarnings(
@@ -3848,6 +3861,12 @@ subset.Seurat <- function(
     }
     x[[image]] <- image.subset
   }
+
+  # drop unused levels in meta.data if desired
+  if (isTRUE(x = droplevels.meta.data)) {
+    x@meta.data <- droplevels(x = x@meta.data)
+  }
+
   return(x)
 }
 
