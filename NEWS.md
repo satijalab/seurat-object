@@ -1,3 +1,8 @@
+# Unreleased
+
+## Changes:
+- Add `drop = FALSE` in LayerData<-.StdAssay to preserve dimensions when setting to the requested cells (#269)
+
 # SeuratObject 5.3.0
 
 ## Changes:
