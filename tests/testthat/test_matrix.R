@@ -4,7 +4,7 @@ data("pbmc_small")
 
 pbmc_small <- suppressWarnings(suppressMessages(UpdateSeuratObject(pbmc_small)))
 
-counts <- GetAssayData(pbmc_small, assay = "RNA", slot = "counts")
+counts <- GetAssayData(pbmc_small, assay = "RNA", layer = "counts")
 
 test_that("CheckMatrix works for valid matrix", {
   expect_null(CheckMatrix(counts))

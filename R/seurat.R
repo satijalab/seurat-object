@@ -256,8 +256,6 @@ CellsByImage <- function(object, images = NULL, unlist = FALSE) {
 #' @templateVar repl .FilterObjects
 #' @template lifecycle-deprecated
 #'
-#' @examples
-#' FilterObjects(pbmc_small)
 #'
 FilterObjects <- function(
   object,
@@ -630,6 +628,7 @@ RenameAssays <- function(
 #' @order 1
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("fs", quietly = TRUE)) {
 #'   # Write out with DelayedArray
 #'   if (requireNamespace("HDF5Array", quietly = TRUE)) {
@@ -679,6 +678,7 @@ RenameAssays <- function(
 #'     pbmc2
 #'     pbmc2[["disk"]]
 #'   }
+#' }
 #' }
 #'
 SaveSeuratRds <- function(
@@ -1965,7 +1965,7 @@ GetImage.Seurat <- function(
 }
 
 #' @param image Name of \code{SpatialImage} object to get coordinates for; if
-#' \code{NULL}, will attempt to select an image automatically
+#' \code{NULL}, will retrieve coordinates for the default image
 #'
 #' @rdname GetTissueCoordinates
 #' @method GetTissueCoordinates Seurat
@@ -3782,7 +3782,9 @@ subset.Seurat <- function(
             classes = 'validationWarning'
           ),
           error = function(e) {
-            if (e$message == "Cannot find features provided") {
+            if (e$message %in% c("Cannot find features provided", 
+                                 "None of the features provided found in this assay")
+            ) {
               return(NULL)
             } else {
               stop(e)
@@ -3796,9 +3798,11 @@ subset.Seurat <- function(
     f = Negate(f = is.null),
     x = slot(object = x, name = 'assays')
   )
-  if (length(x = .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
+  if (length(x = .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 ||
+      !DefaultAssay(object = x) %in% names(slot(object = x, name = 'assays'))) {
     abort(message = "Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay")
   }
+  
   # Filter DimReduc objects
   for (dimreduc in .FilterObjects(object = x, classes.keep = 'DimReduc')) {
     suppressWarnings(
@@ -4090,8 +4094,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
         }
       }
       # Check to ensure that we aren't adding duplicate names
-      if (any(colnames(x = meta.data) %in% FilterObjects(object = x))) {
-        bad.cols <- colnames(x = meta.data)[which(colnames(x = meta.data) %in% FilterObjects(object = x))]
+      if (any(colnames(x = meta.data) %in% .FilterObjects(object = x))) {
+        bad.cols <- colnames(x = meta.data)[which(colnames(x = meta.data) %in% .FilterObjects(object = x))]
         stop(
           paste0(
             "Cannot add a metadata column with the same name as an Assay or DimReduc - ",
@@ -4193,7 +4197,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       }
       # When removing an Assay, clear out associated DimReducs, Graphs, and SeuratCommands
       if (is.null(x = value) && inherits(x = x[[i]], what = 'Assay')) {
-        objs.assay <- FilterObjects(
+        objs.assay <- .FilterObjects(
           object = x,
           classes.keep = c('DimReduc', 'SeuratCommand', 'Graph')
         )

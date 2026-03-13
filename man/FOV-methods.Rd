@@ -5,7 +5,6 @@
 \alias{Cells.FOV}
 \alias{Features.FOV}
 \alias{FetchData.FOV}
-\alias{GetTissueCoordinates.FOV}
 \alias{Keys.FOV}
 \alias{RenameCells.FOV}
 \alias{$.FOV}
@@ -26,8 +25,6 @@
 \method{Features}{FOV}(x, set = NULL, ...)
 
 \method{FetchData}{FOV}(object, vars, cells = NULL, simplify = TRUE, ...)
-
-\method{GetTissueCoordinates}{FOV}(object, which = NULL, ...)
 
 \method{Keys}{FOV}(object, ...)
 
@@ -71,8 +68,6 @@ to get molecule coordinates}
 \item{simplify}{If only returning either boundary or molecule coordinates,
 return a single data frame instead of a list}
 
-\item{which}{Name of segmentation boundary or molecule set}
-
 \item{new.names}{vector of new cell names}
 
 \item{i, cells}{For \code{[[} and \code{[[<-}, the name of a segmentation or
@@ -106,8 +101,6 @@ requested, then a two-length list:
 If \code{simplify} is \code{TRUE} and only one data frame is generated, then
 only the data frame is returned. Otherwise, a one-length list is returned
 with the single data frame generated
-
-\code{GetTissueCoordinates}: ...
 
 \code{Keys}: A named vector of molecule set keys; names are the
 names of the molecule sets and values are the keys for the respective
@@ -153,9 +146,6 @@ The following methods are defined for interacting with a
 
 \code{FetchData}: Fetch boundary and/or molecule coordinates from
 a \code{FOV} object
-
-\code{GetTissueCoordinates}: Get boundary or molecule
-coordinates from a \code{FOV} object
 
 \code{Keys}: Get the keys of molecule sets contained within a
 \code{FOV} object

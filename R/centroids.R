@@ -162,8 +162,8 @@ Crop.Centroids <- .Crop
 #'  \item \dQuote{\code{cell}}: the cell name
 #' }
 #' If \code{full} is \code{TRUE}, then each coordinate will indicate a vertex
-#' for the cell polygon; otherwise, each coordinate will indicate a centroid
-#' for the cell
+#' for the cell polygon (created based on nsides, radius, and theta); 
+#' otherwise, each coordinate will indicate a centroid for the cell.
 #'
 #' @importFrom sp coordinates
 #'

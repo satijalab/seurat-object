@@ -26,8 +26,4 @@ Check the existence of a package
 \code{\link[rlang:check_installed]{rlang::check_installed}()} instead
 }
 
-\examples{
-PackageCheck("SeuratObject", error = FALSE)
-
-}
 \concept{utils}
