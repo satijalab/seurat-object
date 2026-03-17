@@ -2983,6 +2983,11 @@ Version.Seurat <- function(object, ...) {
   return(x)
 }
 
+#' @section Note:
+#' 
+#' Subsetting with `[` does not guarantee preservation of the specified
+#' cell or feature ordering.
+#' 
 #' @return \code{[}: object \code{x} with features \code{i} and cells \code{j}
 #'
 #' @rdname subset.Seurat
