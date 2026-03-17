@@ -234,6 +234,54 @@ CreateFOV.list <- function(
 #'
 CreateFOV.Segmentation <- CreateFOV.Centroids
 
+#' Internal Cropping Function for VisiumV2
+#'
+#' @inheritParams Crop
+#' @param scale Argument for scaling passed to \code{\link{GetTissueCoordinates}} when \code{coords} is 'plot'
+#'
+#' @return Cropped object
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.CropVisiumV2 <- function(object, x = NULL, y = NULL, coords = c('plot', 'tissue'), ...) {
+  if (is.null(x = x) && is.null(x = y)) {
+    return(object)
+  }
+  
+  dots <- list(...)
+  scale <- dots$scale
+
+  coords <- match.arg(arg = coords)
+  if (coords == "plot" && is.null(x = scale)) {
+    stop("Must provide 'scale' argument when cropping by plot coordinates for VisiumV2 objects", call. = FALSE)
+  }
+  coords_df <- GetTissueCoordinates(object = object, scale = scale)
+
+  # Determine limits based on coordinate system (plot = scaled, tissue = unscaled)
+  xlim <- if (coords == 'plot') {
+    range(x %||% coords_df[['x']])
+  } else {
+    range(x %||% bbox(obj = object)['x', , drop = TRUE])
+  }
+  
+  ylim <- if (coords == 'plot') {
+    range(y %||% coords_df[['y']])
+  } else {
+    range(y %||% bbox(obj = object)['y', , drop = TRUE])
+  }
+
+  coords_crop <- subset(coords_df,
+                        x >= xlim[1L] & x <= xlim[2L] &
+                        y >= ylim[1L] & y <= ylim[2L])
+
+  object_crop <- subset(object, cells = unique(coords_crop$cell))
+  DefaultBoundary(object_crop) <- "centroids"
+
+  return(object_crop)
+}
+
 #' @rdname Crop
 #' @method Crop FOV
 #' @export
@@ -248,8 +296,13 @@ Crop.FOV <- function(
   if (is.null(x = x) && is.null(x = y)) {
     return(object)
   }
-  for (s in names(x = object)) {
-    object[[s]] <- Crop(object = object[[s]], x = x, y = y, coords = coords)
+  if (inherits(object, "VisiumV2")) {
+    # For VisiumV2, use custom cropping function
+    object <- .CropVisiumV2(object = object, x = x, y = y, coords = coords, ...)
+  } else {
+    for (s in names(x = object)) {
+      object[[s]] <- Crop(object = object[[s]], x = x, y = y, coords = coords)
+    }
   }
   return(object)
 }
