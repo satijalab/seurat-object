@@ -2027,7 +2027,8 @@ HVFInfo.Seurat <- function(
       collapse = '.'
     )
     # Find all matching commands
-    find.command <- Command(object = object)[Command(object = object) %in% cmds]
+    commands <- Command(object = object)
+    find.command <- commands[commands %in% cmds]
     if (length(x = find.command) < 1) {
       abort(message = "Please run either 'FindVariableFeatures' or 'SCTransform'")
     }
@@ -2042,7 +2043,7 @@ HVFInfo.Seurat <- function(
       find.command <- find.command[length(x = find.command)]
       test.command <- paste(file_path_sans_ext(x = find.command), assay, sep = ".")
       find.command <- ifelse(
-        test = test.command %in% Command(object = object),
+        test.command %in% commands,
         yes = test.command,
         no = find.command
       )
