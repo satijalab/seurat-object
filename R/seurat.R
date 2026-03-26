@@ -2026,17 +2026,27 @@ HVFInfo.Seurat <- function(
       FUN = paste,
       collapse = '.'
     )
+    # Find all matching commands
     find.command <- Command(object = object)[Command(object = object) %in% cmds]
     if (length(x = find.command) < 1) {
       abort(message = "Please run either 'FindVariableFeatures' or 'SCTransform'")
     }
-    find.command <- find.command[length(x = find.command)]
-    test.command <- paste(file_path_sans_ext(x = find.command), assay, sep = '.')
-    find.command <- ifelse(
-      test = test.command %in% Command(object = object),
-      yes = test.command,
-      no = find.command
-    )
+    # Prefer an assay-matched FindVariableFeatures command when it exists
+    # This avoids later SCTransform commands accidently being used 
+    preferred.command <- paste("FindVariableFeatures", assay, sep = ".")
+    
+    # If assay has its own FindVariableFeatures entry, use it
+    if (preferred.command %in% find.command) {
+      find.command <- preferred.command
+    } else {
+      find.command <- find.command[length(x = find.command)]
+      test.command <- paste(file_path_sans_ext(x = find.command), assay, sep = ".")
+      find.command <- ifelse(
+        test = test.command %in% Command(object = object),
+        yes = test.command,
+        no = find.command
+      )
+    }
     method <- switch(
       EXPR = file_path_sans_ext(x = find.command),
       'FindVariableFeatures' = Command(
