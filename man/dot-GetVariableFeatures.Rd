@@ -10,7 +10,7 @@ feature annotations. Features are marked as variable if their value in
 .GetVariableFeatures(hvf_info, label_column, rank_column, nfeatures)
 }
 \arguments{
-\item{hvf_info}{A `data.frame` containing highly variable feature 
+\item{hvf_info}{A `data.frame` containing highly variable feature
 annotations.}
 
 \item{label_column}{A column in `hvf_info` indicating which features

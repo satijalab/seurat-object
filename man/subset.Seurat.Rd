@@ -46,10 +46,18 @@ columns after subsetting.  Default is FALSE.}
 \description{
 Subset \code{Seurat} Objects
 }
+\section{Note}{
+
+
+Subsetting with `[` does not guarantee preservation of the specified
+cell or feature ordering.
+}
+
 \examples{
 # `subset` examples
 # subset using expression threshold (and optionally specify the layer to use)
 subset(pbmc_small, subset = MS4A1 > 4)
+
 subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
 
 # subset using expression threshold when "-" present in feature name

@@ -2,9 +2,9 @@
 % Please edit documentation in R/assay5.R
 \name{.GetConsensusFeatures}
 \alias{.GetConsensusFeatures}
-\title{Returns the most frequently observed features in `features_by_layer`. If 
-two features are observed at the same frequency their median index will be 
-used to break the tie. If `nfeatures` is not specified, all features in 
+\title{Returns the most frequently observed features in `features_by_layer`. If
+two features are observed at the same frequency their median index will be
+used to break the tie. If `nfeatures` is not specified, all features in
 `common_features` are returned.}
 \usage{
 .GetConsensusFeatures(features_by_layer, common_features, nfeatures = NULL)
@@ -18,9 +18,9 @@ to it's corresponding variable features.}
 \item{nfeatures}{The number of variable features to return.}
 }
 \description{
-Returns the most frequently observed features in `features_by_layer`. If 
-two features are observed at the same frequency their median index will be 
-used to break the tie. If `nfeatures` is not specified, all features in 
+Returns the most frequently observed features in `features_by_layer`. If
+two features are observed at the same frequency their median index will be
+used to break the tie. If `nfeatures` is not specified, all features in
 `common_features` are returned.
 }
 \keyword{internal}

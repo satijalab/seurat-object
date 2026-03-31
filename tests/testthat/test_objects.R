@@ -70,6 +70,17 @@ test_that("CreateAssayObject works as expected", {
   expect_equal(GetAssayData(object = rna.assay2, layer = "counts"), new(Class = "matrix"))
 })
 
+test_that("CreateAssayObject works as expected for single cell edge case", {
+  # Test whether methods work for single cell input
+  expect_no_error(rna.assay.single <- CreateAssayObject(counts = pbmc.raw[, 1, drop = FALSE]))
+  expect_no_error(
+    LayerData(rna.assay.single, "counts") <- LayerData(as(rna.assay.single, "Assay"))
+  )
+  expect_no_error(
+    LayerData(rna.assay.single, "counts") <- LayerData(as(rna.assay.single, "Assay5"))
+  )
+})
+
 rna.assay2 <- CreateAssayObject(counts = pbmc.raw, min.cells = 10, min.features = 30)
 test_that("CreateAssayObject filtering works", {
   expect_equal(dim(x = rna.assay2), c(163, 77))
@@ -280,6 +291,26 @@ test_that("Fetching keyed variables works", {
   x <- FetchData(object = pbmc_small, vars = c(paste0("rna_", rownames(x = pbmc_small)[1:5]), paste0("PC_", 1:5)))
   expect_equal(colnames(x = x), c(paste0("rna_", rownames(x = pbmc_small)[1:5]), paste0("PC_", 1:5)))
 })
+
+
+rna3.assay <- pbmc_small[["RNA"]]
+rna3.assay$data <- rna3.assay$data * 2
+suppressWarnings(pbmc_small[["RNA3"]] <- rna3.assay)
+Key(pbmc_small[["RNA3"]]) <- "rna3_"
+
+test_that("Fetching supports assay argument", {
+  x <- FetchData(object = pbmc_small,
+                 vars = c(rownames(x = pbmc_small)[1:5],
+                          paste0("rna2_", rownames(x = pbmc_small)[1:5])),
+                 assay = "RNA3")
+  expect_equal(colnames(x = x),
+               c(paste0("", rownames(x = pbmc_small)[1:5]),
+                 paste0("rna2_", rownames(x = pbmc_small)[1:5])))
+  expect_equal(unname(x[, rownames(x = pbmc_small)[1:5]]),
+               unname(x[, paste0("rna2_", rownames(x = pbmc_small)[1:5])] * 2)
+               )
+})
+
 
 test_that("Fetching embeddings/loadings not present returns warning or errors", {
   expect_warning(FetchData(object = pbmc_small, vars = c("PC_1", "PC_100")))
