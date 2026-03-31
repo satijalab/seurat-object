@@ -3716,7 +3716,7 @@ split.Seurat <- function(
 #' # `subset` examples
 #' # subset using expression threshold (and optionally specify the layer to use)
 #' subset(pbmc_small, subset = MS4A1 > 4)
-#' subset(pbmc_small, subset = MS4A1 > 3, layer = 'counts')
+#' subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
 #'
 #' # subset using expression threshold when "-" present in feature name
 #' subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
