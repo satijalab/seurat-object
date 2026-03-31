@@ -42,6 +42,13 @@ by default, throws an error}
 \description{
 Subset \code{Seurat} Objects
 }
+\section{Note}{
+
+
+Subsetting with `[` does not guarantee preservation of the specified
+cell or feature ordering.
+}
+
 \examples{
 # `subset` examples
 subset(pbmc_small, subset = MS4A1 > 4)
