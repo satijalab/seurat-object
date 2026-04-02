@@ -419,6 +419,33 @@ rlang::`%||%`
   return(subobjects)
 }
 
+#' Find dimreduc using default search
+#'
+#' @param dim.reducs reductions present
+#' @param drs.use reductions to check against those present
+#'
+#' @return default dimreduc or NULL if no match
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' .FindDefaultDimReduc(pbmc_small)
+#'
+
+.FindDefaultDimReduc <- function(dim.reducs, drs.use) {
+  index <- lapply(X = drs.use, FUN = grep, x = dim.reducs, ignore.case = TRUE)
+  index <- Filter(f = length, x = index)
+  if (length(x = index)) {
+    return(dim.reducs[min(index[[1]])])
+  }
+  return(NULL)
+}
+
+
 #' Find A Subobject
 #'
 #' Determine the slot that a subobject is contained in
@@ -1017,6 +1044,14 @@ ClassKey <- function(class, package = NULL) {
 DefaultDimReduc <- function(object, assay = NULL) {
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
+
+  # check if stored defaults and if not use original behavior
+  defaults <- Tool(object, slot = "`DefaultDimReduc<-.Seurat`")
+  if (assay %in% names(x = defaults)) {
+    return(defaults[[assay]])
+  }
+
+  # search if default not set manually
   drs.use <- c('umap', 'tsne', 'pca')
   dim.reducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
   drs.assay <- Filter(
@@ -1025,34 +1060,71 @@ DefaultDimReduc <- function(object, assay = NULL) {
     },
     x = dim.reducs
   )
+
   if (length(x = drs.assay)) {
-    index <- lapply(
-      X = drs.use,
-      FUN = grep,
-      x = drs.assay,
-      ignore.case = TRUE
-    )
-    index <- Filter(f = length, x = index)
-    if (length(x = index)) {
-      return(drs.assay[min(index[[1]])])
-    }
+    default_reduc <- .FindDefaultDimReduc(dim.reducs = drs.assay, drs.use = drs.use)
+    return(default_reduc)
   }
-  index <- lapply(
-    X = drs.use,
-    FUN = grep,
-    x = dim.reducs,
-    ignore.case = TRUE
-  )
-  index <- Filter(f = length, x = index)
-  if (!length(x = index)) {
+
+  default_reduc <- .FindDefaultDimReduc(dim.reducs = dim.reducs, drs.use = drs.use)
+
+  if (is.null(x = default_reduc)) {
     abort(message = paste0(
       "Unable to find a DimReduc matching one of ",
       .Oxford(drs.use),
       "; please specify a dimensional reduction to use"
     ))
   }
-  return(dim.reducs[min(index[[1]])])
+  return(default_reduc)
 }
+
+#' @rdname DefaultDimReduc
+#' @export
+#' @method DefaultDimReduc<-  Seurat
+#'
+#' @concept utils
+#'
+#' @examples
+#' \dontrun{
+#' # Set UMAP as default for RNA assay
+#' DefaultDimReduc(seurat_obj) <- "umap"
+#'
+#' # Clear the set default
+#' DefaultDimReduc(seurat_obj) <- NULL
+#' }
+
+"DefaultDimReduc<-.Seurat" <- function(object, ..., value) {
+  assay <- DefaultAssay(object = object)
+  # Get existing defaults or create empty named vector
+  defaults <- Tool(object, slot = "`DefaultDimReduc<-.Seurat`") %||% character()
+
+  if (is.null(x = value)) {
+    # Clear default for current assay
+    new_defaults <- defaults[names(x = defaults) != assay]
+    message(paste0('Removing the set default DimReduc for "', assay, '" assay.'))
+  } else {
+    # Validate that the dim reduc exists
+    if (!value %in% Reductions(object = object)) {
+      stop(paste0("DimReduc ", value, " not present in object."))
+    }
+
+    # Check reduction is associated with current assay
+    reduc_assay <- DefaultAssay(object[[value]])
+    if (assay != reduc_assay) {
+      stop(paste0('The reduction "', value, '" is not associated with current assay "', assay, '". No change made to default DimReduc.'))
+    }
+
+    # Set default for current assay
+    message(paste0('Setting "', value, '" as default DimReduc for "', assay, '" assay.'))
+    new_defaults <- c(defaults[names(x = defaults) != assay], setNames(value, assay))
+  }
+
+  # Store back using Tool<-
+  Tool(object) <- new_defaults
+
+  return(object)
+}
+
 
 #' Radian/Degree Conversions
 #'
