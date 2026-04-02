@@ -13,6 +13,7 @@
   features = NULL,
   idents = NULL,
   return.null = FALSE,
+  droplevels.meta.data = FALSE,
   ...
 )
 
@@ -31,6 +32,9 @@
 
 \item{return.null}{If no cells are requested, return a \code{NULL};
 by default, throws an error}
+
+\item{droplevels.meta.data}{logical, whether to drop unused factor levels from meta.data
+columns after subsetting.  Default is FALSE.}
 
 \item{...}{Arguments passed to \code{\link{WhichCells}}}
 }
@@ -51,11 +55,21 @@ cell or feature ordering.
 
 \examples{
 # `subset` examples
+# subset using expression threshold (and optionally specify the layer to use)
 subset(pbmc_small, subset = MS4A1 > 4)
-subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
-subset(pbmc_small, idents = '0', invert = TRUE)
 subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
+
+# subset using expression threshold when "-" present in feature name
+subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
+
+# subset using identity (invert keeps identities not specified)
+subset(pbmc_small, idents = '0', invert = TRUE)
+
+# subset retaining only specific set of features
 subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
+
+# subset and drop unused levels from meta.data columns after subset
+subset(pbmc_small, idents = '0', droplevels.meta.data = TRUE)
 
 # `[` examples
 pbmc_small[VariableFeatures(object = pbmc_small), ]
