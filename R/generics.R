@@ -141,21 +141,6 @@ NULL
   UseMethod(generic = '.MARGIN', object = x)
 }
 
-#' Combine and Select Features
-#'
-#' @template param-dots-method
-#' @param object An object
-#'
-#' @return A vector of features selected
-#'
-#' @keywords internal
-#'
-#' @export .SelectFeatures
-#'
-.SelectFeatures <- function(object, ...) {
-  UseMethod(generic = '.SelectFeatures', object = object)
-}
-
 #' Add in metadata associated with either cells or features.
 #'
 #' Adds additional data to the object. Can be any piece of information
@@ -481,6 +466,8 @@ CreateMolecules <- function(coords, ...) {
 #' Create a \code{\link[SeuratObject:Segmentation-class]{Segmentation}} Objects
 #'
 #' @param coords The coordinates of cell segmentations
+#' @param compact Logical indicating whether or not the object should only store segmentation data
+#' in the \code{sf.data} slot; see \link{Segmentation-class} for details.
 #'
 #' @return A \code{\link[SeuratObject:Segmentation-class]{Segmentation}} object
 #'
@@ -488,7 +475,7 @@ CreateMolecules <- function(coords, ...) {
 #'
 #' @concept spatial
 #'
-CreateSegmentation <- function(coords) {
+CreateSegmentation <- function(coords, compact = FALSE) {
   UseMethod(generic = 'CreateSegmentation', object = coords)
 }
 
@@ -628,6 +615,27 @@ DefaultBoundary <- function(object) {
 "DefaultBoundary<-" <- function(object, ..., value) {
   UseMethod(generic = 'DefaultBoundary<-', object = object)
 }
+
+#' Set Default Dimensionality Reduction
+#' Set the default dimensionality reduction for a specific assay in a Seurat object.
+#' @param object A Seurat object.
+#' @param value Character string specifying the name of the dimensionality reduction to set as default.
+#' Set to NULL to clear the default for the current assay.
+#' @return A Seurat object with the default dimensionality reduction updated.
+#' @details
+#' This function stores the default dimensionality reduction on a per-assay basis.
+#' This function only needs to be run if users want to override the default DimReduc selection logic that
+#' Seurat employs.
+#' When `DefaultDimReduc()` is called, it will return the assay-specific default if one has been set.
+#' If none was explicitly set then default Seurat logic will be used to select default.
+#'
+#' @rdname DefaultDimReduc
+#' @export DefaultDimReduc<-
+#'
+"DefaultDimReduc<-" <- function(object, ..., value) {
+  UseMethod(generic = 'DefaultDimReduc<-', object = object)
+}
+
 
 #' Get and Set the Default FOV
 #'
@@ -816,6 +824,11 @@ GetImage <- function(object, mode = c('grob', 'raster', 'plotly', 'raw'), ...) {
 }
 
 #' Get tissue coordinates
+#' 
+#' Retrieve tissue coordinates from spatial objects. 
+#'
+#' Spatial classes may have specific implementations; 
+#' refer to those documentation pages for more details.
 #'
 #' @template param-dots-method
 #' @param object An object

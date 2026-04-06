@@ -234,17 +234,18 @@ labels.LogMap <- function(
   select <- select[1L]
   select <- match.arg(arg = select)
   values <- intersect(x = values, y = rownames(x = object))
-  p <- progressor(along = values)
-  obs <- sapply(
-    X = values,
-    FUN = function(x) {
-      vals <- colnames(x = object)[which(x = object[x, , drop = TRUE])]
-      p()
-      return(vals)
-    },
-    simplify = FALSE,
-    USE.NAMES = TRUE
-  )
+  mat <- as.matrix(object)
+  cols <- colnames(object)
+  idx <- match(values, rownames(object))
+  obs <- vector("list", length(values))
+  names(obs) <- values
+  for (i in seq_along(idx)) {
+    id <- idx[i]
+    vals <- cols[mat[id, , drop = FALSE]]
+    if (length(vals) > 0) {
+      obs[[i]] <- vals
+    }
+  }
   obs <- Filter(f = length, x = obs)
   obs <- switch(
     EXPR = select,
@@ -279,6 +280,7 @@ labels.LogMap <- function(
   }
   return(obs)
 }
+
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Internal

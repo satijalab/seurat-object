@@ -85,6 +85,24 @@ CreateCentroids.default <- function(
   radius = NULL,
   theta = 0L
 ) {
+  if (inherits(x = coords, what = 'sf')) {
+    # Set the attribute-geometry relationship to constant
+    # See https://r-spatial.github.io/sf/reference/sf.html#details
+    sf::st_agr(coords) <- "constant"
+
+    # Extract centroids from sf object
+    centroids <- sf::st_centroid(coords)
+
+    # Convert to data frame and format
+    centroid_coords <- sf::st_coordinates(centroids)
+    centroids_df <- data.frame(
+      x = centroid_coords[, "X"],
+      y = centroid_coords[, "Y"],
+      row.names = coords$barcodes,
+      stringsAsFactors = FALSE
+    )
+    coords <- centroids_df
+  }
   cnames <- c('x', 'y')
   if (ncol(x = coords) >= 3) {
     cnames <- append(x = cnames, values = 'cell')
@@ -144,8 +162,8 @@ Crop.Centroids <- .Crop
 #'  \item \dQuote{\code{cell}}: the cell name
 #' }
 #' If \code{full} is \code{TRUE}, then each coordinate will indicate a vertex
-#' for the cell polygon; otherwise, each coordinate will indicate a centroid
-#' for the cell
+#' for the cell polygon (created based on nsides, radius, and theta); 
+#' otherwise, each coordinate will indicate a centroid for the cell.
 #'
 #' @importFrom sp coordinates
 #'

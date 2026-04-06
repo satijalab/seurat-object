@@ -21,6 +21,8 @@ in a \code{Seurat} object}
 be one or more alphanumeric characters followed by an underscore
 \dQuote{\code{_}} (regex pattern
 \dQuote{\code{\Sexpr[stage=build]{SeuratObject:::.KeyPattern()}}})}
+
+\item{\code{misc}}{A named list of unstructured miscellaneous data}
 }}
 
 \seealso{

@@ -27,8 +27,4 @@ certain class
 \code{FilterObjects} was deprecated in version 5.0.0; use \code{\link{.FilterObjects}} instead
 }
 
-\examples{
-FilterObjects(pbmc_small)
-
-}
 \concept{utils}

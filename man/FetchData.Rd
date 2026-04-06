@@ -15,6 +15,7 @@ FetchData(object, ...)
   vars,
   cells = NULL,
   layer = NULL,
+  assay = NULL,
   clean = TRUE,
   slot = deprecated(),
   ...
@@ -31,6 +32,8 @@ pull identity classes}
 \item{cells}{Cells to collect data for (default is all cells)}
 
 \item{layer}{Layer to pull feature data for}
+
+\item{assay}{Assay to pull feature data from}
 
 \item{clean}{Remove cells that are missing data; choose from:
 \itemize{

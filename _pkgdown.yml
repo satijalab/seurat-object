@@ -1,11 +1,11 @@
-url: https://mojaveazure.github.io/seurat-object/
+url: https://satijalab.github.io/seurat-object/
 destination: docs
 template:
   params:
     bootswatch: flatly
 
 development:
-  mode: auto
+  mode: release
 
 reference:
   - title: The Seurat Class and Interaction Methods

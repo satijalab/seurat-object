@@ -70,6 +70,17 @@ test_that("CreateAssayObject works as expected", {
   expect_equal(GetAssayData(object = rna.assay2, layer = "counts"), new(Class = "matrix"))
 })
 
+test_that("CreateAssayObject works as expected for single cell edge case", {
+  # Test whether methods work for single cell input
+  expect_no_error(rna.assay.single <- CreateAssayObject(counts = pbmc.raw[, 1, drop = FALSE]))
+  expect_no_error(
+    LayerData(rna.assay.single, "counts") <- LayerData(as(rna.assay.single, "Assay"))
+  )
+  expect_no_error(
+    LayerData(rna.assay.single, "counts") <- LayerData(as(rna.assay.single, "Assay5"))
+  )
+})
+
 rna.assay2 <- CreateAssayObject(counts = pbmc.raw, min.cells = 10, min.features = 30)
 test_that("CreateAssayObject filtering works", {
   expect_equal(dim(x = rna.assay2), c(163, 77))
@@ -176,9 +187,9 @@ pbmc.assay <- pbmc_small[["RNA"]]
 x <- merge(x = pbmc.assay, y = pbmc.assay)
 
 test_that("Merging Assays works properly", {
-  expect_equal(dim(GetAssayData(object = x, slot = "counts")), c(230, 160))
-  expect_equal(dim(GetAssayData(object = x, slot = "data")), c(230, 160))
-  expect_equal(GetAssayData(object = x, slot = "scale.data"), new(Class = "matrix"))
+  expect_equal(dim(GetAssayData(object = x, layer = "counts")), c(230, 160))
+  expect_equal(dim(GetAssayData(object = x, layer = "data")), c(230, 160))
+  expect_equal(GetAssayData(object = x, layer = "scale.data"), new(Class = "matrix"))
   expect_equal(Key(object = x), "rna_")
   expect_equal(VariableFeatures(object = x), vector())
   expect_equal(x[[]], data.frame(row.names = rownames(x = pbmc.assay)))
@@ -188,18 +199,18 @@ pbmc.assay2 <- pbmc.assay
 pbmc.assay2@counts <- new("dgCMatrix")
 test_that("Merging Assays handles case when counts not present", {
   y <- merge(x = pbmc.assay2, y = pbmc.assay)
-  expect_equal(unname(colSums(x = GetAssayData(object = y, slot = "counts"))[1:80]), rep.int(x = 0, times = 80))
+  expect_equal(unname(colSums(x = GetAssayData(object = y, layer = "counts"))[1:80]), rep.int(x = 0, times = 80))
   z <- merge(x = pbmc.assay2, pbmc.assay2)
-  expect_equal(Matrix::nnzero(x = GetAssayData(object = z, slot = "counts")), 0)
+  expect_equal(Matrix::nnzero(x = GetAssayData(object = z, layer = "counts")), 0)
 })
 
 pbmc.assay2 <- pbmc.assay
 pbmc.assay2@data <- new("dgCMatrix")
 test_that("Merging Assays handles case when data not present", {
   y <- merge(x = pbmc.assay2, y = pbmc.assay, merge.data = TRUE)
-  expect_equal(unname(colSums(x = GetAssayData(object = y, slot = "data"))[1:80]), rep.int(x = 0, times = 80))
+  expect_equal(unname(colSums(x = GetAssayData(object = y, layer = "data"))[1:80]), rep.int(x = 0, times = 80))
   z <- merge(x = pbmc.assay2, y = pbmc.assay2, merge.data = TRUE)
-  expect_equal(Matrix::nnzero(x = GetAssayData(object = z, slot = "data")), 0)
+  expect_equal(Matrix::nnzero(x = GetAssayData(object = z, layer = "data")), 0)
 })
 
 # # Tests for Neighbor object
@@ -281,6 +292,26 @@ test_that("Fetching keyed variables works", {
   expect_equal(colnames(x = x), c(paste0("rna_", rownames(x = pbmc_small)[1:5]), paste0("PC_", 1:5)))
 })
 
+
+rna3.assay <- pbmc_small[["RNA"]]
+rna3.assay$data <- rna3.assay$data * 2
+suppressWarnings(pbmc_small[["RNA3"]] <- rna3.assay)
+Key(pbmc_small[["RNA3"]]) <- "rna3_"
+
+test_that("Fetching supports assay argument", {
+  x <- FetchData(object = pbmc_small,
+                 vars = c(rownames(x = pbmc_small)[1:5],
+                          paste0("rna2_", rownames(x = pbmc_small)[1:5])),
+                 assay = "RNA3")
+  expect_equal(colnames(x = x),
+               c(paste0("", rownames(x = pbmc_small)[1:5]),
+                 paste0("rna2_", rownames(x = pbmc_small)[1:5])))
+  expect_equal(unname(x[, rownames(x = pbmc_small)[1:5]]),
+               unname(x[, paste0("rna2_", rownames(x = pbmc_small)[1:5])] * 2)
+               )
+})
+
+
 test_that("Fetching embeddings/loadings not present returns warning or errors", {
   expect_warning(FetchData(object = pbmc_small, vars = c("PC_1", "PC_100")))
   expect_error(FetchData(object = pbmc_small, vars = "PC_100"))
@@ -309,11 +340,12 @@ test_that("Specifying idents works", {
 test_that("downsample works", {
   expect_equal(length(x = WhichCells(object = pbmc_small, downsample = 5)), 15)
   expect_equal(length(x = WhichCells(object = pbmc_small, downsample = 100)), 80)
+  expect_equal(dim(LayerData(subset(pbmc_small, cells = 1))), c(230L, 1L))
 })
 
 test_that("passing an expression works", {
   lyz.pos <- WhichCells(object = pbmc_small, expression = LYZ > 1)
-  expect_true(all(GetAssayData(object = pbmc_small, slot = "data")["LYZ", lyz.pos] > 1))
+  expect_true(all(GetAssayData(object = pbmc_small, layer = "data")["LYZ", lyz.pos] > 1))
   # multiple values in expression
   lyz.pos <- WhichCells(object = pbmc_small, expression = LYZ > 1 & groups == "g1")
   expect_equal(length(x = lyz.pos), 30)

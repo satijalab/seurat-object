@@ -1,41 +1,44 @@
-# SeuratObject v5.0.2
+# SeuratObject v5.3.0
 
 ## Test environments
-* local ubuntu 20.04 install, R 4.3.2
-* local macOS 14.1, R 4.4.0
-* win-builder (oldrelease, release, devel)
-* mac-builder (devel)
-
-We were unable to test on r-release on mac-builder because the portal seemed to point to the wrong version.
+* local Ubuntu 20.04.6 install (R 4.3.2)
+* local macOS 15.6 (R 4.5.1)
+* win-builder
+  * R-oldrelease (R 4.4.3)
+  * R-release (R 4.5.2)
+  * R-devel (R 4.6.0)
 
 ## R CMD check results
 
-There were no ERRORs or WARNINGs
+There were no ERRORs or WARNINGs.
 
-There were two NOTEs
+There were two NOTEs given by win-builder (oldrel):
+- - -
+```
+* checking CRAN incoming feasibility ... [21s] NOTE
+Maintainer: 'Rahul Satija <seurat@nygenome.org>'
 
-> * checking CRAN incoming feasibility ... NOTE
-> Maintainer: 'Rahul Satija <seurat@nygenome.org>'
-> 
-> New maintainer:
->   Rahul Satija <seurat@nygenome.org>
-> Old maintainer(s):
->   Paul Hoffman <seurat@nygenome.org>
-> Suggests or Enhances not in mainstream repositories:
->   BPCells
-> Availability using Additional_repositories specification:
->   BPCells   yes  https://bnprks.r-universe.dev
+Suggests or Enhances not in mainstream repositories:
+  BPCells
+Availability using Additional_repositories specification:
+  BPCells   yes   https://bnprks.r-universe.dev
+```
 
-The new maintainer is Rahul Satija, the email address has remained the same.
+Rahul Satija is the maintainer and the email is correct. 
 
-> * checking package dependencies ... NOTE
-> Package suggested but not available for checking: 'BPCells'
+BPCells is hosted on R-universe and used conditionally in SeuratObject.
+
+```
+* checking package dependencies ... NOTE
+Package suggested but not available for checking: 'BPCells'
+```
 
 BPCells is hosted on R-universe and used conditionally in SeuratObject.
 
 ## Downstream dependencies
-There are 2 packages that depend on SeuratObject: Seurat, and tidyseurat; this update does not impact their functionality.
 
-There are 9 packages that import SeuratObject: APackOfTheClones, bbknnR, CAMML, Platypus, scAnnotate, scaper, scCustomize, scpoisson, and Signac; this update does not impact their functionality.
+We checked 63 reverse dependencies (25 from CRAN + 38 from Bioconductor), comparing R CMD check results across CRAN and dev versions of this package.
 
-There are 10 packages that suggest SeuratObject: cellpypes, CytoSimplex, RESET, rliger, scOntoMatch, SCpubr, singleCellHaystack, SpaTopic, SPECK, and VAM; this update does not impact their functionality.
+Reverse dependency checks gave ERRORs in 5 packages: Platypus (examples), SCpubr (tests), Seurat (examples, tests), XYomics (vignettes), scpoisson (examples, vignettes). All of these ERRORs are regarding the defunctation of the `slot` argument in `GetAssayData` and `SetAssayData`, which was deprecated in our package three releases ago (v5.0.0, 2023-10-26) and announced then as slated for eventual defunctation.
+
+Besides this point, this update does not affect the functionality of any of the dependencies.

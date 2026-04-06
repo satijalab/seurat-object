@@ -472,13 +472,6 @@ CreateAssay5Object <- function(
   return(unname(obj = c(features = 2L, cells = 1L)[type]))
 }
 
-#' @method .SelectFeatures StdAssay
-#' @export
-#'
-.SelectFeatures.StdAssay <- function(object, ...) {
-  .NotYetImplemented()
-}
-
 #' @templateVar fxn AddMetaData
 #' @template method-stdassay
 #'
@@ -972,57 +965,79 @@ HVFInfo.StdAssay <- function(
   object,
   method = NULL,
   status = FALSE,
-  layer = NULL,
+  layer = NA,
   strip = TRUE,
   ...
 ) {
-  # Find available HVF methods and layers
-  vf.methods.layers <- .VFMethodsLayers(object = object, type = 'hvf')
-  #vf.methods <- .VFMethods(object = object, type = 'hvf')
-  #vf.layers <- .VFLayers(object = object, type = 'hvf')
-  # Determine which method and layer to use
-  method <- method[length(methods)] %||% names(vf.methods.layers[length(vf.methods.layers)])
+  # Create a named list mapping HVF methods to the layers they're available for.
+  layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
+
+  if (length(layers_by_method) < 1) {
+    # If no HVF metadata is present for the specified `assay`, return `NULL`.
+    return(NULL)
+  }
+
+  # If `method` is not provided, use the last one from `layer_by_method`.
+  if (is.null(method)) {
+    available_methods <- names(layers_by_method)
+    method <- available_methods[length(available_methods)]
+  }
+
+  # Normalize "mean.var.plot" to "mvp" and "dispersion" to "disp".
   method <- switch(
-    EXPR = tolower(x = method),
-    mean.var.plot = 'mvp',
-    dispersion = 'disp',
+    EXPR = tolower(method),
+    mean.var.plot = "mvp",
+    dispersion = "disp",
     method
   )
-  method <- tryCatch(
-    expr = match.arg(arg = method, choices = names(vf.methods.layers)),
-    error = function(...) {
-      return(NULL)
-    }
-  )
-  # If no methods found, return NULL
-  if (is.null(x = method)) {
-    return(method)
+
+  # Check `method` against the list of method names parsed via
+  # `.VFMethodsLayers` and throw an warning error if no match is found
+  # and return `NULL`.
+  if (!method %in% names(layers_by_method)) {
+    # `sprintf` cannot handle `NULL` values.
+    pretty_layer <- ifelse(is.null(layer), "NULL", layer)
+    warning(
+      sprintf(
+        paste(
+          "Unable to find highly variable feature information for",
+          "method='%s' and layer='%s'."
+        ),
+        method,
+        pretty_layer
+      )
+    )
+    return(NULL)
   }
-  vf.methods.layers <- unlist(vf.methods.layers, use.names = FALSE)
-  layer <- Layers(object = object, search = layer)
-  layer <- vf.methods.layers[which.min(x = adist(x = layer, y = vf.methods.layers))]
+
+  # Choose the appropriate layer for the specified `method`.
+  method_layers <- layers_by_method[[method]]
+  query_layers <- Layers(object, search = layer)
+  # If there are more than one, return the first.
+  layer <- method_layers[method_layers %in% query_layers][1L]
+
   # Find the columns for the specified method and layer
   cols <- grep(
-    pattern = paste0(paste('^vf', method, layer, sep = '_'), '_'),
+    pattern = paste0(paste("^vf", method, layer, sep = "_"), "_"),
     x = colnames(x = object[[]]),
     value = TRUE
   )
   if (!isTRUE(x = status)) {
     cols <- setdiff(
       x = cols,
-      y = paste('vf', method, layer, c('variable', 'rank'), sep = '_')
+      y = paste("vf", method, layer, c("variable", "rank"), sep = "_")
     )
   }
   hvf.info <- object[[cols]]
   colnames(x = hvf.info) <- gsub(
-    pattern = '^vf_',
-    replacement = '',
+    pattern = "^vf_",
+    replacement = "",
     x = colnames(x = hvf.info)
   )
   if (isTRUE(x = strip)) {
     colnames(x = hvf.info) <- gsub(
-      pattern = paste0(paste(method, layer, sep = '_'), '_'),
-      replacement = '',
+      pattern = paste0(paste(method, layer, sep = "_"), "_"),
+      replacement = "",
       x = colnames(x = hvf.info)
     )
   }
@@ -1384,9 +1399,9 @@ LayerData.Assay5 <- LayerData.StdAssay
   }
   # Reorder the layer data
   value <- if (fdim == 1L) {
-    value[fmatch, cmatch]
+    value[fmatch, cmatch, drop = FALSE]
   } else {
-    value[cmatch, fmatch]
+    value[cmatch, fmatch, drop = FALSE]
   }
   # Add the layer
   slot(object = object, name = 'layers')[[layer]] <- value
@@ -1531,112 +1546,100 @@ VariableFeatures.StdAssay <- function(
   method = NULL,
   layer = NA,
   simplify = TRUE,
-  nfeatures = Inf,
+  nfeatures = NULL,
   selection.method = deprecated(),
   ...
 ) {
   if (is_present(arg = selection.method)) {
     .Deprecate(
-      when = '5.0.0',
-      what = 'VariableFeatures(selection.method = )',
-      with = 'VariableFeatures(method = )'
+      when = "5.0.0",
+      what = "VariableFeatures(selection.method = )",
+      with = "VariableFeatures(method = )"
     )
     method <- selection.method
   }
-  nfeatures <- nfeatures %||% Inf
-  if ("var.features" %in% colnames(object[[]])) {
-    if ("var.features.rank" %in% colnames(object[[]])) {
-      var.features <- row.names(x = object[[]])[which(!is.na(object[[]]$var.features.rank))]
-      var.features <- var.features[order(object[[]][["var.features.rank"]][which(!is.na(object[[]]$var.features))])]
-    }
-    else {
-      var.features <- as.vector(object["var.features", drop = TRUE])
-      var.features <- var.features[!is.na(var.features)]
-    }
-    if (isTRUE(x = simplify) & (is.null(x = layer) || any(is.na(x = layer))) &
-        (is.infinite(x = nfeatures) || length(x = var.features) ==
-         nfeatures)) {
-      return(var.features)
-    }
+
+  label_column <- "var.features"
+  rank_column <- "var.features.rank"
+  feature_metadata <- object[[]]
+  # If `method` is not provided, and the assay's metadata contains at least
+  # one of the default variable feature columns, with a request for a flat
+  # (`simplify=TRUE`) and assay-wide output (`layer = NA`), then return
+  # variable features directly from the assay's  feature-level metadata.
+  if (
+    is.null(method)
+    & (
+        (label_column %in% colnames(feature_metadata)) ||
+          (rank_column %in% colnames(feature_metadata))
+      )
+    & isTRUE(simplify)
+    & is.na(layer)
+  ) {
+    variable_features <- .GetVariableFeatures(
+      hvf_info = feature_metadata,
+      label_column = "var.features",
+      rank_column = "var.features.rank",
+      nfeatures = nfeatures
+    )
+    return(variable_features)
   }
-  msg <- 'No variable features found'
-  layer.orig <- layer
-  methods <- .VFMethodsLayers(object = object, type = 'hvf', layers = layer)
-  layer <- Layers(object = object, search = layer)
-  method <- method %||% names(x = methods)[length(x = methods)]
-  method <- match.arg(arg = method, choices = names(x = methods))
-  if (is_na(x = layer.orig) || is.null(x = layer.orig)) {
-    layer <- unlist(methods[method], use.names = FALSE)
+
+  # Otherwise, we will aggregate variable features layer by layer.
+  # First things first, determine the relevant layer(s) to use.
+  query_layers <- Layers(object, search = layer)
+  # If `method` is specified, only consider layers that have the corresponding
+  # feature-level metadata.
+  if (!is.null(method)) {
+    layers_by_method <- .VFMethodsLayers(object, layers = layer, type = "hvf")
+    method_layers <- layers_by_method[[method]]
+    query_layers <- method_layers[method_layers %in% query_layers]
   }
-  vf <- sapply(
-    X = layer,
-    FUN = function(lyr) {
+
+  # For each layer, extract the relevant metadata using `HVFInfo` and then
+  # parse the variable feature names.
+  variable_features <- sapply(
+    query_layers,
+    function(.layer) {
       hvf.info <- HVFInfo(
-        object = object,
+        object,
         method = method,
-        layer = lyr,
+        layer = .layer,
         status = TRUE,
         strip = TRUE
       )
-      if (is.null(x = hvf.info)) {
-        return(NULL)
-      } else if (!'variable' %in% names(x = hvf.info)) {
-        return(NA)
-      }
-      vf <- row.names(x = hvf.info)[which(x = hvf.info$variable)]
-      if ('rank' %in% names(x = hvf.info)) {
-        vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-      } else {
-        warn(message = paste0(
-          "No variable feature rank found for ",
-          sQuote(x = lyr),
-          ", returning features in assay order"
-        ))
-      }
+      .variable_features <- .GetVariableFeatures(
+        hvf_info = hvf.info,
+        label_column = "variable",
+        rank_column = "rank",
+        nfeatures = nfeatures
+      )
+      return(.variable_features)
     },
     simplify = FALSE,
     USE.NAMES = TRUE
   )
-  if (is.null(x = unlist(x = vf))) {
+
+  # If no variable features are found across layers, return NULL.
+  if (is.null(unlist(variable_features))) {
     return(NULL)
-  } else if (all(is.na(x = unlist(x = vf)))) {
-    abort(message = msg)
+  # If all extracted features are missing (NA), halt execution with an error.
+  } else if (all(is.na(unlist(variable_features)))) {
+    stop("No variable features found.")
   }
-  if (isTRUE(x = simplify)) {
-    vf <- .SelectFeatures(
-      object = vf,
-      all.features = intersect(
-        x = slot(object = object, name = 'features')[,layer]
-      ),
+
+  # If simplified output is requested, aggregate the variable features from all
+  # layers by taking the most common `nfeatures`. Ties are resolved using each
+  # feature's median rank across all layers. If `nfeatures` is not provided,
+  # the union of variable features for across all layers will be returned.
+  if (isTRUE(simplify)) {
+    variable_features <- .GetConsensusFeatures(
+      variable_features,
+      common_features = intersect(slot(object, "features")[, query_layers]),
       nfeatures = nfeatures
     )
   }
-  return(vf)
-  # hvf.info <- HVFInfo(
-  #   object = object,
-  #   method = method,
-  #   layer = layer,
-  #   status = TRUE,
-  #   strip = TRUE
-  # )
-  # if (is.null(x = hvf.info)) {
-  #   warning(msg, call. = FALSE, immediate. = TRUE)
-  #   return(NULL)
-  # }
-  # if (!'variable' %in% names(x = hvf.info)) {
-  #   stop(msg, call. = FALSE)
-  # }
-  # vf <- rownames(x = hvf.info)[which(x = hvf.info$variable)]
-  # if ('rank' %in% names(x = hvf.info)) {
-  #   vf <- vf[order(hvf.info$rank[which(x = hvf.info$variable)])]
-  # } else {
-  #   warning(
-  #     "No variable feature rank found, returning features in assay order",
-  #     call. = FALSE,
-  #     immediate. = TRUE
-  #   )
-  # }
-  # return(vf)
+
+  return(variable_features)
 }
 
 #' @param simplify When pulling for multiple layers, combine into a single
@@ -1668,24 +1671,49 @@ VariableFeatures.Assay5 <- VariableFeatures.StdAssay
     stop("None of the features specified are present in this assay", call. = FALSE)
   }
   object[['var.features']] <- value
-  # add rank
-  object[['var.features.rank']] <- NA
-  object[[]][row.names(object[[]]) %in% value,]$var.features.rank <- match(row.names(object[[]])[row.names(object[[]]) %in% value], value)
 
-  # layer <- Layers(object = object, search = layer)
-  # df <- data.frame(TRUE, seq_along(along.with = value), row.names = value)
-  # for (lyr in layer) {
-  #   names(x = df) <- paste('vf', method, lyr, c('variable', 'rank'), sep = '_')
-  #   object[] <- df
-  # }
+  # add rank
+  row_names <- row.names(object[[]])
+  selected_rows <- row_names %in% value
+  matching_rows <- row_names[selected_rows]
+  rank_values <- rep(NA, length(row_names))
+  rank_values[selected_rows] <- match(matching_rows, value)
+  names(rank_values) <- row_names
+  object[["var.features.rank"]] <- rank_values
+
   return(object)
 }
 
-#' @rdname VariableFeatures
+#' @rdname VariableFeatures-StdAssay
 #' @method VariableFeatures<- Assay5
 #' @export
 #'
 "VariableFeatures<-.Assay5" <- `VariableFeatures<-.StdAssay`
+
+#' @rdname VariableFeatures
+#' @export
+#' @method SVFInfo StdAssay
+#'
+SVFInfo.StdAssay <- SVFInfo.Assay
+
+#' @rdname VariableFeatures-StdAssay
+#' @method SpatiallyVariableFeatures StdAssay
+#' @export
+#'
+SpatiallyVariableFeatures.StdAssay <- SpatiallyVariableFeatures.Assay
+
+#' @rdname VariableFeatures
+#' @method SVFInfo Assay5
+#' @export
+#'
+SVFInfo.Assay5 <- SVFInfo.StdAssay
+
+#' @rdname VariableFeatures
+#' @method SpatiallyVariableFeatures Assay5
+#' @export
+#'
+SpatiallyVariableFeatures.Assay5 <- SpatiallyVariableFeatures.StdAssay
+
 
 #' @method WhichCells StdAssay
 #' @export
@@ -2360,99 +2388,108 @@ subset.StdAssay <- function(
   layers = NULL,
   ...
 ) {
-  if (is.null(x = cells) && is.null(x = features)) {
+  # define an inner function to validate the `cells` and `features` params
+  .validate_param <- function(name, values, allowed) {
+    # if `values` is null or contains only null values, keep all allowed values
+    if (all(is.na(values))) {
+      values <- allowed
+    } else if (any(is.na(x = values))) {
+      # if any values are NA, issue a warning and remove NAs
+      warning(
+        paste0("NAs passed in ", name, " vector, removing NAs"),
+        call. = FALSE,
+        immediate. = TRUE
+      )
+      # and drop null values from `values`
+      values <- values[!is.na(x = values)]
+    }
+    # if `values` is numeric, treat them as indices
+    if (is.numeric(values)) {
+      values <- allowed[values]
+    }
+    # ensure `values` are in the allowed set
+    values <- intersect(values, allowed)
+    # if no valid values remain, stop execution with an error
+    if (!length(values)) {
+      stop(paste0("None of the ", name, " provided found in this assay"), call. = FALSE)
+    }
+    return(values)
+  }
+
+  # if no subsetting is specified, return the original object
+  if (is.null(cells) && is.null(features) && is.null(layers)) {
     return(x)
   }
-  # Check the cells vector
-  if (all(is.na(x = cells))) {
-    cells <- Cells(x = x, layer = NA)
-  } else if (any(is.na(x = cells))) {
-    warning(
-      "NAs passed in cells vector, removing NAs",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    cells <- cells[!is.na(x = cells)]
-  }
-  if (is.numeric(x = cells)) {
-    cells <- Cells(x = x, layer = NA)[cells]
-  }
-  cells <- intersect(x = Cells(x = x, layer = NA), y = cells)
-  if (!length(x = cells)) {
-    stop("None of the cells provided found in this assay", call. = FALSE)
-  }
-  # Check the features vector
-  if (all(is.na(x = features))) {
-    features <- Features(x = x, layer = NA)
-  } else if (any(is.na(x = features))) {
-    warning(
-      "NAs passed in features vector, removing NAs",
-      call. = FALSE,
-      immediate. = TRUE
-    )
-    features <- features[!is.na(x = features)]
-  }
-  if (is.numeric(x = features)) {
-    features <- Features(x = x, layer = NA)[features]
-  }
-  features <- intersect(x = features, y = Features(x = x, layer = NA))
-  if (!length(x = features)) {
-    stop("None of the features provided found in this assay", call. = FALSE)
-  }
-  # Check the layers
-  layers.all <- Layers(object = x)
-  layers <- layers %||% layers.all
+
+  # validate and filter cells
+  all_cells <- Cells(x)
+  cells <- .validate_param("cells", cells, all_cells)
+  # validate and filter features
+  all_features <- Features(x = x, layer = NA)
+  features <- .validate_param("features", features, all_features)
+  # validate and filter layers
+  all_layers <- Layers(object = x)
+  layers <- layers %||% all_layers
   layers <- match.arg(
     arg = layers,
-    choices = layers.all,
+    choices = all_layers,
     several.ok = TRUE
   )
-  # Remove unused layers
-  for (lyr in setdiff(x = layers.all, y = layers)) {
-    LayerData(object = x, layer = lyr) <- NULL
-  }
-  # Subset feature-level metadata
-  mfeatures <- MatchCells(
-    new = Features(x = x, layer = NA),
-    orig = features,
-    ordered = TRUE
-  )
-  # Perform the subsets
-  for (l in layers) {
-    lcells <- MatchCells(
-      new = Cells(x = x, layer = l),
+
+  # subset cells and features layer by layer
+  for (layer_name in all_layers) {
+    # maybe drop the layer
+    if (!layer_name %in% layers) {
+      LayerData(x, layer = layer_name) <- NULL
+      next
+    }
+    # otherwise, filter the the layer's cells and features
+    # `MatchCells` is a bit of a misnomer - assuming that `new` is a
+    # subset of `old`, the function returns a list of indices mapping
+    # the values of `new` to their order in `orig`
+    layer_cells <- MatchCells(
+      new = Cells(x = x, layer = layer_name),
       orig = cells,
       ordered = TRUE
     )
-    lfeatures <- MatchCells(
-      new = Features(x = x, layer = l),
+    layer_features <- MatchCells(
+      new = Features(x = x, layer = layer_name),
       orig = features,
       ordered = TRUE
     )
-    if (is.null(x = lcells) || is.null(x = features)) {
-      LayerData(object = x, layer = l) <- NULL
-    } else {
-      LayerData(object = x, layer = l) <- LayerData(
-        object = x,
-        layer = l,
-        cells = lcells,
-        features = lfeatures
-      )
+    # if no valid cells or features, drop the layer data
+    if (is.null(layer_cells) || is.null(layer_features)) {
+      LayerData(object = x, layer = layer_name) <- NULL
+      next
     }
+    # otherwise, apply the subset
+    LayerData(object = x, layer = layer_name) <- LayerData(
+      object = x,
+      layer = layer_name,
+      cells = layer_cells,
+      features = layer_features
+    )
   }
-  slot(object = x, name = 'cells') <- droplevels(x = slot(
-    object = x,
-    name = 'cells'
-  ))
-  # Update the cell/feature maps
-  for (i in c('cells', 'features')) {
-    slot(object = x, name = i) <- droplevels(x = slot(object = x, name = i))
-  }
-  slot(object = x, name = 'meta.data') <- slot(
-    object = x,
-    name = 'meta.data'
-  )[mfeatures, , drop = FALSE]
-  validObject(object = x)
+
+  # clean up the cells and features slots
+  slot(x, name = "cells") <- droplevels(slot(x, name = "cells"))
+  slot(x, name = "features") <- droplevels(slot(x, name = "features"))
+
+  # in case any features were found in a only one layer and it was dropped
+  # in the previous loop, we need to make sure our feature list is updated
+  features <- intersect(features, Features(x = x, layer = NA))
+  # update the features to match the valid list - see note above on `MatchCells`
+  mfeatures <- MatchCells(
+    new = all_features,
+    orig = features,
+    ordered = TRUE
+  )
+  # subset the meta.data slot accordingly
+  slot(x, name = "meta.data") <- slot(x, name = "meta.data")[mfeatures, , drop = FALSE]
+
+  # ensure the object is valid
+  validObject(x)
+
   return(x)
 }
 
@@ -2657,6 +2694,165 @@ tail.Assay5 <- tail.StdAssay
     vf.list <- NULL
   }
   return(vf.list)
+}
+
+#' Returns the top variable features from a data frame of highly variable
+#' feature annotations. Features are marked as variable if their value in
+#' `label_column` is neither `NA` nor `FALSE`. When a ranking is provided via
+#' `rank_column`, features are ordered accordingly.
+#'
+#' @param hvf_info A `data.frame` containing highly variable feature
+#' annotations.
+#' @param label_column A column in `hvf_info` indicating which features
+#' are variable. A feature is considered variable if it's corresponding
+#' value is not `NA` or `FALSE`.
+#' @param rank_column A column in `hvf_info` indicating the rank of
+#' each feature.
+#' @param nfeatures The number of variable features to return.
+#'
+#' @keywords internal
+#'
+.GetVariableFeatures <- function(hvf_info, label_column, rank_column, nfeatures) {
+  # If neither `label_column` nor `rank_column` are present in `hvf_info`,
+  # just return `NULL`.
+  if (
+    (!label_column %in% colnames(hvf_info)) &
+      (!rank_column %in% colnames(hvf_info))
+  ) {
+    return(NULL)
+  }
+
+  # Create a boolean vector indicating which rows in `hvf_info` contain
+  # non-missing values in the `label_column` if it exists.
+  label_mask <- NULL
+  if (label_column %in% colnames(hvf_info)) {
+    feature_labels <- hvf_info[[label_column]]
+    # If a feature label is `NA` or `FALSE` then set it's value to false.
+    # Otherwise, treat the label as truthy.
+    label_mask <- ifelse(
+      is.na(feature_labels) | feature_labels == FALSE,
+      FALSE,
+      TRUE
+    )
+  }
+  # If a `rank_column` exists, filter out missing values and compute an
+  # ascending rank order.
+  rank_order <- NULL
+  rank_mask <- NULL
+  if (rank_column %in% colnames(hvf_info)) {
+    feature_rank <- hvf_info[[rank_column]]
+    rank_mask <- !is.na(feature_rank)
+    feature_rank <- feature_rank[rank_mask]
+    rank_order <- order(feature_rank)
+  }
+
+  # Warn if `label_mask` and `ranked_mask` are discordant (i.e some features
+  # have a label but no rank).
+  if (!is.null(label_mask) & !is.null(rank_mask)) {
+    # Identify the features labelled as variable but missing a corresponding rank.
+    missing_rank <- rownames(hvf_info)[label_mask & !rank_mask]
+    if (length(missing_rank) > 0) {
+      warning(
+        sprintf(
+          paste(
+            "The following features were labelled as variable in",
+            "'%s' but had no corresponding rank in `%s` and will",
+            "therefore be ignored: %s"
+          ),
+          label_column,
+          rank_column,
+          paste(sprintf("'%s'", missing_rank), collapse = ", ")
+        )
+      )
+    }
+  }
+
+  # If `nfeatures` is not specified `label_column` doesn't exist we're left
+  # with `rank_column` and so we'll return all features with a non-empty rank.
+  if (is.null(nfeatures) & is.null(label_mask)) {
+    warning(
+      sprintf(
+        paste(
+          "`nfeatures` is not specified and '%s' column is missing; returning",
+          "all features with a non-empty '%s'."
+        ),
+        label_column,
+        rank_column
+      )
+    )
+  }
+
+  # Set `nfeatures` to the count of labeled features if not explicitly provided.
+  nfeatures <- nfeatures %||% sum(label_mask)
+  # If a ranking is available use it to determine which features are variable.
+  feature_mask <- rank_mask %||% label_mask
+
+  # Apply `feature_mask` to feature names from `hvf_info` to get variable
+  # feature names.
+  variable_features <- rownames(hvf_info)[feature_mask]
+  # If a ranking is available, use it to sort the variable features.
+  if (!is.null(rank_order)) {
+    variable_features <- variable_features[rank_order]
+  }
+
+  # Select the top `nfeatures`.
+  variable_features <- variable_features[1:nfeatures]
+  return(variable_features)
+}
+
+#' Returns the most frequently observed features in `features_by_layer`. If
+#' two features are observed at the same frequency their median index will be
+#' used to break the tie. If `nfeatures` is not specified, all features in
+#' `common_features` are returned.
+#'
+#' @param features_by_layer A 2D named vector containing mapping each layer
+#' to it's corresponding variable features.
+#' @param common_features The intersection of features across all layers.
+#' @param nfeatures The number of variable features to return.
+#'
+#' @keywords internal
+#'
+.GetConsensusFeatures <- function(features_by_layer, common_features, nfeatures = NULL) {
+  # Create a data frame indicating the position that each feature
+  # appears in the layer-specific vectors given by `features_by_layer`.
+  position_df <- do.call(
+    rbind,
+    lapply(
+      features_by_layer,
+      function(.features) {
+        data.frame(
+          feature = .features,
+          index = seq_along(.features),
+          stringsAsFactors = FALSE
+        )
+      }
+    )
+  )
+  # Only consider features in `common_features`.
+  position_df <- position_df[position_df$feature %in% common_features, ]
+
+  # Count the number of times each feature appears.
+  feature_counts <- table(position_df$feature)
+  # Calculate the median position of each feature.
+  median_feature_positions <- tapply(position_df$index, position_df$feature, median)
+  # Combine the feature-metada into a data frame.
+  feature_df <- data.frame(
+    feature = names(feature_counts),
+    frequency = as.numeric(feature_counts),
+    median_position = as.numeric(median_feature_positions),
+    stringsAsFactors = FALSE
+  )
+
+  # Order the data frame by descending frequency and ascending position.
+  feature_df <- feature_df[order(-feature_df$frequency, feature_df$median_position), ]
+
+  # Take the first `nfeatures` if provided.
+  if (is.null(nfeatures)) {
+    consensus_features <- feature_df$feature
+  } else {
+    consensus_features <- head(feature_df$feature, nfeatures)
+  }
+  return(consensus_features)
 }
 
 CalcN5 <- function(object) {

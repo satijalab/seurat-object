@@ -77,7 +77,7 @@ setClass(
 #' @family dimreduc
 #'
 #' @examples
-#' data <- GetAssayData(pbmc_small[["RNA"]], slot = "scale.data")
+#' data <- GetAssayData(pbmc_small[["RNA"]], layer = "scale.data")
 #' pcs <- prcomp(x = data)
 #' pca.dr <- CreateDimReducObject(
 #'   embeddings = pcs$rotation,

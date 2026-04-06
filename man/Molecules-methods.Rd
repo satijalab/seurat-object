@@ -61,6 +61,7 @@ Segmentation layer classes:
 \code{\link{Centroids-methods}},
 \code{\link{Molecules-class}},
 \code{\link{Segmentation-class}},
-\code{\link{Segmentation-methods}}
+\code{\link{Segmentation-methods}},
+\code{\link{Segmentation-validity}}
 }
 \concept{segmentation}

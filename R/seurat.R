@@ -256,8 +256,6 @@ CellsByImage <- function(object, images = NULL, unlist = FALSE) {
 #' @templateVar repl .FilterObjects
 #' @template lifecycle-deprecated
 #'
-#' @examples
-#' FilterObjects(pbmc_small)
 #'
 FilterObjects <- function(
   object,
@@ -630,6 +628,7 @@ RenameAssays <- function(
 #' @order 1
 #'
 #' @examples
+#' \dontrun{
 #' if (requireNamespace("fs", quietly = TRUE)) {
 #'   # Write out with DelayedArray
 #'   if (requireNamespace("HDF5Array", quietly = TRUE)) {
@@ -679,6 +678,7 @@ RenameAssays <- function(
 #'     pbmc2
 #'     pbmc2[["disk"]]
 #'   }
+#' }
 #' }
 #'
 SaveSeuratRds <- function(
@@ -873,7 +873,7 @@ UpdateSeuratObject <- function(object) {
         misc = object@misc %||% list(),
         active.ident = object@ident,
         reductions = new.dr,
-        meta.data = object@meta.data,
+        meta.data = droplevels(object@meta.data),
         tools = list()
       )
       # Run CalcN
@@ -994,7 +994,7 @@ UpdateSeuratObject <- function(object) {
         sd.features <- rownames(x = slot(object = assay, name = "scale.data"))
         data.features <- rownames(x = slot(object = assay, name = "data"))
         md.features <- rownames(x = slot(object = assay, name = "meta.features"))
-        if (!all.equal(target = md.features, current = data.features, check.attributes = FALSE)) {
+        if (!identical(md.features, data.features)) {
           slot(object = assay, name = "meta.features") <- slot(object = assay, name = "meta.features")[data.features, ]
         }
         sd.order <- sd.features[order(match(x = sd.features, table = data.features))]
@@ -1030,6 +1030,48 @@ UpdateSeuratObject <- function(object) {
       for (x in names(x = object)) {
         message("Updating slots in ", x)
         xobj <- object[[x]]
+        if (inherits(x = xobj, what = 'FOV')) {
+          fov_name <- x
+          # Needs coord system update if
+          # object doesn't have coords_x_orientation slot or
+          # was saved prior to correction
+          old_axis_orientation <- (!.hasSlot(xobj, "coords_x_orientation")) || (.hasSlot(xobj, "coords_x_orientation") && (slot(xobj, "coords_x_orientation") != 'horizontal'))
+          is_visium <- inherits(xobj, "VisiumV1") || inherits(xobj, "VisiumV2")
+          if (is_visium && old_axis_orientation) {
+            tryCatch(
+              expr = {
+                boundaries <- slot(object = xobj, name = 'boundaries')
+                # Find all centroid objects in boundaries
+                centroids_indices <- which(sapply(X = boundaries, FUN = inherits, what = 'Centroids'))
+
+                if (length(centroids_indices) > 0) {
+                  centroids_names <- names(boundaries)[centroids_indices]
+                  # Process each centroids object
+                  for (i in seq_along(centroids_indices)) {
+                    cent_name <- centroids_names[i]
+                    cent <- boundaries[[cent_name]]
+
+                    new_coords <- GetTissueCoordinates(object = cent)
+                    old_x_coords <- new_coords$x
+                    new_coords$x <- new_coords$y
+                    new_coords$y <- old_x_coords
+                    updated_cent <- CreateCentroids(new_coords, radius = Radius(cent))
+                    boundaries[[cent_name]] <- updated_cent
+                    message("Updated Centroids object ", sQuote(cent_name), " in FOV ", sQuote(fov_name))
+                  }
+
+                  # Update the FOV object if any boundaries were modified
+                  message("Updated boundaries in FOV ", sQuote(fov_name))
+                  slot(object = xobj, name = 'boundaries') <- boundaries
+                  slot(object = xobj, name = 'coords_x_orientation') <- 'horizontal' # Update flag
+                }
+              },
+              error = function(e) {
+                message("Error updating objects in boundaries in FOV ", sQuote(fov_name))
+              }
+            )
+          }
+        }
         xobj <- suppressWarnings(
           expr = UpdateSlots(object = xobj),
           classes = 'validationWarning'
@@ -1527,6 +1569,7 @@ Features.Seurat <- function(x, assay = NULL, ...) {
 #' pull identity classes
 #' @param cells Cells to collect data for (default is all cells)
 #' @param layer Layer to pull feature data for
+#' @param assay Assay to pull feature data from
 #' @param clean Remove cells that are missing data; choose from:
 #' \itemize{
 #'  \item \dQuote{\code{all}}: consider all columns for cleaning
@@ -1558,6 +1601,7 @@ FetchData.Seurat <- function(
   vars,
   cells = NULL,
   layer = NULL,
+  assay = NULL,
   clean = TRUE,
   slot = deprecated(),
   ...
@@ -1571,6 +1615,8 @@ FetchData.Seurat <- function(
     layer <- layer %||% slot
   }
   object <- UpdateSlots(object = object)
+  assay <- assay %||% DefaultAssay(object = object)
+  assay <- arg_match(arg = assay, values = Assays(object = object))
   if (isTRUE(x = clean)) {
     clean <- 'ident'
   } else if (isFALSE(x = clean)) {
@@ -1591,13 +1637,13 @@ FetchData.Seurat <- function(
   meta.vars <- intersect(x = vars, y = names(x = object[[]]))
   meta.vars <- setdiff(x = meta.vars, y = names(x = data.fetched))
   if (length(x = meta.vars)) {
-    meta.default <- intersect(x = meta.vars, y = rownames(x = object))
+    meta.default <- intersect(x = meta.vars, y = rownames(x = object[[assay]]))
     if (length(x = meta.default)) {
       warn(message = paste0(
-        "The following variables were found in both object meta data and the default assay: ",
+        "The following variables were found in both object meta data and the selected assay: ",
         paste0(meta.default, collapse = ', '),
         "\nReturning meta data; if you want the feature, please use the assay's key (eg. ",
-        paste0(Key(object = object)[DefaultAssay(object = object)], meta.default[1L]),
+        paste0(Key(object = object)[assay], meta.default[1L]),
         ")"
       ))
     }
@@ -1672,12 +1718,12 @@ FetchData.Seurat <- function(
     df <- data.keyed[[i]]
     data.fetched[row.names(x = df), names(x = df)] <- df
   }
-  # Pull vars from the default assay
-  default.vars <- intersect(x = vars, y = rownames(x = object))
+  # Pull vars from the selected assay
+  default.vars <- intersect(x = vars, y = rownames(x = object[[assay]]))
   default.vars <- setdiff(x = default.vars, y = names(x = data.fetched))
   if (length(x = default.vars)) {
     df <- FetchData(
-      object = object[[DefaultAssay(object = object)]],
+      object = object[[assay]],
       vars = default.vars,
       cells = cells,
       layer = layer,
@@ -1719,7 +1765,7 @@ FetchData.Seurat <- function(
     ))
     if (length(x = vars.many)) {
       warn(message = paste(
-        "Found the following features in more than one assay, excluding the default.",
+        "Found the following features in more than one assay, excluding the selected.",
         "We will not include these in the final data frame:",
         paste(vars.many, collapse = ', ')
       ))
@@ -1923,7 +1969,7 @@ GetImage.Seurat <- function(
 }
 
 #' @param image Name of \code{SpatialImage} object to get coordinates for; if
-#' \code{NULL}, will attempt to select an image automatically
+#' \code{NULL}, will retrieve coordinates for the default image
 #'
 #' @rdname GetTissueCoordinates
 #' @method GetTissueCoordinates Seurat
@@ -2324,9 +2370,12 @@ RenameCells.Seurat <- function(
 ) {
   CheckDots(...)
   object <- UpdateSlots(object = object)
-  working.cells <- Cells(x = object)
+
+  all.cells <- colnames(object)
+  default.cells <- Cells(object)
+
   if (is_present(arg = for.merge)) {
-    .Deprecate(when = '5.0.0', what = 'RenameCells(for.merge = )')
+    .Deprecate(when = "5.0.0", what = "RenameCells(for.merge = )")
   }
   if (is_missing(x = add.cell.id) && is_missing(x = new.names)) {
     abort(message = "One of 'add.cell.id' and 'new.names' must be set")
@@ -2335,35 +2384,62 @@ RenameCells.Seurat <- function(
     abort(message = "Only one of 'add.cell.id' and 'new.names' may be set")
   }
   if (!missing(x = add.cell.id)) {
-    new.cell.names <- paste(add.cell.id, working.cells, sep = "_")
+    new.names <- paste(add.cell.id, all.cells, sep = "_")
+    cells.to.rename <- all.cells
   } else {
-    if (length(x = new.names) == length(x = working.cells)) {
-      new.cell.names <- new.names
+    # Determine which set of cells names `new.names` is intended to replace.
+    # If `new.names` is a named vector, assume it should provide the mapping
+    # we need.
+    if (!is.null(names(new.names))) {
+      cells.to.rename <- names(new.names)
     } else {
-      abort(message = paste0(
-        "the length of 'new.names' (",
-        length(x = new.names),
-        ") must be the same as the number of cells (",
-        length(x = working.cells),
-        ")"
-      ))
+      # If `new.names` contains a value for every cell in the object, we'll
+      # assume that `new.names` and `all.cells` are co-indexed.
+      if (length(new.names) == length(all.cells)) {
+        cells.to.rename <- all.cells
+        # If `new.names` contains a value for every cell in the default assay,
+        # we'll assume that `new.names` and `default.cells` are co-indexed.
+      } else if (length(new.names) == length(default.cells)) {
+        cells.to.rename <- default.cells
+        # If the length of `new.names` doesn't match either option, we don't
+        # know what cells to rename, so we'll throw an error.
+      } else {
+        stop(
+          sprintf(
+            paste(
+              "`new.names` should be a named list or else be the same length",
+              "as `colnames(object)` (%i) or `Cells(object)` (%i).",
+              "`length(new.names)` was %i."
+            ),
+            length(all.cells),
+            length(default.cells),
+            length(new.names)
+          )
+        )
+      }
     }
   }
-  old.names <- colnames(x = object)
-  new.cell.names.global <- old.names
-  new.cell.names.global[match(x = working.cells, table = old.names)] <- new.cell.names
-  new.cell.names <- new.cell.names.global
+
+  # Validate that `cells.to.rename` only contains valid cell names.
+  missing.cells <- setdiff(cells.to.rename, all.cells)
+  if (length(missing.cells) > 0) {
+    stop("The following cells are not present in `object`: ...")
+  }
+
+  # Create a global mapping for all cell names in `object`.
+  new.cell.names <- setNames(all.cells, all.cells)
+  new.cell.names[cells.to.rename] <- new.names
+
   # rename the cell-level metadata first to rename colname()
   old.meta.data <- object[[]]
   row.names(x = old.meta.data) <- new.cell.names
   slot(object = object, name = "meta.data") <- old.meta.data
   # rename the active.idents
-  old.ids <- Idents(object = object)
-  names(x = old.ids) <- new.cell.names
-  Idents(object = object) <- old.ids
-  names(x = new.cell.names) <- old.names
+  old.ids <- Idents(object)
+  names(old.ids) <- new.cell.names
+  Idents(object) <- old.ids
   # rename in the assay objects
-  assays <- .FilterObjects(object = object, classes.keep = 'Assay')
+  assays <- .FilterObjects(object = object, classes.keep = "Assay")
   for (i in assays) {
     slot(object = object, name = "assays")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2371,7 +2447,7 @@ RenameCells.Seurat <- function(
     )
   }
   # rename in the assay5 objects
-  assays5 <- .FilterObjects(object = object, classes.keep = 'Assay5')
+  assays5 <- .FilterObjects(object = object, classes.keep = "Assay5")
   for (i in assays5) {
     slot(object = object, name = "assays")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2379,7 +2455,7 @@ RenameCells.Seurat <- function(
     )
   }
   # rename in the DimReduc objects
-  dimreducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
+  dimreducs <- .FilterObjects(object = object, classes.keep = "DimReduc")
   for (i in dimreducs) {
     slot(object = object, name = "reductions")[[i]] <- RenameCells(
       object = object[[i]],
@@ -2786,19 +2862,7 @@ WhichCells.Seurat <- function(
     } else {
       parse(text = expression)
     }
-    expr.char <- suppressWarnings(expr = as.character(x = expr))
-    expr.char <- unlist(x = lapply(X = expr.char, FUN = strsplit, split = ' '))
-    expr.char <- gsub(
-      pattern = '(',
-      replacement = '',
-      x = expr.char,
-      fixed = TRUE
-    )
-    expr.char <- gsub(
-      pattern = '`',
-      replacement = '',
-      x = expr.char
-    )
+    expr.char <- all.vars(expr)
     vars.use <- which(
       x = expr.char %in% rownames(x = object) |
         expr.char %in% colnames(x = object[[]]) |
@@ -2919,6 +2983,11 @@ Version.Seurat <- function(object, ...) {
   return(x)
 }
 
+#' @section Note:
+#' 
+#' Subsetting with `[` does not guarantee preservation of the specified
+#' cell or feature ordering.
+#' 
 #' @return \code{[}: object \code{x} with features \code{i} and cells \code{j}
 #'
 #' @rdname subset.Seurat
@@ -3401,13 +3470,6 @@ merge.Seurat <- function(
         message = "Please provide a cell identifier for each object provided to merge"
       )
     }
-    # for (i in seq_along(along.with = add.cell.ids)) {
-    #   colnames(x = objects[[i]]) <- paste(
-    #     colnames(x = objects[[i]]),
-    #     add.cell.ids[[i]],
-    #     sep = '_'
-    #   )
-    # }
     for (i in 1:length(x = objects)) {
       objects[[i]] <- RenameCells(object = objects[[i]], add.cell.id = add.cell.ids[i])
     }
@@ -3431,10 +3493,6 @@ merge.Seurat <- function(
     simplify = FALSE,
     USE.NAMES = TRUE
   )
-  # TODO: Handle merging v3 and v5 assays
-  # if (any(sapply(X = assay.classes, FUN = length) != 1L)) {
-  #   stop("Cannot merge assays of different classes")
-  # }
   assays.all <- vector(mode = 'list', length = length(x = assays))
   names(x = assays.all) <- assays
   for (assay in assays) {
@@ -3453,7 +3511,7 @@ merge.Seurat <- function(
     assays.all[[assay]] <- merge(
       x = objects[[idx.x]][[assay]],
       y = lapply(X = objects[idx.y], FUN = '[[', assay),
-      labels = projects,
+      labels = projects[assay.objs],
       add.cell.ids = NULL,
       collapse = collapse,
       merge.data = merge.data
@@ -3635,6 +3693,8 @@ split.Seurat <- function(
 #' @param cells,j A vector of cell names or indices to keep
 #' @param features,i A vector of feature names or indices to keep
 #' @param idents A vector of identity classes to keep
+#' @param droplevels.meta.data logical, whether to drop unused factor levels from meta.data
+#' columns after subsetting.  Default is FALSE.
 #' @param ... Arguments passed to \code{\link{WhichCells}}
 #'
 #' @return \code{subset}: A subsetted \code{Seurat} object
@@ -3654,11 +3714,21 @@ split.Seurat <- function(
 #'
 #' @examples
 #' # `subset` examples
+#' # subset using expression threshold (and optionally specify the layer to use)
 #' subset(pbmc_small, subset = MS4A1 > 4)
-#' subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
-#' subset(pbmc_small, idents = '0', invert = TRUE)
 #' subset(pbmc_small, subset = MS4A1 > 3, slot = 'counts')
+#'
+#' # subset using expression threshold when "-" present in feature name
+#' subset(pbmc_small, subset = `DLGAP1-AS1` > 2)
+#'
+#' # subset using identity (invert keeps identities not specified)
+#' subset(pbmc_small, idents = '0', invert = TRUE)
+#'
+#' # subset retaining only specific set of features
 #' subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
+#'
+#' # subset and drop unused levels from meta.data columns after subset
+#' subset(pbmc_small, idents = '0', droplevels.meta.data = TRUE)
 #'
 subset.Seurat <- function(
   x,
@@ -3667,6 +3737,7 @@ subset.Seurat <- function(
   features = NULL,
   idents = NULL,
   return.null = FALSE,
+  droplevels.meta.data = FALSE,
   ...
 ) {
   # var.features <- VariableFeatures(object = x)
@@ -3733,7 +3804,9 @@ subset.Seurat <- function(
             classes = 'validationWarning'
           ),
           error = function(e) {
-            if (e$message == "Cannot find features provided") {
+            if (e$message %in% c("Cannot find features provided",
+                                 "None of the features provided found in this assay")
+            ) {
               return(NULL)
             } else {
               stop(e)
@@ -3747,9 +3820,11 @@ subset.Seurat <- function(
     f = Negate(f = is.null),
     x = slot(object = x, name = 'assays')
   )
-  if (length(x = .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 || is.null(x = x[[DefaultAssay(object = x)]])) {
+  if (length(x = .FilterObjects(object = x, classes.keep = c('Assay', 'StdAssay'))) == 0 ||
+      !DefaultAssay(object = x) %in% names(slot(object = x, name = 'assays'))) {
     abort(message = "Under current subsetting parameters, the default assay will be removed. Please adjust subsetting parameters or change default assay")
   }
+
   # Filter DimReduc objects
   for (dimreduc in .FilterObjects(object = x, classes.keep = 'DimReduc')) {
     suppressWarnings(
@@ -3795,6 +3870,12 @@ subset.Seurat <- function(
     }
     x[[image]] <- image.subset
   }
+
+  # drop unused levels in meta.data if desired
+  if (isTRUE(x = droplevels.meta.data)) {
+    x@meta.data <- droplevels(x = x@meta.data)
+  }
+
   return(x)
 }
 
@@ -4041,8 +4122,8 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
         }
       }
       # Check to ensure that we aren't adding duplicate names
-      if (any(colnames(x = meta.data) %in% FilterObjects(object = x))) {
-        bad.cols <- colnames(x = meta.data)[which(colnames(x = meta.data) %in% FilterObjects(object = x))]
+      if (any(colnames(x = meta.data) %in% .FilterObjects(object = x))) {
+        bad.cols <- colnames(x = meta.data)[which(colnames(x = meta.data) %in% .FilterObjects(object = x))]
         stop(
           paste0(
             "Cannot add a metadata column with the same name as an Assay or DimReduc - ",
@@ -4144,7 +4225,7 @@ setMethod( # because R doesn't allow S3-style [[<- for S4 classes
       }
       # When removing an Assay, clear out associated DimReducs, Graphs, and SeuratCommands
       if (is.null(x = value) && inherits(x = x[[i]], what = 'Assay')) {
-        objs.assay <- FilterObjects(
+        objs.assay <- .FilterObjects(
           object = x,
           classes.keep = c('DimReduc', 'SeuratCommand', 'Graph')
         )

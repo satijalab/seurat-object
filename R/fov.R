@@ -25,6 +25,11 @@ NULL
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}} and
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}} objects defining
 #' spatially-resolved boundaries
+#' @slot coords_x_orientation A character indicating which axis 
+#' \code{x} coordinates are associated with in spatial plots. 
+#' Currently only applies to Visium objects. Ensures consistency in 
+#' plotting spatial data across versions, as objects prior to the 
+#' addition of this slot had \code{x} coordinates mapped to the vertical axis.
 #' @slot assay A character naming the associated assay
 #' of the spatial coordinates
 #' @template slot-key
@@ -42,7 +47,11 @@ setClass(
   contains = 'SpatialImage',
   slots = list(
     molecules = 'list',
-    boundaries = 'list'
+    boundaries = 'list',
+    coords_x_orientation = 'character'
+  ),
+  prototype = list(
+    coords_x_orientation = character(0)
   )
 )
 
@@ -121,6 +130,7 @@ CreateFOV.Centroids <- function(
   molecules = NULL,
   assay = 'Spatial',
   key = NULL,
+  misc = NULL,
   name = NULL,
   ...
 ) {
@@ -131,7 +141,8 @@ CreateFOV.Centroids <- function(
     coords = coords,
     molecules = molecules,
     assay = assay,
-    key = key
+    key = key,
+    misc = misc %||% list()
   ))
 }
 
@@ -147,6 +158,7 @@ CreateFOV.Centroids <- function(
 #' \code{\link[SeuratObject:Centroids-class]{Centroids}}, or
 #' \code{\link[SeuratObject:Segmentation-class]{Segmentation}}, name
 #' to store coordinates as
+#' @param misc A list of miscellaneous information to store with the object
 #'
 #' @rdname CreateFOV
 #' @method CreateFOV data.frame
@@ -161,6 +173,7 @@ CreateFOV.data.frame <- function(
   molecules = NULL,
   assay = 'Spatial',
   key = NULL,
+  misc = NULL,
   name = NULL,
   ...
 ) {
@@ -180,7 +193,8 @@ CreateFOV.data.frame <- function(
     coords = coords,
     molecules = molecules,
     assay = assay,
-    key = key
+    key = key,
+    misc = misc %||% list()
   ))
 }
 
@@ -194,6 +208,7 @@ CreateFOV.list <- function(
   molecules = NULL,
   assay = 'Spatial',
   key = NULL,
+  misc = NULL,
   ...
 ) {
   # Create a list of Molecules objects if provided; otherwise use an empty list
@@ -207,7 +222,8 @@ CreateFOV.list <- function(
     boundaries = coords,
     molecules = molecules,
     assay = assay,
-    key = key %||% Key(object = assay, quiet = TRUE)
+    key = key %||% Key(object = assay, quiet = TRUE),
+    misc = misc %||% list()
   )
   return(obj)
 }
@@ -217,6 +233,54 @@ CreateFOV.list <- function(
 #' @export
 #'
 CreateFOV.Segmentation <- CreateFOV.Centroids
+
+#' Internal Cropping Function for VisiumV2
+#'
+#' @inheritParams Crop
+#' @param scale Argument for scaling passed to \code{\link{GetTissueCoordinates}} when \code{coords} is 'plot'
+#'
+#' @return Cropped object
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.CropVisiumV2 <- function(object, x = NULL, y = NULL, coords = c('plot', 'tissue'), ...) {
+  if (is.null(x = x) && is.null(x = y)) {
+    return(object)
+  }
+  
+  dots <- list(...)
+  scale <- dots$scale
+
+  coords <- match.arg(arg = coords)
+  if (coords == "plot" && is.null(x = scale)) {
+    stop("Must provide 'scale' argument when cropping by plot coordinates for VisiumV2 objects", call. = FALSE)
+  }
+  coords_df <- GetTissueCoordinates(object = object, scale = scale)
+
+  # Determine limits based on coordinate system (plot = scaled, tissue = unscaled)
+  xlim <- if (coords == 'plot') {
+    range(x %||% coords_df[['x']])
+  } else {
+    range(x %||% bbox(obj = object)['x', , drop = TRUE])
+  }
+  
+  ylim <- if (coords == 'plot') {
+    range(y %||% coords_df[['y']])
+  } else {
+    range(y %||% bbox(obj = object)['y', , drop = TRUE])
+  }
+
+  coords_crop <- subset(coords_df,
+                        x >= xlim[1L] & x <= xlim[2L] &
+                        y >= ylim[1L] & y <= ylim[2L])
+
+  object_crop <- subset(object, cells = unique(coords_crop$cell))
+  DefaultBoundary(object_crop) <- "centroids"
+
+  return(object_crop)
+}
 
 #' @rdname Crop
 #' @method Crop FOV
@@ -232,8 +296,13 @@ Crop.FOV <- function(
   if (is.null(x = x) && is.null(x = y)) {
     return(object)
   }
-  for (s in names(x = object)) {
-    object[[s]] <- Crop(object = object[[s]], x = x, y = y, coords = coords)
+  if (inherits(object, "VisiumV2")) {
+    # For VisiumV2, use custom cropping function
+    object <- .CropVisiumV2(object = object, x = x, y = y, coords = coords, ...)
+  } else {
+    for (s in names(x = object)) {
+      object[[s]] <- Crop(object = object[[s]], x = x, y = y, coords = coords)
+    }
   }
   return(object)
 }
@@ -424,14 +493,14 @@ FetchData.FOV <- function(
   return(data.fetched)
 }
 
-#' @param which Name of segmentation boundary or molecule set
+#' @param which Name of segmentation boundary or molecule set to retrieve coordinates for;
+#' if NULL, will retrieve coordinates for the default boundary
 #'
-#' @details \code{GetTissueCoordinates}: Get boundary or molecule
-#' coordinates from a \code{FOV} object
-#'
-#' @return \code{GetTissueCoordinates}: ...
-#'
-#' @rdname FOV-methods
+#' @examples
+#' \dontrun{
+#' GetTissueCoordinates(object, which = "centroids")
+#' }
+#' @rdname GetTissueCoordinates
 #' @method GetTissueCoordinates FOV
 #' @export
 #'
@@ -668,7 +737,7 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   for (i in Boundaries(object = x)) {
     x[[i]] <- subset(x = x[[i]], cells = cells)
   }
-  validObject(object = x)
+  safeValidityCheck(object = x)
   return(x)
 }
 
@@ -742,7 +811,7 @@ subset.FOV <- function(x, cells = NULL, features = NULL, ...) {
   # Reorder cells
   x <- .OrderCells(object = x)
   # Validate and return
-  validObject(object = x)
+  safeValidityCheck(object = x)
   return(x)
 }
 
@@ -845,7 +914,7 @@ setMethod(
     # Add incoming molecules
     slot(object = x, name = 'molecules')[[i]] <- value
     # Validate and return
-    validObject(object = x)
+    safeValidityCheck(object = x)
     return(x)
   }
 )
@@ -871,7 +940,7 @@ setMethod(
     } else {
       slot(object = x, name = 'boundaries')[[i]] <- NULL
     }
-    validObject(object = x)
+    safeValidityCheck(object = x)
     return(x)
   }
 )
@@ -907,7 +976,7 @@ setMethod(
   definition = function(.Object, ...) {
     .Object <- callNextMethod(.Object, ...)
     .Object <- .OrderCells(object = .Object)
-    validObject(object = .Object)
+    safeValidityCheck(object = .Object)
     return(.Object)
   }
 )

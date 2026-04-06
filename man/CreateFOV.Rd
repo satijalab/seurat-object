@@ -15,6 +15,7 @@ CreateFOV(coords, ...)
   molecules = NULL,
   assay = "Spatial",
   key = NULL,
+  misc = NULL,
   name = NULL,
   ...
 )
@@ -28,17 +29,26 @@ CreateFOV(coords, ...)
   molecules = NULL,
   assay = "Spatial",
   key = NULL,
+  misc = NULL,
   name = NULL,
   ...
 )
 
-\method{CreateFOV}{list}(coords, molecules = NULL, assay = "Spatial", key = NULL, ...)
+\method{CreateFOV}{list}(
+  coords,
+  molecules = NULL,
+  assay = "Spatial",
+  key = NULL,
+  misc = NULL,
+  ...
+)
 
 \method{CreateFOV}{Segmentation}(
   coords,
   molecules = NULL,
   assay = "Spatial",
   key = NULL,
+  misc = NULL,
   name = NULL,
   ...
 )
@@ -55,6 +65,8 @@ molecule information or a
 \item{assay}{Name of associated assay}
 
 \item{key}{Key for these spatial coordinates}
+
+\item{misc}{A list of miscellaneous information to store with the object}
 
 \item{name}{When \code{coords} is a \code{\link[base]{data.frame}},
 \code{\link[SeuratObject:Centroids-class]{Centroids}}, or

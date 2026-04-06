@@ -420,6 +420,33 @@ rlang::`%||%`
   return(subobjects)
 }
 
+#' Find dimreduc using default search
+#'
+#' @param dim.reducs reductions present
+#' @param drs.use reductions to check against those present
+#'
+#' @return default dimreduc or NULL if no match
+#'
+#' @keywords internal
+#'
+#' @export
+#'
+#' @concept utils
+#'
+#' @examples
+#' .FindDefaultDimReduc(pbmc_small)
+#'
+
+.FindDefaultDimReduc <- function(dim.reducs, drs.use) {
+  index <- lapply(X = drs.use, FUN = grep, x = dim.reducs, ignore.case = TRUE)
+  index <- Filter(f = length, x = index)
+  if (length(x = index)) {
+    return(dim.reducs[min(index[[1]])])
+  }
+  return(NULL)
+}
+
+
 #' Find A Subobject
 #'
 #' Determine the slot that a subobject is contained in
@@ -1018,6 +1045,14 @@ ClassKey <- function(class, package = NULL) {
 DefaultDimReduc <- function(object, assay = NULL) {
   object <- UpdateSlots(object = object)
   assay <- assay %||% DefaultAssay(object = object)
+
+  # check if stored defaults and if not use original behavior
+  defaults <- Tool(object, slot = "`DefaultDimReduc<-.Seurat`")
+  if (assay %in% names(x = defaults)) {
+    return(defaults[[assay]])
+  }
+
+  # search if default not set manually
   drs.use <- c('umap', 'tsne', 'pca')
   dim.reducs <- .FilterObjects(object = object, classes.keep = 'DimReduc')
   drs.assay <- Filter(
@@ -1026,34 +1061,71 @@ DefaultDimReduc <- function(object, assay = NULL) {
     },
     x = dim.reducs
   )
+
   if (length(x = drs.assay)) {
-    index <- lapply(
-      X = drs.use,
-      FUN = grep,
-      x = drs.assay,
-      ignore.case = TRUE
-    )
-    index <- Filter(f = length, x = index)
-    if (length(x = index)) {
-      return(drs.assay[min(index[[1]])])
-    }
+    default_reduc <- .FindDefaultDimReduc(dim.reducs = drs.assay, drs.use = drs.use)
+    return(default_reduc)
   }
-  index <- lapply(
-    X = drs.use,
-    FUN = grep,
-    x = dim.reducs,
-    ignore.case = TRUE
-  )
-  index <- Filter(f = length, x = index)
-  if (!length(x = index)) {
+
+  default_reduc <- .FindDefaultDimReduc(dim.reducs = dim.reducs, drs.use = drs.use)
+
+  if (is.null(x = default_reduc)) {
     abort(message = paste0(
       "Unable to find a DimReduc matching one of ",
       .Oxford(drs.use),
       "; please specify a dimensional reduction to use"
     ))
   }
-  return(dim.reducs[min(index[[1]])])
+  return(default_reduc)
 }
+
+#' @rdname DefaultDimReduc
+#' @export
+#' @method DefaultDimReduc<-  Seurat
+#'
+#' @concept utils
+#'
+#' @examples
+#' \dontrun{
+#' # Set UMAP as default for RNA assay
+#' DefaultDimReduc(seurat_obj) <- "umap"
+#'
+#' # Clear the set default
+#' DefaultDimReduc(seurat_obj) <- NULL
+#' }
+
+"DefaultDimReduc<-.Seurat" <- function(object, ..., value) {
+  assay <- DefaultAssay(object = object)
+  # Get existing defaults or create empty named vector
+  defaults <- Tool(object, slot = "`DefaultDimReduc<-.Seurat`") %||% character()
+
+  if (is.null(x = value)) {
+    # Clear default for current assay
+    new_defaults <- defaults[names(x = defaults) != assay]
+    message(paste0('Removing the set default DimReduc for "', assay, '" assay.'))
+  } else {
+    # Validate that the dim reduc exists
+    if (!value %in% Reductions(object = object)) {
+      stop(paste0("DimReduc ", value, " not present in object."))
+    }
+
+    # Check reduction is associated with current assay
+    reduc_assay <- DefaultAssay(object[[value]])
+    if (assay != reduc_assay) {
+      stop(paste0('The reduction "', value, '" is not associated with current assay "', assay, '". No change made to default DimReduc.'))
+    }
+
+    # Set default for current assay
+    message(paste0('Setting "', value, '" as default DimReduc for "', assay, '" assay.'))
+    new_defaults <- c(defaults[names(x = defaults) != assay], setNames(value, assay))
+  }
+
+  # Store back using Tool<-
+  Tool(object) <- new_defaults
+
+  return(object)
+}
+
 
 #' Radian/Degree Conversions
 #'
@@ -1339,8 +1411,6 @@ ListToS4 <- function(x) {
 #' \code{PackageCheck} was deprecated in version 5.0.0; please use
 #' \code{\link[rlang:check_installed]{rlang::check_installed}()} instead
 #'
-#' @examples
-#' PackageCheck("SeuratObject", error = FALSE)
 #'
 PackageCheck <- function(..., error = TRUE) {
   .Deprecate(
@@ -1521,6 +1591,32 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   }
   colnames(x = new.mat) <- make.unique(names = unlist(x = all.colnames))
   return(new.mat)
+}
+
+#' Improve S4 validity error messages
+#'
+#' Catch errors from validObject to allow for more informative error messages.
+#'
+#' (R's internal validation checking--including making sure the object has all slots in the class definition--
+#' occurs before the custom validity method for a class is run. Errors originating from an internal check may be
+#' confusing to users, hence they can be modified here to provide more helpful messages.)
+#'
+#' @keywords internal
+#' @noRd
+#'
+safeValidityCheck <- function(object) {
+  tryCatch(
+    expr = {
+      validObject(object = object)
+    },
+    error = function(e) {
+      if (grepl(pattern = "slots in class definition but not in object", x = e$message)) {
+        e <- simpleError(message = paste0("Consider running UpdateSeuratObject; ", conditionMessage(e)),
+                        call = conditionCall(e))
+      }
+      stop(e)
+    }
+  )
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1836,44 +1932,6 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
     paths <- paste(paths, collapse = ",")
   }
   return(paths)
-}
-
-#' @rdname dot-SelectFeatures
-#' @method .SelectFeatures list
-#' @export
-#'
-.SelectFeatures.list <- function(
-  object,
-  all.features = NULL,
-  nfeatures = Inf,
-  ...
-) {
-  if (length(x = object) == 1L) {
-    return(head(x = object[[1L]], n = nfeatures))
-  }
-  features <- unlist(x = object, use.names = FALSE)
-  features <- sort(x = table(features), decreasing = TRUE)
-  # Select only features present in all entries
-  if (!is.null(x = all.features)) {
-    present <- intersect(x = names(x = features), y = all.features)
-    if (!length(x = present)) {
-      abort(
-        message = "None of the features provided are present in the feature set"
-      )
-    }
-    features <- features[present]
-  }
-  tie.val <- features[min(nfeatures, length(x = features))]
-  # Select features
-  selected <- names(x = features[which(x = features > tie.val)])
-  if (length(x = features)) {
-    selected <- .FeatureRank(features = selected, flist = object)
-  }
-  tied <- .FeatureRank(
-    features = names(x = features[which(x = features == tie.val)]),
-    flist = object
-  )
-  return(head(x = c(selected, tied), n = nfeatures))
 }
 
 #' @rdname as.Centroids

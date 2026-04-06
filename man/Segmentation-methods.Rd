@@ -7,6 +7,8 @@
 \alias{RenameCells.Segmentation}
 \alias{lengths.Segmentation}
 \alias{subset.Segmentation}
+\alias{[[<-,Segmentation,character,missing,ANY-method}
+\alias{[[<-,Segmentation,character,missing,NULL-method}
 \alias{[,Segmentation,ANY,ANY,ANY-method}
 \alias{coordinates,Segmentation-method}
 \alias{show,Segmentation-method}
@@ -21,6 +23,10 @@
 \method{lengths}{Segmentation}(x, use.names = TRUE)
 
 \method{subset}{Segmentation}(x, cells = NULL, ...)
+
+\S4method{[[}{Segmentation,character,missing,ANY}(x, i, j, ...) <- value
+
+\S4method{[[}{Segmentation,character,missing,NULL}(x, i, j, ...) <- value
 
 \S4method{[}{Segmentation,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
 
@@ -44,6 +50,8 @@
 to all cells}
 
 \item{j, drop}{Ignored}
+
+\item{value}{The value to assign to the slot specified by \code{i} in the \code{Segmentation} object.}
 }
 \value{
 \code{Cells}: A vector of cell names
@@ -57,7 +65,8 @@ three columns:
 }
 If \code{full} is \code{TRUE}, then each coordinate will indicate a vertex
 for the cell polygon; otherwise, each coordinate will indicate a centroid
-for the cell. Note: \code{GetTissueCoordinates} ....
+for the cell. Note: to compute centroids for segmentations stored in compact mode,
+call \code{GetTissueCoordinates} on the associated \code{Centroids} object instead.
 
 \code{RenameCells}: \code{object} with the cells renamed to
 \code{new.names}
@@ -66,6 +75,14 @@ for the cell. Note: \code{GetTissueCoordinates} ....
 
 \code{subset}, \code{[}: \code{x} subsetted to the cells specified
 by \code{cells}/\code{i}
+
+\code{[[<-}: 
+\itemize{
+ \item If \code{value} is an \code{data.frame} object,
+ returns \code{x} with \code{value} stored in \code{sf.data};
+ requires that \code{i} is \dQuote{sf.data}.
+ \item If \code{value} is \code{NULL}, returns \code{x} with \code{sf.data} removed.
+}
 
 \code{show}: Invisibly returns \code{NULL}
 }
@@ -86,6 +103,8 @@ tissue coordinates
 \code{subset}, \code{[}: Subset a \code{Segmentation} object to
 certain cells
 
+\code{[[<-}: Attach or remove \code{sf}-derived data to/from a \code{Segmentation} object
+
 \code{show}: Display an object summary to stdout
 }
 \section{Progress Updates with \pkg{progressr}}{
@@ -100,7 +119,7 @@ To enable progress updates, wrap
 the function call in \code{\link[progressr]{with_progress}} or run
 \code{\link[progressr:handlers]{handlers(global = TRUE)}} before running
 this function. For more details about \pkg{progressr}, please read
-\href{https://progressr.futureverse.org/articles/progressr-intro.html}{\code{vignette("progressr-intro")}}
+\href{https://progressr.futureverse.org/articles/progressr-01-intro.html}{\code{vignette("progressr-intro")}}
 }
 
 \section{Parallelization with \pkg{future}}{
@@ -129,7 +148,8 @@ Segmentation layer classes:
 \code{\link{Centroids-methods}},
 \code{\link{Molecules-class}},
 \code{\link{Molecules-methods}},
-\code{\link{Segmentation-class}}
+\code{\link{Segmentation-class}},
+\code{\link{Segmentation-validity}}
 }
 \concept{future}
 \concept{segmentation}

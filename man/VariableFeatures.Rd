@@ -18,7 +18,9 @@
 \alias{VariableFeatures<-.Assay}
 \alias{HVFInfo.Assay5}
 \alias{VariableFeatures.Assay5}
-\alias{VariableFeatures<-.Assay5}
+\alias{SVFInfo.StdAssay}
+\alias{SVFInfo.Assay5}
+\alias{SpatiallyVariableFeatures.Assay5}
 \title{Highly Variable Features}
 \usage{
 HVFInfo(object, method, status = FALSE, ...)
@@ -93,19 +95,41 @@ SpatiallyVariableFeatures(object, method, ...)
 
 \method{VariableFeatures}{Assay}(object, ...) <- value
 
-\method{HVFInfo}{Assay5}(object, method = NULL, status = FALSE, layer = NULL, strip = TRUE, ...)
+\method{HVFInfo}{Assay5}(object, method = NULL, status = FALSE, layer = NA, strip = TRUE, ...)
 
 \method{VariableFeatures}{Assay5}(
   object,
   method = NULL,
   layer = NA,
   simplify = TRUE,
-  nfeatures = Inf,
+  nfeatures = NULL,
   selection.method = deprecated(),
   ...
 )
 
-\method{VariableFeatures}{Assay5}(object, method = "custom", layer = NULL, ...) <- value
+\method{SVFInfo}{StdAssay}(
+  object,
+  method = c("markvariogram", "moransi"),
+  status = FALSE,
+  selection.method = deprecated(),
+  ...
+)
+
+\method{SVFInfo}{Assay5}(
+  object,
+  method = c("markvariogram", "moransi"),
+  status = FALSE,
+  selection.method = deprecated(),
+  ...
+)
+
+\method{SpatiallyVariableFeatures}{Assay5}(
+  object,
+  method = "moransi",
+  decreasing = TRUE,
+  selection.method = deprecated(),
+  ...
+)
 }
 \arguments{
 \item{object}{An object}

@@ -5,9 +5,9 @@
 
 <!-- badges: start -->
 
-[![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://github.com/mojaveazure/seurat-object)
+[![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://github.com/satijalab/seurat-object)
 [![CRAN/METACRAN](https://img.shields.io/cran/v/SeuratObject)](https://cran.r-project.org/package=SeuratObject)
-[![dependencies](https://tinyverse.netlify.com/badge/SeuratObject)](https://cran.r-project.org/package=SeuratObject)
+[![dependencies](https://tinyverse.netlify.app/badge/SeuratObject)](https://cran.r-project.org/package=SeuratObject)
 [![Downloads](https://cranlogs.r-pkg.org/badges/SeuratObject?color=brightgreen)](https://cran.r-project.org/package=SeuratObject)
 <!-- badges: end -->
 
