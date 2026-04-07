@@ -427,8 +427,8 @@ rlang::`%||%`
 #' @return default dimreduc or NULL if no match
 #'
 #' @keywords internal
+#' @noRd
 #'
-#' @export
 #'
 #' @concept utils
 #'
