@@ -618,6 +618,8 @@ DefaultBoundary <- function(object) {
 
 #' Set Default Dimensionality Reduction
 #' Set the default dimensionality reduction for a specific assay in a Seurat object.
+#'
+#' @template param-dots-method
 #' @param object A Seurat object.
 #' @param value Character string specifying the name of the dimensionality reduction to set as default.
 #' Set to NULL to clear the default for the current assay.
@@ -630,7 +632,7 @@ DefaultBoundary <- function(object) {
 #' If none was explicitly set then default Seurat logic will be used to select default.
 #'
 #' @rdname DefaultDimReduc
-#' @export DefaultDimReduc<-
+#' @export
 #'
 "DefaultDimReduc<-" <- function(object, ..., value) {
   UseMethod(generic = 'DefaultDimReduc<-', object = object)
