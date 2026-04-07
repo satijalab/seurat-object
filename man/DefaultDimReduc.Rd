@@ -16,6 +16,8 @@ DefaultDimReduc(object, assay = NULL)
 \arguments{
 \item{object}{A \code{\link{Seurat}} object}
 
+\item{...}{Arguments passed to other methods}
+
 \item{value}{Character string specifying the name of the dimensionality reduction to set as default.
 Set to NULL to clear the default for the current assay.}
 
