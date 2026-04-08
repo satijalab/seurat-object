@@ -551,7 +551,7 @@ CreateSeuratObject <- function(
 #'   \code{\link{GetTissueCoordinates}}
 #' }
 #' @param ... Arguments passed to other methods.
-#' Provide \code{scale} when cropping VisiumV2 objects with \code{coords = "plot"}
+#' For VisiumV2 objects with \code{coords = "plot"}, provide \code{scale} (default "lowres")
 #'
 #' @return \code{object} cropped to the region specified by \code{x}
 #' and \code{y}

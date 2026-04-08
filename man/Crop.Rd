@@ -23,7 +23,7 @@ Crop(object, x = NULL, y = NULL, coords = c("plot", "tissue"), ...)
 }}
 
 \item{...}{Arguments passed to other methods.
-Provide \code{scale} when cropping VisiumV2 objects with \code{coords = "plot"}}
+For VisiumV2 objects with \code{coords = "plot"}, provide \code{scale} (default "lowres")}
 }
 \value{
 \code{object} cropped to the region specified by \code{x}

@@ -254,7 +254,7 @@ CreateFOV.Segmentation <- CreateFOV.Centroids
 
   coords <- match.arg(arg = coords)
   if (coords == "plot" && is.null(x = scale)) {
-    warning("scale argument not provided; using default value \"lowres\"", 
+    warning("No scale provided for plot coordinates; using default value \"lowres\"", 
             call. = FALSE, 
             immediate. = TRUE)
     scale <- "lowres"
