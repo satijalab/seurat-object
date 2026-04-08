@@ -237,7 +237,6 @@ CreateFOV.Segmentation <- CreateFOV.Centroids
 #' Internal Cropping Function for VisiumV2
 #'
 #' @inheritParams Crop
-#' @param scale Argument for scaling passed to \code{\link{GetTissueCoordinates}} when \code{coords} is 'plot'
 #'
 #' @return Cropped object
 #'
@@ -255,7 +254,10 @@ CreateFOV.Segmentation <- CreateFOV.Centroids
 
   coords <- match.arg(arg = coords)
   if (coords == "plot" && is.null(x = scale)) {
-    stop("Must provide 'scale' argument when cropping by plot coordinates for VisiumV2 objects", call. = FALSE)
+    warning("scale argument not provided; using default value \"lowres\"", 
+            call. = FALSE, 
+            immediate. = TRUE)
+    scale <- "lowres"
   }
   coords_df <- GetTissueCoordinates(object = object, scale = scale)
 
