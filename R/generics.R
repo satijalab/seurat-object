@@ -541,7 +541,6 @@ CreateSeuratObject <- function(
 
 #' Crop Coordinates
 #'
-#' @template param-dots-method
 #' @param object An object
 #' @param x,y Range to crop x/y limits to; if \code{NULL}, uses full range of
 #' \code{x}/\code{y}
@@ -551,6 +550,8 @@ CreateSeuratObject <- function(
 #'  \item \dQuote{\code{tissue}}: Coordinates from
 #'   \code{\link{GetTissueCoordinates}}
 #' }
+#' @param ... Arguments passed to other methods.
+#' Provide \code{scale} when cropping VisiumV2 objects with \code{coords = "plot"}
 #'
 #' @return \code{object} cropped to the region specified by \code{x}
 #' and \code{y}
