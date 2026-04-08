@@ -22,7 +22,8 @@ Crop(object, x = NULL, y = NULL, coords = c("plot", "tissue"), ...)
   \code{\link{GetTissueCoordinates}}
 }}
 
-\item{...}{Arguments passed to other methods}
+\item{...}{Arguments passed to other methods.
+For VisiumV2 objects with \code{coords = "plot"}, provide \code{scale} (default "lowres")}
 }
 \value{
 \code{object} cropped to the region specified by \code{x}
