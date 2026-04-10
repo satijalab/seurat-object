@@ -1,9 +1,15 @@
-# Unreleased
+# SeuratObject 5.4.0
 
 ## Changes:
-- Add `drop = FALSE` in `LayerData<-.StdAssay` to preserve dimensions when setting layer to the requested cells (#269)
-- Fix bug relating to error message handling in `subset.Seurat` (#265)
-- Fix call to defunct method `FilterObjects` in `[[<-` (#275)
+- Add setter method `DefaultDimReduc<-` to enable users to specify a default dimensional reduction for object interaction and visualization ([#268](https://github.com/satijalab/seurat-object/pull/268))
+- Add option to specify `assay` in `FetchData.Seurat` ([#278](https://github.com/satijalab/seurat-object/pull/278))
+- Update ability to create cropped FOVs from Visium V2 images via new internal method `.CropVisiumV2` ([#279](https://github.com/satijalab/seurat-object/pull/279), [#289](https://github.com/satijalab/seurat-object/pull/289))
+- Update documentation for `[` to specify that ordering of cells/features is not always preserved ([#280](https://github.com/satijalab/seurat-object/pull/280))
+- Specify `drop = FALSE` in `LayerData<-.StdAssay` to preserve dimensions when setting layer to the requested cells ([#269](https://github.com/satijalab/seurat-object/pull/269))
+- Add parameter `droplevels.meta.data` to `subset.Seurat` to allow users to drop unused factor levels in object-level metadata when subsetting ([#286](https://github.com/satijalab/seurat-object/pull/286))
+- Fix bug in selecting the requested assay when retrieving HVF information for an object ([#284](https://github.com/satijalab/seurat-object/pull/284))
+- Fix bug relating to error message handling in `subset.Seurat` ([#265](https://github.com/satijalab/seurat-object/pull/265))
+- Fix call to defunct method `FilterObjects` in `[[<-` ([#275](https://github.com/satijalab/seurat-object/pull/275))
 
 # SeuratObject 5.3.0
 
