@@ -1163,7 +1163,7 @@ UpdateSeuratObject <- function(object) {
         classes = 'validationWarning'
       )
     }
-    slot(object = object, name = 'version') <- packageVersion(pkg = 'SeuratObject')
+    slot(object = object, name = 'version') <- .PkgEnv$SeuratObjectVersion
     options(op)
     validObject(object = object, complete = TRUE)
     for (i in names(x = object)) {
@@ -1383,7 +1383,7 @@ CreateSeuratObject.Assay <- function(
     images = list(),
     project.name = project,
     misc = list(),
-    version = packageVersion(pkg = 'SeuratObject'),
+    version = .PkgEnv$SeuratObjectVersion,
     commands = list(),
     tools = list()
   ))
@@ -5344,7 +5344,7 @@ setMethod(
       default = Seurat.options$Seurat.object.project
     ),
     misc = list(),
-    version = packageVersion(pkg = 'SeuratObject'),
+    version = .PkgEnv$SeuratObjectVersion,
     commands = list(),
     tools = list(),
     ...
