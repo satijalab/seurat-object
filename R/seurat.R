@@ -2033,9 +2033,9 @@ HVFInfo.Seurat <- function(
       abort(message = "Please run either 'FindVariableFeatures' or 'SCTransform'")
     }
     # Prefer an assay-matched FindVariableFeatures command when it exists
-    # This avoids later SCTransform commands accidently being used 
+    # This avoids later SCTransform commands accidently being used
     preferred.command <- paste("FindVariableFeatures", assay, sep = ".")
-    
+
     # If assay has its own FindVariableFeatures entry, use it
     if (preferred.command %in% find.command) {
       find.command <- preferred.command
@@ -2866,12 +2866,44 @@ WhichCells.Seurat <- function(
       }
     )
     key.pattern <- paste0('^', object.keys, collapse = '|')
+    raw_expr <- substitute(expression)
+
+    expr_string <- paste(deparse(raw_expr), collapse = " ")
+    expr_string <- gsub("`([^`]+)`", "\\1", expr_string)
+    vars_available <- c(
+      rownames(x = object),
+      colnames(x = object[[]])
+    )
+
+    dash_vars <- vars_available[grepl("-", vars_available)]
+    dash_vars <- dash_vars[order(nchar(dash_vars), decreasing = TRUE)]
+
+    escape_regex <- function(x) {
+      gsub("([][{}()+*^$|\\\\?.])", "\\\\\\1", x)
+    }
+
+    for (v in dash_vars) {
+      pieces <- strsplit(v, "-", fixed = TRUE)[[1]]
+      pattern <- paste(escape_regex(pieces), collapse = "\\s*-\\s*")
+
+      expr_string <- gsub(
+        pattern = pattern,
+        replacement = paste0("`", v, "`"),
+        x = expr_string,
+        perl = TRUE
+      )
+    }
+
     expr <- if (tryCatch(expr = is_quosure(x = expression), error = function(...) FALSE)) {
       expression
-    } else if (is.call(x = enquo(arg = expression))) {
-      enquo(arg = expression)
-    } else {
+    } else if (is.call(x = raw_expr)) {
+      rlang::parse_expr(expr_string)
+    } else if (is.language(x = expression)) {
+      expression
+    } else if (is.character(x = expression)) {
       parse(text = expression)
+    } else {
+      parse(text = deparse(expression))
     }
     expr.char <- all.vars(expr)
     vars.use <- which(
@@ -2995,10 +3027,10 @@ Version.Seurat <- function(object, ...) {
 }
 
 #' @section Note:
-#' 
+#'
 #' Subsetting with `[` does not guarantee preservation of the specified
 #' cell or feature ordering.
-#' 
+#'
 #' @return \code{[}: object \code{x} with features \code{i} and cells \code{j}
 #'
 #' @rdname subset.Seurat
