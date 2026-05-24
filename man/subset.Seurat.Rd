@@ -11,10 +11,10 @@
   subset,
   cells = NULL,
   features = NULL,
-  assay = NULL,
   idents = NULL,
   return.null = FALSE,
   droplevels.meta.data = FALSE,
+  assay = NULL,
   ...
 )
 
@@ -29,12 +29,6 @@
 
 \item{features, i}{A vector of feature names or indices to keep}
 
-\item{assay}{Name of the assay used as the default when resolving
-expression filters (\code{subset = ...}) and feature names. Defaults to
-\code{DefaultAssay(x)}. The returned object's default assay is set to this
-value. Other assays are still subset to the same cells; if \code{features}
-is provided, it is applied to every assay.}
-
 \item{idents}{A vector of identity classes to keep}
 
 \item{return.null}{If no cells are requested, return a \code{NULL};
@@ -42,6 +36,12 @@ by default, throws an error}
 
 \item{droplevels.meta.data}{logical, whether to drop unused factor levels from meta.data
 columns after subsetting.  Default is FALSE.}
+
+\item{assay}{Name of the assay used as the default when resolving
+expression filters (\code{subset = ...}) and feature names. Defaults to
+\code{DefaultAssay(x)}. The returned object's default assay is set to this
+value. Other assays are still subset to the same cells; if \code{features}
+is provided, it is applied to every assay.}
 
 \item{...}{Arguments passed to \code{\link{WhichCells}}}
 }

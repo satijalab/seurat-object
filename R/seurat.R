@@ -3703,14 +3703,14 @@ split.Seurat <- function(
 #' @param subset Logical expression indicating features/variables to keep
 #' @param cells,j A vector of cell names or indices to keep
 #' @param features,i A vector of feature names or indices to keep
+#' @param idents A vector of identity classes to keep
+#' @param droplevels.meta.data logical, whether to drop unused factor levels from meta.data
+#' columns after subsetting.  Default is FALSE.
 #' @param assay Name of the assay used as the default when resolving
 #' expression filters (\code{subset = ...}) and feature names. Defaults to
 #' \code{DefaultAssay(x)}. The returned object's default assay is set to this
 #' value. Other assays are still subset to the same cells; if \code{features}
 #' is provided, it is applied to every assay.
-#' @param idents A vector of identity classes to keep
-#' @param droplevels.meta.data logical, whether to drop unused factor levels from meta.data
-#' columns after subsetting.  Default is FALSE.
 #' @param ... Arguments passed to \code{\link{WhichCells}}
 #'
 #' @return \code{subset}: A subsetted \code{Seurat} object
@@ -3754,15 +3754,15 @@ subset.Seurat <- function(
   subset,
   cells = NULL,
   features = NULL,
-  assay = NULL,
   idents = NULL,
   return.null = FALSE,
   droplevels.meta.data = FALSE,
+  assay = NULL,
   ...
 ) {
-  assay <- assay %||% DefaultAssay(object = x)
-  assay <- arg_match(arg = assay, values = Assays(object = x))
-  DefaultAssay(object = x) <- assay
+  assay.use <- assay %||% DefaultAssay(object = x)
+  assay.use <- arg_match(arg = assay.use, values = Assays(object = x))
+  DefaultAssay(object = x) <- assay.use
   # var.features <- VariableFeatures(object = x)
   if (!missing(x = subset)) {
     subset <- enquo(arg = subset)
@@ -3806,21 +3806,21 @@ subset.Seurat <- function(
   }
   Idents(object = x, drop = TRUE) <- Idents(object = x)[cells]
   # Filter Assay objects
-  for (assay in Assays(object = x)) {
-    if (length(x = intersect(colnames(x = x[[assay]]), cells)) == 0) {
-      message(assay, " assay doesn't leave any cells, so it is removed")
-      if (DefaultAssay(x) == assay) {
+  for (assay.name in Assays(object = x)) {
+    if (length(x = intersect(colnames(x = x[[assay.name]]), cells)) == 0) {
+      message(assay.name, " assay doesn't leave any cells, so it is removed")
+      if (DefaultAssay(x) == assay.name) {
         stop('No cells left in the default assay, please change the default assay')
       }
-      slot(object = x, name = 'assays')[[assay]] <- NULL
+      slot(object = x, name = 'assays')[[assay.name]] <- NULL
     } else {
-      assay.features <- features %||% rownames(x = x[[assay]])
+      assay.features <- features %||% rownames(x = x[[assay.name]])
       suppressWarnings(
-        expr = slot(object = x, name = 'assays')[[assay]] <- tryCatch(
+        expr = slot(object = x, name = 'assays')[[assay.name]] <- tryCatch(
           # because subset is also an argument, we need to explictly use the base::subset function
           expr = suppressWarnings(
             expr = base::subset(
-              x = x[[assay]],
+              x = x[[assay.name]],
               cells = cells,
               features = assay.features
             ),
@@ -3865,10 +3865,10 @@ subset.Seurat <- function(
   }
   # Recalculate nCount and nFeature
   if (!is.null(features)) {
-    for (assay in .FilterObjects(object = x, classes.keep = 'Assay')) {
-      n.calc <- CalcN(object = x[[assay]])
+    for (assay.name in .FilterObjects(object = x, classes.keep = 'Assay')) {
+      n.calc <- CalcN(object = x[[assay.name]])
       if (!is.null(x = n.calc)) {
-        names(x = n.calc) <- paste(names(x = n.calc), assay, sep = '_')
+        names(x = n.calc) <- paste(names(x = n.calc), assay.name, sep = '_')
         suppressWarnings(
           expr = x[[names(x = n.calc)]] <- n.calc,
           classes = 'validationWarning'
