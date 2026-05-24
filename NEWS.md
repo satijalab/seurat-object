@@ -1,7 +1,7 @@
 # Unreleased
 
 ## Changes:
-- Add `assay` parameter to `subset.Seurat` to specify the default assay for expression filters
+- Add `assay` parameter to `subset.Seurat` to specify the default assay for expression filters ([#292](https://github.com/satijalab/seurat-object/pull/292))
 
 # SeuratObject 5.4.0
 
