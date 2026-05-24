@@ -375,6 +375,59 @@ test_that("Top works", {
   expect_equal(length(tpc1.sub[[2]]), 39)
 })
 
+# Tests for subset.Seurat assay argument
+# ----------------------------------------------------------------------------
+context("subset")
+
+test_that("subset with assay does not change the caller's DefaultAssay", {
+  orig <- DefaultAssay(pbmc_small)
+  genes <- head(rownames(pbmc_small[["RNA"]]), 10)
+  subset(pbmc_small, features = genes, assay = "RNA")
+  expect_equal(DefaultAssay(pbmc_small), orig)
+})
+
+test_that("subset with assay sets DefaultAssay on the returned object", {
+  obj <- pbmc_small
+  suppressWarnings(obj[["RNA_hi"]] <- obj[["RNA"]])
+  Key(obj[["RNA_hi"]]) <- "rnahi_"
+  DefaultAssay(object = obj) <- "RNA_hi"
+  out <- subset(obj, subset = LYZ > 1, assay = "RNA")
+  expect_equal(DefaultAssay(out), "RNA")
+})
+
+test_that("subset errors on invalid assay name", {
+  expect_error(
+    subset(pbmc_small, features = rownames(pbmc_small)[1:5], assay = "NOTANASSAY")
+  )
+})
+
+test_that("subset with assay filters expression by the specified assay", {
+  obj <- pbmc_small
+  suppressWarnings(obj[["RNA_hi"]] <- obj[["RNA"]])
+  Key(obj[["RNA_hi"]]) <- "rnahi_"
+  gene <- "LYZ"
+  rna.data <- as.matrix(GetAssayData(object = obj, assay = "RNA", layer = "data"))
+  hi.data <- rna.data
+  hi.data[gene, ] <- rna.data[gene, ] + 3
+  LayerData(object = obj, assay = "RNA_hi", layer = "data") <- hi.data
+
+  x <- 4.5
+  cells.rna <- colnames(x = obj)[rna.data[gene, ] > x]
+  cells.hi <- colnames(x = obj)[hi.data[gene, ] > x]
+  expect_false(setequal(cells.rna, cells.hi))
+
+  DefaultAssay(object = obj) <- "RNA_hi"
+  expect_false(setequal(cells.rna, WhichCells(object = obj, expression = LYZ > x)))
+
+  obj.rna <- subset(obj, subset = LYZ > x, assay = "RNA")
+  obj.hi <- subset(obj, subset = LYZ > x, assay = "RNA_hi")
+
+  expect_equal(Cells(obj.rna), cells.rna)
+  expect_equal(Cells(obj.hi), cells.hi)
+  expect_true(all(GetAssayData(obj.rna, assay = "RNA", layer = "data")[gene, ] > x))
+  expect_true(all(GetAssayData(obj.hi, assay = "RNA_hi", layer = "data")[gene, ] > x))
+})
+
 # Tests for UpdateSeuratObject
 # ----------------------------------------------------------------------------
 context("UpdateSeuratObject")
