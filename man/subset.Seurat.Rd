@@ -11,6 +11,7 @@
   subset,
   cells = NULL,
   features = NULL,
+  assay = NULL,
   idents = NULL,
   return.null = FALSE,
   droplevels.meta.data = FALSE,
@@ -27,6 +28,12 @@
 \item{cells, j}{A vector of cell names or indices to keep}
 
 \item{features, i}{A vector of feature names or indices to keep}
+
+\item{assay}{Name of the assay used as the default when resolving
+expression filters (\code{subset = ...}) and feature names. Defaults to
+\code{DefaultAssay(x)}. The returned object's default assay is set to this
+value. Other assays are still subset to the same cells; if \code{features}
+is provided, it is applied to every assay.}
 
 \item{idents}{A vector of identity classes to keep}
 
@@ -67,6 +74,9 @@ subset(pbmc_small, idents = '0', invert = TRUE)
 
 # subset retaining only specific set of features
 subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
+
+# evaluate an expression filter against a specific assay
+subset(pbmc_small, subset = LYZ > 1, assay = "RNA")
 
 # subset and drop unused levels from meta.data columns after subset
 subset(pbmc_small, idents = '0', droplevels.meta.data = TRUE)

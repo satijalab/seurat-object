@@ -3703,6 +3703,11 @@ split.Seurat <- function(
 #' @param subset Logical expression indicating features/variables to keep
 #' @param cells,j A vector of cell names or indices to keep
 #' @param features,i A vector of feature names or indices to keep
+#' @param assay Name of the assay used as the default when resolving
+#' expression filters (\code{subset = ...}) and feature names. Defaults to
+#' \code{DefaultAssay(x)}. The returned object's default assay is set to this
+#' value. Other assays are still subset to the same cells; if \code{features}
+#' is provided, it is applied to every assay.
 #' @param idents A vector of identity classes to keep
 #' @param droplevels.meta.data logical, whether to drop unused factor levels from meta.data
 #' columns after subsetting.  Default is FALSE.
@@ -3738,6 +3743,9 @@ split.Seurat <- function(
 #' # subset retaining only specific set of features
 #' subset(pbmc_small, features = VariableFeatures(object = pbmc_small))
 #'
+#' # evaluate an expression filter against a specific assay
+#' subset(pbmc_small, subset = LYZ > 1, assay = "RNA")
+#'
 #' # subset and drop unused levels from meta.data columns after subset
 #' subset(pbmc_small, idents = '0', droplevels.meta.data = TRUE)
 #'
@@ -3746,11 +3754,15 @@ subset.Seurat <- function(
   subset,
   cells = NULL,
   features = NULL,
+  assay = NULL,
   idents = NULL,
   return.null = FALSE,
   droplevels.meta.data = FALSE,
   ...
 ) {
+  assay <- assay %||% DefaultAssay(object = x)
+  assay <- arg_match(arg = assay, values = Assays(object = x))
+  DefaultAssay(object = x) <- assay
   # var.features <- VariableFeatures(object = x)
   if (!missing(x = subset)) {
     subset <- enquo(arg = subset)
