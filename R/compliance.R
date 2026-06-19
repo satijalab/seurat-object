@@ -25,9 +25,9 @@
 
 .GetSeuratCompat <- local(
   envir = environment(fun = .SetSeuratCompat),
-  function() {
-    if (is.null(x = seurat.version) && isNamespaceLoaded(name = 'Seurat')) {
-      .SetSeuratCompat()
+  function(pkgname = 'Seurat') {
+    if (is.null(x = seurat.version) && isNamespaceLoaded(name = pkgname)) {
+      .SetSeuratCompat(pkgname = pkgname)
     }
     return(seurat.version %||% '5.0.0')
   }
