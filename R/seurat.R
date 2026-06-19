@@ -770,10 +770,20 @@ SaveSeuratRds <- function(
           class = 'sticky',
           amount = 0
         )
-        df[i, 'path'] <- as.character(x = .FileMove(
-          path = pth,
-          new_path = destdir
-        ))
+        pths <- unlist(x = strsplit(x = pth, split = ","), use.names = FALSE)
+        pths <- vapply(
+          X = pths,
+          FUN = function(path) {
+            path_moved <- as.character(x = .FileMove(
+                          path = path,
+                          new_path = destdir
+                        ))
+            return(path_moved)
+          },
+          FUN.VALUE = character(length = 1L),
+          USE.NAMES = FALSE
+        )
+        df[i, 'path'] <- paste(pths, collapse = ",")
       }
     }
     if (isTRUE(x = relative)) {
