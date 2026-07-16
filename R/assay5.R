@@ -1209,11 +1209,28 @@ LayerData.StdAssay <- function(
   if(length(x = dnames[[1L]]) == 0) {
     stop('features are not found')
   }
-  # Pull the layer data
+  # Pull the layer data. `features`/`cells` are sorted integer positions into
+  # the layer's native feature/cell ordering; when they select the entire layer
+  # in that same order the subset is a no-op, so skip the (potentially
+  # expensive) sparse-matrix subscript and return the stored matrix directly.
+  lmat <- methods::slot(object = object, name = 'layers')[[layer]]
+  ldim <- dim(x = lmat)
   ldat <- if (.MARGIN(x = object) == 1L) {
-    methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
+    # Standard orientation: features are rows, cells are columns
+    if (.IsIdentityIndex(i = features, n = ldim[1L]) &&
+        .IsIdentityIndex(i = cells, n = ldim[2L])) {
+      lmat
+    } else {
+      lmat[features, cells, drop = FALSE]
+    }
   } else {
-    methods::slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
+    # Transposed orientation: cells are rows, features are columns
+    if (.IsIdentityIndex(i = cells, n = ldim[1L]) &&
+        .IsIdentityIndex(i = features, n = ldim[2L])) {
+      lmat
+    } else {
+      lmat[cells, features, drop = FALSE]
+    }
   }
   # Add dimnames and transpose if requested
   ldat <- if (isTRUE(x = fast)) {

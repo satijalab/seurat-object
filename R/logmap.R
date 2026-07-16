@@ -139,17 +139,17 @@ as.matrix.LogMap <- function(x, ...) {
 #' map[[]]
 #'
 droplevels.LogMap <- function(x, ...) {
-  fidx <- which(x = apply(
-    X = x,
-    MARGIN = 1L,
-    FUN = function(row) {
-      return(all(vapply(
-        X = row,
-        FUN = isFALSE,
-        FUN.VALUE = logical(length = 1L)
-      )))
-    }
-  ))
+  # A LogMap is a logical matrix; the original all-FALSE test (every element
+  # isFALSE) keeps any row containing a TRUE or an NA. This is equivalent to
+  # dropping rows whose row sum is exactly zero: a TRUE gives a positive sum,
+  # while an NA gives an NA sum (NA == 0 is NA, so which() excludes it and the
+  # row is kept). This vectorized row-sum replaces a slow row-wise apply/vapply.
+  fidx <- which(x = .rowSums(
+    x = x,
+    m = nrow(x = x),
+    n = ncol(x = x),
+    na.rm = FALSE
+  ) == 0)
   if (length(x = fidx)) {
     x <- as(object = x[-fidx, , drop = FALSE], Class = 'LogMap')
   }

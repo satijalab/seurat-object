@@ -1592,6 +1592,26 @@ RowMergeSparseMatrices <- function(mat1, mat2) {
   return(new.mat)
 }
 
+# Test whether an integer index vector selects every position 1:n in order
+# (i.e. subsetting with it would be a no-op). Returns FALSE for anything that
+# isn't exactly the identity permutation, including vectors containing NA.
+#
+# @param i An integer index vector
+# @param n The length of the dimension being indexed
+#
+# @return TRUE if \code{i} is identical to \code{seq_len(n)}, otherwise FALSE
+#
+# @keywords internal
+# @noRd
+#
+.IsIdentityIndex <- function(i, n) {
+  return(isTRUE(x = n > 0L &&
+    length(x = i) == n &&
+    i[[1L]] == 1L &&
+    i[[n]] == n &&
+    !is.unsorted(x = i, strictly = TRUE)))
+}
+
 #' Improve S4 validity error messages
 #'
 #' Catch errors from validObject to allow for more informative error messages.
