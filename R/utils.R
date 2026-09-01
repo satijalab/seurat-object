@@ -2278,6 +2278,41 @@ StitchMatrix.IterableMatrix <- function(x, y,  rowmap, colmap, ...) {
 }
 
 
+#' @method StitchMatrix DelayedMatrix
+#' @export
+#'
+StitchMatrix.DelayedMatrix <- function(x, y, rowmap, colmap, ...) {
+  on.exit(expr = CheckGC())
+  if (!is_bare_list(x = y)) {
+    y <- list(y)
+  }
+  rowmap <- droplevels(x = rowmap)
+  colmap <- droplevels(x = colmap)
+  stopifnot(ncol(rowmap) == length(y) + 1L)
+  stopifnot(ncol(colmap) == length(y) + 1L)
+  stopifnot(identical(x = colnames(x = rowmap), y = colnames(x = colmap)))
+  y <- c(list(x), y)
+  for (i in seq_along(along.with = y)) {
+    #expand matrix to the same size
+    missing_row <- setdiff(x = rownames(x = rowmap), y = rowmap[[i]])
+    if (length(x = missing_row) > 0) {
+      zero_i <- SparseEmptyMatrix(
+        nrow = length(x = missing_row),
+        ncol = ncol(x = y[[i]]),
+        colnames = colmap[[i]],
+        rownames = missing_row
+      )
+      zero_i <- DelayedArray::DelayedArray(seed = as(object = zero_i, Class = 'dgCMatrix'))
+      # DelayedArray's explicit array binders; bare rbind/cbind would resolve to
+      # base/S4Vectors dispatch (bindCOLS) unless BiocGenerics is attached
+      y[[i]] <- DelayedArray::arbind(y[[i]], zero_i)[rownames(rowmap), ]
+    }
+  }
+  m <- do.call(what = DelayedArray::acbind, args = y)
+  return(m)
+}
+
+
 #' @method StitchMatrix matrix
 #' @export
 #'
@@ -2362,6 +2397,33 @@ t.spam <- spam::t
   }
   return(franks)
 }
+#' Move Every Store a Layer Points At
+#'
+#' A layer joined from several on-disk matrices records their paths as one
+#' comma-separated entry, so moving it means moving each of them
+#'
+#' @param path A cached path entry, possibly comma-separated
+#' @param new_path Directory to move into
+#'
+#' @return The entry with every component replaced by its new location
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.FileMoveAll <- function(path, new_path) {
+  parts <- unlist(x = strsplit(x = path, split = ','))
+  moved <- vapply(
+    X = parts,
+    FUN = function(x) {
+      return(as.character(x = .FileMove(path = x, new_path = new_path)))
+    },
+    FUN.VALUE = character(length = 1L),
+    USE.NAMES = FALSE
+  )
+  return(paste(moved, collapse = ','))
+}
+
 
 #' Move Files and Directories
 #'
@@ -2506,6 +2568,57 @@ t.spam <- spam::t
   # Remove excluded classes
   classes <- setdiff(x = classes, y = exclude)
   return(classes)
+}
+
+#' Resolve Cached On-Disk Layer Paths
+#'
+#' Locate the on-disk store recorded for a layer by
+#' \code{\link{SaveSeuratRds}}. The recorded path is tried as-is first, so
+#' objects that have not moved keep loading exactly as before. When it no longer
+#' resolves, the path is retried relative to the directory holding the rds file,
+#' then by name within that directory. Together these recover the two ways a
+#' saved object stops finding its layers: a relative path loaded from a
+#' different working directory, and an absolute path whose store was moved
+#' alongside the rds
+#'
+#' @param path A single cached path entry; multiple paths for one layer are
+#' comma-separated
+#' @param dir Directory containing the rds file, or \code{NULL} when unknown
+#'
+#' @return \code{path} with every component that could be resolved replaced by
+#' the resolved location; unresolvable components are returned unchanged
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.ResolveLayerPaths <- function(path, dir = NULL) {
+  if (is.na(x = path) || !nzchar(x = path)) {
+    return(path)
+  }
+  paths <- unlist(x = strsplit(x = path, split = ','))
+  resolved <- vapply(
+    X = paths,
+    FUN = function(p) {
+      candidates <- p
+      if (!is.null(x = dir)) {
+        candidates <- c(
+          candidates,
+          file.path(dir, p),
+          file.path(dir, basename(path = p))
+        )
+      }
+      for (candidate in candidates) {
+        if (fs::is_file(path = candidate) || fs::dir_exists(path = candidate)) {
+          return(candidate)
+        }
+      }
+      return(p)
+    },
+    FUN.VALUE = character(length = 1L),
+    USE.NAMES = FALSE
+  )
+  return(paste(resolved, collapse = ','))
 }
 
 #' Get English Vowels

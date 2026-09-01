@@ -1209,11 +1209,22 @@ LayerData.StdAssay <- function(
   if(length(x = dnames[[1L]]) == 0) {
     stop('features are not found')
   }
-  # Pull the layer data
-  ldat <- if (.MARGIN(x = object) == 1L) {
-    methods::slot(object = object, name = 'layers')[[layer]][features, cells, drop = FALSE]
+  # Pull the layer data. Subsetting copies the whole matrix, and that copy
+  # dominates the cost of fetching a layer: for the common case of asking for a
+  # layer whole, `features` and `cells` already index every row and column in
+  # order, so there is nothing to subset
+  lmat <- methods::slot(object = object, name = 'layers')[[layer]]
+  ldims <- dim(x = lmat)
+  index <- if (.MARGIN(x = object) == 1L) {
+    list(features, cells)
   } else {
-    methods::slot(object = object, name = 'layers')[[layer]][cells, features, drop = FALSE]
+    list(cells, features)
+  }
+  ldat <- if (identical(x = index[[1L]], y = seq_len(length.out = ldims[1L])) &&
+              identical(x = index[[2L]], y = seq_len(length.out = ldims[2L]))) {
+    lmat
+  } else {
+    lmat[index[[1L]], index[[2L]], drop = FALSE]
   }
   # Add dimnames and transpose if requested
   ldat <- if (isTRUE(x = fast)) {

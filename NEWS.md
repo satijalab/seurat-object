@@ -1,7 +1,12 @@
 # Unreleased
 
 ## Changes:
+- Fix `JoinLayers` failing with `Error: vector::reserve` when the combined layers hold more than 2^31 non-zero values: the per-layer counts were summed into a signed `int`, which overflowed to a negative number that was then passed to `std::vector::reserve`. The count is now 64-bit, and a total beyond what a `dgCMatrix` can index reports the limit and points at the layer classes that are not bound by it instead ([satijalab/seurat#10009](https://github.com/satijalab/seurat/issues/10009))
+- `LayerData` no longer copies the whole matrix when a layer is fetched in full, which made the cost of reading a layer scale with the number of cells ([#222](https://github.com/satijalab/seurat-object/issues/222))
 - Replace `future_mapply` with `mapply` in `RenameCells.Segmentation` for improved performance ([#294](https://github.com/satijalab/seurat-object/pull/294))
+- Fixed `SaveSeuratRds` failing with "Can't find path:" on an object whose on-disk layers have been joined: the joined layer records several store paths in one entry, and each of them has to be moved ([#283](https://github.com/satijalab/seurat-object/issues/283))
+- Fix `LoadSeuratRds` dropping on-disk (e.g. BPCells) layers when the object has been moved or shared: cached layer paths are now resolved relative to the rds file, so relative paths no longer depend on the working directory and absolute paths are still found when the store was moved alongside the rds ([satijalab/seurat#9798](https://github.com/satijalab/seurat/issues/9798))
+- Add `StitchMatrix.DelayedMatrix` so multi-layer `DelayedMatrix` (DelayedArray/HDF5Array) assays can be joined (`JoinLayers`), mirroring the existing `IterableMatrix` (BPCells) method ([satijalab/seurat#9798](https://github.com/satijalab/seurat/issues/9798))
 
 # SeuratObject 5.4.0
 
