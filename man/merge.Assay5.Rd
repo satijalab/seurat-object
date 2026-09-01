@@ -18,8 +18,9 @@
 provided to append to all cell names; if \code{TRUE}, uses \code{labels} as
 \code{add.cell.ids}}
 
-\item{collapse}{If \code{TRUE}, merge layers of the same name together; if
-\code{FALSE}, appends \code{labels} to the layer name}
+\item{collapse}{Not yet implemented: \code{TRUE} raises an error. When
+implemented, will merge layers of the same name together; \code{FALSE}, the
+default, appends \code{labels} to the layer name}
 
 \item{...}{Ignored}
 }

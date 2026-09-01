@@ -2107,12 +2107,31 @@ Idents.Seurat <- function(object, ...) {
     warn(message = 'Cannot find cells provided')
     return(object)
   }
-  idents.new <- if (length(x = value) == 1 && value %in% names(x = object[[]])) {
+  # I() marks a value as a literal identity, so a string that happens to match a
+  # meta data column is still used as itself
+  literal <- inherits(x = value, what = 'AsIs')
+  idents.new <- if (!literal &&
+                    length(x = value) == 1 &&
+                    value %in% names(x = object[[]])) {
     # unlist(x = object[[value]], use.names = FALSE)[cells]
     object[[value, drop = TRUE]][cells]
   } else {
     if (is.list(x = value)) {
       value <- unlist(x = value, use.names = FALSE)
+    }
+    # A bare string that is not a meta data column is usually meant to be one.
+    # Recycling it silently replaces every identity, which looks like a
+    # successful grouping until the levels are inspected
+    if (!literal &&
+        length(x = value) == 1L &&
+        is.character(x = value) &&
+        length(x = cells) > 1L) {
+      warn(message = paste0(
+        sQuote(x = value), " is not a column of this object's meta data, so ",
+        "every cell has been given it as its identity. Use ",
+        "`Idents(object) <- I(", encodeString(x = value, quote = '"'), ")` ",
+        "to set a literal identity without this warning."
+      ))
     }
     rep_len(x = value, length.out = length(x = cells))
   }
@@ -2440,6 +2459,22 @@ RenameCells.Seurat <- function(
   # Create a global mapping for all cell names in `object`.
   new.cell.names <- setNames(all.cells, all.cells)
   new.cell.names[cells.to.rename] <- new.names
+
+  # Cell names have to be unique. Without this the frames renamed below are
+  # given duplicate row names, and the error names neither the cells nor the
+  # renaming: "duplicate 'row.names' are not allowed"
+  if (anyDuplicated(x = new.cell.names)) {
+    repeated <- unique(x = new.cell.names[duplicated(x = new.cell.names)])
+    abort(message = paste0(
+      "Renaming would give the same name to more than one cell. ",
+      length(x = repeated),
+      " name",
+      ifelse(test = length(x = repeated) == 1L, yes = " is", no = "s are"),
+      " repeated: ",
+      paste(sQuote(x = head(x = repeated, n = 5L), q = FALSE), collapse = ", "),
+      if (length(x = repeated) > 5L) ", ..." else ""
+    ))
+  }
 
   # rename the cell-level metadata first to rename colname()
   old.meta.data <- object[[]]
@@ -2879,6 +2914,16 @@ WhichCells.Seurat <- function(
         expr.char %in% colnames(x = object[[]]) |
         grepl(pattern = key.pattern, x = expr.char, perl = TRUE)
     )
+    if (!length(x = vars.use)) {
+      # FetchData() would be asked for nothing, and report that none of the
+      # requested variables were found without naming any
+      abort(message = paste0(
+        "None of the names in the expression are in the object: ",
+        paste(sQuote(x = expr.char, q = FALSE), collapse = ", "),
+        ". They have to be features, meta data columns, or start with the key ",
+        "of a reduction"
+      ))
+    }
     data.subset <- FetchData(
       object = object,
       vars = unique(x = expr.char[vars.use]),

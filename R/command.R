@@ -68,11 +68,30 @@ LogSeuratCommand <- function(object, return.command = FALSE) {
   if (which.frame < 1) {
     stop("'LogSeuratCommand' cannot be called at the top level", call. = FALSE)
   }
-  if (as.character(x = sys.calls()[[1]])[1] == "do.call") {
-    call.string <- deparse(expr = sys.calls()[[1]])
-    command.name <- as.character(x = sys.calls()[[1]])[2]
+  frames <- sys.calls()
+  # Base evaluation wrappers sit between the calling function and this one and
+  # were being recorded as the command; walk past them to the real caller
+  wrappers <- c(
+    'withCallingHandlers', 'suppressWarnings', 'suppressMessages',
+    'tryCatch', 'tryCatchList', 'tryCatchOne', 'doTryCatch',
+    'try', 'eval', 'evalq', 'force'
+  )
+  while (which.frame > 1L &&
+         as.character(x = frames[[which.frame]])[1L] %in% wrappers) {
+    which.frame <- which.frame - 1L
+  }
+  # A function invoked through do.call() deparses as its own source, so the
+  # name has to come from the do.call frame that produced it. That frame is
+  # wherever it happens to be, not necessarily at the bottom of the stack
+  if (which.frame > 1L &&
+      as.character(x = frames[[which.frame - 1L]])[1L] == "do.call") {
+    which.frame <- which.frame - 1L
+  }
+  if (as.character(x = frames[[which.frame]])[1] == "do.call") {
+    call.string <- deparse(expr = frames[[which.frame]])
+    command.name <- as.character(x = frames[[which.frame]])[2]
   } else {
-    command.name <- as.character(x = deparse(expr = sys.calls()[[which.frame]]))
+    command.name <- as.character(x = deparse(expr = frames[[which.frame]]))
     command.name <- gsub(
       pattern = "\\.Seurat",
       replacement = "",

@@ -137,14 +137,61 @@ CreateSegmentation.data.frame <- function(coords, compact = FALSE) {
   idx <- NameIndex(x = coords, names = c('cell', 'x', 'y'), MARGIN = 2L)
   xy <- idx[c('x', 'y')]
   cell.idx <- idx[['cell']]
+  # sp reports missing coordinates as a bare "NA values in coordinates", naming
+  # neither the cells nor how many. The usual cause is a few bad rows in an
+  # otherwise usable segmentation file, so say which ones they are
+  incomplete <- !stats::complete.cases(coords[, xy, drop = FALSE])
+  if (any(incomplete)) {
+    bad <- unique(x = as.character(x = coords[[cell.idx]][incomplete]))
+    abort(message = paste0(
+      "NA values in coordinates for ", length(x = bad), " cell",
+      ifelse(test = length(x = bad) == 1L, yes = "", no = "s"), ": ",
+      paste(sQuote(x = utils::head(x = bad, n = 5L)), collapse = ", "),
+      ifelse(
+        test = length(x = bad) > 5L,
+        yes = paste0(", and ", length(x = bad) - 5L, " more"),
+        no = ""
+      ),
+      ". Remove or repair those rows before creating the segmentation."
+    ))
+  }
   coords <- split(x = coords, f = coords[[cell.idx]])
+  # sp warns once per degenerate polygon, again without naming it; report them
+  # together instead
+  small <- names(x = which(x = vapply(
+    X = coords,
+    FUN = nrow,
+    FUN.VALUE = integer(length = 1L)
+  ) < 4L))
+  if (length(x = small)) {
+    warn(message = paste0(
+      length(x = small), " cell",
+      ifelse(test = length(x = small) == 1L, yes = " has", no = "s have"),
+      " fewer than 4 boundary coordinates: ",
+      paste(sQuote(x = utils::head(x = small, n = 5L)), collapse = ", "),
+      ifelse(
+        test = length(x = small) > 5L,
+        yes = paste0(", and ", length(x = small) - 5L, " more"),
+        no = ""
+      )
+    ))
+  }
   coords <- sapply(
     X = coords,
     FUN = function(x) {
       cx <- as.matrix(x = x[, xy])
       colnames(x = cx) <- c('x', 'y')
+      poly <- withCallingHandlers(
+        expr = Polygon(coords = cx),
+        warning = function(w) {
+          # reported above, per cell, rather than anonymously per polygon
+          if (grepl(pattern = 'less than 4 coordinates', x = conditionMessage(w))) {
+            invokeRestart(r = 'muffleWarning')
+          }
+        }
+      )
       return(Polygons(
-        srl = list(Polygon(coords = cx)),
+        srl = list(poly),
         ID = unique(x = as.character(x = x[[cell.idx]]))
       ))
     }

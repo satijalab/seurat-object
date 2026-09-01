@@ -32,6 +32,7 @@ setClass(
 #' @rdname LogMap-class
 #'
 #' @param y A character vector
+#' @param what What the names describe, used in the duplicate-names error
 #'
 #' @return \code{LogMap}: A new \code{LogMap} object with zero columns and
 #' \code{length(x = x)} rows; rownames are set to \code{x}
@@ -68,9 +69,26 @@ setClass(
 #' map[['entry']] <- NULL
 #' map
 #'
-LogMap <- function(y) {
+LogMap <- function(y, what = 'names') {
   if (!is.character(x = y)) {
     y <- as.character(x = y)
+  }
+  # Duplicates otherwise surface as a validity failure naming the internal
+  # LogMap class, which says nothing about features, cells, or what to do
+  if (anyDuplicated(x = y)) {
+    dups <- unique(x = y[duplicated(x = y)])
+    abort(message = paste0(
+      "Duplicate ", what, " are not allowed; ", length(x = dups),
+      ifelse(test = length(x = dups) == 1L, yes = " is", no = " are"),
+      " repeated: ",
+      paste(sQuote(x = utils::head(x = dups, n = 5L)), collapse = ", "),
+      ifelse(
+        test = length(x = dups) > 5L,
+        yes = paste0(", and ", length(x = dups) - 5L, " more"),
+        no = ""
+      ),
+      ". Use make.unique() on them before creating the object."
+    ))
   }
   return(new(
     Class = 'LogMap',

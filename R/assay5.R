@@ -398,8 +398,8 @@ CreateAssay5Object <- function(
     Class = type,
     layers = list(),
     default = 0L,
-    features = LogMap(y = features.all),
-    cells = LogMap(y = cells.all),
+    features = LogMap(y = features.all, what = 'features'),
+    cells = LogMap(y = cells.all, what = 'cell names'),
     meta.data = EmptyDF(n = length(x = features.all)),
     misc = list(calcN = calcN_option %||% TRUE),
     ...
@@ -2179,8 +2179,9 @@ merge.StdAssay <- function(
 #' @param add.cell.ids A character vector equal to the number of objects
 #' provided to append to all cell names; if \code{TRUE}, uses \code{labels} as
 #' \code{add.cell.ids}
-#' @param collapse If \code{TRUE}, merge layers of the same name together; if
-#' \code{FALSE}, appends \code{labels} to the layer name
+#' @param collapse Not yet implemented: \code{TRUE} raises an error. When
+#' implemented, will merge layers of the same name together; \code{FALSE},
+#' the default, appends \code{labels} to the layer name
 #'
 #' @return A new v5 assay with data merged from \code{c(x, y)}
 #'
@@ -2920,8 +2921,8 @@ setAs(
     # Initialize the new object
     to <- new(
       Class = 'Assay5',
-      cells = LogMap(y = colnames(x = from)),
-      features = LogMap(y = rownames(x = from)),
+      cells = LogMap(y = colnames(x = from), what = 'cell names'),
+      features = LogMap(y = rownames(x = from), what = 'features'),
       assay.orig = DefaultAssay(object = from) %||% character(length = 0L),
       meta.data = EmptyDF(n = nrow(x = from)),
       key = Key(object = from)

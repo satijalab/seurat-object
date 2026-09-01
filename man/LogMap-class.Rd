@@ -13,7 +13,7 @@
 \alias{LogMap-class}
 \title{A Logical Map}
 \usage{
-LogMap(y)
+LogMap(y, what = "names")
 
 \S4method{[[}{LogMap,character,missing}(x, i, j, ...)
 
@@ -31,6 +31,8 @@ LogMap(y)
 }
 \arguments{
 \item{y}{A character vector}
+
+\item{what}{What the names describe, used in the duplicate-names error}
 
 \item{x}{A \code{LogMap} object}
 
