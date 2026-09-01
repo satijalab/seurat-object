@@ -350,9 +350,7 @@ FetchData.Assay <- function(
   layer <- match.arg(arg = layer, choices = c('counts', 'data', 'scale.data'))
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
-  if (is.numeric(x = cells)) {
-    cells <- colnames(x = object)[cells]
-  }
+  cells <- .CellSelection(cells = cells, all = colnames(x = object))
   cells.orig <- cells
   cells <- intersect(x = cells, y = colnames(x = object))
   if (length(x = cells) != length(x = cells.orig)) {
@@ -479,7 +477,18 @@ HVFInfo.Assay <- function(
   )
   colnames(x = hvf.info) <- vars
   if (status) {
-    hvf.info$variable <- object[[paste0(method, '.variable')]]
+    status.column <- paste0(method, '.variable')
+    if (!status.column %in% colnames(x = object[[]])) {
+      abort(message = paste0(
+        "Unable to find highly variable feature information for method '",
+        method, "': the assay has no ", sQuote(x = status.column, q = FALSE),
+        " column. Run FindVariableFeatures(selection.method = '", method,
+        "') first"
+      ))
+    }
+    # drop, otherwise the column is a one-column data frame and anything that
+    # sorts or subsets on it fails with "cannot xtfrm data frames"
+    hvf.info$variable <- object[[status.column, drop = TRUE]]
   }
   return(hvf.info)
 }
@@ -725,6 +734,20 @@ Misc.Assay <- .Misc
 #' @method Misc<- Assay
 #'
 "Misc<-.Assay" <- `.Misc<-`
+#' @details
+#' \code{JoinLayers.Assay}: v3 assays hold a single counts, data and scale.data
+#' matrix rather than layers, so there is nothing to join and the assay is
+#' returned unchanged. This includes SCT assays, which stay v3 when merged; the
+#' error that used to come back instead named a class rather than saying so
+#'
+#' @rdname JoinLayers
+#' @method JoinLayers Assay
+#' @export
+#'
+JoinLayers.Assay <- function(object, layers = NULL, new = NULL, ...) {
+  return(object)
+}
+
 
 #' @param new.names vector of new cell names
 #'
@@ -746,7 +769,9 @@ RenameCells.Assay <- function(object, new.names = NULL, ...) {
   names(new.names) <- NULL
   for (data.slot in c("counts", "data", "scale.data")) {
     old.data <- GetAssayData(object = object, layer = data.slot)
-    if (ncol(x = old.data) <= 1) {
+    # Skip layers that hold nothing; a layer with a single cell still has a
+    # column name to replace
+    if (!ncol(x = old.data)) {
       next
     }
     colnames(x = slot(object = object, name = data.slot)) <- new.names
@@ -878,9 +903,9 @@ SpatiallyVariableFeatures.Assay <- function(
     method <- selection.method
   }
   vf <- SVFInfo(object = object, method = method, status = TRUE)
-  vf <- vf[rownames(vf)[which(vf[, "variable"][, 1])], ]
+  vf <- vf[rownames(vf)[which(x = vf[["variable"]])], ]
   if (!is.null(x = decreasing)) {
-    vf <- vf[order(vf[, "rank"][, 1], decreasing = !decreasing), ]
+    vf <- vf[order(vf[["rank"]], decreasing = !decreasing), ]
   }
   return(rownames(vf))
 }
@@ -933,8 +958,21 @@ SVFInfo.Assay <- function(
   )
   colnames(x = svf.info) <- vars
   if (status) {
-    svf.info$variable <- object[[paste0(method, ".spatially.variable")]]
-    svf.info$rank <- object[[paste0(method, ".spatially.variable.rank")]]
+    status.columns <- paste0(method, c(".spatially.variable", ".spatially.variable.rank"))
+    missing <- setdiff(x = status.columns, y = colnames(x = object[[]]))
+    if (length(x = missing)) {
+      # otherwise the lookup fails with "undefined columns selected", which
+      # says nothing about what has not been run
+      abort(message = paste0(
+        "Unable to find spatially variable feature information for method '",
+        method, "': the assay has no ", paste(sQuote(x = missing, q = FALSE), collapse = " or "),
+        " column. Run FindSpatiallyVariableFeatures(selection.method = '",
+        method, "') first"
+      ))
+    }
+    # drop, as for HVFInfo() above
+    svf.info$variable <- object[[status.columns[1L], drop = TRUE]]
+    svf.info$rank <- object[[status.columns[2L], drop = TRUE]]
   }
   return(svf.info)
 }
@@ -964,7 +1002,7 @@ VariableFeatures.Assay <- function(
       method = method,
       status = TRUE
     )
-    return(rownames(x = vf)[which(x = vf[, "variable"][, 1])])
+    return(rownames(x = vf)[which(x = vf[["variable"]])])
   }
   return(slot(object = object, name = 'var.features'))
 }
@@ -1536,8 +1574,11 @@ setMethod(
     meta.data <- x[[]]
     feature.names <- rownames(x = meta.data)
     if (is.data.frame(x = value)) {
+      # seq_len, not 1:ncol: a data frame with no columns is a valid input here
+      # (an assay that has no feature-level metadata yet), and 1:0 would walk
+      # indices 1 and 0
       value <- lapply(
-        X = 1:ncol(x = value),
+        X = seq_len(length.out = ncol(x = value)),
         FUN = function(index) {
           v <- value[[index]]
           names(x = v) <- rownames(x = value)

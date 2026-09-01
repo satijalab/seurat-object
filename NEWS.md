@@ -1,7 +1,19 @@
 # Unreleased
 
 ## Changes:
+- Fix `CellsByIdentities` returning `NA` entries inside every identity group, and inflating their sizes, when some cells have an `NA` identity ([#186](https://github.com/satijalab/seurat-object/issues/186))
+- `LayerData<-` now names the features whose data is discarded when replacing a layer, instead of only warning that the features differ ([#173](https://github.com/satijalab/seurat-object/issues/173))
+- Fix `as(assay, "Assay")` and `assay[[]] <- ` failing with `subscript out of bounds` when a v5 assay has no feature-level metadata yet, e.g. before `FindVariableFeatures` has been run: an empty metadata frame was iterated with `1:ncol()`, which walks indices 1 and 0 ([satijalab/seurat#9138](https://github.com/satijalab/seurat/issues/9138))
+- Fix `RenameCells` on a v5 assay returning `NA` for every cell when `new.names` is an unnamed vector, which is the documented form; and on a v3 assay silently leaving a single-cell assay unrenamed ([#39](https://github.com/satijalab/seurat-object/issues/39))
 - Replace `future_mapply` with `mapply` in `RenameCells.Segmentation` for improved performance ([#294](https://github.com/satijalab/seurat-object/pull/294))
+- `JoinLayers` now returns a v3 assay unchanged, since it holds single matrices rather than layers, instead of reporting \dQuote{no applicable method for 'JoinLayers' applied to an object of class \dQuote{SCTAssay}}; merging SCT objects leaves an assay that is still v3, so this is what `JoinLayers` on a merged object hits ([#9211](https://github.com/satijalab/seurat/issues/9211))
+- Cells and features can now be selected with a logical mask, as `[` already allowed: `subset()` and `WhichCells()` resolved positions to names but passed a mask through untouched, so it matched no name and the selection silently became every cell or none ([#274](https://github.com/satijalab/seurat-object/issues/274))
+- Fixed adding feature-level meta data to a v5 assay from an unnamed vector, which was named by its own values and then rejected with "No feature overlap between new meta data and assay" ([#125](https://github.com/satijalab/seurat-object/issues/125))
+- Fixed `Key` failing with "values must be length 1" on an object that holds an assay, reduction or image with no key, which took down `FetchData` and everything that plots ([#41](https://github.com/satijalab/seurat-object/issues/41))
+- Adding cell-level meta data from an unnamed vector whose length is neither one nor the number of cells is now an error; it was recycled silently, so cells were given values belonging to other cells
+- Subsetting a reduction now subsets the embedding of a stored UMAP model with it. The model was left describing the cells the reduction no longer has, so projecting a query onto a subset reference placed it against the wrong coordinates ([satijalab/seurat#10445](https://github.com/satijalab/seurat/issues/10445))
+- `HVFInfo(status = TRUE)` and `SVFInfo(status = TRUE)` now return their status columns as vectors rather than as nested one-column data frames, so sorting or subsetting on them no longer fails with "cannot xtfrm data frames" ([satijalab/seurat#7422](https://github.com/satijalab/seurat/issues/7422))
+- `HVFInfo` and `SVFInfo` now say which method has not been run when the information they are asked for is not in the assay, instead of reporting "undefined columns selected" ([satijalab/seurat#7034](https://github.com/satijalab/seurat/issues/7034))
 
 # SeuratObject 5.4.0
 

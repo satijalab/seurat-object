@@ -228,9 +228,7 @@ FetchData.DimReduc <- function(
   slot <- slot[1L]
   slot <- match.arg(arg = slot)
   cells <- cells %||% Cells(x = object)
-  if (is.numeric(x = cells)) {
-    cells <- Cells(x = object)[cells]
-  }
+  cells <- .CellSelection(cells = cells, all = Cells(x = object))
   pattern <- paste0('^(', Key(object = object), ')?[[:digit:]]+$')
   vars <- grep(pattern = pattern, x = vars, value = TRUE)
   if (!length(x = 'vars')) {
@@ -285,9 +283,7 @@ FetchData.DimReduc <- function(
   layer <- 'embeddings'
   layer <- arg_match0(arg = layer, values = 'embeddings')
   cells <- cells %||% Cells(x = object)
-  if (is.numeric(x = cells)) {
-    cells <- Cells(x = object)[cells]
-  }
+  cells <- .CellSelection(cells = cells, all = Cells(x = object))
   cells <- intersect(x = cells, y = Cells(x = object))
   if (!length(x = cells)) {
     abort(message = "None of the cells requested found in this dimensional reduction")
@@ -879,9 +875,7 @@ subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
   slot(object = x, name = 'cell.embeddings') <- if (is.null(x = cells)) {
     new(Class = 'matrix')
   } else {
-    if (is.numeric(x = cells)) {
-      cells <- Cells(x = x)[cells]
-    }
+    cells <- .CellSelection(cells = cells, all = Cells(x = x))
     cells <- intersect(x = Cells(x = x), y = cells)
     if (length(x = cells) == 0) {
       stop("Cannot find cell provided", call. = FALSE)
@@ -916,7 +910,43 @@ subset.DimReduc <- function(x, cells = NULL, features = NULL, ...) {
     Loadings(object = x, projected = TRUE)[features.projected, , drop = FALSE]
   }
   slot(object = x, name = 'jackstraw') <- new(Class = 'JackStrawData')
+  x <- .SubsetReductionModel(object = x)
   return(x)
+}
+
+# Keep a stored model in step with the cells the reduction has
+#
+# A UMAP built with `return.model = TRUE` keeps the embedding it was fit on in
+# `misc$model`. Subsetting the reduction left that untouched, so the model and
+# the reduction described different sets of cells, and projecting a query onto
+# the reduction placed it against the wrong coordinates without any warning
+#
+# @param object A DimReduc
+#
+# @return \code{object}, with any per-cell part of its model subset to the
+# cells the reduction has
+#
+# @keywords internal
+#
+# @noRd
+#
+.SubsetReductionModel <- function(object) {
+  model <- Misc(object = object, slot = 'model')
+  embedding <- model$embedding
+  if (is.null(x = embedding) || is.null(x = rownames(x = embedding))) {
+    return(object)
+  }
+  cells <- Cells(x = object)
+  if (identical(x = rownames(x = embedding), y = cells)) {
+    return(object)
+  }
+  keep <- intersect(x = cells, y = rownames(x = embedding))
+  if (!length(x = keep)) {
+    return(object)
+  }
+  model$embedding <- embedding[keep, , drop = FALSE]
+  Misc(object = object, slot = 'model') <- model
+  return(object)
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

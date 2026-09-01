@@ -1881,6 +1881,40 @@ safeValidityCheck <- function(object) {
   )
   return(f)
 }
+#' Interpret a Cell Selection Given as Positions or a Mask
+#'
+#' Cell arguments accept names, positions, or a logical mask, in the way
+#' \code{[} does. Positions have always been resolved to names; a mask was
+#' passed through unchanged and then compared against cell names, so it matched
+#' nothing and the selection silently became every cell, or no cell at all
+#'
+#' @param cells Cells to select: names, positions, or a logical mask
+#' @param all The cells being selected from, in order
+#'
+#' @return \code{cells} as names
+#'
+#' @keywords internal
+#'
+#' @noRd
+#'
+.CellSelection <- function(cells, all) {
+  if (is.logical(x = cells)) {
+    if (length(x = cells) != length(x = all)) {
+      abort(message = paste0(
+        "A logical selection must have one value per cell: ",
+        length(x = cells),
+        " provided for ",
+        length(x = all),
+        " cells"
+      ))
+    }
+    cells <- all[which(x = cells)]
+  } else if (is.numeric(x = cells)) {
+    cells <- all[cells]
+  }
+  return(cells)
+}
+
 
 #' @rdname dot-FilePath
 #' @method .FilePath default

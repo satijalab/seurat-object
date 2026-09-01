@@ -193,7 +193,9 @@ CellsByIdentities <- function(
   cells.idents <- sapply(
     X = idents,
     FUN = function(i) {
-      return(cells[as.vector(x = Idents(object = object)[cells]) == i])
+      # which() rather than the logical vector directly: comparing an NA
+      # identity with `i` gives NA, which would index an NA into every group
+      return(cells[which(x = as.vector(x = Idents(object = object)[cells]) == i)])
     },
     simplify = FALSE,
     USE.NAMES = TRUE
@@ -1625,9 +1627,7 @@ FetchData.Seurat <- function(
   clean <- arg_match0(arg = clean, values = c('all', 'ident', 'none', 'project'))
   # Find cells to use
   cells <- cells %||% colnames(x = object)
-  if (is.numeric(x = cells)) {
-    cells <- colnames(x = object)[cells]
-  }
+  cells <- .CellSelection(cells = cells, all = colnames(x = object))
   if (is.null(x = vars)) {
     return(data.frame(row.names = cells))
   }
@@ -2098,9 +2098,7 @@ Idents.Seurat <- function(object, ...) {
     abort(message = "'value' must be a factor or vector")
   }
   cells <- cells %||% names(x = value) %||% colnames(x = object)
-  if (is.numeric(x = cells)) {
-    cells <- colnames(x = object)[cells]
-  }
+  cells <- .CellSelection(cells = cells, all = colnames(x = object))
   cells <- intersect(x = cells, y = colnames(x = object))
   # cells <- match(x = cells, table = colnames(x = object))
   if (!length(x = cells)) {
@@ -2187,7 +2185,13 @@ Key.Seurat <- function(object, ...) {
         object = object,
         classes.keep = c('SpatialImage', 'KeyMixin')
       ),
-      FUN = \(x) Key(object = object[[x]]),
+      FUN = \(x) {
+        key <- Key(object = object[[x]])
+        # an object stored with no key at all, which objects made before keys
+        # were enforced still carry; NA is what the rest of the code expects
+        # for one, see the duplicate-key handling in `[[<-`
+        if (!length(x = key)) NA_character_ else key
+      },
       FUN.VALUE = character(length = 1L),
       USE.NAMES = TRUE
     )
@@ -2830,9 +2834,7 @@ WhichCells.Seurat <- function(
   }
   object <- UpdateSlots(object = object)
   cells <- cells %||% colnames(x = object)
-  if (is.numeric(x = cells)) {
-    cells <- colnames(x = object)[cells]
-  }
+  cells <- .CellSelection(cells = cells, all = colnames(x = object))
   cell.order <- cells
   if (!is.null(x = idents)) {
     if (any(!idents %in% levels(x = Idents(object = object)))) {
@@ -4729,7 +4731,16 @@ setMethod(
     }
     # Add a column of cell-level meta data
     if (is.null(x = names(x = value))) {
-      # Handle cases where new meta data is unnamed
+      # Handle cases where new meta data is unnamed. Only a single value is
+      # recycled: any other length is a mismatch, and recycling it silently
+      # gives cells values that belong to other cells
+      if (length(x = value) != 1L && length(x = value) != ncol(x = x)) {
+        abort(message = paste0(
+          "Cannot add ", length(x = value), " values as meta data for ",
+          ncol(x = x), " cells. Give one value per cell, in the object's cell ",
+          "order, or name the values by cell"
+        ))
+      }
       value <- rep_len(x = value, length.out = ncol(x = x))
       names(x = value) <- colnames(x = x)
     } else {
@@ -5229,7 +5240,16 @@ setMethod(
     }
     # Add a column of cell-level meta data
     if (is.null(x = names(x = value))) {
-      # Handle cases where new meta data is unnamed
+      # Handle cases where new meta data is unnamed. Only a single value is
+      # recycled: any other length is a mismatch, and recycling it silently
+      # gives cells values that belong to other cells
+      if (length(x = value) != 1L && length(x = value) != ncol(x = x)) {
+        abort(message = paste0(
+          "Cannot add ", length(x = value), " values as meta data for ",
+          ncol(x = x), " cells. Give one value per cell, in the object's cell ",
+          "order, or name the values by cell"
+        ))
+      }
       value <- rep_len(x = value, length.out = ncol(x = x))
       names(x = value) <- colnames(x = x)
     } else {

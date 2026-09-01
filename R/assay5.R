@@ -740,9 +740,7 @@ FetchData.StdAssay <- function(
 
   # Identify cells to use
   cells <- cells %||% colnames(x = object)
-  if (is.numeric(x = cells)) {
-    cells <- colnames(x = object)[cells]
-  }
+  cells <- .CellSelection(cells = cells, all = colnames(x = object))
   cells <- intersect(x = cells, y = colnames(x = object))
   if (!length(x = cells)) {
     abort(message = "None of the cells requested found in this assay")
@@ -1187,9 +1185,7 @@ LayerData.StdAssay <- function(
     Cells(x = object, layer = layer)
   )
   cells <- cells %||% dnames[[2L]]
-  if (is.numeric(x = cells)) {
-    cells <- dnames[[2L]][cells]
-  }
+  cells <- .CellSelection(cells = cells, all = dnames[[2L]])
   cells <- sort(x = MatchCells(
     new = dnames[[2L]],
     orig = cells,
@@ -1381,9 +1377,36 @@ LayerData.Assay5 <- LayerData.StdAssay
       cells
     }
     if (!identical(x = fcheck, y = Features(x = object, layer = layer))) {
+      # Features the assay does not know about were dropped above. Replacing a
+      # layer with data whose features differ therefore stores fewer rows than
+      # were handed over, and the assay goes on advertising features the layer
+      # can no longer supply, so name what is being lost rather than only
+      # noting that something differs
+      dropped <- if (is.character(x = fcheck)) {
+        setdiff(x = attr(x = value, which = 'features') %||% character(), y = fcheck)
+      } else {
+        character()
+      }
       warning(
         "Different features in new layer data than already exists for ",
         layer,
+        if (length(x = dropped)) {
+          paste0(
+            "; ", length(x = dropped),
+            ifelse(test = length(x = dropped) == 1L, yes = " feature is", no = " features are"),
+            " not in the assay and the data supplied for ",
+            ifelse(test = length(x = dropped) == 1L, yes = "it", no = "them"),
+            " was discarded: ",
+            paste(sQuote(x = utils::head(x = dropped, n = 5L)), collapse = ", "),
+            ifelse(
+              test = length(x = dropped) > 5L,
+              yes = paste0(", and ", length(x = dropped) - 5L, " more"),
+              no = ""
+            )
+          )
+        } else {
+          ""
+        },
         call. = FALSE,
         immediate. = TRUE
       )
@@ -1504,7 +1527,21 @@ Misc.Assay5 <- .Misc
 #'
 RenameCells.StdAssay <- function(object, new.names = NULL, ...) {
   CheckDots(...)
-  colnames(object) <- new.names[colnames(object)]
+  # `new.names` is documented as a vector of new cell names, in order, and that
+  # is how RenameCells() is called from outside. It is also used internally with
+  # a vector named by the old cell names, as a lookup table. Support both: with
+  # an unnamed vector the lookup silently yields NA for every cell
+  if (is.null(x = names(x = new.names))) {
+    if (length(x = new.names) != ncol(x = object)) {
+      abort(message = paste0(
+        "'new.names' must have one entry per cell: ",
+        ncol(x = object), " expected, ", length(x = new.names), " provided"
+      ))
+    }
+    colnames(x = object) <- new.names
+  } else {
+    colnames(x = object) <- new.names[colnames(x = object)]
+  }
   return(object)
 }
 
@@ -2390,6 +2427,21 @@ subset.StdAssay <- function(
 ) {
   # define an inner function to validate the `cells` and `features` params
   .validate_param <- function(name, values, allowed) {
+    # a logical mask selects by position, the way `[` does; it has to be
+    # resolved before NAs are dropped, since dropping one shifts the rest
+    if (is.logical(x = values) && !all(is.na(x = values))) {
+      if (length(x = values) != length(x = allowed)) {
+        stop(
+          paste0(
+            "A logical selection must have one value per ",
+            sub(pattern = "s$", replacement = "", x = name), ": ",
+            length(x = values), " provided for ", length(x = allowed), " ", name
+          ),
+          call. = FALSE
+        )
+      }
+      values <- allowed[which(x = values)]
+    }
     # if `values` is null or contains only null values, keep all allowed values
     if (all(is.na(values))) {
       values <- allowed
@@ -3161,10 +3213,17 @@ setMethod(
     } else {
       # Add a single column of metadata
       if (is.null(x = names(x = value))) {
-        if (length(x = unique(x = value)) == 1) {
+        if (length(x = value) == nrow(x = x) &&
+            !all(value %in% Features(x = x, layer = NA))) {
+          # an unnamed vector as long as the assay has features is taken in
+          # feature order, as it is for an v3 assay and for cell-level meta data
+          names(x = value) <- Features(x = x, layer = NA)
+        } else if (length(x = unique(x = value)) == 1) {
           value <- rep_len(x = value, length.out = nrow(x = x))
           names(x = value) <- Features(x = x, layer = NA)
         } else {
+          # values that are themselves feature names, as VariableFeatures<-
+          # stores them
           names(x = value) <- value
         }
       }
@@ -3173,7 +3232,13 @@ setMethod(
         y = Features(x = x, layer = NA)
       )
       if (!length(x = names.intersect)) {
-        abort(message = "No feature overlap between new meta data and assay")
+        abort(message = paste0(
+          "No feature overlap between new meta data and assay. Feature-level ",
+          "meta data must either be named by features, be as long as the assay ",
+          "has features (", nrow(x = x), ") to be taken in feature order, or ",
+          "hold feature names; this is of length ", length(x = value),
+          " with no names"
+        ))
       }
       value <- value[names.intersect]
       df <- EmptyDF(n = nrow(x = x))
